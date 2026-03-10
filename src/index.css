@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #f4f1eb;
+  --color-text-primary: #151515;
+  --color-text-secondary: #6f6a63;
+  --color-bg-dark: #1a1a1a;
+  --color-text-light: #f4f1eb;
+  --color-cta-hover: #c8b6a6;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-text-primary text-bg-primary font-medium transition-colors hover:bg-cta-hover hover:text-text-primary;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full border border-text-primary text-text-primary font-medium transition-colors hover:bg-text-primary hover:text-bg-primary;
+  }
+
+  .section-spacing {
+    @apply py-[100px];
+  }
+
+  .container-custom {
+    @apply w-full max-w-[1200px] mx-auto px-6;
+  }
+
+  .card-rounded {
+    @apply rounded-[16px];
+  }
+}

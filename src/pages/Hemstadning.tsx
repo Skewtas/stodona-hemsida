@@ -117,7 +117,7 @@ export default function Hemstadning() {
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
-                  src="/stodona_right_image.png" 
+                  src="/stodona_right_image.jpg" 
                   alt="Hemstädning i Stockholm" 
                   className="w-full h-full object-cover"
                 />

@@ -51,7 +51,7 @@ export default function Fonsterputsning() {
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
-                  src="/fonster-stodona.png" 
+                  src="/fonster-stodona.jpg" 
                   alt="Fönsterputsning i Stockholm" 
                   className="w-full h-full object-cover"
                 />

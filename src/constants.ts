@@ -196,19 +196,19 @@ export const SERVICE_CARDS = [
   {
     title: "Hemstädning",
     description: "Regelbunden städning för ett fräscht hem.",
-    image: "/stodona_right_image.png",
+    image: "/stodona_right_image.jpg",
     link: "/hemstadning",
   },
   {
     title: "Flyttstädning",
     description: "Grundlig städning inför flytt.",
-    image: "/stodona_left_image.png",
+    image: "/stodona_left_image.jpg",
     link: "/flyttstadning",
   },
   {
     title: "Fönsterputsning",
     description: "Få skinande rena fönster.",
-    image: "/fonster-stodona.png",
+    image: "/fonster-stodona.jpg",
     link: "/fonsterputsning",
   },
   {
@@ -220,31 +220,31 @@ export const SERVICE_CARDS = [
   {
     title: "Kontorsstädning",
     description: "Håll rent på kontoret.",
-    image: "/kontorsstadning.png",
+    image: "/kontorsstadning.jpg",
     link: "/foretagsstadning",
   },
   {
     title: "Byggstädning",
     description: "Städning efter byggprojekt.",
-    image: "/byggstadning.png",
+    image: "/byggstadning.jpg",
     link: "/byggstadning",
   },
   {
     title: "Företagsstädning",
     description: "Professionell städning för alla typer av företag.",
-    image: "/Gemini_Generated_Image_5j5lsf5j5lsf5j5l.png",
+    image: "/Gemini_Generated_Image_5j5lsf5j5lsf5j5l.jpg",
     link: "/foretagsstadning",
   },
   {
     title: "Trappstädning",
     description: "Rena och trygga trapphus för boende och besökare.",
-    image: "/Trappstadning stodona.png",
+    image: "/Trappstadning stodona.jpg",
     link: "/trappstadning",
   },
   {
     title: "Bod/etableringsstädning",
     description: "Städning av manskapsbodar och etableringsytor.",
-    image: "/Bodstadning stodona.png",
+    image: "/Bodstadning stodona.jpg",
     link: "/bodstadning",
   },
 ];

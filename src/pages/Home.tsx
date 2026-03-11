@@ -157,7 +157,7 @@ export default function Home() {
             >
               <div className="relative rounded-[40px] overflow-hidden shadow-2xl shadow-black/5">
                 <img
-                  src="/familj-stodona.png"
+                  src="/familj-stodona.jpg"
                   alt="Glad familj hemma med Stodona"
                   className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"

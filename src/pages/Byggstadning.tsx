@@ -95,7 +95,7 @@ export default function Byggstadning() {
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
-                  src="/byggstadning.png" 
+                  src="/byggstadning.jpg" 
                   alt="Byggstädning i Stockholm" 
                   className="w-full h-full object-cover"
                 />

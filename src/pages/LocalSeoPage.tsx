@@ -15,7 +15,17 @@ interface LocalSeoPageProps {
 export default function LocalSeoPage({ baseService, areaName, description, heroImage, subAreas }: LocalSeoPageProps) {
   const { area } = useParams<{ area: string }>();
   const displayAreaName = areaName || (area ? area.charAt(0).toUpperCase() + area.slice(1) : 'Okänt område');
-  const displayBaseService = baseService.charAt(0).toUpperCase() + baseService.slice(1);
+  const serviceNameMap: Record<string, string> = {
+    hemstadning: 'Hemstädning',
+    flyttstadning: 'Flyttstädning',
+    storstadning: 'Storstädning',
+    foretagsstadning: 'Företagsstädning',
+    byggstadning: 'Byggstädning',
+    trappstadning: 'Trappstädning',
+    bodstadning: 'Bod/etableringsstädning',
+    fonsterputsning: 'Fönsterputsning'
+  };
+  const displayBaseService = serviceNameMap[baseService.toLowerCase()] || (baseService.charAt(0).toUpperCase() + baseService.slice(1).replace(/stadning/i, 'städning'));
 
   return (
     <div className="flex flex-col">
@@ -53,94 +63,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
         </div>
       </section>
 
-      {/* Sub-areas / More Info */}
-      {subAreas && subAreas.length > 0 && (
-        <section className="section-spacing bg-white">
-          <div className="container-custom">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-              className="text-center max-w-2xl mx-auto mb-12"
-            >
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                Vi täcker även <span className="text-cta-hover">underområden</span> i {displayAreaName}
-              </h2>
-              <p className="text-text-secondary text-lg">
-                Vårt team är redo att hjälpa dig oavsett var i {displayAreaName} du bor.
-              </p>
-            </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {subAreas.map((subArea, index) => (
-                <motion.div
-                  key={subArea.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                >
-                  <Link
-                    to={subArea.link}
-                    className="flex items-center justify-center gap-3 p-4 bg-bg-primary rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-                  >
-                    <MapPin className="w-5 h-5 text-text-secondary group-hover:text-cta-hover transition-colors" />
-                    <span className="text-lg font-medium text-text-primary group-hover:text-cta-hover transition-colors">
-                      {subArea.name}
-                    </span>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
-      {/* Sub-areas / More Info */}
-      {subAreas && subAreas.length > 0 && (
-        <section className="section-spacing bg-white">
-          <div className="container-custom">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-              className="text-center max-w-2xl mx-auto mb-12"
-            >
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                Vi täcker även <span className="text-cta-hover">underområden</span> i {displayAreaName}
-              </h2>
-              <p className="text-text-secondary text-lg">
-                Vårt team är redo att hjälpa dig oavsett var i {displayAreaName} du bor.
-              </p>
-            </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {subAreas.map((subArea, index) => (
-                <motion.div
-                  key={subArea.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                >
-                  <Link
-                    to={subArea.link}
-                    className="flex items-center justify-center gap-3 p-4 bg-bg-primary rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-                  >
-                    {/* Use MapPin or a generic icon if Home is not imported */}
-                    <MapPin className="w-5 h-5 text-text-secondary group-hover:text-cta-hover transition-colors" />
-                    <span className="text-lg font-medium text-text-primary group-hover:text-cta-hover transition-colors">
-                      {subArea.name}
-                    </span>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Content Section - What's included */}
       <section className="section-spacing bg-white">
@@ -337,6 +262,50 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           </div>
         </div>
       </section>
+
+      {/* Sub-areas / More Info */}
+      {subAreas && subAreas.length > 0 && (
+        <section className="section-spacing bg-white">
+          <div className="container-custom">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="text-center max-w-2xl mx-auto mb-12"
+            >
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                Vi täcker även <span className="text-cta-hover">underområden</span> i {displayAreaName}
+              </h2>
+              <p className="text-text-secondary text-lg">
+                Vårt team är redo att hjälpa dig oavsett var i {displayAreaName} du bor.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {subAreas.map((subArea, index) => (
+                <motion.div
+                  key={subArea.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                >
+                  <Link
+                    to={subArea.link}
+                    className="flex items-center justify-center gap-3 p-4 bg-bg-primary rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+                  >
+                    <MapPin className="w-5 h-5 text-text-secondary group-hover:text-cta-hover transition-colors" />
+                    <span className="text-lg font-medium text-text-primary group-hover:text-cta-hover transition-colors">
+                      {subArea.name}
+                    </span>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* General CTA */}
       <section className="py-20 bg-cta-hover text-white relative overflow-hidden">

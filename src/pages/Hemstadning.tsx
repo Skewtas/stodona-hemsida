@@ -9,7 +9,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Hemstadning() {
@@ -17,6 +17,13 @@ export default function Hemstadning() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/stodona_right_image.jpg" 
+            alt="Hemstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -102,7 +109,7 @@ export default function Hemstadning() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <BokahemWidget />
+            <QuickBookingWidget />
           </div>
         </div>
       </section>
@@ -272,7 +279,7 @@ export default function Hemstadning() {
             {[
               {
                 q: "Har ni med er eget städmaterial?",
-                a: "Ja, vi tar med oss allt städmaterial och alla rengöringsprodukter som behövs. Vi använder miljövänliga och professionella produkter för bästa resultat. Det enda du behöver tillhandahålla är en fungerande dammsugare.",
+                a: "Nej, vid hemstädning använder vi som standard kundens städmaterial. Du behöver tillhandahålla dammsugare, mopp och hink, 3 mikrofiberdukar, svamp med vit yta samt rengöringsmedel. Vi kan dock tillhandahålla allt städmaterial mot en tilläggskostnad på 499 kr (då kör vi ut materialet med bil).",
               },
               {
                 q: "Är det samma person som städar varje gång?",

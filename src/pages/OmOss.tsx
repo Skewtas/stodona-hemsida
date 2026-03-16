@@ -8,6 +8,13 @@ export default function OmOss() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/familj-stodona.jpg" 
+            alt="Om Stodona Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -16,7 +23,8 @@ export default function OmOss() {
               transition={{ duration: 0.6 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
             >
-              Om Stodona.{" "}
+              Om Stodona.
+              <br />
               <span className="italic font-normal text-cta-hover">
                 Det lilla extra.
               </span>
@@ -68,13 +76,10 @@ export default function OmOss() {
                   Vill du bli en del av Stodona?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi letar alltid efter engagerade medarbetare. Eller vill du boka städning?
+                  Vi letar alltid efter engagerade medarbetare.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/boka-stadning" className="btn-primary">
-                    Boka städning
-                  </Link>
-                  <Link to="/kontakt" className="btn-secondary">
+                  <Link to="/kontakt" className="btn-primary">
                     Kontakta oss
                   </Link>
                 </div>
@@ -106,7 +111,6 @@ export default function OmOss() {
                     <li><strong>Grundat:</strong> 2019</li>
                     <li><strong>Anställda:</strong> ca 50 personer</li>
                     <li><strong>Org.nr:</strong> 559201-1059</li>
-                    <li><strong>Adress:</strong> Odlingsgatan 2A, Sundbyberg</li>
                   </ul>
                 </div>
               </div>

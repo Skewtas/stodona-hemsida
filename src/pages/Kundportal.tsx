@@ -6,8 +6,14 @@ export default function Kundportal() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-bg-primary">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-gradient-to-b from-cta-hover/20 to-transparent -z-10 blur-3xl rounded-full"></div>
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/stodona_left_image.jpg" 
+            alt="Kundportal Stodona" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -16,12 +22,12 @@ export default function Kundportal() {
             className="max-w-3xl mx-auto text-center"
           >
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-              <User className="w-8 h-8 text-cta-hover" />
+              <User className="w-8 h-8 text-bg-dark" />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Stodonas <span className="text-cta-hover">Kundportal</span>
+              Stodonas <span className="italic font-normal text-cta-hover">Kundportal</span>
             </h1>
-            <p className="text-lg md:text-xl text-text-secondary leading-relaxed mb-8">
+            <p className="text-lg md:text-xl text-text-light/80 leading-relaxed mb-8">
               Logga in för att enkelt hantera dina bokningar, se historik och kommunicera med oss.
             </p>
           </motion.div>

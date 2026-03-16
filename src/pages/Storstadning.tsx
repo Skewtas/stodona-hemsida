@@ -9,7 +9,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Storstadning() {
@@ -17,6 +17,13 @@ export default function Storstadning() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/stodona_left_image.jpg" 
+            alt="Storstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -100,7 +107,7 @@ export default function Storstadning() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <BokahemWidget />
+            <QuickBookingWidget />
           </div>
         </div>
       </section>
@@ -255,6 +262,9 @@ export default function Storstadning() {
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Bra att veta om storstädning</h3>
               <p className="font-bold mb-2">Städmedel/material som du behöver ha hemma:</p>
+              <p className="text-text-secondary mb-4 italic text-sm">
+                (Vi kan även tillhandahålla allt städmaterial mot en tilläggskostnad på 499 kr, då vi kör ut materialet med bil.)
+              </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
@@ -262,23 +272,11 @@ export default function Storstadning() {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Allrengöring (vi rekommenderar Grumme såpa citron då den är effektiv och snäll mot alla ytor)</span>
+                  <span>Dammsugare, mopp och hink</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Kök-/ badrumsrengöring för kalkborttagning</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Ugnsrengöring</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Fönsterputsmedel (till speglar och glaspartier)</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Mikrofiberdukar, minst 6 stycken, tvättade i 60 grader (ibland använder dock städerskorna egna mikrofiberdukar)</span>
+                  <span>3 mikrofiberdukar</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
@@ -286,7 +284,11 @@ export default function Storstadning() {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Dammsugare och mopp</span>
+                  <span>Rengöringsmedel (t.ex. såpa och kök-/badrumsspray)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
+                  <span>Stålull och ugnsrengöring</span>
                 </li>
               </ul>
 
@@ -360,7 +362,7 @@ export default function Storstadning() {
                         Vem står för städmaterial?
                       </p>
                       <p className="text-xs text-text-secondary pl-6">
-                        Du behöver ha vissa städmedel och material hemma. Se listan ovan.
+                        Du behöver ha vissa städmedel och material hemma (se listan ovan). Vi kan även tillhandahålla städmaterial mot en kostnad på 499 kr (vi kör ut materialet med bil).
                       </p>
                     </div>
                   </div>

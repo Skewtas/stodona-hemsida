@@ -7,7 +7,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Foretagsstadning() {
@@ -15,6 +15,13 @@ export default function Foretagsstadning() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/kontorsstadning.jpg" 
+            alt="Företagsstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1

@@ -8,18 +8,49 @@ import {
   ArrowRight,
   MapPin,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Logo from "../components/Logo";
 import { SERVICE_CARDS } from "../constants";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import ContactPopup from "../components/ContactPopup";
+import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
   const { lang } = useLanguage();
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('contact_success') === 'true') {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 5000);
+      searchParams.delete('contact_success');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="flex flex-col">
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-xl shadow-xl flex items-center gap-3"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="font-medium text-sm sm:text-base">
+              {t('modal.contact.success', lang)}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* 1. Hero Section */}
       <section className="relative min-h-[90vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden text-text-light">
         {/* Video Background */}
@@ -45,7 +76,8 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6 drop-shadow-lg"
             >
-              {t('home.hero.title1', lang)}{" "}
+              {t('home.hero.title1', lang)}
+              <br />
               <span className="italic font-normal text-cta-hover">
                 {t('home.hero.title2', lang)}
               </span>
@@ -72,13 +104,15 @@ export default function Home() {
               >
                 {t('home.hero.cta1', lang)}
               </Link>
-              <Link
-                to="/kontakt"
+              <button
+                onClick={() => setIsContactOpen(true)}
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-text-primary text-lg px-8 py-4 shadow-lg backdrop-blur-sm"
               >
                 {t('home.hero.cta2', lang)}
-              </Link>
+              </button>
             </motion.div>
+
+            <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
 
             <motion.div
               initial={{ opacity: 0 }}
@@ -138,7 +172,7 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="max-w-2xl mx-auto"
           >
-            <BokahemWidget />
+            <QuickBookingWidget />
           </motion.div>
         </div>
       </section>
@@ -179,16 +213,16 @@ export default function Home() {
               <h2 className="text-4xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-tight text-text-primary">
                 {t('home.insight.title', lang)}
               </h2>
-              <div className="space-y-6 text-lg md:text-xl text-text-secondary leading-relaxed">
-                <p>{t('home.insight.p1', lang)}</p>
-                <p className="font-medium text-text-primary">{t('home.insight.p2', lang)}</p>
-                <p>{t('home.insight.p3', lang)}</p>
+              <div className="text-lg md:text-xl text-text-secondary leading-relaxed space-y-4">
+                <p>
+                  {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
+                </p>
               </div>
 
               <div className="mt-12">
                 <Link
                   to="/boka-stadning"
-                  className="group inline-flex items-center gap-2 text-lg font-bold text-text-primary hover:text-cta-hover transition-colors"
+                  className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg flex items-center gap-2 inline-flex"
                 >
                   {t('home.insight.cta', lang)}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

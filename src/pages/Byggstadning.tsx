@@ -7,7 +7,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Byggstadning() {
@@ -15,6 +15,13 @@ export default function Byggstadning() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/byggstadning.jpg" 
+            alt="Byggstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -173,7 +180,7 @@ export default function Byggstadning() {
                       Genomförande
                     </h4>
                     <p className="text-text-secondary text-sm">
-                      Vi genomför byggstädningen hos er utifrån det som vi kommit fram till. Allt städmaterial tar vi med oss.
+                      Vi genomför byggstädningen hos er utifrån det som vi kommit fram till. Vi tar med allt vi behöver, du behöver meddela om du har ovanligt hög takhöjd eller svåråtkomliga fönster.
                     </p>
                   </div>
                 </li>

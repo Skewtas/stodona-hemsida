@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Clock } from 'lucide-react';
+import { QuickBookingWidget } from '../components/QuickBookingWidget';
 
 export default function Boka() {
   return (
@@ -28,16 +28,9 @@ export default function Boka() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="card-rounded bg-white border border-text-primary/10 p-8 shadow-sm max-w-4xl mx-auto min-h-[600px] flex items-center justify-center"
+          className="max-w-4xl mx-auto"
         >
-          <div className="text-center text-text-secondary">
-            <div className="w-12 h-12 bg-bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-              <Clock className="w-6 h-6 text-text-primary" />
-            </div>
-            <p className="font-medium text-lg text-text-primary mb-2">
-              [ Bokahem Widget Integration ]
-            </p>
-          </div>
+          <QuickBookingWidget />
         </motion.div>
       </div>
     </div>

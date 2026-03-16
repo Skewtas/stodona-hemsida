@@ -15,19 +15,46 @@ import {
 export default function Kontakt() {
   const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState("submitting");
-    // Simulate API call
-    setTimeout(() => {
-      setFormState("success");
-    }, 1500);
+    
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('https://formspree.io/f/xojkdewo', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        setFormState("success");
+        form.reset();
+      } else {
+        setFormState("idle");
+        alert("Något gick fel. Vänligen försök igen.");
+      }
+    } catch (error) {
+      setFormState("idle");
+      alert("Ett nätverksfel uppstod. Vänligen försök igen senare.");
+    }
   };
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/stodona-stad.jpg" 
+            alt="Kontakta Stodona Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -66,7 +93,7 @@ export default function Kontakt() {
                     </div>
                     <div>
                       <h3 className="font-bold text-lg">Ring oss</h3>
-                      <p className="text-text-secondary">08-123 45 67</p>
+                      <p className="text-text-secondary">010-178 01 50</p>
                       <p className="text-sm text-text-secondary/60 mt-1">Vardagar: 08:00 - 17:00</p>
                     </div>
                   </div>
@@ -87,7 +114,7 @@ export default function Kontakt() {
                       <MapPin className="w-6 h-6 text-text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg">Besök oss</h3>
+                      <h3 className="font-bold text-lg">Här finns vårt kontor</h3>
                       <p className="text-text-secondary">Ågatan 12B, Sundbyberg. (endast bokade besök)</p>
                     </div>
                   </div>
@@ -150,6 +177,7 @@ export default function Kontakt() {
                           <input 
                             type="text" 
                             id="name" 
+                            name="name"
                             required
                             className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
                             placeholder="Ditt fullständiga namn"
@@ -160,6 +188,7 @@ export default function Kontakt() {
                           <input 
                             type="email" 
                             id="email" 
+                            name="email"
                             required
                             className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
                             placeholder="din@epost.se"
@@ -173,6 +202,7 @@ export default function Kontakt() {
                           <input 
                             type="tel" 
                             id="phone" 
+                            name="phone"
                             className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
                             placeholder="070-000 00 00"
                           />
@@ -181,6 +211,7 @@ export default function Kontakt() {
                           <label htmlFor="subject" className="text-sm font-semibold text-text-primary">Ärende</label>
                           <select 
                             id="subject" 
+                            name="subject"
                             className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white appearance-none cursor-pointer"
                           >
                             <option value="boka">Boka städning</option>
@@ -200,6 +231,7 @@ export default function Kontakt() {
                           <input 
                             type="file" 
                             id="file-upload"
+                            name="attachment"
                             className="hidden"
                             onChange={(e) => {
                               const fileName = e.target.files?.[0]?.name;
@@ -221,6 +253,7 @@ export default function Kontakt() {
                         <label htmlFor="message" className="text-sm font-semibold text-text-primary">Meddelande</label>
                         <textarea 
                           id="message" 
+                          name="message"
                           rows={4}
                           required
                           className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white resize-none"

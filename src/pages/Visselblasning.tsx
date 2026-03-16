@@ -12,19 +12,49 @@ import {
 export default function Visselblasning() {
   const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState("submitting");
-    // Simulate API call
-    setTimeout(() => {
-      setFormState("success");
-    }, 1500);
+    
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // Add a specific subject for whistleblower reports
+    formData.append("_subject", "Ny visselblåsarrapport");
+    
+    try {
+      const response = await fetch('https://formspree.io/f/xojkdewo', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        setFormState("success");
+        form.reset();
+      } else {
+        setFormState("idle");
+        alert("Något gick fel. Vänligen försök igen.");
+      }
+    } catch (error) {
+      setFormState("idle");
+      alert("Ett nätverksfel uppstod. Vänligen försök igen senare.");
+    }
   };
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/stodona_right_image.jpg" 
+            alt="Visselblåsning Stodona Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -134,6 +164,7 @@ export default function Visselblasning() {
                         <input 
                           type="text" 
                           id="name" 
+                          name="name"
                           className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
                           placeholder="Lämna tomt för att vara anonym"
                         />
@@ -144,6 +175,7 @@ export default function Visselblasning() {
                         <input 
                           type="text" 
                           id="contact" 
+                          name="contact"
                           className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
                           placeholder="E-post eller telefon om du vill bli kontaktad"
                         />
@@ -153,6 +185,7 @@ export default function Visselblasning() {
                         <label htmlFor="incident" className="text-sm font-semibold text-text-primary">Beskrivning av händelsen</label>
                         <textarea 
                           id="incident" 
+                          name="incident_description"
                           rows={6}
                           required
                           className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white resize-none"

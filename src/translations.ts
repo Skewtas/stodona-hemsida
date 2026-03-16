@@ -45,8 +45,8 @@ const translations: TranslationMap = {
         SV: 'Vi skapar tid för det som verkligen betyder något. Med vår professionella städning får du ett hem som inte bara ser rent ut, utan känns som ett femstjärnigt hotell.',
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
     },
-    'home.hero.cta1': { SV: 'Boka och se pris', EN: 'See price & book' },
-    'home.hero.cta2': { SV: 'Boka möte/tele', EN: 'Schedule a call' },
+    'home.hero.cta1': { SV: 'Boka online', EN: 'Book online' },
+    'home.hero.cta2': { SV: 'Kontakta mig', EN: 'Contact me' },
     'home.hero.bullet1': { SV: 'RUT direkt på fakturan', EN: 'RUT tax deduction applied' },
     'home.hero.bullet2': { SV: 'Ingen bindningstid', EN: 'No commitment' },
     'home.hero.bullet3': { SV: 'Samma team när möjligt', EN: 'Same team when possible' },
@@ -82,23 +82,23 @@ const translations: TranslationMap = {
         SV: 'Låt oss ta hand om det praktiska, så att ni kan fokusera på det som faktiskt betyder något – er tid tillsammans.',
         EN: 'Let us handle the practical stuff, so you can focus on what truly matters – your time together.',
     },
-    'home.insight.cta': { SV: 'Boka din harmoni här', EN: 'Book your harmony here' },
+    'home.insight.cta': { SV: 'Boka städning', EN: 'Book cleaning' },
 
     // ─── HOME: Reviews ─────────────────────────────────────────────────
     'home.reviews.title': { SV: 'Vad våra kunder säger', EN: 'What our customers say' },
     'home.reviews.r1.text': {
-        SV: '"Har provat flera städbolag tidigare men Stodona är i en klass för sig. Det är verkligen som att komma hem till ett nystädat hotellrum varje torsdag."',
-        EN: '"I\'ve tried several cleaning companies before but Stodona is in a class of its own. It really is like coming home to a freshly cleaned hotel room every Thursday."',
+        SV: '"Har provat flera städbolag tidigare men Stodona är i en klass för sig."',
+        EN: '"I\'ve tried several cleaning companies before but Stodona is in a class of its own."',
     },
     'home.reviews.r1.service': { SV: 'Hemstädning, Vasastan', EN: 'Home Cleaning, Vasastan' },
     'home.reviews.r2.text': {
-        SV: '"Otroligt smidigt att boka och resultatet av flyttstädningen var perfekt. Köparen var supernöjd och jag slapp stressen."',
-        EN: '"Incredibly easy to book and the move-out cleaning result was perfect. The buyer was thrilled and I avoided all the stress."',
+        SV: '"Otroligt smidigt att boka och resultatet av flyttstädningen var utan anmärkning!"',
+        EN: '"Incredibly easy to book and the move-out cleaning result was flawless!"',
     },
     'home.reviews.r2.service': { SV: 'Flyttstädning, Södermalm', EN: 'Move-Out Cleaning, Södermalm' },
     'home.reviews.r3.text': {
-        SV: '"Vi bytte till Stodona för vår företagsstädning och skillnaden är enorm. Personalen är trevlig, noggrann och alltid i tid."',
-        EN: '"We switched to Stodona for our office cleaning and the difference is remarkable. Staff are friendly, thorough and always on time."',
+        SV: '"Vi bytte till Stodona på vårt kontor och skillnaden är enorm. Personalen är trevlig och noggrann."',
+        EN: '"We switched to Stodona at our office and the difference is huge. Staff are friendly and thorough."',
     },
     'home.reviews.r3.service': { SV: 'Företagsstädning, City', EN: 'Office Cleaning, City' },
 
@@ -134,7 +134,7 @@ const translations: TranslationMap = {
     'home.cta.title': { SV: 'Redo för hotellkänsla hemma?', EN: 'Ready for that hotel feeling at home?' },
     'home.cta.subtitle': { SV: 'Boka din städning idag. Ingen bindningstid, bara ett renare hem.', EN: 'Book your cleaning today. No commitment, just a cleaner home.' },
     'home.cta.btn1': { SV: 'Boka städning direkt', EN: 'Book cleaning now' },
-    'home.cta.btn2': { SV: 'Se våra priser', EN: 'See our prices' },
+    'home.cta.btn2': { SV: 'Boka städning', EN: 'Book cleaning' },
     'home.cta.urgency': { SV: 'Tider fylls snabbt – säkra din tid idag.', EN: 'Slots fill fast – secure your time today.' },
 
     // ─── HOME: Service areas ───────────────────────────────────────────
@@ -144,6 +144,17 @@ const translations: TranslationMap = {
         SV: 'Med tusentals nöjda kunder är vi stolta över att vara det ledande städföretaget i dessa områden. Vi täcker stora delar av Stockholm med omnejd.',
         EN: 'With thousands of happy customers, we\'re proud to be the leading cleaning company in these areas. We cover large parts of Stockholm and surroundings.',
     },
+
+    // ─── CONTACT MODAL ─────────────────────────────────────────────────
+    'modal.contact.title': { SV: 'Boka möte eller samtal', EN: 'Book a meeting or call' },
+    'modal.contact.subtitle': { SV: 'Fyll i dina uppgifter så kontaktar vi dig så snart vi kan.', EN: 'Fill in your details and we will contact you as soon as possible.' },
+    'modal.contact.name': { SV: 'Namn', EN: 'Name' },
+    'modal.contact.email': { SV: 'E-post', EN: 'Email' },
+    'modal.contact.phone': { SV: 'Telefonnummer', EN: 'Phone number' },
+    'modal.contact.message': { SV: 'Berätta mer om vad du önskar', EN: 'Tell us more about what you need' },
+    'modal.contact.submit': { SV: 'Skicka förfrågan', EN: 'Send request' },
+    'modal.contact.success': { SV: 'Tack! Vi kontaktar dig snart.', EN: 'Thank you! We will contact you shortly.' },
+    'modal.contact.error': { SV: 'Något gick fel. Försök igen.', EN: 'Something went wrong. Please try again.' },
 };
 
 export function t(key: string, lang: Lang): string {

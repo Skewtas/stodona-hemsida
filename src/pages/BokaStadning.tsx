@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { BokahemWidget } from "../components/BokahemWidget";
+import { FullBookingForm } from "../components/FullBookingForm";
 import { CheckCircle2, ShieldCheck, Clock, Star } from "lucide-react";
 
 export default function BokaStadning() {
@@ -85,7 +85,7 @@ export default function BokaStadning() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <BokahemWidget />
+              <FullBookingForm />
             </motion.div>
           </div>
         </div>

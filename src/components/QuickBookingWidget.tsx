@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowRight, MapPin, Maximize, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 
 export const QuickBookingWidget: React.FC = () => {
-  const navigate = useNavigate();
   const { lang } = useLanguage();
-  
+
   const [zipCode, setZipCode] = useState('');
   const [zipError, setZipError] = useState('');
   const [sqm, setSqm] = useState('');
@@ -19,13 +17,12 @@ export const QuickBookingWidget: React.FC = () => {
       setZipError(lang === 'EN' ? 'Sorry, we are not available here yet' : 'Tyvärr finns vi inte här ännu');
       return;
     }
-    // Redirectar till /boka-stadning med parametrar
     const params = new URLSearchParams({
       service: service,
       zip: zipCode,
       sqm: sqm
     });
-    navigate(`/boka-stadning?${params.toString()}`);
+    window.location.href = `https://boka.stodona.se?${params.toString()}`;
   };
 
   return (

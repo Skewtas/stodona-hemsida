@@ -2,7 +2,8 @@ import { useEffect } from "react";
 
 export default function BokaStadning() {
   useEffect(() => {
-    window.location.replace("https://boka.stodona.se");
+    const params = window.location.search;
+    window.location.replace(`https://boka.stodona.se${params}`);
   }, []);
 
   return (

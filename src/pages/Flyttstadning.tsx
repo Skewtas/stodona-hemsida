@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   CheckCircle2,
   Star,
@@ -8,7 +7,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Flyttstadning() {
@@ -53,18 +51,18 @@ export default function Flyttstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 Boka flyttstädning
-              </Link>
-              <Link
-                to="/boka-stadning"
+              </a>
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 Se våra priser
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -94,20 +92,19 @@ export default function Flyttstadning() {
         </div>
       </section>
 
-      {/* Bokahem-integration (Placeholder) */}
+      {/* Boka-sektion */}
       <section className="py-16 bg-white border-b border-text-primary/10">
         <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center mb-8">
+          <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-2">
               Boka din flyttstädning på 60 sekunder.
             </h2>
-            <p className="text-text-secondary">
-              Fyll i dina uppgifter nedan för att se pris och boka direkt.
+            <p className="text-text-secondary mb-8">
+              Se pris och boka direkt i vår bokningsmodul.
             </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <QuickBookingWidget />
+            <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4">
+              Boka flyttstädning
+            </a>
           </div>
         </div>
       </section>
@@ -211,9 +208,9 @@ export default function Flyttstadning() {
                   Vi har lediga tider i Stockholm den här veckan. Boka nu och
                   låt oss ta hand om städningen.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka flyttstädning direkt
-                </Link>
+                </a>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -328,12 +325,12 @@ export default function Flyttstadning() {
             Boka din flyttstädning idag och låt oss ta hand om det sista.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Boka flyttstädning direkt
-            </Link>
+            </a>
           </div>
           <p className="mt-6 text-sm font-medium opacity-80">
             Tider fylls snabbt – säkra din tid idag.

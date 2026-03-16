@@ -7,7 +7,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Foretagsstadning() {
@@ -57,12 +56,12 @@ export default function Foretagsstadning() {
               >
                 Begär offert
               </Link>
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 Se våra priser
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div

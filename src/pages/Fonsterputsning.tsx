@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   CheckCircle2,
   Star,
@@ -7,7 +6,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Fonsterputsning() {
@@ -114,9 +112,9 @@ export default function Fonsterputsning() {
                 <p className="mb-6 text-text-secondary">
                   Boka fönsterputsning idag och njut av utsikten.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka fönsterputsning
-                </Link>
+                </a>
               </div>
 
             </div>

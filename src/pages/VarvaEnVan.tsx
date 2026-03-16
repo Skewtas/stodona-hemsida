@@ -92,9 +92,9 @@ export default function VarvaEnVan() {
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/boka-stadning" className="btn-primary">
+            <a href="https://boka.stodona.se" className="btn-primary">
               Boka städning nu
-            </Link>
+            </a>
           </div>
         </div>
       </section>

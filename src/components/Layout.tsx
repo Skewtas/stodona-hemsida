@@ -76,9 +76,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <User className="w-4 h-4" />
               </a>
             </div>
-            <Link to="/boka-stadning" className="btn-primary py-2 px-5 text-sm">
+            <a href="https://boka.stodona.se" className="btn-primary py-2 px-5 text-sm">
               {t('nav.boka', lang)}
-            </Link>
+            </a>
             <div className="flex items-center gap-1 text-xs font-semibold ml-2">
               <button
                 onClick={() => setLang('SV')}
@@ -169,13 +169,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </a>
             </div>
 
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="btn-primary w-full mt-4"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {t('nav.boka', lang)}
-            </Link>
+            </a>
             <div className="flex items-center justify-center gap-2 text-sm font-semibold mt-4">
               <button
                 onClick={() => setLang('SV')}
@@ -253,9 +253,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <Link to="/boka-stadning" className="hover:text-cta-hover transition-colors">
+                <a href="https://boka.stodona.se" className="hover:text-cta-hover transition-colors">
                   {t('footer.priser', lang)}
-                </Link>
+                </a>
               </li>
               <li>
                 <Link to="/kontakt" className="hover:text-cta-hover transition-colors">

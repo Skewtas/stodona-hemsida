@@ -4,14 +4,11 @@ import {
   Star,
   ShieldCheck,
   Sparkles,
-  Clock,
   ArrowRight,
   MapPin,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import Logo from "../components/Logo";
 import { SERVICE_CARDS } from "../constants";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
@@ -98,12 +95,12 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg"
               >
                 {t('home.hero.cta1', lang)}
-              </Link>
+              </a>
               <button
                 onClick={() => setIsContactOpen(true)}
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-text-primary text-lg px-8 py-4 shadow-lg backdrop-blur-sm"
@@ -141,7 +138,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Bokahem Plugin Section */}
+      {/* 4. Boka Section */}
       <section className="pt-8 pb-4 bg-white relative overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl aspect-square bg-cta-hover/5 blur-[120px] rounded-full -z-10"></div>
@@ -151,7 +148,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-3xl mx-auto mb-0"
+            className="text-center max-w-3xl mx-auto mb-10"
           >
             <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
               {t('home.book.badge', lang)}
@@ -160,19 +157,15 @@ export default function Home() {
               {t('home.book.title1', lang)} <br />
               <span className="text-cta-hover italic font-normal">{t('home.book.title2', lang)}</span>
             </h2>
-            <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-8">
               {t('home.book.subtitle', lang)}
             </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-2xl mx-auto"
-          >
-            <QuickBookingWidget />
+            <a
+              href="https://boka.stodona.se"
+              className="btn-primary text-lg px-8 py-4"
+            >
+              {t('home.hero.cta1', lang)}
+            </a>
           </motion.div>
         </div>
       </section>
@@ -220,13 +213,13 @@ export default function Home() {
               </div>
 
               <div className="mt-12">
-                <Link
-                  to="/boka-stadning"
-                  className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg flex items-center gap-2 inline-flex"
+                <a
+                  href="https://boka.stodona.se"
+                  className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg inline-flex items-center gap-2"
                 >
                   {t('home.insight.cta', lang)}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
               </div>
             </motion.div>
           </div>
@@ -438,9 +431,9 @@ export default function Home() {
                 {t('home.services.subtitle', lang)}
               </p>
             </div>
-            <Link to="/boka-stadning" className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
+            <a href="https://boka.stodona.se" className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
               {t('home.services.allprices', lang)}
-            </Link>
+            </a>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -494,18 +487,18 @@ export default function Home() {
             {t('home.cta.subtitle', lang)}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               {t('home.cta.btn1', lang)}
-            </Link>
-            <Link
-              to="/boka-stadning"
+            </a>
+            <a
+              href="https://boka.stodona.se"
               className="btn-secondary border-text-primary text-text-primary hover:bg-text-primary hover:text-bg-primary text-lg px-8 py-4"
             >
               {t('home.cta.btn2', lang)}
-            </Link>
+            </a>
           </div>
           <p className="mt-6 text-sm font-medium opacity-80">
             {t('home.cta.urgency', lang)}

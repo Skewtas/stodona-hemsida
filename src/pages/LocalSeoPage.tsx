@@ -56,9 +56,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <p className="text-lg md:text-xl text-text-light/90 leading-relaxed mb-8 drop-shadow-md">
               {description}
             </p>
-            <Link to="/boka-stadning" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka {displayBaseService.toLowerCase()} i {displayAreaName}
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -152,9 +152,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   Vi har lediga tider i {displayAreaName} den här veckan. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka {displayBaseService.toLowerCase()} direkt
-                </Link>
+                </a>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -316,12 +316,12 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           <p className="text-xl mb-10 opacity-90">
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett skinande rent resultat.
           </p>
-          <Link
-            to="/boka-stadning"
+          <a
+            href="https://boka.stodona.se"
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka {displayBaseService.toLowerCase()} nu
-          </Link>
+          </a>
         </div>
       </section>
     </div>

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   CheckCircle2,
   Star,
@@ -9,7 +8,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 
 export default function Storstadning() {
@@ -53,18 +51,18 @@ export default function Storstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 Boka storstädning
-              </Link>
-              <Link
-                to="/boka-stadning"
+              </a>
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 Se våra priser
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -94,20 +92,19 @@ export default function Storstadning() {
         </div>
       </section>
 
-      {/* Bokahem-integration */}
+      {/* Boka-sektion */}
       <section className="py-16 bg-white border-b border-text-primary/10">
         <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center mb-8">
+          <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-2">
               Boka din storstädning på 60 sekunder.
             </h2>
-            <p className="text-text-secondary">
-              Fyll i dina uppgifter nedan för att se pris och boka direkt.
+            <p className="text-text-secondary mb-8">
+              Se pris och boka direkt i vår bokningsmodul.
             </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <QuickBookingWidget />
+            <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4">
+              Boka storstädning
+            </a>
           </div>
         </div>
       </section>
@@ -317,9 +314,9 @@ export default function Storstadning() {
                   Vi har lediga tider i Stockholm den här veckan. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka storstädning direkt
-                </Link>
+                </a>
               </div>
 
             </div>

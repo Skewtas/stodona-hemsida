@@ -79,7 +79,10 @@ export default function OmOss() {
                   Vi letar alltid efter engagerade medarbetare.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/kontakt" className="btn-primary">
+                  <a href="https://boka.stodona.se" className="btn-primary">
+                    Boka städning
+                  </a>
+                  <Link to="/kontakt" className="btn-secondary">
                     Kontakta oss
                   </Link>
                 </div>

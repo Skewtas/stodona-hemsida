@@ -197,10 +197,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <main className="flex-grow">{children}</main>
 
-      <footer className="bg-bg-dark text-text-light py-20">
-        <div className="container-custom grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div>
-            <Logo dark={true} className="mb-6" />
+      <footer className="bg-bg-dark text-text-light py-12 sm:py-20">
+        <div className="container-custom grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
+          <div className="col-span-2 md:col-span-1">
+            <Logo dark={true} className="mb-4 sm:mb-6" />
             <p className="text-text-light/70 text-sm leading-relaxed">
               {t('footer.description', lang)}
             </p>
@@ -311,11 +311,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </ul>
           </div>
         </div>
-        <div className="container-custom mt-20 pt-8 border-t border-text-light/10 flex flex-col md:flex-row items-center justify-between text-xs text-text-light/50">
+        <div className="container-custom mt-12 sm:mt-20 pt-6 sm:pt-8 border-t border-text-light/10 flex flex-col md:flex-row items-center justify-between text-xs text-text-light/50 gap-4">
           <p>
             &copy; {new Date().getFullYear()} Stodona. {t('footer.rights', lang)}
           </p>
-          <div className="flex gap-4 mt-4 md:mt-0">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-2 md:mt-0">
             <Link to="/integritetspolicy" className="hover:text-text-light">
               {t('footer.integritetspolicy', lang)}
             </Link>

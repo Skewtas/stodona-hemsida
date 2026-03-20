@@ -1,6 +1,9 @@
 import { ShieldCheck, Star, Sparkles, Heart } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../translations";
 
 export default function WhyStodona() {
+  const { lang } = useLanguage();
   return (
     <div className="card-rounded bg-bg-primary p-8 border border-text-primary/10 relative overflow-hidden group">
       {/* Subtle techy background element */}
@@ -8,7 +11,7 @@ export default function WhyStodona() {
       
       <h3 className="text-xl font-bold mb-6 relative z-10 flex items-center gap-2">
         <Sparkles className="w-5 h-5 text-cta-hover" />
-        Varför välja Stodona?
+        {t('why.title', lang)}
       </h3>
       
       <ul className="space-y-6 relative z-10">
@@ -17,9 +20,9 @@ export default function WhyStodona() {
             <ShieldCheck className="w-5 h-5 text-cta-hover" />
           </div>
           <div>
-            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">Nöjd kund-garanti</p>
+            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">{t('why.q1.title', lang)}</p>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Vi åtgärdar eventuella brister inom 24h. Din trygghet är vårt fokus.
+              {t('why.q1.text', lang)}
             </p>
           </div>
         </li>
@@ -28,9 +31,9 @@ export default function WhyStodona() {
             <Star className="w-5 h-5 text-cta-hover" />
           </div>
           <div>
-            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">Utbildad personal</p>
+            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">{t('why.q2.title', lang)}</p>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Kollektivavtalsliknande villkor och kontinuerlig vidareutbildning.
+              {t('why.q2.text', lang)}
             </p>
           </div>
         </li>
@@ -39,9 +42,9 @@ export default function WhyStodona() {
             <Heart className="w-5 h-5 text-cta-hover" />
           </div>
           <div>
-            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">Vi bryr oss</p>
+            <p className="font-bold text-sm mb-0.5 group-hover/item:text-cta-hover transition-colors">{t('why.q3.title', lang)}</p>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Ett städbolag med hjärta. Vi tar hand om både personal och kunder.
+              {t('why.q3.text', lang)}
             </p>
           </div>
         </li>
@@ -53,7 +56,7 @@ export default function WhyStodona() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
-          Tillgängliga för bokning i Stockholm
+          {t('why.availability', lang)}
         </div>
       </div>
     </div>

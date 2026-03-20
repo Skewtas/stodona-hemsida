@@ -7,8 +7,11 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import WhyStodona from "../components/WhyStodona";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../translations";
 
 export default function Fonsterputsning() {
+  const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -28,9 +31,10 @@ export default function Fonsterputsning() {
               transition={{ duration: 0.6 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
             >
-              Fönsterputsning.{" "}
+              {t('fonster.hero.title', lang)}
+              <br />
               <span className="italic font-normal text-cta-hover">
-                Släpp in ljuset.
+                {t('fonster.hero.subtitle', lang)}
               </span>
             </motion.h1>
 
@@ -40,7 +44,7 @@ export default function Fonsterputsning() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
             >
-              Skinande rena fönster utan ränder. Vi erbjuder professionell fönsterputsning för både privatpersoner och företag.
+              {t('fonster.hero.desc', lang)}
             </motion.p>
           </div>
         </div>

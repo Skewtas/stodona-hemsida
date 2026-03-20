@@ -7,9 +7,13 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../translations";
 
 export default function Byggstadning() {
+  const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -29,9 +33,10 @@ export default function Byggstadning() {
               transition={{ duration: 0.6 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
             >
-              Byggstädning i Stockholm.{" "}
+              {t('bygg.hero.title', lang)}
+              <br />
               <span className="italic font-normal text-cta-hover">
-                För företag och privatpersoner.
+                {t('bygg.hero.subtitle', lang)}
               </span>
             </motion.h1>
 
@@ -41,7 +46,7 @@ export default function Byggstadning() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
             >
-              Har du nyligen renoverat eller byggt till? Eller är det dags för slutbesiktning av ett större byggprojekt? En byggstädning är viktig för att skapa en frisk miljö, och du blir av med allt damm och hälsofarliga partiklar som kan ha bildats vid renoveringen eller byggnationen.
+              {t('bygg.hero.desc', lang)}
             </motion.p>
 
             <motion.div
@@ -54,14 +59,14 @@ export default function Byggstadning() {
                 to="/kontakt"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
-                Begär offert
+                {t('bygg.hero.cta1', lang)}
               </Link>
-              <a
-                href="https://boka.stodona.se"
+              <Link
+                to="/boka-stadning"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
-                Se våra priser
-              </a>
+                {t('bygg.hero.cta2', lang)}
+              </Link>
             </motion.div>
 
             <motion.div
@@ -72,19 +77,19 @@ export default function Byggstadning() {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>100 % nöjd kund-garanti</span>
+                <span>{t('bygg.hero.b1', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Fullt försäkrade</span>
+                <span>{t('bygg.hero.b2', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>RUT-avdrag för privatpersoner</span>
+                <span>{t('bygg.hero.b3', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Erfarenhet av stora projekt</span>
+                <span>{t('bygg.hero.b4', lang)}</span>
               </div>
             </motion.div>
           </div>

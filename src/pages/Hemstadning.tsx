@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   CheckCircle2,
   Star,
@@ -8,9 +9,13 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../translations";
 
 export default function Hemstadning() {
+  const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -30,9 +35,10 @@ export default function Hemstadning() {
               transition={{ duration: 0.6 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
             >
-              Hemstädning i Stockholm.{" "}
+              {t('hemstadning.hero.title', lang)}
+              <br />
               <span className="italic font-normal text-cta-hover">
-                Hotellkänsla hemma.
+                {t('hemstadning.hero.subtitle', lang)}
               </span>
             </motion.h1>
 
@@ -42,9 +48,7 @@ export default function Hemstadning() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
             >
-              Få mer tid över till det som betyder något. Vi erbjuder
-              professionell hemstädning med kvalitetsgaranti och samma team
-              varje gång.
+              {t('hemstadning.hero.desc', lang)}
             </motion.p>
 
             <motion.div
@@ -53,18 +57,18 @@ export default function Hemstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <a
-                href="https://boka.stodona.se"
+              <Link
+                to="/boka-stadning"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
-                Boka hemstädning
-              </a>
-              <a
-                href="https://boka.stodona.se"
+                {t('hemstadning.hero.cta1', lang)}
+              </Link>
+              <Link
+                to="/boka-stadning"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
-                Se våra priser
-              </a>
+                {t('hemstadning.hero.cta2', lang)}
+              </Link>
             </motion.div>
 
             <motion.div
@@ -75,38 +79,39 @@ export default function Hemstadning() {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>RUT direkt på fakturan</span>
+                <span>{t('hemstadning.hero.b1', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Ingen bindningstid</span>
+                <span>{t('hemstadning.hero.b2', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Samma team när möjligt</span>
+                <span>{t('hemstadning.hero.b3', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Populära tider bokas snabbt</span>
+                <span>{t('hemstadning.hero.b4', lang)}</span>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Boka-sektion */}
+      {/* Bokahem-integration (Placeholder) */}
       <section className="py-16 bg-white border-b border-text-primary/10">
         <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">
               Boka din hemstädning på 60 sekunder.
             </h2>
-            <p className="text-text-secondary mb-8">
-              Se pris och boka direkt i vår bokningsmodul.
+            <p className="text-text-secondary">
+              Fyll i dina uppgifter nedan för att se pris och boka direkt.
             </p>
-            <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4">
-              Boka hemstädning
-            </a>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <QuickBookingWidget />
           </div>
         </div>
       </section>
@@ -203,9 +208,9 @@ export default function Hemstadning() {
                   Vi har lediga tider i Stockholm den här veckan. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <Link to="/boka-stadning" className="btn-primary">
                   Boka hemstädning direkt
-                </a>
+                </Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -325,12 +330,12 @@ export default function Hemstadning() {
             hemma.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a
-              href="https://boka.stodona.se"
+            <Link
+              to="/boka-stadning"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Boka städning direkt
-            </a>
+            </Link>
           </div>
           <p className="mt-6 text-sm font-medium opacity-80">
             Tider fylls snabbt – säkra din tid idag.

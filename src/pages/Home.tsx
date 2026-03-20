@@ -49,7 +49,7 @@ export default function Home() {
         )}
       </AnimatePresence>
       {/* 1. Hero Section */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden text-text-light">
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden text-text-light">
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-full z-0">
           <video
@@ -66,12 +66,12 @@ export default function Home() {
         </div>
 
         <div className="container-custom relative z-20">
-          <div className="max-w-3xl mt-12 md:mt-24">
+          <div className="max-w-3xl mt-4 sm:mt-12 md:mt-24">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6 drop-shadow-lg"
+              className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-4 sm:mb-6 drop-shadow-lg"
             >
               {t('home.hero.title1', lang)}
               <br />
@@ -84,7 +84,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-lg md:text-xl text-text-light/90 mb-10 max-w-2xl leading-relaxed drop-shadow-md"
+              className="text-base sm:text-lg md:text-xl text-text-light/90 mb-6 sm:mb-10 max-w-2xl leading-relaxed drop-shadow-md"
             >
               {t('home.hero.subtitle', lang)}
             </motion.p>
@@ -93,7 +93,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 mb-12"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
             >
               <a
                 href="https://boka.stodona.se"
@@ -115,7 +115,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-text-light/90 drop-shadow-md"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-text-light/90 drop-shadow-md"
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
@@ -153,7 +153,7 @@ export default function Home() {
             <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
               {t('home.book.badge', lang)}
             </span>
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 tracking-tight">
               {t('home.book.title1', lang)} <br />
               <span className="text-cta-hover italic font-normal">{t('home.book.title2', lang)}</span>
             </h2>
@@ -171,7 +171,7 @@ export default function Home() {
       </section>
 
       {/* 1.5. Insight Section - Apple Style */}
-      <section className="py-24 md:py-32 bg-white overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 bg-white overflow-hidden">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             {/* Left: Image */}
@@ -478,9 +478,9 @@ export default function Home() {
       </section>
 
       {/* 7. Stark slut-CTA */}
-      <section className="py-24 bg-cta-hover text-text-primary relative overflow-hidden">
+      <section className="py-16 sm:py-24 bg-cta-hover text-text-primary relative overflow-hidden">
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
             {t('home.cta.title', lang)}
           </h2>
           <p className="text-xl mb-10 opacity-90">

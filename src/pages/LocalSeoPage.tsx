@@ -3,18 +3,26 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, HelpCircle, CheckCircle2, Star } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LocalSeoPageProps {
-  baseService: string; // e.g., "hemstadning", "flyttstadning"
-  areaName: string; // e.g., "Ekerö", "Nacka"
+  baseService: string;
+  areaName: string;
   description: string;
   heroImage: string;
   subAreas?: { name: string; link: string }[];
 }
 
+function getPreposition(area: string): string {
+  const paAreas = ['Lidingö', 'Ekerö', 'Vaxholm', 'Östermalm', 'Södermalm'];
+  return paAreas.some(a => area.toLowerCase().includes(a.toLowerCase())) ? 'på' : 'i';
+}
+
 export default function LocalSeoPage({ baseService, areaName, description, heroImage, subAreas }: LocalSeoPageProps) {
+  const { lang } = useLanguage();
   const { area } = useParams<{ area: string }>();
   const displayAreaName = areaName || (area ? area.charAt(0).toUpperCase() + area.slice(1) : 'Okänt område');
+  const prep = getPreposition(displayAreaName);
   const serviceNameMap: Record<string, string> = {
     hemstadning: 'Hemstädning',
     flyttstadning: 'Flyttstädning',
@@ -34,7 +42,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
         <div className="absolute inset-0 w-full h-full z-0">
           <img
             src={heroImage}
-            alt={`${displayBaseService} i ${displayAreaName}`}
+            alt={`${displayBaseService} ${prep} ${displayAreaName}`}
             className="w-full h-full object-cover object-center opacity-70"
             referrerPolicy="no-referrer"
           />
@@ -51,14 +59,14 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
               <MapPin className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] mb-6 drop-shadow-lg">
-              {displayBaseService} i <span className="text-white italic font-normal">{displayAreaName}</span>
+              {displayBaseService} {prep} <span className="text-white italic font-normal">{displayAreaName}</span>
             </h1>
             <p className="text-lg md:text-xl text-text-light/90 leading-relaxed mb-8 drop-shadow-md">
               {description}
             </p>
-            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
-              Boka {displayBaseService.toLowerCase()} i {displayAreaName}
-            </a>
+            <Link to="/boka-stadning" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+              Boka {displayBaseService.toLowerCase()} {prep} {displayAreaName}
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -73,10 +81,10 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-8 prose prose-lg max-w-none">
               <h2 className="text-4xl font-bold mb-6">
-                Vad ingår i vår {displayBaseService.toLowerCase()} i {displayAreaName}?
+                Vad ingår i vår {displayBaseService.toLowerCase()} {prep} {displayAreaName}?
               </h2>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                När du anlitar Stodona för {displayBaseService.toLowerCase()} i {displayAreaName} kan du
+                När du anlitar Stodona för {displayBaseService.toLowerCase()} {prep} {displayAreaName} kan du
                 förvänta dig ett skinande rent hem, varje gång. Vi följer en
                 noggrann checklista för att säkerställa att inget missas.
               </p>
@@ -146,15 +154,15 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
               {/* Middle CTA */}
               <div className="my-16 p-8 bg-cta-hover/20 rounded-2xl border border-cta-hover/30 text-center">
                 <h3 className="text-2xl font-bold mb-4">
-                  Vill du ha ett skinande rent hem i {displayAreaName}?
+                  Vill du ha ett skinande rent hem {prep} {displayAreaName}?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider i {displayAreaName} den här veckan. Boka nu och få
+                  Vi har lediga tider {prep} {displayAreaName} den här veckan. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <Link to="/boka-stadning" className="btn-primary">
                   Boka {displayBaseService.toLowerCase()} direkt
-                </a>
+                </Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -213,7 +221,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
         <div className="container-custom">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Vanliga frågor om {displayBaseService.toLowerCase()} i {displayAreaName}
+              Vanliga frågor om {displayBaseService.toLowerCase()} {prep} {displayAreaName}
             </h2>
             <p className="text-text-secondary text-lg">
               Här har vi samlat de vanligaste frågorna vi får om vår
@@ -275,10 +283,10 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
               className="text-center max-w-2xl mx-auto mb-12"
             >
               <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                Vi täcker även <span className="text-cta-hover">underområden</span> i {displayAreaName}
+                Vi täcker även <span className="text-cta-hover">underområden</span> {prep} {displayAreaName}
               </h2>
               <p className="text-text-secondary text-lg">
-                Vårt team är redo att hjälpa dig oavsett var i {displayAreaName} du bor.
+                Vårt team är redo att hjälpa dig oavsett var {prep} {displayAreaName} du bor.
               </p>
             </motion.div>
 
@@ -311,17 +319,17 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       <section className="py-20 bg-cta-hover text-white relative overflow-hidden">
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Få ett rent hem i {displayAreaName} idag!
+            Få ett rent hem {prep} {displayAreaName} idag!
           </h2>
           <p className="text-xl mb-10 opacity-90">
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett skinande rent resultat.
           </p>
-          <a
-            href="https://boka.stodona.se"
+          <Link
+            to="/boka-stadning"
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka {displayBaseService.toLowerCase()} nu
-          </a>
+          </Link>
         </div>
       </section>
     </div>

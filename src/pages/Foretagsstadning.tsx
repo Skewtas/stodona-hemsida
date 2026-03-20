@@ -7,9 +7,13 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
+import { useLanguage } from "../context/LanguageContext";
+import { t } from "../translations";
 
 export default function Foretagsstadning() {
+  const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -29,9 +33,10 @@ export default function Foretagsstadning() {
               transition={{ duration: 0.6 }}
               className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
             >
-              Företagsstädning.{" "}
+              {t('foretag.hero.title', lang)}
+              <br />
               <span className="italic font-normal text-cta-hover">
-                För en bättre arbetsmiljö.
+                {t('foretag.hero.subtitle', lang)}
               </span>
             </motion.h1>
 
@@ -41,7 +46,7 @@ export default function Foretagsstadning() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
             >
-              Ett rent och fräscht företag skapar förutsättningar för att dina medarbetare ska trivas och för att dina kunder ska känna sig välkomna. Vi tar hand om allt från kontor och fastigheter till specialprojekt och byggstädning.
+              {t('foretag.hero.desc', lang)}
             </motion.p>
 
             <motion.div
@@ -54,14 +59,14 @@ export default function Foretagsstadning() {
                 to="/kontakt"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
-                Begär offert
+                {t('foretag.hero.cta1', lang)}
               </Link>
-              <a
-                href="https://boka.stodona.se"
+              <Link
+                to="/boka-stadning"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
-                Se våra priser
-              </a>
+                {t('foretag.hero.cta2', lang)}
+              </Link>
             </motion.div>
 
             <motion.div
@@ -72,19 +77,19 @@ export default function Foretagsstadning() {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>100 % nöjd kund-garanti</span>
+                <span>{t('foretag.hero.b1', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Fullt försäkrade</span>
+                <span>{t('foretag.hero.b2', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Anpassad städning</span>
+                <span>{t('foretag.hero.b3', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>Personlig kontakt</span>
+                <span>{t('foretag.hero.b4', lang)}</span>
               </div>
             </motion.div>
           </div>

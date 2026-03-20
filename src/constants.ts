@@ -49,7 +49,7 @@ export const SERVICE_AREAS = [
   {
     name: "Ekerö",
     path: "ekero",
-    description: "Professionell hemstädning och flyttstädning i Ekerö med omnejd. Vi erbjuder städtjänster med hög kvalitet och nöjdhetsgaranti.",
+    description: "Gör som flera hundra hushåll på Ekerö med omnejd och boka hemstädning med oss. Vi erbjuder hög städkvalité och service.",
     heroImage: "/ekerobron_ekero.png",
     subAreas: SUB_AREAS_EKERO.map(sub => ({...sub, link: `/hemstadning-ekero-${sub.path}`}))
   },
@@ -179,7 +179,7 @@ export const SERVICE_AREAS = [
   {
     name: "Vaxholm",
     path: "vaxholm",
-    description: "Professionell hemstädning och flyttstädning i Vaxholm. Vi erbjuder städtjänster med hög kvalitet och nöjdhetsgaranti.",
+    description: "Professionell hemstädning och flyttstädning på Vaxholm. Vi erbjuder städtjänster med hög kvalitet och nöjdhetsgaranti.",
     heroImage: "/vaxholm_vaxholm.png",
     subAreas: []
   },

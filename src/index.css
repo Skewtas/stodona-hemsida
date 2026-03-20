@@ -37,14 +37,23 @@
   }
 
   .section-spacing {
-    @apply py-[100px];
+    @apply py-16 md:py-[100px];
   }
 
   .container-custom {
-    @apply w-full max-w-[1200px] mx-auto px-6;
+    @apply w-full max-w-[1200px] mx-auto px-5 sm:px-6;
   }
 
   .card-rounded {
     @apply rounded-[16px];
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Tighter hero spacing on mobile */
+  .hero-mobile-spacing {
+    padding-top: 6rem;
+    padding-bottom: 3rem;
   }
 }

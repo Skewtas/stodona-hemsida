@@ -28,9 +28,28 @@ import Integritetspolicy from "./pages/Integritetspolicy";
 import Villkor from "./pages/Villkor";
 import Sitemap from "./pages/Sitemap";
 import LocalSeoPage from "./pages/LocalSeoPage";
+import StadningArea from "./pages/StadningArea";
 import PlaceholderPage from "./components/PlaceholderPage";
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
+
+// All service types to generate routes for
+const ALL_SERVICES = ['hemstadning', 'flyttstadning', 'foretagsstadning', 'fonsterputsning', 'storstadning', 'byggstadning', 'trappstadning'];
+
+// Map area paths to their sub-areas
+const SUB_AREA_MAP: Record<string, typeof SUB_AREAS_EKERO> = {
+  ekero: SUB_AREAS_EKERO,
+  lidingo: SUB_AREAS_LIDINGO,
+  nacka: SUB_AREAS_NACKA,
+};
+
+function getSubAreasForService(areaPath: string, service: string) {
+  const subAreas = SUB_AREA_MAP[areaPath];
+  if (!subAreas) return [];
+  // Nacka sub-areas don't use area prefix in path
+  const prefix = areaPath === 'nacka' ? `/${service}-` : `/${service}-${areaPath}-`;
+  return subAreas.map(sub => ({ ...sub, link: `${prefix}${sub.path}` }));
+}
 
 export default function App() {
   return (
@@ -68,204 +87,113 @@ export default function App() {
           <Route path="/villkor" element={<Villkor />} />
           <Route path="/sidkarta" element={<Sitemap />} />
 
-          {/* Local SEO Pages (Short URLs) */}
+          {/* === AREA SEO PAGES === */}
           {SERVICE_AREAS.map((area) => (
-            <Route
-              key={`short-${area.path}`}
-              path={`/${area.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="hemstadning"
-                  areaName={area.name}
-                  description={area.description}
-                  heroImage={area.heroImage}
-                  subAreas={area.subAreas}
-                />
-              }
-            />
-          ))}
-
-          {/* Local SEO Pages (Dynamic) */}
-          {SERVICE_AREAS.map((area) => (
-            <React.Fragment key={area.path}>
+            <React.Fragment key={`area-${area.path}`}>
+              {/* Short URL — e.g. /ekero */}
               <Route
-                path={`/hemstadning-${area.path}`}
+                path={`/${area.path}`}
                 element={
                   <LocalSeoPage
                     baseService="hemstadning"
                     areaName={area.name}
                     description={area.description}
                     heroImage={area.heroImage}
-                    subAreas={area.path === "nacka" ? SUB_AREAS_NACKA.map(sub => ({ ...sub, link: `/hemstadning-${sub.path}` })) : (area.path === "ekero" ? SUB_AREAS_EKERO.map(sub => ({ ...sub, link: `/hemstadning-ekero-${sub.path}` })) : (area.path === "lidingo" ? SUB_AREAS_LIDINGO.map(sub => ({ ...sub, link: `/hemstadning-lidingo-${sub.path}` })) : []))}
+                    subAreas={area.subAreas}
                   />
                 }
               />
+
+              {/* Hub page — e.g. /stadning-ekero */}
               <Route
-                path={`/flyttstadning-${area.path}`}
+                path={`/stadning-${area.path}`}
                 element={
-                  <LocalSeoPage
-                    baseService="flyttstadning"
+                  <StadningArea
                     areaName={area.name}
-                    description={area.description}
                     heroImage={area.heroImage}
-                    subAreas={area.path === "nacka" ? SUB_AREAS_NACKA.map(sub => ({ ...sub, link: `/flyttstadning-${sub.path}` })) : (area.path === "ekero" ? SUB_AREAS_EKERO.map(sub => ({ ...sub, link: `/flyttstadning-ekero-${sub.path}` })) : (area.path === "lidingo" ? SUB_AREAS_LIDINGO.map(sub => ({ ...sub, link: `/flyttstadning-lidingo-${sub.path}` })) : []))}
+                    subAreas={getSubAreasForService(area.path, 'hemstadning')}
                   />
                 }
               />
-              <Route
-                path={`/foretagsstadning-${area.path}`}
-                element={
-                  <LocalSeoPage
-                    baseService="foretagsstadning"
-                    areaName={area.name}
-                    description={area.description}
-                    heroImage={area.heroImage}
-                    subAreas={area.path === "nacka" ? SUB_AREAS_NACKA.map(sub => ({ ...sub, link: `/foretagsstadning-${sub.path}` })) : (area.path === "ekero" ? SUB_AREAS_EKERO.map(sub => ({ ...sub, link: `/foretagsstadning-ekero-${sub.path}` })) : (area.path === "lidingo" ? SUB_AREAS_LIDINGO.map(sub => ({ ...sub, link: `/foretagsstadning-lidingo-${sub.path}` })) : []))}
-                  />
-                }
-              />
+
+              {/* All service types — e.g. /hemstadning-ekero, /fonsterputsning-lidingo */}
+              {ALL_SERVICES.map((service) => (
+                <Route
+                  key={`${service}-${area.path}`}
+                  path={`/${service}-${area.path}`}
+                  element={
+                    <LocalSeoPage
+                      baseService={service}
+                      areaName={area.name}
+                      description={area.description}
+                      heroImage={area.heroImage}
+                      subAreas={getSubAreasForService(area.path, service)}
+                    />
+                  }
+                />
+              ))}
             </React.Fragment>
           ))}
 
-          {/* Ekerö Sub-area Routes for Hemstädning */}
+          {/* === SUB-AREA ROUTES === */}
+          {/* Ekerö sub-areas — all services */}
           {SUB_AREAS_EKERO.map((subArea) => (
-            <Route
-
-              path={`/hemstadning-ekero-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="hemstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
+            <React.Fragment key={`ekero-sub-${subArea.path}`}>
+              {ALL_SERVICES.map((service) => (
+                <Route
+                  key={`${service}-ekero-${subArea.path}`}
+                  path={`/${service}-ekero-${subArea.path}`}
+                  element={
+                    <LocalSeoPage
+                      baseService={service}
+                      areaName={subArea.name}
+                      description={subArea.description}
+                      heroImage={subArea.heroImage}
+                    />
+                  }
                 />
-              }
-            />
+              ))}
+            </React.Fragment>
           ))}
 
-          {/* Ekerö Sub-area Routes for Flyttstädning */}
-          {SUB_AREAS_EKERO.map((subArea) => (
-            <Route
-
-              path={`/flyttstadning-ekero-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="flyttstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
-          ))}
-
-          {/* Ekerö Sub-area Routes for Företagsstädning */}
-          {SUB_AREAS_EKERO.map((subArea) => (
-            <Route
-
-              path={`/foretagsstadning-ekero-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="foretagsstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
-          ))}
-
-          {/* Lidingö Sub-area Routes for Hemstädning */}
+          {/* Lidingö sub-areas — all services */}
           {SUB_AREAS_LIDINGO.map((subArea) => (
-            <Route
-
-              path={`/hemstadning-lidingo-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="hemstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
+            <React.Fragment key={`lidingo-sub-${subArea.path}`}>
+              {ALL_SERVICES.map((service) => (
+                <Route
+                  key={`${service}-lidingo-${subArea.path}`}
+                  path={`/${service}-lidingo-${subArea.path}`}
+                  element={
+                    <LocalSeoPage
+                      baseService={service}
+                      areaName={subArea.name}
+                      description={subArea.description}
+                      heroImage={subArea.heroImage}
+                    />
+                  }
                 />
-              }
-            />
+              ))}
+            </React.Fragment>
           ))}
 
-          {/* Lidingö Sub-area Routes for Flyttstädning */}
-          {SUB_AREAS_LIDINGO.map((subArea) => (
-            <Route
-
-              path={`/flyttstadning-lidingo-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="flyttstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
-          ))}
-
-          {/* Lidingö Sub-area Routes for Företagsstädning */}
-          {SUB_AREAS_LIDINGO.map((subArea) => (
-            <Route
-
-              path={`/foretagsstadning-lidingo-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="foretagsstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
-          ))}
-
-          {/* Nacka Sub-area Routes for Hemstädning */}
+          {/* Nacka sub-areas — all services */}
           {SUB_AREAS_NACKA.map((subArea) => (
-            <Route
-              path={`/hemstadning-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="hemstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
+            <React.Fragment key={`nacka-sub-${subArea.path}`}>
+              {ALL_SERVICES.map((service) => (
+                <Route
+                  key={`${service}-${subArea.path}`}
+                  path={`/${service}-${subArea.path}`}
+                  element={
+                    <LocalSeoPage
+                      baseService={service}
+                      areaName={subArea.name}
+                      description={subArea.description}
+                      heroImage={subArea.heroImage}
+                    />
+                  }
                 />
-              }
-            />
-          ))}
-
-          {/* Nacka Sub-area Routes for Flyttstädning */}
-          {SUB_AREAS_NACKA.map((subArea) => (
-            <Route
-              path={`/flyttstadning-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="flyttstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
-          ))}
-
-          {/* Nacka Sub-area Routes for Företagsstädning */}
-          {SUB_AREAS_NACKA.map((subArea) => (
-            <Route
-              path={`/foretagsstadning-${subArea.path}`}
-              element={
-                <LocalSeoPage
-                  baseService="foretagsstadning"
-                  areaName={subArea.name}
-                  description={subArea.description}
-                  heroImage={subArea.heroImage}
-                />
-              }
-            />
+              ))}
+            </React.Fragment>
           ))}
         </Routes>
       </Layout>

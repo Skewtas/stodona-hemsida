@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, HelpCircle, CheckCircle2, Star } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
@@ -35,8 +36,118 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
   };
   const displayBaseService = serviceNameMap[baseService.toLowerCase()] || (baseService.charAt(0).toUpperCase() + baseService.slice(1).replace(/stadning/i, 'städning'));
 
+  // Service-specific checklists
+  const serviceChecklists: Record<string, { title: string; items: string[] }[]> = {
+    hemstadning: [
+      { title: 'Alla rum', items: ['Dammsugning av golv, mattor och klädda möbler', 'Fuktmoppning av alla golv', 'Avtorkning av fria ytor, dörrar, karmar och strömbrytare', 'Tömning av papperskorgar', 'Putsning av speglar'] },
+      { title: 'Kök', items: ['Rengöring av diskbänk, arbetsbänkar och spishäll', 'Avtorkning av vitvaror utvändigt', 'Rengöring inuti mikrovågsugn', 'Avtorkning av köksluckor och lådfronter'] },
+      { title: 'Badrum', items: ['Rengöring av toalett, handfat och dusch/badkar', 'Avtorkning av badrumsskåp utvändigt', 'Rengöring av kranar och munstycken'] },
+    ],
+    fonsterputsning: [
+      { title: 'Fönsterputsning', items: ['Putsning av fönsterglas – insida och utsida', 'Putsning mellan glasen (om delbara fönster)', 'Avtorkning av fönsterkarmar och fönsterbänkar', 'Vi tar med all utrustning och miljövänliga rengöringsmedel'] },
+      { title: 'Bra att veta', items: ['Plocka undan blommor och föremål från fönsterbrädorna', 'Dra undan gardiner och persienner', 'Meddela oss om fönstren är svåråtkomliga eller kräver specialstege', 'Vi putsar fönster året runt, så länge det inte är extrem kyla'] },
+    ],
+    storstadning: [
+      { title: 'Alla rum', items: ['Dammsugning och fuktmoppning av alla golv', 'Avtorkning av lister, socklar och dörrkarmar', 'Putsning av speglar och fönsterbrädor', 'Avtorkning av lampor och takarmaturer', 'Dammsugning av möbler och under kuddar'] },
+      { title: 'Kök – djuprengöring', items: ['Rengöring av ugn invändigt och utvändigt', 'Rengöring inuti kylskåp och frys', 'Avtorkning av skåp invändigt och utvändigt', 'Rengöring av spisfläkt och filter', 'Avkalkning av kranar och diskbänk'] },
+      { title: 'Badrum – djuprengöring', items: ['Djuprengöring av kakel och fogar', 'Avkalkning av duschhörna och badkar', 'Rengöring av ventiler och golvbrunn', 'Putsning av alla ytor och armaturer'] },
+    ],
+    flyttstadning: [
+      { title: 'Alla rum', items: ['Dammsugning och våttorkning av golv, lister och socklar', 'Rengöring av fönster invändigt, karmar och bänkar', 'Avtorkning av eluttag, strömbrytare och dörrar', 'Rengöring av garderober och skåp invändigt'] },
+      { title: 'Kök', items: ['Rengöring av ugn, spis och fläkt grundligt', 'Rengöring inuti alla skåp och lådor', 'Rengöring av kylskåp och frys invändigt', 'Avkalkning och rengöring av diskmaskin'] },
+      { title: 'Badrum', items: ['Djuprengöring av toalett, handfat och dusch', 'Avkalkning av kakel och armaturer', 'Rengöring av ventiler och golvbrunn'] },
+    ],
+    foretagsstadning: [
+      { title: 'Kontor och gemensamma ytor', items: ['Dammsugning och moppning av alla golv', 'Avtorkning av skrivbord, bord och fria ytor', 'Tömning av papperskorgar och byte av påsar', 'Putsning av glaspartier och speglar'] },
+      { title: 'Kök och pentry', items: ['Rengöring av diskbänk och bänkytor', 'Avtorkning av vitvaror utvändigt', 'Påfyllning av diskmedel och handtvål'] },
+      { title: 'Toaletter', items: ['Rengöring och desinficering av toaletter', 'Påfyllning av toalettpapper och tvål', 'Rengöring av speglar och handfat'] },
+    ],
+    byggstadning: [
+      { title: 'Grovstädning', items: ['Bortforsling av byggdamm och skräp', 'Dammsugning av alla ytor inklusive väggar och tak', 'Våttorkning av golv, väggar och fönster', 'Rengöring av ventiler och eluttag'] },
+      { title: 'Finstädning', items: ['Putsning av fönster och glaspartier', 'Avtorkning av alla lister, karmar och socklar', 'Rengöring av kök och badrum grundligt', 'Slutlig inspektion och kvalitetskontroll'] },
+    ],
+    trappstadning: [
+      { title: 'Trapphus', items: ['Sopning och moppning av alla trappsteg', 'Avtorkning av ledstänger och räcken', 'Rengöring av entrépartier och dörrar', 'Putsning av speglar och glaspartier', 'Tömning av papperskorgar'] },
+    ],
+    bodstadning: [
+      { title: 'Bod/etablering', items: ['Dammsugning och moppning av golv', 'Avtorkning av bord, bänkar och ytor', 'Rengöring av köksutrustning och pentry', 'Rengöring av toaletter och duschrum', 'Tömning av papperskorgar'] },
+    ],
+  };
+
+  // Service-specific FAQs
+  const serviceFaqs: Record<string, { q: string; a: string }[]> = {
+    hemstadning: [
+      { q: 'Har ni med er eget städmaterial?', a: 'Ja, vi tar med oss allt städmaterial och alla rengöringsprodukter som behövs. Vi använder miljövänliga och professionella produkter för bästa resultat. Det enda du behöver tillhandahålla är en fungerande dammsugare.' },
+      { q: 'Är det samma person som städar varje gång?', a: 'Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.' },
+      { q: 'Har ni någon bindningstid?', a: 'Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.' },
+      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.' },
+      { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.' },
+      { q: 'Måste jag vara hemma när ni städar?', a: 'Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.' },
+    ],
+    fonsterputsning: [
+      { q: 'Putsar ni fönster på vintern?', a: 'Ja, vi putsar fönster året runt, så länge det inte är extrem kyla eller storm. Vi rekommenderar regelbunden putsning för bästa resultat.' },
+      { q: 'Vem står för utrustningen?', a: 'Vi tar med allt vi behöver – skrapor, moppar, miljövänliga rengöringsmedel och stegar. Meddela oss i förväg om du har ovanligt hög takhöjd.' },
+      { q: 'Ingår fönsterputsning i hemstädningen?', a: 'Nej, fönsterputsning bokas som en separat tjänst. Du kan dock kombinera fönsterputsning med din hemstädning för att få allt gjort vid samma tillfälle.' },
+      { q: 'Hur ofta bör man putsa fönster?', a: 'Vi rekommenderar fönsterputsning 2-4 gånger per år för bästa resultat. Många av våra kunder bokar vår- och höstputsning.' },
+      { q: 'Hur fungerar RUT-avdraget för fönsterputsning?', a: 'Fönsterputsning berättigar till RUT-avdrag. Du betalar bara 50% av arbetskostnaden. Vi sköter all administration åt dig.' },
+    ],
+    storstadning: [
+      { q: 'Vad är skillnaden mellan hemstädning och storstädning?', a: 'Storstädning är en djupare rengöring som når ställen som inte ingår i vanlig hemstädning – som insidan av ugn, kylskåp, skåp, fönsterputsning och avkalkning.' },
+      { q: 'Hur lång tid tar en storstädning?', a: 'Det beror på bostadens storlek och skick, men räkna med 4-8 timmar för en normalbostad. Vi ger dig en tidsuppskattning vid bokning.' },
+      { q: 'Hur ofta bör man storstäda?', a: 'Vi rekommenderar storstädning 1-2 gånger per år, gärna vår och höst, som komplement till regelbunden hemstädning.' },
+      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.' },
+      { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura.' },
+    ],
+  };
+
+  const activeChecklists = serviceChecklists[baseService.toLowerCase()] || serviceChecklists.hemstadning;
+  const activeFaqs = serviceFaqs[baseService.toLowerCase()] || serviceFaqs.hemstadning;
+
+  // Service-specific intro text
+  const serviceIntroTexts: Record<string, string> = {
+    hemstadning: `När du anlitar Stodona för ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du förvänta dig ett skinande rent hem, varje gång. Vi följer en noggrann checklista för att säkerställa att inget missas.`,
+    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt att få till perfekt. Våra professionella fönsterputsare ${prep} ${displayAreaName} har rätt utrustning och teknik för att ge dig skinande rena fönster, helt utan ränder.`,
+    storstadning: `Vår storstädning ${prep} ${displayAreaName} är en djupgående rengöring som når varje hörn av ditt hem. Perfekt som komplement till regelbunden hemstädning, eller inför speciella tillfällen.`,
+    flyttstadning: `Vår flyttstädning ${prep} ${displayAreaName} följer en noggrant utformad checklista som säkerställer att din bostad lämnas i toppskick. Vi erbjuder dessutom flyttstädningsgaranti.`,
+    foretagsstadning: `Vi erbjuder professionell företagsstädning ${prep} ${displayAreaName} anpassad efter era behov. Regelbunden eller engångsstädning – vi skapar en ren och trivsam arbetsmiljö.`,
+    byggstadning: `Efter renovering eller nybygge ${prep} ${displayAreaName} tar vi hand om all byggstädning. Från grovstädning till finstädning – vi lämnar lokalen inflyttningsklar.`,
+    trappstadning: `Håll ert trapphus rent och välkomnande med vår trappstädning ${prep} ${displayAreaName}. Vi erbjuder regelbunden städning anpassad efter er bostadsrättsförening eller fastighet.`,
+    bodstadning: `Professionell städning av manskapsbodar och etableringsytor ${prep} ${displayAreaName}. Vi säkerställer en ren och trivsam arbetsmiljö för era medarbetare.`,
+  };
+  const introText = serviceIntroTexts[baseService.toLowerCase()] || serviceIntroTexts.hemstadning;
+
+  const areaSlug = displayAreaName.toLowerCase().replace(/å/g, 'a').replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/\s+/g, '-');
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: activeFaqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: { '@type': 'Answer', text: faq.a },
+    })),
+  };
+
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Stodona',
+    description: `${displayBaseService} ${prep} ${displayAreaName}. Professionell städning med RUT-avdrag.`,
+    url: `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`,
+    areaServed: { '@type': 'Place', name: displayAreaName },
+    priceRange: '$$',
+  };
+
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>{displayBaseService} {prep} {displayAreaName} | Stodona – Boka med RUT-avdrag</title>
+        <meta name="description" content={`${displayBaseService} ${prep} ${displayAreaName}. ${introText.substring(0, 150)}... Boka enkelt online – Stodona.`} />
+        <link rel="canonical" href={`https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`} />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
+      </Helmet>
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-bg-primary">
         <div className="absolute inset-0 w-full h-full z-0">
@@ -84,72 +195,22 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                 Vad ingår i vår {displayBaseService.toLowerCase()} {prep} {displayAreaName}?
               </h2>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                När du anlitar Stodona för {displayBaseService.toLowerCase()} {prep} {displayAreaName} kan du
-                förvänta dig ett skinande rent hem, varje gång. Vi följer en
-                noggrann checklista för att säkerställa att inget missas.
+                {introText}
               </p>
 
-              <h3 className="text-2xl font-bold mt-12 mb-4">Alla rum</h3>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Dammsugning av golv, mattor och klädda möbler</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Fuktmoppning av alla golv</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>
-                    Avtorkning av fria ytor, dörrar, karmar och strömbrytare
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Tömning av papperskorgar</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Putsning av speglar</span>
-                </li>
-              </ul>
-
-              <h3 className="text-2xl font-bold mt-12 mb-4">Kök</h3>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Rengöring av diskbänk, arbetsbänkar och spishäll</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Avtorkning av vitvaror utvändigt</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Rengöring inuti mikrovågsugn</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Avtorkning av köksluckor och lådfronter</span>
-                </li>
-              </ul>
-
-              <h3 className="text-2xl font-bold mt-12 mb-4">Badrum</h3>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Rengöring av toalett, handfat och dusch/badkar</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Avtorkning av badrumsskåp utvändigt</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
-                  <span>Rengöring av kranar och munstycken</span>
-                </li>
-              </ul>
+              {activeChecklists.map((section, idx) => (
+                <div key={idx}>
+                  <h3 className="text-2xl font-bold mt-12 mb-4">{section.title}</h3>
+                  <ul className="space-y-3 mb-8">
+                    {section.items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-text-primary shrink-0 mt-0.5" />{" "}
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
 
               {/* Middle CTA */}
               <div className="my-16 p-8 bg-cta-hover/20 rounded-2xl border border-cta-hover/30 text-center">
@@ -230,32 +291,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           </div>
 
           <div className="max-w-3xl mx-auto space-y-6">
-            {[ // FAQ content can be made dynamic based on baseService if needed
-              {
-                q: "Har ni med er eget städmaterial?",
-                a: "Ja, vi tar med oss allt städmaterial och alla rengöringsprodukter som behövs. Vi använder miljövänliga och professionella produkter för bästa resultat. Det enda du behöver tillhandahålla är en fungerande dammsugare.",
-              },
-              {
-                q: "Är det samma person som städar varje gång?",
-                a: "Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.",
-              },
-              {
-                q: "Har ni någon bindningstid?",
-                a: "Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.",
-              },
-              {
-                q: "Vad händer om något går sönder?",
-                a: "Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.",
-              },
-              {
-                q: "Hur fungerar RUT-avdraget?",
-                a: "Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.",
-              },
-              {
-                q: "Måste jag vara hemma när ni städar?",
-                a: "Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.",
-              },
-            ].map((faq, i) => (
+            {activeFaqs.map((faq, i) => (
               <div
                 key={i}
                 className="card-rounded bg-white p-6 border border-text-primary/10"

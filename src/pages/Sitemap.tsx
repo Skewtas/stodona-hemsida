@@ -110,16 +110,41 @@ export default function Sitemap() {
                 </div>
                 <h2 className="text-2xl font-bold">Områden</h2>
               </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <div className="space-y-4">
                 {SERVICE_AREAS.map((area) => (
-                  <Link 
-                    key={area.path}
-                    to={`/${area.path}`}
-                    className="flex items-center gap-2 text-text-secondary hover:text-cta-hover transition-colors group text-sm"
-                  >
-                    <ChevronRight className="w-3 h-3 opacity-50 group-hover:opacity-100" />
-                    <span>{area.name}</span>
-                  </Link>
+                  <div key={area.path}>
+                    <Link 
+                      to={`/stadning-${area.path}`}
+                      className="flex items-center gap-2 text-text-primary hover:text-cta-hover transition-colors group font-medium mb-1"
+                    >
+                      <MapPin className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                      <span>Städning {area.name}</span>
+                      <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                    </Link>
+                    <div className="pl-6 space-y-0.5">
+                      {['hemstadning', 'fonsterputsning', 'flyttstadning', 'storstadning', 'foretagsstadning', 'byggstadning', 'trappstadning'].map((service) => {
+                        const serviceNames: Record<string, string> = {
+                          hemstadning: 'Hemstädning',
+                          fonsterputsning: 'Fönsterputsning',
+                          flyttstadning: 'Flyttstädning',
+                          storstadning: 'Storstädning',
+                          foretagsstadning: 'Företagsstädning',
+                          byggstadning: 'Byggstädning',
+                          trappstadning: 'Trappstädning',
+                        };
+                        return (
+                          <Link
+                            key={`${service}-${area.path}`}
+                            to={`/${service}-${area.path}`}
+                            className="flex items-center gap-1 text-text-secondary hover:text-cta-hover transition-colors text-xs"
+                          >
+                            <ChevronRight className="w-3 h-3 opacity-30" />
+                            <span>{serviceNames[service]} {area.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

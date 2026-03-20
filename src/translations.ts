@@ -49,8 +49,8 @@ const translations: TranslationMap = {
     'home.hero.cta2': { SV: 'Få prisförslag och info', EN: 'Get a quote and info' },
     'home.hero.bullet1': { SV: 'RUT direkt på fakturan', EN: 'RUT tax deduction applied' },
     'home.hero.bullet2': { SV: 'Ingen bindningstid', EN: 'No commitment' },
-    'home.hero.bullet3': { SV: 'Samma team när möjligt', EN: 'Same team when possible' },
-    'home.hero.bullet4': { SV: 'Populära tider bokas snabbt', EN: 'Popular slots fill fast' },
+    'home.hero.bullet3': { SV: 'Samma team', EN: 'Same team' },
+    'home.hero.bullet4': { SV: 'Tider bokas snabbt', EN: 'Slots fill fast' },
 
     // ─── HOME: Booking section ─────────────────────────────────────────
     'home.book.badge': { SV: 'Snabbt & Enkelt', EN: 'Fast & Easy' },

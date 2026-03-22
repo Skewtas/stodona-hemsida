@@ -52,14 +52,14 @@ export default function WelcomePopup() {
             transition={{ type: 'spring', duration: 0.5 }}
             className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
           >
-            {/* Header with gradient */}
-            <div className="bg-gradient-to-br from-cta-hover to-amber-400 p-8 text-center text-text-primary">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gift className="w-8 h-8" />
+            {/* Header */}
+            <div className="bg-bg-dark p-8 text-center text-text-light">
+              <div className="w-16 h-16 bg-cta-hover/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Gift className="w-8 h-8 text-cta-hover" />
               </div>
               <h2 className="text-2xl font-bold mb-2">Välkommen till Stodona!</h2>
-              <p className="text-sm opacity-90">
-                Boka din första städning idag och få <strong>15% rabatt</strong>
+              <p className="text-sm text-text-light/70">
+                Boka din första städning idag och få <strong className="text-cta-hover">15% rabatt</strong>
               </p>
             </div>
 
@@ -89,7 +89,7 @@ export default function WelcomePopup() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 bg-cta-hover text-text-primary font-bold rounded-xl hover:brightness-110 transition-all disabled:opacity-50 text-sm"
+                    className="w-full py-3.5 bg-bg-dark text-text-light font-bold rounded-xl hover:bg-black transition-all disabled:opacity-50 text-sm"
                   >
                     {loading ? 'Skickar...' : 'Få min rabattkod →'}
                   </button>
@@ -99,16 +99,18 @@ export default function WelcomePopup() {
                   </p>
                 </form>
               ) : (
-                <div className="text-center py-4">
-                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Tack!</h3>
-                  <p className="text-text-secondary text-sm mb-4">
-                    Använd rabattkoden vid bokning:
+                <div className="text-center py-6">
+                  <div className="text-4xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-bold mb-1">Tack!</h3>
+                  <p className="text-text-secondary text-sm mb-6">
+                    Här är din personliga rabattkod:
                   </p>
-                  <div className="bg-bg-primary border-2 border-dashed border-cta-hover rounded-xl py-3 px-6 inline-block">
-                    <span className="text-2xl font-bold tracking-wider text-cta-hover">VLKMN15</span>
+                  <div className="bg-bg-dark rounded-2xl py-5 px-8 inline-block shadow-lg">
+                    <span className="text-3xl font-bold tracking-[0.2em] text-cta-hover">VLKMN15</span>
                   </div>
-                  <p className="text-xs text-text-secondary mt-3">15% rabatt på din första städning</p>
+                  <p className="text-sm text-text-secondary mt-5">
+                    Ange koden vid <a href="/boka-stadning" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt
+                  </p>
                 </div>
               )}
             </div>
@@ -116,7 +118,7 @@ export default function WelcomePopup() {
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-text-primary transition-colors"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-text-light transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

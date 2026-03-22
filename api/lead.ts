@@ -145,7 +145,7 @@ export default async function handler(request: Request) {
             <div style="padding: 20px; text-align: center; border: 1px solid #eee; border-radius: 12px;">
               <h2 style="color: #1a1a2e;">Hej, vi såg att du påbörjade en bokning!</h2>
               <p>Vi på Stodona strävar efter att leverera Stockholms bästa städning. Var det något du undrade över som hindrade dig från att slutföra bokningen?</p>
-              <p>Som ett litet tack för att du överväger oss ger vi dig just nu <strong>10% rabatt</strong> på din första städning om du använder koden <strong>STODONA10</strong>.</p>
+              <p>Som ett litet tack för att du överväger oss ger vi dig just nu <strong>20% rabatt</strong> på din första städning om du använder koden <strong>CMB20</strong>.</p>
               <a href="https://boka.stodona.se" style="display: inline-block; background-color: #1a1a2e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: bold;">Slutför min bokning</a>
               <p style="margin-top: 30px; font-size: 13px; color: #666; text-align: left;">
                 Svara gärna på det här mejlet om du har några frågor så hjälper vi dig direkt!<br/><br/>
@@ -165,7 +165,7 @@ export default async function handler(request: Request) {
             body: JSON.stringify({
               from: 'Stodona <info@stodona.se>',
               to: email,
-              subject: 'Behöver du hjälp med din bokning? (+ 10% rabatt)',
+              subject: 'Behöver du hjälp med din bokning? (+ 20% rabatt)',
               html: abandonedHtml,
             }),
           });

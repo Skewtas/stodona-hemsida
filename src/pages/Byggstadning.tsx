@@ -24,6 +24,7 @@ export default function Byggstadning() {
         <meta name="description" content="Proffsig byggstädning i Stockholm. Grovstädning, finstädning och rengöring efter nybygge eller renovering. Vi tar hand om byggdammet. Boka idag!" />
         <meta property="og:title" content="Byggstädning i Stockholm (Efter Renovering) | Stodona" />
         <meta property="og:description" content="Proffsig byggstädning i Stockholm. Vi städar bort byggdammet efter renovering och nybygge." />
+        <link rel="canonical" href="https://stodona.se/byggstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Byggstädning"

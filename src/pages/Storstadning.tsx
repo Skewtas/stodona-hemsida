@@ -26,6 +26,7 @@ export default function Storstadning() {
         <meta name="description" content="Gör rent på djupet! Boka storstädning i Stockholm. Vi rengör ugn, kylskåp, badrum och alla svåråtkomliga ytor. Alltid med RUT-avdrag." />
         <meta property="og:title" content="Storstädning i Stockholm (Djuprengöring) | Stodona" />
         <meta property="og:description" content="Gör rent på djupet! Boka storstädning i Stockholm. Vi rengör ugn, kylskåp, badrum och alla ytor." />
+        <link rel="canonical" href="https://stodona.se/storstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Storstädning"

@@ -25,6 +25,7 @@ export default function Flyttstadning() {
         <meta name="description" content="Professionell flyttstädning i Stockholm med nöjdhetsgaranti. RUT-avdrag direkt på fakturan. Vi tar med allt städmaterial. Boka snabbt och enkelt online!" />
         <meta property="og:title" content="Flyttstädning i Stockholm med Garanti | Stodona" />
         <meta property="og:description" content="Professionell flyttstädning i Stockholm med nöjdhetsgaranti. Vi tar med allt material." />
+        <link rel="canonical" href="https://stodona.se/flyttstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Flyttstädning"

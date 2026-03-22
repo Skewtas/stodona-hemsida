@@ -26,6 +26,7 @@ export default function Hemstadning() {
         <meta name="description" content="Professionell hemstädning i Stockholm med RUT-avdrag. Få 15% rabatt på din första bokning. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid." />
         <meta property="og:title" content="Hemstädning i Stockholm | Stodona" />
         <meta property="og:description" content="Professionell hemstädning i Stockholm med RUT-avdrag. Få 15% rabatt på din första bokning. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid." />
+        <link rel="canonical" href="https://stodona.se/hemstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Hemstädning"
@@ -143,8 +144,9 @@ export default function Hemstadning() {
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
                   src="/stodona_right_image.jpg" 
-                  alt="Hemstädning i Stockholm" 
+                  alt="Noggrann hemstädning med hotellkänsla i Stockholm av Stodona" 
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

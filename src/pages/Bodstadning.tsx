@@ -23,6 +23,7 @@ export default function Bodstadning() {
         <meta name="description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om allt från röjning till slutstädning med omsorg och respekt." />
         <meta property="og:title" content="Bodstädning & Dödsbostädning i Stockholm | Stodona" />
         <meta property="og:description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om röjning till slutstädning." />
+        <link rel="canonical" href="https://stodona.se/bodstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Bodstädning"

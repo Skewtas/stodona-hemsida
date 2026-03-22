@@ -7,36 +7,44 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { LanguageProvider } from "./context/LanguageContext";
-import Home from "./pages/Home";
-import Hemstadning from "./pages/Hemstadning";
-import Flyttstadning from "./pages/Flyttstadning";
-import Storstadning from "./pages/Storstadning";
-import Foretagsstadning from "./pages/Foretagsstadning";
-import Byggstadning from "./pages/Byggstadning";
-import Fonsterputsning from "./pages/Fonsterputsning";
-import Trappstadning from "./pages/Trappstadning";
-import Bodstadning from "./pages/Bodstadning";
-import OmOss from "./pages/OmOss";
-import Kontakt from "./pages/Kontakt";
-import Boka from "./pages/Boka";
-import BokaStadning from "./pages/BokaStadning";
-import VarvaEnVan from "./pages/VarvaEnVan";
-import Kundportal from "./pages/Kundportal";
-import Visselblasning from "./pages/Visselblasning";
-import CookiePolicy from "./pages/CookiePolicy";
-import Integritetspolicy from "./pages/Integritetspolicy";
-import Villkor from "./pages/Villkor";
-import Sitemap from "./pages/Sitemap";
-import LocalSeoPage from "./pages/LocalSeoPage";
-import StadningArea from "./pages/StadningArea";
-import Blogg from "./pages/Blogg";
-import BloggPost from "./pages/BloggPost";
-import FAQ from "./pages/FAQ";
-import Kundrecensioner from "./pages/Kundrecensioner";
-import NotFound from "./pages/NotFound";
-import AdminLeads from "./pages/AdminLeads";
-import Priser from "./pages/Priser";
 import PlaceholderPage from "./components/PlaceholderPage";
+
+// Lazy loaded pages to enable code splitting
+const Home = React.lazy(() => import("./pages/Home"));
+const Hemstadning = React.lazy(() => import("./pages/Hemstadning"));
+const Flyttstadning = React.lazy(() => import("./pages/Flyttstadning"));
+const Storstadning = React.lazy(() => import("./pages/Storstadning"));
+const Foretagsstadning = React.lazy(() => import("./pages/Foretagsstadning"));
+const Byggstadning = React.lazy(() => import("./pages/Byggstadning"));
+const Fonsterputsning = React.lazy(() => import("./pages/Fonsterputsning"));
+const Trappstadning = React.lazy(() => import("./pages/Trappstadning"));
+const Bodstadning = React.lazy(() => import("./pages/Bodstadning"));
+const OmOss = React.lazy(() => import("./pages/OmOss"));
+const Kontakt = React.lazy(() => import("./pages/Kontakt"));
+const Boka = React.lazy(() => import("./pages/Boka"));
+const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
+const VarvaEnVan = React.lazy(() => import("./pages/VarvaEnVan"));
+const Kundportal = React.lazy(() => import("./pages/Kundportal"));
+const Visselblasning = React.lazy(() => import("./pages/Visselblasning"));
+const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
+const Integritetspolicy = React.lazy(() => import("./pages/Integritetspolicy"));
+const Villkor = React.lazy(() => import("./pages/Villkor"));
+const Sitemap = React.lazy(() => import("./pages/Sitemap"));
+const LocalSeoPage = React.lazy(() => import("./pages/LocalSeoPage"));
+const StadningArea = React.lazy(() => import("./pages/StadningArea"));
+const Blogg = React.lazy(() => import("./pages/Blogg"));
+const BloggPost = React.lazy(() => import("./pages/BloggPost"));
+const FAQ = React.lazy(() => import("./pages/FAQ"));
+const Kundrecensioner = React.lazy(() => import("./pages/Kundrecensioner"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+const AdminLeads = React.lazy(() => import("./pages/AdminLeads"));
+const Priser = React.lazy(() => import("./pages/Priser"));
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-10 h-10 rounded-full border-4 border-text-primary/10 border-t-cta-hover animate-spin"></div>
+  </div>
+);
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -63,6 +71,7 @@ export default function App() {
     <LanguageProvider>
       <ScrollToTop />
       <Layout>
+        <React.Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/hemstadning" element={<Hemstadning />} />
@@ -206,6 +215,7 @@ export default function App() {
           {/* 404 catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </React.Suspense>
       </Layout>
     </LanguageProvider>
   );

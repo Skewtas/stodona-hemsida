@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, MapPin, Maximize, Sparkles } from 'lucide-react';
+import { ArrowRight, MapPin, Maximize, Sparkles, Star } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 
@@ -27,6 +27,16 @@ export const QuickBookingWidget: React.FC = () => {
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-text-primary/5 max-w-lg mx-auto w-full">
+      <div className="flex items-center justify-center gap-2 mx-auto mb-4 bg-bg-primary text-text-primary px-4 py-1.5 rounded-full w-max text-xs font-bold border border-text-primary/5">
+        <div className="flex text-yellow-500">
+          <Star className="w-3.5 h-3.5 fill-current" />
+          <Star className="w-3.5 h-3.5 fill-current" />
+          <Star className="w-3.5 h-3.5 fill-current" />
+          <Star className="w-3.5 h-3.5 fill-current" />
+          <Star className="w-3.5 h-3.5 fill-current" />
+        </div>
+        <span>{lang === 'EN' ? '4.9/5 Average Rating' : '4.9/5 i snittbetyg'}</span>
+      </div>
       <h3 className="text-2xl font-bold mb-6 text-text-primary text-center">
         {lang === 'EN' ? 'Book cleaning online' : 'Boka städning online'}
       </h3>

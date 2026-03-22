@@ -23,6 +23,7 @@ export default function Trappstadning() {
         <meta name="description" content="Professionell trappstädning i Stockholm. Trygg och regelbunden städning av trapphus för bostadsrättsföreningar (BRF) och fastighetsägare." />
         <meta property="og:title" content="Trappstädning i Stockholm för BRF & Företag | Stodona" />
         <meta property="og:description" content="Professionell trappstädning i Stockholm för BRF och företag." />
+        <link rel="canonical" href="https://stodona.se/trappstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Trappstädning"

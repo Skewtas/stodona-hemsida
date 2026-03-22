@@ -22,6 +22,7 @@ export default function Fonsterputsning() {
         <meta name="description" content="Professionell fönsterputsning i Stockholm. Vi ger dig rändfria fönster med RUT-avdrag. Putsning av insida, utsida och mellan glasen utförs av experter." />
         <meta property="og:title" content="Fönsterputsning i Stockholm (Rändfria resultat) | Stodona" />
         <meta property="og:description" content="Vi ger dig rändfria fönster i hela Stockholm. Putsning av insida, utsida och mellan glas." />
+        <link rel="canonical" href="https://stodona.se/fonsterputsning" />
       </Helmet>
       <ServiceSchema
         serviceName="Fönsterputsning"

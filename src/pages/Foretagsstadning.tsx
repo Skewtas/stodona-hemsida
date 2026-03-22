@@ -24,6 +24,7 @@ export default function Foretagsstadning() {
         <meta name="description" content="Professionell företagsstädning och kontorsstädning i Stockholm. Skräddarsydda städlösningar för kontor, butiker och fastigheter med högsta kvalitet." />
         <meta property="og:title" content="Företagsstädning & Kontorsstädning i Stockholm | Stodona" />
         <meta property="og:description" content="Professionell företagsstädning och kontorsstädning i Stockholm. Skräddarsydda städlösningar för kontor och butiker." />
+        <link rel="canonical" href="https://stodona.se/foretagsstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Företagsstädning"

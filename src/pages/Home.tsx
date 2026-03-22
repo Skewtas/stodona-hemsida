@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import {
   CheckCircle2,
   Star,
@@ -32,6 +33,21 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Stodona – Professionell städning i Stockholm | Hemstädning med RUT-avdrag</title>
+        <meta name="description" content="Stodona erbjuder hemstädning, fönsterputsning, flyttstädning och storstädning i Stockholm. Samma team varje gång. RUT-avdrag – betala bara 50%. Boka online!" />
+        <link rel="canonical" href="https://stodona.se" />
+        <meta property="og:title" content="Stodona – Professionell städning i Stockholm" />
+        <meta property="og:description" content="Hemstädning, fönsterputsning och flyttstädning med RUT-avdrag. Samma team varje gång. Boka online!" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://stodona.se" />
+        <meta property="og:image" content="https://stodona.se/stodona-stad.jpg" />
+        <meta property="og:locale" content="sv_SE" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Stodona – Professionell städning i Stockholm" />
+        <meta name="twitter:description" content="Hemstädning med RUT-avdrag. Samma team varje gång. Boka online!" />
+        <meta name="twitter:image" content="https://stodona.se/stodona-stad.jpg" />
+      </Helmet>
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
@@ -188,6 +204,7 @@ export default function Home() {
                   alt="Glad familj hemma med Stodona"
                   className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
               </div>
             </motion.div>
@@ -456,6 +473,7 @@ export default function Home() {
                       alt={service.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-8 flex-grow flex flex-col">

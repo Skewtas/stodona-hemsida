@@ -252,4 +252,249 @@ Boka din första hemstädning med Stodona och upplev skillnaden. Ingen bindnings
 
 [Boka hemstädning idag](/boka-stadning) – vi har lediga tider redan den här veckan!`,
   },
+  {
+    slug: 'varstadning-komplett-guide',
+    title: 'Vårstädning – komplett guide för ett fräscht hem',
+    metaDescription: 'Komplett guide till vårstädning 2026. Checklista rum för rum, tips från professionella städare och hur du sparar med RUT-avdrag.',
+    excerpt: 'Våren är här och det är dags att ge hemmet en ordentlig genomgång. Här är vår kompletta guide till en lyckad vårstädning.',
+    date: '2026-03-22',
+    category: 'Säsong',
+    readTime: '6 min',
+    heroImage: '/stodona_right_image.jpg',
+    content: `## Vårstädning – ge hemmet en nystart
+
+Efter en lång vinter med stängda fönster och uppvärmd inomhusluft förtjänar ditt hem en ordentlig vårstädning. Det handlar inte bara om att städa – det handlar om att skapa en fräsch, hälsosam miljö att njuta av under den ljusare årstiden.
+
+### Varför är vårstädning viktigt?
+
+Under vintern samlas damm, kvalster och allergener i hemmet. Enligt [Folkhälsomyndigheten](https://www.folkhalsomyndigheten.se/livsvillkor-levnadsvanor/miljohalsa-och-halsoskydd/inomhusmiljo/) kan dålig inomhusluft bidra till huvudvärk, trötthet och förvärrade allergier. En grundlig vårstädning förbättrar luftkvaliteten märkbart.
+
+### Checklista: Rum för rum
+
+**Kök:**
+- Rengör ugn och spisfläkt (fett samlas under vintern)
+- Rensa och torka av alla skåp invändigt
+- Avfrosta frysen
+- Rengör kylskåpet
+- Avkalka diskmaskin och kaffemaskin
+
+**Badrum:**
+- Avkalka kranar, duschmunstycke och kakel
+- Rengör golvbrunn och ventiler
+- Tvätta duschdraperier eller glasväggar
+- Gå igenom och släng gamla produkter
+
+**Vardagsrum & sovrum:**
+- Vända madrasser
+- Tvätta gardiner och överkast
+- Dammsuga möbler, under sängar och i alla hörn
+- Torka av lampor, lister och dörrkarmar
+
+**Fönster:**
+- Putsa alla fönster in- och utsida
+- Torka av fönsterkarmar och bänkar
+- Perfekt att kombinera med professionell [fönsterputsning](/fonsterputsning)
+
+**Övrigt:**
+- Rengör garderober och byt till vår/sommarkläder
+- Torka av alla lister och socklar
+- Tvätta golvmattor
+- Rensa balkong eller uteplats
+
+### Hur lång tid tar en vårstädning?
+
+| Bostadstyp | Ungefärlig tid |
+|------------|---------------|
+| 1–2 rum | 3–4 timmar |
+| 3–4 rum | 5–7 timmar |
+| 5+ rum / villa | 8–10 timmar |
+
+### Vårstäda smart med Stodona
+
+Vill du slippa lägga en hel helg på vårstädningen? Boka en professionell [storstädning](/storstadning) med Stodona. Vi gör jobbet medan du njuter av vårsolen – och med RUT-avdrag betalar du bara 50%.
+
+[Boka vårstädning](/boka-stadning) idag!`,
+  },
+  {
+    slug: 'stadtips-for-allergiker',
+    title: 'Städtips för allergiker – så minskar du allergenerna hemma',
+    metaDescription: 'Lider du av allergi? Här är städtipsen som minskar pollen, kvalster och damm i hemmet. Professionella råd från Stodona.',
+    excerpt: 'Allergi kan göra vardagen tuff, men med rätt städrutiner kan du dramatiskt minska allergenerna i hemmet.',
+    date: '2026-03-21',
+    category: 'Hälsa',
+    readTime: '5 min',
+    heroImage: '/stodona-stad.jpg',
+    content: `## Städtips för allergiker
+
+Ungefär **2 miljoner svenskar** lider av någon form av allergi, enligt [Astma- och Allergiförbundet](https://astmaoallergiforbundet.se/). De vanligaste bovarna är pollen, kvalster, mögel och pälsdjur. Med rätt städrutiner kan du minska allergenerna i hemmet avsevärt.
+
+### 1. Dammsug med HEPA-filter
+
+Vanliga dammsugare blåser ut fina partiklar som kvalster och pollen tillbaka i luften. Investera i en dammsugare med **HEPA-filter** (High Efficiency Particulate Air) – det fångar upp 99,97% av alla partiklar ner till 0,3 mikrometer.
+
+### 2. Våttorka istället för att damma torrt
+
+Att damma med en torr trasa sprider bara runt allergenerna. Använd istället en **fuktig mikrofibertrasa** som fångar upp och håller kvar partiklarna. Torka av alla ytor minst en gång i veckan.
+
+### 3. Tvätta sängkläder på 60°C
+
+Kvalster trivs i sängen. Tvätta lakan, örngott och påslakan i **minst 60°C** varje vecka. Enligt [Folkhälsomyndigheten](https://www.folkhalsomyndigheten.se/) dör kvalster vid temperaturer över 55°C.
+
+### 4. Håll fönstren stängda under pollensäsongen
+
+Under pollensäsongen (mars–juli) bör du:
+- Stänga fönster under dagen, särskilt soliga och blåsiga dagar
+- Vädra på kvällen när pollenhalterna är lägre
+- Byta kläder när du kommer hem utifrån
+- Duscha och tvätta håret innan du lägger dig
+
+Kolla dagsaktuella pollenhalter på [Pollenrapporten](https://pollenkoll.se/).
+
+### 5. Rengör ventiler och fläktar
+
+Ventilationsrör och fläktar samlar damm och kan sprida allergener i hela hemmet. Rengör ventiler minst 2 gånger per år och byt filter regelbundet.
+
+### 6. Minimera textilier
+
+Mattor, gardiner och kuddar samlar damm och kvalster. Om du har allergi:
+- Välj släta golv framför heltäckningsmattor
+- Tvätta gardiner regelbundet eller byt till persienner
+- Använd allergivänliga örngott och madrasskydd
+
+### 7. Regelbunden professionell städning
+
+Den mest effektiva åtgärden är regelbunden, grundlig städning. Våra professionella städare på Stodona vet exakt vilka ytor och områden som kräver extra uppmärksamhet för allergiker.
+
+Vi erbjuder [hemstädning](/hemstadning) med fokus på allergirenhet, och med RUT-avdrag betalar du bara hälften. [Boka idag](/boka-stadning)!`,
+  },
+  {
+    slug: 'sa-fungerar-rut-avdrag-2026',
+    title: 'Så fungerar RUT-avdrag 2026 – allt du behöver veta',
+    metaDescription: 'Komplett guide om RUT-avdrag 2026. Hur mycket kan du spara? Vilka tjänster ingår? Hur ansöker man? Stodona förklarar.',
+    excerpt: 'RUT-avdraget gör att du betalar bara hälften för hushållstjänster. Här förklarar vi hur det fungerar 2026.',
+    date: '2026-03-19',
+    category: 'Ekonomi',
+    readTime: '5 min',
+    heroImage: '/stodona_left_image.jpg',
+    content: `## RUT-avdrag 2026 – så fungerar det
+
+RUT-avdraget är en av de mest populära skattelättnaderna i Sverige. Det gör att du som privatperson bara betalar **50% av arbetskostnaden** för hushållsnära tjänster. Här förklarar vi allt du behöver veta om hur det fungerar 2026.
+
+### Vad är RUT-avdrag?
+
+RUT står för **Rengöring, Underhåll och Tvätt**. Det är en skattereduktion som innebär att staten subventionerar hälften av din kostnad för hushållstjänster. Syftet är att stimulera den vita ekonomin och göra det enklare att få hjälp hemma.
+
+Källa: [Skatteverket – RUT-avdrag](https://www.skatteverket.se/privat/fastigheterochbostad/rotochrutarbete/rutarbete.4.2ef18e6a125bbb56b74000007782.html)
+
+### Hur mycket kan jag spara?
+
+| | 2026 |
+|---|---|
+| **Maxbelopp** | 75 000 kr per person/år |
+| **Avdragsprocent** | 50% av arbetskostnad |
+| **Gäller för** | Privatpersoner med svensk skattsedel |
+
+**Räkneexempel:**
+- Hemstädning varannan vecka (2 tim): ca 800 kr/gång → med RUT: **400 kr/gång**
+- Fönsterputsning helårsavtal: ca 8 000 kr/år → med RUT: **4 000 kr/år**
+- Flyttstädning 3 rok: ca 5 000 kr → med RUT: **2 500 kr**
+
+### Vilka tjänster berättigar till RUT?
+
+Enligt [Skatteverket](https://www.skatteverket.se/privat/fastigheterochbostad/rotochrutarbete/rutarbete/vadgerratttillrutavdrag.4.5c281c7015abecc2e202ce4.html) gäller RUT-avdrag bland annat för:
+
+- ✅ [Hemstädning](/hemstadning)
+- ✅ [Fönsterputsning](/fonsterputsning)
+- ✅ [Flyttstädning](/flyttstadning)
+- ✅ [Storstädning](/storstadning)
+- ✅ [Trappstädning](/trappstadning)
+- ✅ [Byggstädning](/byggstadning)
+- ✅ Tvätt och strykning
+- ✅ Barnpassning
+- ✅ Trädgårdsarbete
+
+**Obs:** Materialkostnader ingår inte i RUT-avdraget – bara arbetskostnaden.
+
+### Hur gör vi på Stodona?
+
+Hos Stodona behöver du inte göra något speciellt:
+
+1. **Du bokar** städning via vår [bokningssida](https://boka.stodona.se)
+2. **Vi städar** ditt hem
+3. **Vi fakturerar** dig 50% av arbetskostnaden
+4. **Vi ansöker** om resten från Skatteverket åt dig
+
+Du slipper all administration – vi sköter allt med Skatteverket.
+
+### Vanliga frågor om RUT
+
+**Kan samboende båda använda RUT?** Ja! Varje person har ett eget tak på 75 000 kr/år. Ett par kan alltså få upp till 150 000 kr i avdrag totalt.
+
+**Gäller RUT för företag?** Nej, RUT gäller bara privatpersoner. Företag drar av städkostnaden som driftkostnad istället.
+
+**Vad händer om jag inte har tillräckligt med skatt?** RUT-avdraget bygger på att du har betalt tillräckligt med skatt under året. Har du låg inkomst kan avdraget begränsas. Kolla med [Skatteverket](https://www.skatteverket.se/) om du är osäker.
+
+[Boka städning med RUT-avdrag](/boka-stadning) hos Stodona idag!`,
+  },
+  {
+    slug: 'hemstadning-vad-kostar-det',
+    title: 'Hemstädning – vad kostar det egentligen?',
+    metaDescription: 'Vad kostar hemstädning 2026? Prisguide med RUT-avdrag, jämförelse och tips. Stodona – hemstädning i Stockholm med fast pris.',
+    excerpt: 'Undrar du vad hemstädning kostar? Här ger vi dig en ärlig prisguide och förklarar vad som påverkar priset.',
+    date: '2026-03-16',
+    category: 'Priser',
+    readTime: '4 min',
+    heroImage: '/stodona-stad.jpg',
+    content: `## Vad kostar hemstädning?
+
+En av de vanligaste frågorna vi får är "vad kostar hemstädning?". Svaret beror på flera faktorer, men vi tror på transparens – här får du en ärlig prisguide.
+
+### Genomsnittliga priser 2026 (efter RUT-avdrag)
+
+| Bostad | Tid | Pris före RUT | **Pris efter RUT** |
+|--------|-----|---------------|---------------------|
+| 1–2 rum (40–60 m²) | 1,5–2 tim | 600–800 kr | **300–400 kr** |
+| 3 rum (70–90 m²) | 2–3 tim | 800–1 200 kr | **400–600 kr** |
+| 4–5 rum (100–130 m²) | 3–4 tim | 1 200–1 600 kr | **600–800 kr** |
+| Villa (150+ m²) | 4–5 tim | 1 600–2 000 kr | **800–1 000 kr** |
+
+*Priserna är ungefärliga och baseras på regelbunden städning varannan vecka.*
+
+### Vad påverkar priset?
+
+**Bostadens storlek** – Fler kvadratmeter = längre städtid. Det viktigaste som påverkar priset.
+
+**Frekvens** – Regelbunden städning (varje/varannan vecka) är billigare per gång än enstaka bokningar, eftersom hemmet hålls på en jämn nivå.
+
+**Bostadens skick** – Ett välunderhållet hem tar kortare tid att städa.
+
+**Antal badrum** – Badrum tar proportionellt mer tid att rengöra.
+
+**Husdjur** – Hem med husdjur kräver ofta lite extra tid för pälshantering.
+
+### Så sparar du med RUT-avdrag
+
+Tack vare [RUT-avdraget](https://www.skatteverket.se/privat/fastigheterochbostad/rotochrutarbete/rutarbete.4.2ef18e6a125bbb56b74000007782.html) betalar du bara **50% av arbetskostnaden**. Hos Stodona dras RUT-avdraget direkt på fakturan – du behöver inte göra något.
+
+### Vad ingår i priset?
+
+Hos Stodona ingår alltid:
+- Dammsugning och moppning av alla golv
+- Avtorkning av fria ytor
+- Komplett köksrengöring (diskbänk, spis, vitvaror utvändigt)
+- Badrumsstädning (toalett, handfat, dusch)
+- Putsning av speglar
+- Tömning av papperskorgar
+
+Se vår [hemstädningssida](/hemstadning) för fullständig lista.
+
+### Varför välja Stodona?
+
+- **Samma team** varje gång – de lär känna ditt hem
+- **Ingen bindningstid** – pausa eller avsluta när du vill
+- **Nöjdhetsgaranti** – inte nöjd? Vi åtgärdar utan extra kostnad
+- **RUT-avdrag** hanteras automatiskt
+
+Nyfiken på exakt pris för ditt hem? [Boka en offert](/boka-stadning) – det är kostnadsfritt och tar bara 2 minuter!`,
+  },
 ];

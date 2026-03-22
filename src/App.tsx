@@ -34,6 +34,7 @@ import BloggPost from "./pages/BloggPost";
 import FAQ from "./pages/FAQ";
 import Kundrecensioner from "./pages/Kundrecensioner";
 import NotFound from "./pages/NotFound";
+import AdminLeads from "./pages/AdminLeads";
 import PlaceholderPage from "./components/PlaceholderPage";
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
@@ -96,6 +97,9 @@ export default function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/vanliga-fragor" element={<FAQ />} />
           <Route path="/recensioner" element={<Kundrecensioner />} />
+
+          {/* Admin (without layout) */}
+          <Route path="/admin/leads" element={<AdminLeads />} />
 
           {/* === AREA SEO PAGES === */}
           {SERVICE_AREAS.map((area) => (

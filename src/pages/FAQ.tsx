@@ -144,11 +144,11 @@ const faqCategories: FaqCategory[] = [
       },
       {
         q: 'Hur betalar jag?',
-        a: 'Vi skickar faktura efter utförd tjänst. Du betalar hälften av arbetskostnaden tack vare RUT-avdraget – vi hanterar resten med Skatteverket.',
+        a: 'Vi skickar faktura efter utförd tjänst med <strong>10 dagars betalningsvillkor</strong>. Tack vare RUT-avdraget betalar du bara hälften av arbetskostnaden – vi hanterar resten med Skatteverket åt dig.',
       },
       {
-        q: 'Kan jag avboka eller ändra en bokad tid?',
-        a: 'Ja, vi ber dig meddela oss minst 48 timmar innan planerad tid om du behöver ändra eller avboka. Kontakta oss via telefon eller e-post.',
+        q: 'Vad gäller vid avbokning?',
+        a: 'Vi ber dig meddela oss <strong>senast kl. 12:00 vardagen innan</strong> planerad städning om du behöver ändra eller avboka. Vid sen avbokning eller om vi inte släpps in debiteras kostnaden för det bokade tillfället. Kontakta oss via telefon på <a href="tel:0101780150">010-178 01 50</a> eller mejla <a href="mailto:info@stodona.se">info@stodona.se</a>.',
       },
       {
         q: 'Hur snabbt kan ni komma?',
@@ -166,7 +166,11 @@ const faqCategories: FaqCategory[] = [
       },
       {
         q: 'Vad händer om jag inte är nöjd med städningen?',
-        a: 'Vi erbjuder nöjdhetsgaranti. Om du inte är nöjd med resultatet, kontakta oss inom 24 timmar så kommer vi tillbaka och åtgärdar utan extra kostnad.',
+        a: 'Vi erbjuder nöjdhetsgaranti. Om du inte är nöjd med resultatet, kontakta oss <strong>inom 24 timmar</strong> efter utförd städning så kommer vi tillbaka och åtgärdar utan extra kostnad. Du kan nå oss på <a href="tel:0101780150">010-178 01 50</a> eller <a href="mailto:info@stodona.se">info@stodona.se</a>.',
+      },
+      {
+        q: 'Hur gör jag en reklamation?',
+        a: 'Om du vill reklamera en utförd tjänst, kontakta oss inom <strong>24 timmar</strong> efter städningen via telefon <a href="tel:0101780150">010-178 01 50</a> eller e-post <a href="mailto:info@stodona.se">info@stodona.se</a>. Beskriv vad du inte är nöjd med, gärna med bilder, så bokar vi in en kostnadsfri omstädning. Reklamationsrätten gäller de moment som ingick i den beställda tjänsten.',
       },
       {
         q: 'Har era anställda F-skattsedel?',

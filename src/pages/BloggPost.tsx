@@ -4,10 +4,12 @@ import { motion } from 'motion/react';
 import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { blogPosts } from '../blogData';
+import { areaBlogPosts } from '../areaBlogData';
 
 export default function BloggPost() {
   const { slug } = useParams<{ slug: string }>();
-  const post = blogPosts.find(p => p.slug === slug);
+  const allPosts = [...blogPosts, ...areaBlogPosts];
+  const post = allPosts.find(p => p.slug === slug);
 
   if (!post) {
     return <Navigate to="/blogg" replace />;
@@ -122,7 +124,7 @@ export default function BloggPost() {
                 <div className="card-rounded bg-bg-primary p-6 border border-text-primary/5">
                   <h3 className="text-lg font-bold mb-4">Fler artiklar</h3>
                   <div className="space-y-4">
-                    {blogPosts
+                    {allPosts
                       .filter(p => p.slug !== post.slug)
                       .slice(0, 3)
                       .map(related => (

@@ -4,6 +4,7 @@ import { Menu, X, Phone, Mail, User } from "lucide-react";
 import Logo from "./Logo";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import CookieConsent from "./CookieConsent";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -346,6 +347,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <CookieConsent />
     </div>
   );
 }

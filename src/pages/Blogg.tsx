@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 import { blogPosts } from '../blogData';
+import { areaBlogPosts } from '../areaBlogData';
 
 export default function Blogg() {
   return (
@@ -34,7 +35,7 @@ export default function Blogg() {
       <section className="section-spacing bg-white">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {blogPosts.map((post, index) => (
+            {[...blogPosts, ...areaBlogPosts].map((post, index) => (
               <motion.article
                 key={post.slug}
                 initial={{ opacity: 0, y: 20 }}

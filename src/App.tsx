@@ -31,6 +31,7 @@ import LocalSeoPage from "./pages/LocalSeoPage";
 import StadningArea from "./pages/StadningArea";
 import Blogg from "./pages/Blogg";
 import BloggPost from "./pages/BloggPost";
+import FAQ from "./pages/FAQ";
 import PlaceholderPage from "./components/PlaceholderPage";
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
@@ -90,6 +91,8 @@ export default function App() {
           <Route path="/sidkarta" element={<Sitemap />} />
           <Route path="/blogg" element={<Blogg />} />
           <Route path="/blogg/:slug" element={<BloggPost />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/vanliga-fragor" element={<FAQ />} />
 
           {/* === AREA SEO PAGES === */}
           {SERVICE_AREAS.map((area) => (

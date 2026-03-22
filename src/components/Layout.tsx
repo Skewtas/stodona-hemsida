@@ -282,6 +282,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   Blogg
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="hover:text-cta-hover transition-colors">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

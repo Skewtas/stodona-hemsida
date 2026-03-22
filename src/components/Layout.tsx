@@ -277,6 +277,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   {t('footer.visselblasning', lang)}
                 </Link>
               </li>
+              <li>
+                <Link to="/blogg" className="hover:text-cta-hover transition-colors">
+                  Blogg
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

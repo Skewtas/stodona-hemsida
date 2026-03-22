@@ -5,6 +5,7 @@ import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { blogPosts } from '../blogData';
 import { areaBlogPosts } from '../areaBlogData';
+import BlogLeadMagnet from '../components/BlogLeadMagnet';
 
 export default function BloggPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -107,6 +108,7 @@ export default function BloggPost() {
               >
                 {post.content}
               </ReactMarkdown>
+              <BlogLeadMagnet />
             </motion.article>
 
             {/* Sidebar */}

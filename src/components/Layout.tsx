@@ -5,6 +5,10 @@ import Logo from "./Logo";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
+import WelcomePopup from "./WelcomePopup";
+import ExitIntentPopup from "./ExitIntentPopup";
+import StickyCTA from "./StickyCTA";
+import FooterNewsletter from "./FooterNewsletter";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -325,6 +329,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </a>
               </li>
             </ul>
+            <div className="mt-6">
+              <FooterNewsletter />
+            </div>
           </div>
         </div>
         <div className="container-custom mt-12 sm:mt-20 pt-6 sm:pt-8 border-t border-text-light/10 flex flex-col md:flex-row items-center justify-between text-xs text-text-light/50 gap-4">
@@ -348,6 +355,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
+      <WelcomePopup />
+      <ExitIntentPopup />
+      <StickyCTA />
     </div>
   );
 }

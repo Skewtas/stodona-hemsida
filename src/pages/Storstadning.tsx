@@ -13,11 +13,19 @@ import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import ServiceSchema from "../components/ServiceSchema";
 
 export default function Storstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <ServiceSchema
+        serviceName="Storstädning"
+        serviceType="Storstädning"
+        description="Professionell storstädning i Stockholm. Djupgående rengöring av ugn, kylskåp, badrum och mer. RUT-avdrag – betala bara 50%."
+        url="/storstadning"
+        image="https://stodona.se/stodona_left_image.jpg"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

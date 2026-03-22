@@ -11,11 +11,19 @@ import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import ServiceSchema from "../components/ServiceSchema";
 
 export default function Foretagsstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <ServiceSchema
+        serviceName="Företagsstädning"
+        serviceType="Företagsstädning"
+        description="Professionell kontorsstädning och företagsstädning i Stockholm. Anpassad efter era behov. Skräddarsydda lösningar för kontor, butiker och fastigheter."
+        url="/foretagsstadning"
+        image="https://stodona.se/kontorsstadning.jpg"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

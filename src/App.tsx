@@ -33,6 +33,7 @@ import Blogg from "./pages/Blogg";
 import BloggPost from "./pages/BloggPost";
 import FAQ from "./pages/FAQ";
 import Kundrecensioner from "./pages/Kundrecensioner";
+import NotFound from "./pages/NotFound";
 import PlaceholderPage from "./components/PlaceholderPage";
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
@@ -204,6 +205,9 @@ export default function App() {
               ))}
             </React.Fragment>
           ))}
+
+          {/* 404 catch-all */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </LanguageProvider>

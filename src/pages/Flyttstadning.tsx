@@ -12,11 +12,19 @@ import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import ServiceSchema from "../components/ServiceSchema";
 
 export default function Flyttstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <ServiceSchema
+        serviceName="Flyttstädning"
+        serviceType="Flyttstädning"
+        description="Professionell flyttstädning i Stockholm med garanti. RUT-avdrag, komplett checklista och vi tar med allt material. Boka online!"
+        url="/flyttstadning"
+        image="https://stodona.se/stodona-damm.jpg"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

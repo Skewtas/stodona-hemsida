@@ -13,11 +13,19 @@ import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
+import ServiceSchema from "../components/ServiceSchema";
 
 export default function Hemstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <ServiceSchema
+        serviceName="Hemstädning"
+        serviceType="Hemstädning"
+        description="Professionell hemstädning i Stockholm med RUT-avdrag. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid. Boka online!"
+        url="/hemstadning"
+        image="https://stodona.se/stodona_right_image.jpg"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

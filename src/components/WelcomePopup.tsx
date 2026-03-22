@@ -53,14 +53,22 @@ export default function WelcomePopup() {
             className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-bg-dark p-8 text-center text-text-light">
-              <div className="w-16 h-16 bg-cta-hover/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Gift className="w-8 h-8 text-cta-hover" />
+            <div className="relative p-8 text-center text-text-light overflow-hidden">
+              <img 
+                src="/stodona_right_image.jpg" 
+                alt="" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-bg-dark/80" />
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-cta-hover/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
+                  <Gift className="w-8 h-8 text-cta-hover" />
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Välkommen till Stodona!</h2>
+                <p className="text-sm text-text-light/70">
+                  Boka din första städning idag och få <strong className="text-cta-hover">15% rabatt</strong>
+                </p>
               </div>
-              <h2 className="text-2xl font-bold mb-2">Välkommen till Stodona!</h2>
-              <p className="text-sm text-text-light/70">
-                Boka din första städning idag och få <strong className="text-cta-hover">15% rabatt</strong>
-              </p>
             </div>
 
             {/* Content */}

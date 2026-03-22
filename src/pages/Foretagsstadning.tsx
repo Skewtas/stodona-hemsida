@@ -13,10 +13,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Foretagsstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Företagsstädning & Kontorsstädning i Stockholm | Stodona</title>
+        <meta name="description" content="Professionell företagsstädning och kontorsstädning i Stockholm. Skräddarsydda städlösningar för kontor, butiker och fastigheter med högsta kvalitet." />
+        <meta property="og:title" content="Företagsstädning & Kontorsstädning i Stockholm | Stodona" />
+        <meta property="og:description" content="Professionell företagsstädning och kontorsstädning i Stockholm. Skräddarsydda städlösningar för kontor och butiker." />
+      </Helmet>
       <ServiceSchema
         serviceName="Företagsstädning"
         serviceType="Företagsstädning"

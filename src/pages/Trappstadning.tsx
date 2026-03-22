@@ -12,10 +12,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Trappstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Trappstädning i Stockholm för BRF & Företag | Stodona</title>
+        <meta name="description" content="Professionell trappstädning i Stockholm. Trygg och regelbunden städning av trapphus för bostadsrättsföreningar (BRF) och fastighetsägare." />
+        <meta property="og:title" content="Trappstädning i Stockholm för BRF & Företag | Stodona" />
+        <meta property="og:description" content="Professionell trappstädning i Stockholm för BRF och företag." />
+      </Helmet>
       <ServiceSchema
         serviceName="Trappstädning"
         serviceType="Trappstädning"

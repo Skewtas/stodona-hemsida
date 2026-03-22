@@ -15,10 +15,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Storstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Storstädning i Stockholm (Djuprengöring) | Stodona</title>
+        <meta name="description" content="Gör rent på djupet! Boka storstädning i Stockholm. Vi rengör ugn, kylskåp, badrum och alla svåråtkomliga ytor. Alltid med RUT-avdrag." />
+        <meta property="og:title" content="Storstädning i Stockholm (Djuprengöring) | Stodona" />
+        <meta property="og:description" content="Gör rent på djupet! Boka storstädning i Stockholm. Vi rengör ugn, kylskåp, badrum och alla ytor." />
+      </Helmet>
       <ServiceSchema
         serviceName="Storstädning"
         serviceType="Storstädning"
@@ -275,7 +283,7 @@ export default function Storstadning() {
               <h3 className="text-2xl font-bold mt-12 mb-4">Bra att veta om storstädning</h3>
               <p className="font-bold mb-2">Städmedel/material som du behöver ha hemma:</p>
               <p className="text-text-secondary mb-4 italic text-sm">
-                (Vi kan även tillhandahålla allt städmaterial mot en tilläggskostnad på 499 kr, då vi kör ut materialet med bil.)
+                (Vi kan även tillhandahålla allt städmaterial mot en tilläggskostnad, då vi kör ut materialet med bil.)
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3">
@@ -374,7 +382,7 @@ export default function Storstadning() {
                         Vem står för städmaterial?
                       </p>
                       <p className="text-xs text-text-secondary pl-6">
-                        Du behöver ha vissa städmedel och material hemma (se listan ovan). Vi kan även tillhandahålla städmaterial mot en kostnad på 499 kr (vi kör ut materialet med bil).
+                        Du behöver ha vissa städmedel och material hemma (se listan ovan). Vi kan även tillhandahålla städmaterial mot en extra kostnad (vi kör ut materialet med bil).
                       </p>
                     </div>
                   </div>

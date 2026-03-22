@@ -11,10 +11,26 @@ import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 
+import { Helmet } from 'react-helmet-async';
+import ServiceSchema from '../components/ServiceSchema';
+
 export default function Bodstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Bodstädning & Dödsbostädning i Stockholm | Stodona</title>
+        <meta name="description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om allt från röjning till slutstädning med omsorg och respekt." />
+        <meta property="og:title" content="Bodstädning & Dödsbostädning i Stockholm | Stodona" />
+        <meta property="og:description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om röjning till slutstädning." />
+      </Helmet>
+      <ServiceSchema
+        serviceName="Bodstädning"
+        serviceType="Dödsbostädning"
+        description="Diskret och professionell bodstädning/dödsbostädning i Stockholm."
+        url="/bodstadning"
+        image="https://stodona.se/stodona_right_image.jpg"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="container-custom relative z-10">

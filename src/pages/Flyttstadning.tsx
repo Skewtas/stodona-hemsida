@@ -14,10 +14,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Flyttstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Flyttstädning i Stockholm med Garanti | Stodona</title>
+        <meta name="description" content="Professionell flyttstädning i Stockholm med nöjdhetsgaranti. RUT-avdrag direkt på fakturan. Vi tar med allt städmaterial. Boka snabbt och enkelt online!" />
+        <meta property="og:title" content="Flyttstädning i Stockholm med Garanti | Stodona" />
+        <meta property="og:description" content="Professionell flyttstädning i Stockholm med nöjdhetsgaranti. Vi tar med allt material." />
+      </Helmet>
       <ServiceSchema
         serviceName="Flyttstädning"
         serviceType="Flyttstädning"

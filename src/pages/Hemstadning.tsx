@@ -15,10 +15,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Hemstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Hemstädning i Stockholm (15% Rabatt) | Stodona</title>
+        <meta name="description" content="Professionell hemstädning i Stockholm med RUT-avdrag. Få 15% rabatt på din första bokning. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid." />
+        <meta property="og:title" content="Hemstädning i Stockholm | Stodona" />
+        <meta property="og:description" content="Professionell hemstädning i Stockholm med RUT-avdrag. Få 15% rabatt på din första bokning. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid." />
+      </Helmet>
       <ServiceSchema
         serviceName="Hemstädning"
         serviceType="Hemstädning"
@@ -289,7 +297,7 @@ export default function Hemstadning() {
             {[
               {
                 q: "Har ni med er eget städmaterial?",
-                a: "Nej, vid hemstädning använder vi som standard kundens städmaterial. Du behöver tillhandahålla dammsugare, mopp och hink, 3 mikrofiberdukar, svamp med vit yta samt rengöringsmedel. Vi kan dock tillhandahålla allt städmaterial mot en tilläggskostnad på 499 kr (då kör vi ut materialet med bil).",
+                a: "Nej, vid hemstädning använder vi som standard kundens städmaterial. Du behöver tillhandahålla dammsugare, mopp och hink, 3 mikrofiberdukar, svamp med vit yta samt rengöringsmedel. Vi kan dock tillhandahålla allt städmaterial mot en tilläggskostnad (då kör vi ut materialet med bil).",
               },
               {
                 q: "Är det samma person som städar varje gång?",

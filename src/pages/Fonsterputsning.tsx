@@ -11,10 +11,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Fonsterputsning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Fönsterputsning i Stockholm (Rändfria resultat) | Stodona</title>
+        <meta name="description" content="Professionell fönsterputsning i Stockholm. Vi ger dig rändfria fönster med RUT-avdrag. Putsning av insida, utsida och mellan glasen utförs av experter." />
+        <meta property="og:title" content="Fönsterputsning i Stockholm (Rändfria resultat) | Stodona" />
+        <meta property="og:description" content="Vi ger dig rändfria fönster i hela Stockholm. Putsning av insida, utsida och mellan glas." />
+      </Helmet>
       <ServiceSchema
         serviceName="Fönsterputsning"
         serviceType="Fönsterputsning"

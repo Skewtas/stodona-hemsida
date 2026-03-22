@@ -13,10 +13,18 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
+import { Helmet } from 'react-helmet-async';
+
 export default function Byggstadning() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Byggstädning i Stockholm (Efter Renovering) | Stodona</title>
+        <meta name="description" content="Proffsig byggstädning i Stockholm. Grovstädning, finstädning och rengöring efter nybygge eller renovering. Vi tar hand om byggdammet. Boka idag!" />
+        <meta property="og:title" content="Byggstädning i Stockholm (Efter Renovering) | Stodona" />
+        <meta property="og:description" content="Proffsig byggstädning i Stockholm. Vi städar bort byggdammet efter renovering och nybygge." />
+      </Helmet>
       <ServiceSchema
         serviceName="Byggstädning"
         serviceType="Byggstädning"

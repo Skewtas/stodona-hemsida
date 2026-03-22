@@ -35,6 +35,7 @@ import FAQ from "./pages/FAQ";
 import Kundrecensioner from "./pages/Kundrecensioner";
 import NotFound from "./pages/NotFound";
 import AdminLeads from "./pages/AdminLeads";
+import Priser from "./pages/Priser";
 import PlaceholderPage from "./components/PlaceholderPage";
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
@@ -75,15 +76,7 @@ export default function App() {
           <Route path="/om-oss" element={<OmOss />} />
           <Route path="/boka" element={<Boka />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
-          <Route
-            path="/priser"
-            element={
-              <PlaceholderPage
-                title="Priser"
-                description="Se våra transparenta priser för alla tjänster. Sidan är under uppbyggnad."
-              />
-            }
-          />
+          <Route path="/priser" element={<Priser />} />
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, MapPin, Maximize, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, MapPin, Maximize, Sparkles, Star, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 
@@ -103,9 +103,16 @@ export const QuickBookingWidget: React.FC = () => {
           </select>
         </div>
 
+        <div className="mt-2 flex items-start gap-3 bg-green-50 text-green-800 p-4 rounded-xl text-sm border border-green-100">
+          <ShieldCheck className="w-5 h-5 shrink-0 text-green-600 mt-0.5" />
+          <p>
+            <strong>{lang === 'EN' ? '100% Satisfaction Guarantee:' : '100% Kundnöjdhetsgaranti:'}</strong> {lang === 'EN' ? 'We guarantee a flawless result. If you are not satisfied with what was ordered, we fix it for free.' : 'Skulle du inte vara nöjd med det som beställts, åtgärdar vi det givetvis kostnadsfritt.'}
+          </p>
+        </div>
+
         <button
           type="submit"
-          className="w-full btn-primary bg-cta-hover text-text-primary hover:bg-text-primary hover:text-bg-primary py-4 mt-6 flex items-center justify-center gap-2 shadow-md group transition-all"
+          className="w-full btn-primary bg-cta-hover text-text-primary hover:bg-text-primary hover:text-bg-primary py-4 mt-2 flex items-center justify-center gap-2 shadow-md group transition-all"
         >
           {lang === 'EN' ? 'See price & book' : 'Se ditt pris och boka'}
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

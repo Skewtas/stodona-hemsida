@@ -39,8 +39,8 @@ export default function BokaStadning() {
                   <ShieldCheck className="w-6 h-6 text-text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">{lang === 'SV' ? 'Trygghetsgaranti' : 'Security guarantee'}</h3>
-                  <p className="text-sm text-text-secondary">{lang === 'SV' ? 'Vi är fullt försäkrade och lämnar alltid 100% nöjd-kund-garanti.' : 'We are fully insured and always offer a 100% satisfaction guarantee.'}</p>
+                  <h3 className="font-bold mb-1">{lang === 'SV' ? '100% Kundnöjdhetsgaranti' : '100% Satisfaction Guarantee'}</h3>
+                  <p className="text-sm text-text-secondary">{lang === 'SV' ? 'Det som beställts ska bli perfekt. Är du mot förmodan inte nöjd, åtgärdar vi det kostnadsfritt.' : 'What is ordered should be perfect. If you are not satisfied, we will fix it completely free of charge.'}</p>
                 </div>
               </div>
 

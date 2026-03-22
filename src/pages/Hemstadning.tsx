@@ -18,6 +18,46 @@ import ServiceSchema from "../components/ServiceSchema";
 import { Helmet } from 'react-helmet-async';
 
 export default function Hemstadning() {
+  const hemstadningFaq = [
+    {
+      q: "Har ni med er eget städmaterial?",
+      a: "Nej, vid hemstädning använder vi som standard kundens städmaterial. Du behöver tillhandahålla dammsugare, mopp och hink, 3 mikrofiberdukar, svamp med vit yta samt rengöringsmedel. Vi kan dock tillhandahålla allt städmaterial mot en tilläggskostnad (då kör vi ut materialet med bil).",
+    },
+    {
+      q: "Är det samma person som städar varje gång?",
+      a: "Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.",
+    },
+    {
+      q: "Har ni någon bindningstid?",
+      a: "Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.",
+    },
+    {
+      q: "Vad händer om något går sönder?",
+      a: "Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.",
+    },
+    {
+      q: "Hur fungerar RUT-avdraget?",
+      a: "Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.",
+    },
+    {
+      q: "Måste jag vara hemma när ni städar?",
+      a: "Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.",
+    },
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: hemstadningFaq.map(faq => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a
+      }
+    }))
+  };
+
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
@@ -27,6 +67,7 @@ export default function Hemstadning() {
         <meta property="og:title" content="Hemstädning i Stockholm | Stodona" />
         <meta property="og:description" content="Professionell hemstädning i Stockholm med RUT-avdrag. Få 15% rabatt på din första bokning. Samma team varje gång, nöjdhetsgaranti och ingen bindningstid." />
         <link rel="canonical" href="https://stodona.se/hemstadning" />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
       <ServiceSchema
         serviceName="Hemstädning"
@@ -296,32 +337,7 @@ export default function Hemstadning() {
           </div>
 
           <div className="max-w-3xl mx-auto space-y-6">
-            {[
-              {
-                q: "Har ni med er eget städmaterial?",
-                a: "Nej, vid hemstädning använder vi som standard kundens städmaterial. Du behöver tillhandahålla dammsugare, mopp och hink, 3 mikrofiberdukar, svamp med vit yta samt rengöringsmedel. Vi kan dock tillhandahålla allt städmaterial mot en tilläggskostnad (då kör vi ut materialet med bil).",
-              },
-              {
-                q: "Är det samma person som städar varje gång?",
-                a: "Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.",
-              },
-              {
-                q: "Har ni någon bindningstid?",
-                a: "Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.",
-              },
-              {
-                q: "Vad händer om något går sönder?",
-                a: "Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.",
-              },
-              {
-                q: "Hur fungerar RUT-avdraget?",
-                a: "Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.",
-              },
-              {
-                q: "Måste jag vara hemma när ni städar?",
-                a: "Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.",
-              },
-            ].map((faq, i) => (
+            {hemstadningFaq.map((faq, i) => (
               <div
                 key={i}
                 className="card-rounded bg-bg-primary p-6 border border-text-primary/10"

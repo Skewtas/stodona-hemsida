@@ -63,8 +63,8 @@ const faqCategories: FaqCategory[] = [
         a: 'Nej, du behöver inte vara hemma. De flesta av våra kunder lämnar en nyckel som vi förvarar säkert. Du kan också lämna en portkod eller sätter in en kodlåsenhet. Vi är fullt ansvarsförsäkrade.',
       },
       {
-        q: 'Har ni med eget städmaterial?',
-        a: 'Ja, vi tar med alla rengöringsprodukter och all utrustning. Det enda du behöver ha hemma är en fungerande dammsugare. Vi använder miljövänliga och professionella produkter.',
+        q: 'Vem tillhandahåller städmaterial?',
+        a: 'Det beror på tjänsten. Vid <a href="/hemstadning">hemstädning</a> och <a href="/storstadning">storstädning</a> använder vi kundens eget städmaterial och utrustning – det enda vi ber dig ha hemma är grundläggande rengöringsprodukter och en fungerande dammsugare. Vid övriga tjänster som <a href="/flyttstadning">flyttstädning</a>, <a href="/fonsterputsning">fönsterputsning</a>, <a href="/byggstadning">byggstädning</a> och <a href="/trappstadning">trappstädning</a> tar vi med allt material och all utrustning. Läs mer på vår <a href="/hemstadning">hemstädningssida</a>.',
       },
       {
         q: 'Har ni bindningstid?',

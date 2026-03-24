@@ -42,8 +42,8 @@ const translations: TranslationMap = {
     'home.hero.title1': { SV: 'Hotellkänsla hemma.', EN: 'Hotel feeling at home.' },
     'home.hero.title2': { SV: 'På riktigt.', EN: 'For real.' },
     'home.hero.subtitle': {
-        SV: 'Samma team varje gång. Vi lär känna ert hem. Alltid rent när du kommer hem – så att du kan ägna tiden åt det som betyder något.',
-        EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
+        SV: 'Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Vi lär känna ert hem. Samma team varje gång.',
+        EN: 'We create time for what truly matters. With our professional cleaning, your home won\\'t just look clean – it will feel like a five-star hotel.',
     },
     'home.hero.cta1': { SV: 'Boka direkt', EN: 'Book now' },
     'home.hero.cta2': { SV: 'Få prisförslag och info', EN: 'Get a quote and info' },

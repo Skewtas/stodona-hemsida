@@ -9,8 +9,10 @@ import {
   Clock, 
   ShieldCheck,
   MessageSquare,
-  Upload
+  Upload,
+  User
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 
@@ -119,6 +121,23 @@ export default function Kontakt() {
                     <div>
                       <h3 className="font-bold text-lg">{lang === 'SV' ? 'Här finns vårt kontor' : 'Our office'}</h3>
                       <p className="text-text-secondary">{lang === 'SV' ? 'Ågatan 12B, Sundbyberg. (endast bokade besök)' : 'Ågatan 12B, Sundbyberg. (by appointment only)'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-bg-primary rounded-xl flex items-center justify-center shrink-0">
+                      <User className="w-6 h-6 text-text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">{lang === 'SV' ? 'Kundportal' : 'Customer Portal'}</h3>
+                      <p className="text-text-secondary">
+                        {lang === 'SV' 
+                          ? 'Är du redan kund hos oss? Logga in för att hantera dina bokningar. ' 
+                          : 'Are you already a customer? Log in to manage your bookings. '}<br />
+                        <Link to="/kundportal" className="text-cta-hover font-medium hover:underline inline-flex items-center gap-1 mt-1">
+                          {lang === 'SV' ? 'Gå till kundportalen' : 'Go to customer portal'}
+                        </Link>
+                      </p>
                     </div>
                   </div>
                 </div>

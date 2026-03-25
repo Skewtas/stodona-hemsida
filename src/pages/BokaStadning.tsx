@@ -31,9 +31,17 @@ export default function BokaStadning() {
                 {lang === 'SV' ? 'Boka din städning' : 'Book your cleaning'} <br />
                 <span className="text-cta-hover italic font-normal">{lang === 'SV' ? 'på 60 sekunder' : 'in 60 seconds'}</span>
               </h1>
-              <p className="text-text-secondary text-lg leading-relaxed">
+              <p className="text-text-secondary text-lg leading-relaxed mb-6">
                 {lang === 'SV' ? 'Fyll i dina uppgifter nedan för att se ditt pris direkt och boka en tid som passar dig. Vi tar hand om resten.' : 'Fill in your details below to see your price immediately and book a time that suits you. We take care of the rest.'}
               </p>
+              <a
+                href="https://boka.stodona.se"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                {lang === 'SV' ? 'Boka städning här' : 'Book cleaning here'} →
+              </a>
             </motion.div>
 
             <motion.div

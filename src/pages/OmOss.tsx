@@ -11,7 +11,11 @@ export default function OmOss() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Om oss | Stodona</title>
+        <title>Om Stodona – Professionell städning i Stockholm sedan 2019</title>
+        <meta name="description" content="Lär känna Stodona – ett av Sveriges snabbast växande städbolag med ca 50 anställda. Vi levererar kvalitet, personlig service och det lilla extra." />
+        <meta property="og:title" content="Om Stodona – Professionell städning i Stockholm sedan 2019" />
+        <meta property="og:description" content="Stodona grundades 2019 med visionen att leverera wow-upplevelser inom städning. Lär känna oss!" />
+        <link rel="canonical" href="https://stodona.se/om-oss" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
@@ -122,6 +126,49 @@ export default function OmOss() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Internal Links Section */}
+      <section className="py-16 bg-bg-primary">
+        <div className="container-custom">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            {lang === 'SV' ? 'Utforska våra tjänster' : 'Explore our services'}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <Link to="/hemstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">🏠</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Hemstädning' : 'Home Cleaning'}</span>
+            </Link>
+            <Link to="/flyttstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">📦</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Flyttstädning' : 'Move-Out Cleaning'}</span>
+            </Link>
+            <Link to="/foretagsstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">🏢</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Företagsstädning' : 'Office Cleaning'}</span>
+            </Link>
+            <Link to="/fonsterputsning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">🪟</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Fönsterputsning' : 'Window Cleaning'}</span>
+            </Link>
+            <Link to="/storstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">✨</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Storstädning' : 'Deep Cleaning'}</span>
+            </Link>
+            <Link to="/priser" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">💰</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Priser' : 'Pricing'}</span>
+            </Link>
+            <Link to="/recensioner" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">⭐</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Recensioner' : 'Reviews'}</span>
+            </Link>
+            <Link to="/faq" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="text-2xl block mb-2">❓</span>
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Vanliga frågor' : 'FAQ'}</span>
+            </Link>
           </div>
         </div>
       </section>

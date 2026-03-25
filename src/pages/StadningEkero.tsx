@@ -70,7 +70,11 @@ export default function StadningEkero() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Städning Ekerö | Stodona</title>
+        <title>Städning på Ekerö – Hemstädning, Flyttstädning & mer | Stodona</title>
+        <meta name="description" content="Professionell städning på Ekerö. Hemstädning, fönsterputsning, flyttstädning, storstädning och mer med RUT-avdrag. Boka enkelt online – Stodona." />
+        <meta property="og:title" content="Städning på Ekerö – Hemstädning, Flyttstädning & mer | Stodona" />
+        <meta property="og:description" content="Stodona erbjuder professionell städning på Ekerö. Boka hemstädning, fönsterputsning eller flyttstädning med RUT-avdrag." />
+        <link rel="canonical" href="https://stodona.se/stadning-ekero" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-primary">

@@ -6,7 +6,11 @@ export default function CookiePolicy() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Cookie Policy | Stodona</title>
+        <title>Cookie Policy – Så använder vi cookies | Stodona</title>
+        <meta name="description" content="Läs om hur Stodona använder cookies på stodona.se. Information om nödvändiga, analytiska och funktionella cookies samt hur du hanterar dem." />
+        <meta property="og:title" content="Cookie Policy – Så använder vi cookies | Stodona" />
+        <meta property="og:description" content="Information om hur vi använder cookies på stodona.se och hur du kan hantera dem." />
+        <link rel="canonical" href="https://stodona.se/cookie-policy" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">

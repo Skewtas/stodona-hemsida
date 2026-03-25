@@ -9,7 +9,11 @@ export default function Kundportal() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Kundportal | Stodona</title>
+        <title>Kundportal – Hantera dina bokningar | Stodona</title>
+        <meta name="description" content="Logga in på Stodonas kundportal för att hantera dina städbokningar, se historik och kommunicera med oss. Enkel och snabb åtkomst." />
+        <meta property="og:title" content="Kundportal – Hantera dina bokningar | Stodona" />
+        <meta property="og:description" content="Logga in och hantera dina bokningar, se historik och kontakta oss direkt." />
+        <link rel="canonical" href="https://stodona.se/kundportalen" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">

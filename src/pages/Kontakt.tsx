@@ -53,7 +53,11 @@ export default function Kontakt() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Kontakt | Stodona</title>
+        <title>Kontakta Stodona – Städning i Stockholm | Stodona</title>
+        <meta name="description" content="Kontakta Stodona för frågor om hemstädning, flyttstädning och företagsstädning i Stockholm. Ring 010-178 01 50 eller fyll i vårt kontaktformulär." />
+        <meta property="og:title" content="Kontakta Stodona – Städning i Stockholm | Stodona" />
+        <meta property="og:description" content="Kontakta oss för frågor om städning i Stockholm. Ring, maila eller fyll i formuläret." />
+        <link rel="canonical" href="https://stodona.se/kontakt" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
@@ -313,6 +317,39 @@ export default function Kontakt() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Helpful Links Section */}
+      <section className="py-16 bg-bg-primary">
+        <div className="container-custom">
+          <h2 className="text-2xl font-bold text-center mb-8">{lang === 'SV' ? 'Populära sidor' : 'Popular pages'}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <Link to="/hemstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Hemstädning' : 'Home Cleaning'}</span>
+            </Link>
+            <Link to="/flyttstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Flyttstädning' : 'Move-Out Cleaning'}</span>
+            </Link>
+            <Link to="/boka-stadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Boka städning' : 'Book Cleaning'}</span>
+            </Link>
+            <Link to="/priser" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Priser' : 'Pricing'}</span>
+            </Link>
+            <Link to="/faq" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Vanliga frågor' : 'FAQ'}</span>
+            </Link>
+            <Link to="/om-oss" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Om oss' : 'About us'}</span>
+            </Link>
+            <Link to="/kundportalen" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Kundportal' : 'Customer Portal'}</span>
+            </Link>
+            <Link to="/recensioner" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Recensioner' : 'Reviews'}</span>
+            </Link>
           </div>
         </div>
       </section>

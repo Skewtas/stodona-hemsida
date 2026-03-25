@@ -10,7 +10,11 @@ export default function VarvaEnVan() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Värva en vän | Stodona</title>
+        <title>Värva en vän – Få 50% rabatt | Stodona</title>
+        <meta name="description" content="Värva en vän till Stodona och få 50% rabatt på en faktura – för er båda! Tipsa om vår hemstädning och spara pengar tillsammans." />
+        <meta property="og:title" content="Värva en vän – Få 50% rabatt | Stodona" />
+        <meta property="og:description" content="Tipsa en vän om Stodona och få 50% rabatt på en faktura – för er båda!" />
+        <link rel="canonical" href="https://stodona.se/varva-en-van" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">

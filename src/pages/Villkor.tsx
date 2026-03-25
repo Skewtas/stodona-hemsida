@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { FileText, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -6,7 +7,11 @@ export default function Villkor() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Allmänna villkor | Stodona</title>
+        <title>Allmänna villkor – Avtal och regler | Stodona</title>
+        <meta name="description" content="Läs Stodonas allmänna villkor för hemstädning och företagsstädning. Information om av-/ombokning, RUT-avdrag, reklamation, försäkring och betalning." />
+        <meta property="og:title" content="Allmänna villkor – Avtal och regler | Stodona" />
+        <meta property="og:description" content="Våra avtalsvillkor för städtjänster. Tydliga regler för bokning, avbokning och garanti." />
+        <link rel="canonical" href="https://stodona.se/villkor" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
@@ -135,15 +140,13 @@ export default function Villkor() {
               <p className="text-text-secondary mb-6">
                 För mer detaljerad information om hur våra tjänster fungerar i praktiken, besök vår FAQ-sida.
               </p>
-              <a 
-                href="https://www.stodona.se/om-oss/fragor-och-svar/" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <Link 
+                to="/faq" 
                 className="text-cta-hover font-bold hover:underline inline-flex items-center gap-2"
               >
                 Gå till Frågor & Svar
                 <FileText className="w-4 h-4" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

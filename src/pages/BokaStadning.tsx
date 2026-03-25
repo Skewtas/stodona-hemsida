@@ -9,7 +9,11 @@ export default function BokaStadning() {
   return (
     <div className="pt-32 pb-20 min-h-screen bg-bg-primary/30">
       <Helmet>
-        <title>Boka städning | Stodona</title>
+        <title>Boka städning online – Pris på 60 sekunder | Stodona</title>
+        <meta name="description" content="Boka hemstädning, flyttstädning eller storstädning i Stockholm online. Se prisförslag direkt, välj tid och boka på 60 sekunder. RUT-avdrag ingår." />
+        <meta property="og:title" content="Boka städning online – Pris på 60 sekunder | Stodona" />
+        <meta property="og:description" content="Se pris direkt och boka din städning online på 60 sekunder. RUT-avdrag ingår!" />
+        <link rel="canonical" href="https://stodona.se/boka-stadning" />
       </Helmet>
       <div className="container-custom">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

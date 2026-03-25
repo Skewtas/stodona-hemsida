@@ -50,7 +50,11 @@ export default function Visselblasning() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Visselblåsning | Stodona</title>
+        <title>Visselblåsning – Rapportera oegentligheter | Stodona</title>
+        <meta name="description" content="Stodonas visselblåsarfunktion. Rapportera misstankar om allvarliga oegentligheter säkert och konfidentiellt. Du kan vara anonym." />
+        <meta property="og:title" content="Visselblåsning – Rapportera oegentligheter | Stodona" />
+        <meta property="og:description" content="Rapportera misstankar om oegentligheter säkert och konfidentiellt via Stodonas visselblåsarfunktion." />
+        <link rel="canonical" href="https://stodona.se/visselblasning" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">

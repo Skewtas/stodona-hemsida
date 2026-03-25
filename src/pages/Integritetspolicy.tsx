@@ -6,7 +6,11 @@ export default function Integritetspolicy() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Integritetspolicy | Stodona</title>
+        <title>Integritetspolicy – GDPR och dataskydd | Stodona</title>
+        <meta name="description" content="Läs Stodonas integritetspolicy. Vi beskriver hur vi samlar in, använder och skyddar dina personuppgifter i enlighet med GDPR." />
+        <meta property="og:title" content="Integritetspolicy – GDPR och dataskydd | Stodona" />
+        <meta property="og:description" content="Så skyddar vi dina personuppgifter. Läs vår integritetspolicy." />
+        <link rel="canonical" href="https://stodona.se/integritetspolicy" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">

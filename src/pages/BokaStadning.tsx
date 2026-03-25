@@ -86,6 +86,26 @@ export default function BokaStadning() {
                 {lang === 'SV' ? '"Bästa städfirman jag anlitat. Proffsigt bemötande och fantastiskt resultat!"' : '"Best cleaning company I\'ve hired. Professional treatment and fantastic results!"'}
               </p>
             </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="p-6 bg-cta-hover/10 rounded-2xl border border-cta-hover/20 text-center"
+            >
+              <p className="font-medium mb-3">
+                {lang === 'SV' ? 'Vill du boka direkt i vårt bokningssystem?' : 'Want to book directly in our booking system?'}
+              </p>
+              <a
+                href="https://boka.stodona.se"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                {lang === 'SV' ? 'Gå till boka.stodona.se' : 'Go to boka.stodona.se'}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </motion.div>
           </div>
 
           {/* Right Side: Widget */}

@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, CheckCircle2, HelpCircle, Star, Sparkles } from 'lucide-react';
@@ -68,6 +69,9 @@ const faqs = [
 export default function StadningEkero() {
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Städning Ekerö | Stodona</title>
+      </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-primary">
         <div className="absolute inset-0 w-full h-full z-0">

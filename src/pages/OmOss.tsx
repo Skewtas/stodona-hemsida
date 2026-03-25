@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ShieldCheck, Star, Sparkles, Heart } from "lucide-react";
@@ -9,6 +10,9 @@ export default function OmOss() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Om oss | Stodona</title>
+      </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

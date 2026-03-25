@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import React from 'react';
 import { motion } from 'motion/react';
 import { User, Lock } from 'lucide-react';
@@ -7,6 +8,9 @@ export default function Kundportal() {
   const { lang } = useLanguage();
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>Kundportal | Stodona</title>
+      </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">

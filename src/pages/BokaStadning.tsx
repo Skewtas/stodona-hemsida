@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { motion } from "motion/react";
 import { FullBookingForm } from "../components/FullBookingForm";
 import { CheckCircle2, ShieldCheck, Clock, Star } from "lucide-react";
@@ -7,6 +8,9 @@ export default function BokaStadning() {
   const { lang } = useLanguage();
   return (
     <div className="pt-32 pb-20 min-h-screen bg-bg-primary/30">
+      <Helmet>
+        <title>Boka städning | Stodona</title>
+      </Helmet>
       <div className="container-custom">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Side: Info & Trust */}

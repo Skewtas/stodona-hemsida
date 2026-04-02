@@ -138,18 +138,58 @@ export default function Trappstadning() {
                 <p className="mb-6 text-text-secondary">
                   {lang === 'SV' ? 'Vi skräddarsyr ett städschema som passar just er fastighet. Kontakta oss för ett kostnadsfritt besök och offert.' : 'We tailor a cleaning schedule that suits your property. Contact us for a free visit and quote.'}
                 </p>
-                <Link to="/kontakt" className="btn-primary">
-                  {t('trapp.hero.cta1', lang)}
-                </Link>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <a href="https://boka.stodona.se" className="btn-primary">
+                    {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
+                  </a>
+                  <Link to="/kontakt" className="btn-secondary border-bg-dark text-bg-dark hover:bg-bg-dark hover:text-text-light px-6 py-3 rounded-full font-bold">
+                    {t('trapp.hero.cta1', lang)}
+                  </Link>
+                </div>
               </div>
             </div>
 
             <div className="lg:col-span-4">
               <div className="sticky top-32 space-y-6">
+                <div className="card-rounded bg-cta-hover p-6 text-center shadow-lg border border-cta-hover/30">
+                  <h3 className="text-xl font-bold mb-3 text-text-primary">
+                    {lang === 'SV' ? 'Boka din städning idag' : 'Book your cleaning today'}
+                  </h3>
+                  <p className="text-sm mb-4 text-text-primary/80">
+                    {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
+                  </p>
+                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                    {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
+                  </a>
+                </div>
+
                 <WhyStodona />
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* End CTA */}
+      <section className="py-24 bg-cta-hover text-text-primary relative overflow-hidden">
+        <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            {lang === 'SV' ? 'Redo att boka?' : 'Ready to book?'}
+          </h2>
+          <p className="text-xl mb-10 opacity-90">
+            {lang === 'SV' ? 'Boka din trappstädning idag.' : 'Book your staircase cleaning today.'}
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <a
+              href="https://boka.stodona.se"
+              className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
+            >
+              {lang === 'SV' ? 'Boka städning direkt' : 'Book cleaning directly'}
+            </a>
+          </div>
+          <p className="mt-6 text-sm font-medium opacity-80">
+            {lang === 'SV' ? 'Tider fylls snabbt – säkra din tid idag.' : 'Slots fill up fast – secure your time today.'}
+          </p>
         </div>
       </section>
     </div>

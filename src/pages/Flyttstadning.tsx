@@ -114,14 +114,7 @@ export default function Flyttstadning() {
         </div>
       </section>
 
-      {/* Bokahem CTA */}
-      <section className="py-16 bg-white border-b border-text-primary/10">
-        <div className="container-custom flex justify-center">
-          <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
-            {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
-          </a>
-        </div>
-      </section>
+
 
       {/* Content Section */}
       <section className="section-spacing">
@@ -258,6 +251,18 @@ export default function Flyttstadning() {
             {/* Sidebar */}
             <div className="lg:col-span-4">
               <div className="sticky top-32 space-y-8">
+                <div className="card-rounded bg-cta-hover p-6 text-center shadow-lg border border-cta-hover/30">
+                  <h3 className="text-xl font-bold mb-3 text-text-primary">
+                    {lang === 'SV' ? 'Boka din städning idag' : 'Book your cleaning today'}
+                  </h3>
+                  <p className="text-sm mb-4 text-text-primary/80">
+                    {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
+                  </p>
+                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                    {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
+                  </a>
+                </div>
+
                 <div className="card-rounded bg-bg-dark text-text-light p-8 shadow-sm">
                   <div className="flex text-yellow-500 mb-4">
                     <Star className="w-4 h-4 fill-current" />

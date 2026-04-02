@@ -332,9 +332,9 @@ export default function Kontakt() {
             <Link to="/flyttstadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
               <span className="font-medium text-sm">{lang === 'SV' ? 'Flyttstädning' : 'Move-Out Cleaning'}</span>
             </Link>
-            <Link to="/boka-stadning" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+            <a href="https://boka.stodona.se" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
               <span className="font-medium text-sm">{lang === 'SV' ? 'Boka städning' : 'Book Cleaning'}</span>
-            </Link>
+            </a>
             <Link to="/priser" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
               <span className="font-medium text-sm">{lang === 'SV' ? 'Priser' : 'Pricing'}</span>
             </Link>

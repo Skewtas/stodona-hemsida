@@ -30,9 +30,17 @@ export default function Trappstadning() {
         serviceType="Trappstädning"
         description="Professionell trappstädning i Stockholm. Regelbunden städning av trapphus för BRF och fastighetsägare. Kontakta oss för offert."
         url="/trappstadning"
+        image="https://stodona.se/Trappstadning%20stodona.jpg"
       />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/Trappstadning stodona.jpg" 
+            alt="Trappstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -90,7 +98,7 @@ export default function Trappstadning() {
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
-                  src="https://picsum.photos/seed/stodona-stairs/1200/800" 
+                  src="/Trappstadning stodona.jpg" 
                   alt="Trappstädning i Stockholm" 
                   className="w-full h-full object-cover"
                 />

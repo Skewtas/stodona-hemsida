@@ -46,7 +46,7 @@ Istället för att spara allt till en stor städdag, lägg 10 minuter varje kvä
 
 ### Behöver du hjälp?
 
-Om du bor på Ekerö och vill ha professionell hjälp med hemstädningen, finns Stodona här för dig. Vi erbjuder regelbunden hemstädning med samma team varje gång, och alla våra tjänster berättigar till RUT-avdrag. [Boka hemstädning idag](/boka-stadning) och njut av mer fritid!`,
+Om du bor på Ekerö och vill ha professionell hjälp med hemstädningen, finns Stodona här för dig. Vi erbjuder regelbunden hemstädning med samma team varje gång, och alla våra tjänster berättigar till RUT-avdrag. [Boka hemstädning idag](https://boka.stodona.se) och njut av mer fritid!`,
   },
   {
     slug: 'hur-ofta-bor-man-putsa-fonster',
@@ -88,7 +88,7 @@ För de flesta hushåll rekommenderar vi fönsterputsning **2–4 gånger per å
 
 Att anlita en professionell fönsterputsare sparar inte bara tid – resultatet blir betydligt bättre. Vi använder professionell utrustning och tekniker som ger ett rändfritt resultat. Med RUT-avdraget betalar du dessutom bara 50% av kostnaden.
 
-[Boka fönsterputsning](/boka-stadning) med Stodona idag och njut av utsikten!`,
+[Boka fönsterputsning](https://boka.stodona.se) med Stodona idag och njut av utsikten!`,
   },
   {
     slug: 'hemstadning-vs-storstadning-skillnad',
@@ -144,7 +144,7 @@ Storstädning är en **djupgående** engångsrengöring som når ställen du nor
 
 Många av våra kunder kombinerar regelbunden hemstädning med storstädning 1–2 gånger per år. Det är den optimala kombinationen för ett hem som alltid känns fräscht.
 
-Alla våra tjänster berättigar till **RUT-avdrag** – du betalar bara 50%. [Boka din städning](/boka-stadning) idag!`,
+Alla våra tjänster berättigar till **RUT-avdrag** – du betalar bara 50%. [Boka din städning](https://boka.stodona.se) idag!`,
   },
   {
     slug: 'checklista-infor-flyttstadning',
@@ -202,7 +202,7 @@ Att flytta är stressigt nog utan att behöva oroa sig för städningen. Med rä
 
 När du bokar flyttstädning med Stodona får du alltid vår **flyttstädningsgaranti**. Det innebär att om din hyresvärd eller köpare inte är nöjd med städningen, kommer vi tillbaka och åtgärdar utan extra kostnad.
 
-Med RUT-avdrag betalar du bara 50% av arbetskostnaden. [Boka flyttstädning](/boka-stadning) idag!`,
+Med RUT-avdrag betalar du bara 50% av arbetskostnaden. [Boka flyttstädning](https://boka.stodona.se) idag!`,
   },
   {
     slug: 'varfor-anlita-professionell-stadfirma',
@@ -250,7 +250,7 @@ Vi är fullt ansvarsförsäkrade och erbjuder nöjdhetsgaranti. Skulle olyckan v
 
 Boka din första hemstädning med Stodona och upplev skillnaden. Ingen bindningstid, samma team varje gång, och alltid med RUT-avdrag.
 
-[Boka hemstädning idag](/boka-stadning) – vi har lediga tider redan den här veckan!`,
+[Boka hemstädning idag](https://boka.stodona.se) – vi har lediga tider redan den här veckan!`,
   },
   {
     slug: 'varstadning-komplett-guide',
@@ -313,7 +313,7 @@ Under vintern samlas damm, kvalster och allergener i hemmet. Enligt [Folkhälsom
 
 Vill du slippa lägga en hel helg på vårstädningen? Boka en professionell [storstädning](/storstadning) med Stodona. Vi gör jobbet medan du njuter av vårsolen – och med RUT-avdrag betalar du bara 50%.
 
-[Boka vårstädning](/boka-stadning) idag!`,
+[Boka vårstädning](https://boka.stodona.se) idag!`,
   },
   {
     slug: 'stadtips-for-allergiker',
@@ -365,7 +365,7 @@ Mattor, gardiner och kuddar samlar damm och kvalster. Om du har allergi:
 
 Den mest effektiva åtgärden är regelbunden, grundlig städning. Våra professionella städare på Stodona vet exakt vilka ytor och områden som kräver extra uppmärksamhet för allergiker.
 
-Vi erbjuder [hemstädning](/hemstadning) med fokus på allergirenhet, och med RUT-avdrag betalar du bara hälften. [Boka idag](/boka-stadning)!`,
+Vi erbjuder [hemstädning](/hemstadning) med fokus på allergirenhet, och med RUT-avdrag betalar du bara hälften. [Boka idag](https://boka.stodona.se)!`,
   },
   {
     slug: 'sa-fungerar-rut-avdrag-2026',
@@ -434,7 +434,7 @@ Du slipper all administration – vi sköter allt med Skatteverket.
 
 **Vad händer om jag inte har tillräckligt med skatt?** RUT-avdraget bygger på att du har betalt tillräckligt med skatt under året. Har du låg inkomst kan avdraget begränsas. Kolla med [Skatteverket](https://www.skatteverket.se/) om du är osäker.
 
-[Boka städning med RUT-avdrag](/boka-stadning) hos Stodona idag!`,
+[Boka städning med RUT-avdrag](https://boka.stodona.se) hos Stodona idag!`,
   },
   {
     slug: 'hemstadning-vad-kostar-det',
@@ -495,6 +495,6 @@ Se vår [hemstädningssida](/hemstadning) för fullständig lista.
 - **Nöjdhetsgaranti** – inte nöjd? Vi åtgärdar utan extra kostnad
 - **RUT-avdrag** hanteras automatiskt
 
-Nyfiken på exakt pris för ditt hem? [Boka en offert](/boka-stadning) – det är kostnadsfritt och tar bara 2 minuter!`,
+Nyfiken på exakt pris för ditt hem? [Boka en offert](https://boka.stodona.se) – det är kostnadsfritt och tar bara 2 minuter!`,
   },
 ];

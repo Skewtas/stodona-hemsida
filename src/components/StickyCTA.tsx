@@ -35,12 +35,12 @@ export default function StickyCTA() {
       <div className="flex items-center gap-2 p-3">
         {!showInput ? (
           <>
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="flex-1 py-3 bg-cta-hover text-text-primary font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all"
             >
               Boka nu – 15% rabatt
-            </Link>
+            </a>
             <button
               onClick={() => setShowInput(true)}
               className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-text-light hover:bg-white/20 transition-colors"

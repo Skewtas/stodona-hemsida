@@ -22,7 +22,7 @@ export default function Sitemap() {
     { name: "Startsida", path: "/", icon: Home },
     { name: "Om oss", path: "/om-oss", icon: Info },
     { name: "Kontakt", path: "/kontakt", icon: Phone },
-    { name: "Boka städning", path: "/boka-stadning", icon: Sparkles },
+    { name: "Boka städning", path: "https://boka.stodona.se", icon: Sparkles },
     { name: "Kundportalen", path: "/kundportalen", icon: ShieldCheck },
     { name: "Blogg", path: "/blogg", icon: BookOpen },
     { name: "FAQ", path: "/faq", icon: HelpCircle },
@@ -96,13 +96,23 @@ export default function Sitemap() {
               <ul className="space-y-2.5">
                 {mainPages.map((page) => (
                   <li key={page.path}>
-                    <Link 
-                      to={page.path}
-                      className="flex items-center gap-2 text-text-secondary hover:text-cta-hover transition-colors group text-sm"
-                    >
-                      <page.icon className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-                      <span>{page.name}</span>
-                    </Link>
+                    {page.path.startsWith('http') ? (
+                      <a 
+                        href={page.path}
+                        className="flex items-center gap-2 text-text-secondary hover:text-cta-hover transition-colors group text-sm"
+                      >
+                        <page.icon className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                        <span>{page.name}</span>
+                      </a>
+                    ) : (
+                      <Link 
+                        to={page.path}
+                        className="flex items-center gap-2 text-text-secondary hover:text-cta-hover transition-colors group text-sm"
+                      >
+                        <page.icon className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                        <span>{page.name}</span>
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

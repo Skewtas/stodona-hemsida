@@ -106,9 +106,9 @@ export default function StadningEkero() {
             <p className="text-base text-text-light/70 mb-8 drop-shadow-md">
               Vi är det lokala valet för hundratals hushåll på Ekerö. Samma team, hög kvalitet, varje gång.
             </p>
-            <Link to="/boka-stadning" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka städning på Ekerö
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -222,9 +222,9 @@ export default function StadningEkero() {
                   <p className="text-sm opacity-90 mb-6">
                     Vi har lediga tider på Ekerö. Boka snabbt och enkelt online.
                   </p>
-                  <Link to="/boka-stadning" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
+                  <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
                     Boka nu
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
@@ -329,12 +329,12 @@ export default function StadningEkero() {
           <p className="text-xl mb-10 opacity-90">
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett resultat du älskar.
           </p>
-          <Link
-            to="/boka-stadning"
+          <a
+            href="https://boka.stodona.se"
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka städning nu
-          </Link>
+          </a>
         </div>
       </section>
     </div>

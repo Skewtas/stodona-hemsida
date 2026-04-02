@@ -78,12 +78,12 @@ export default function Byggstadning() {
               >
                 {t('bygg.hero.cta1', lang)}
               </Link>
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('bygg.hero.cta2', lang)}
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -129,7 +129,7 @@ export default function Byggstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                Stodona har flerårig erfarenhet av professionella byggstädningar i Stockholm, vilket gett oss den kunskap som behövs för att genomföra en noggrann och effektiv byggstädning. Vi har utfört städningar på ytor upp till 20 000 kvm.
+                Efter en nybyggnation, ombyggnad eller rot-renovering är etableringsytorna ofta fulla med svårstädat och farligt byggdamm. Vi som professionell städfirma utför noggrann byggstädning i Stockholm som innefattar allt från tung grovstädning till den allra sista avslutande finstädningen. Vår expertis inom byggstäd säkerställer att fastigheten är helt inflyttningsklar.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Grovstädning</h3>
@@ -226,7 +226,7 @@ export default function Byggstadning() {
                   Behöver du hjälp med byggstädning?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi hjälper både privatpersoner och företag med byggstädning. Kontakta oss för en gratis offert.
+                  Låt vår expertiserade städfirma hantera all byggstädning och grovstädning åt er. Vi erbjuder flexibla tider för professionell byggstädning i Stockholm och ser till att arbetsplatsen eller bostaden blir 100% dammfri och redo.
                 </p>
                 <Link to="/kontakt" className="btn-primary">
                   Begär offert

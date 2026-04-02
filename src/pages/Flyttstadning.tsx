@@ -32,13 +32,13 @@ export default function Flyttstadning() {
         serviceType="Flyttstädning"
         description="Professionell flyttstädning i Stockholm med garanti. RUT-avdrag, komplett checklista och vi tar med allt material. Boka online!"
         url="/flyttstadning"
-        image="https://stodona.se/stodona-damm.jpg"
+        image="https://stodona.se/stodona_left_image.jpg"
       />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/stodona-damm.jpg" 
+            src="/stodona_left_image.jpg" 
             alt="Flyttstädning Stockholm" 
             className="w-full h-full object-cover opacity-40"
           />
@@ -73,18 +73,18 @@ export default function Flyttstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('flytt.hero.cta1', lang)}
-              </Link>
-              <Link
-                to="/boka-stadning"
+              </a>
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('flytt.hero.cta2', lang)}
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -140,11 +140,18 @@ export default function Flyttstadning() {
               <h2 className="text-4xl font-bold mb-6">
                 Vad ingår i vår flyttstädning?
               </h2>
+              <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
+                <img 
+                  src="/stodona_left_image.jpg" 
+                  alt="Flyttstädning i Stockholm" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                En flyttstädning är mycket mer omfattande än en vanlig
-                hemstädning. Vi rengör bostaden från golv till tak för att
+                En riktig flyttstädning är mycket mer omfattande än en vanlig
+                hemstädning. Låt vår städfirma för flyttstädning rengöra din bostad från golv till tak för att
                 säkerställa att nästa ägare eller hyresgäst möts av ett perfekt
-                resultat.
+                resultat. Vi är experter på flyttstädning i Stockholm och garanterar alltid högsta kvalitet på vårt flyttstäd.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Alla rum</h3>
@@ -225,15 +232,15 @@ export default function Flyttstadning() {
               {/* Middle CTA */}
               <div className="my-16 p-8 bg-cta-hover/20 rounded-2xl border border-cta-hover/30 text-center">
                 <h3 className="text-2xl font-bold mb-4">
-                  Slipp stressen vid flytten
+                  Slipp stressen med marknadens bästa flyttstädning i Stockholm
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider i Stockholm den här veckan. Boka nu och
-                  låt oss ta hand om städningen.
+                  Vi är en rekommenderad städfirma med snabba och lediga tider för flyttstädning i Stockholm den här veckan. Boka din professionella flyttstädning nu och
+                  låt oss ta hand om hela städningen med garanti.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka flyttstädning direkt
-                </Link>
+                </a>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -348,12 +355,12 @@ export default function Flyttstadning() {
             Boka din flyttstädning idag och låt oss ta hand om det sista.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Boka flyttstädning direkt
-            </Link>
+            </a>
           </div>
           <p className="mt-6 text-sm font-medium opacity-80">
             Tider fylls snabbt – säkra din tid idag.

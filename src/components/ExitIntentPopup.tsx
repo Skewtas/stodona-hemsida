@@ -147,7 +147,7 @@ export default function ExitIntentPopup() {
                     <span className="text-3xl font-bold tracking-[0.2em] text-cta-hover">VLKMN15</span>
                   </div>
                   <p className="text-sm text-text-secondary mt-5">
-                    Ange koden vid <a href="/boka-stadning" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt
+                    Ange koden vid <a href="https://boka.stodona.se" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt
                   </p>
                 </div>
               )}

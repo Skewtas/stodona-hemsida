@@ -115,18 +115,18 @@ export default function Hemstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('hemstadning.hero.cta1', lang)}
-              </Link>
-              <Link
-                to="/boka-stadning"
+              </a>
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('hemstadning.hero.cta2', lang)}
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -191,9 +191,8 @@ export default function Hemstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                När du anlitar Stodona för hemstädning i Stockholm kan du
-                förvänta dig ett skinande rent hem, varje gång. Vi följer en
-                noggrann checklista för att säkerställa att inget missas.
+                När du anlitar Stodona, din lokala städfirma, för hemstädning i Stockholm kan du
+                alltid förvänta dig ett skinande rent hem. Vår professionella städpersonal erbjuder förstklassig hemstädning och följer en noggrann checklista för att garantera att ingenting missas i vårt städ. Boka städhjälp i Stockholm hos oss för bäst hemstädning varje gång.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Alla rum</h3>
@@ -264,12 +263,12 @@ export default function Hemstadning() {
                   Vill du ha ett skinande rent hem?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider i Stockholm den här veckan. Boka nu och få
-                  hotellkänsla hemma.
+                  Vi är en topprankad städfirma med snabba och lediga tider för professionell hemstädning i Stockholm den här veckan. Boka din städhjälp nu och få
+                  lyxig hotellkänsla hemma med vårt fullkomliga städ.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka hemstädning direkt
-                </Link>
+                </a>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -364,12 +363,12 @@ export default function Hemstadning() {
             hemma.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/boka-stadning"
+            <a
+              href="https://boka.stodona.se"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Boka städning direkt
-            </Link>
+            </a>
           </div>
           <p className="mt-6 text-sm font-medium opacity-80">
             Tider fylls snabbt – säkra din tid idag.

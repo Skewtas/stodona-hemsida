@@ -38,9 +38,9 @@ export default function Priser() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/boka-stadning" className="btn-primary bg-cta-hover text-text-primary px-8 py-4 text-lg">
+            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary px-8 py-4 text-lg">
               Se Pris & Boka Online
-            </Link>
+            </a>
             <Link to="/kontakt" className="btn-secondary px-8 py-4 text-lg border-text-light text-text-light hover:bg-white hover:text-bg-dark">
               Kontakta oss för offert
             </Link>

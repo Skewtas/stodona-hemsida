@@ -33,13 +33,13 @@ export default function Storstadning() {
         serviceType="Storstädning"
         description="Professionell storstädning i Stockholm. Djupgående rengöring av ugn, kylskåp, badrum och mer. RUT-avdrag – betala bara 50%."
         url="/storstadning"
-        image="https://stodona.se/stodona_left_image.jpg"
+        image="https://stodona.se/stodona-stad.jpg"
       />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/stodona_left_image.jpg" 
+            src="/stodona-stad.jpg" 
             alt="Storstädning Stockholm" 
             className="w-full h-full object-cover opacity-40"
           />
@@ -74,18 +74,18 @@ export default function Storstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('stor.hero.cta1', lang)}
-              </Link>
-              <Link
-                to="/boka-stadning"
+              </a>
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('stor.hero.cta2', lang)}
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -139,10 +139,17 @@ export default function Storstadning() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-8 prose prose-lg max-w-none">
               <h2 className="text-4xl font-bold mb-6">
-                Vad ingår vid Storstädning?
+                Vad ingår vid Storstädning i Stockholm?
               </h2>
+              <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
+                <img 
+                  src="/stodona-stad.jpg" 
+                  alt="Storstädning i Stockholm" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                Låt vårt duktiga team av städare fräscha upp din bostad från golv till tak och njut sen av ett skinande rent och fläckfritt hem.
+                När vardagsstädningen inte räcker till är det dags för en riktig djuprengöring. Låt vårt duktiga team från Stodona, din pålitliga städfirma, fräscha upp din bostad från golv till tak. Vår grundliga storstädning i Stockholm tar bort ingrodd smuts och ger dig ett skinande rent och fläckfritt hem att njuta av. Boka marknadens bästa storstädning idag!
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Övriga ytor och rum</h3>
@@ -332,15 +339,14 @@ export default function Storstadning() {
               {/* Middle CTA */}
               <div className="my-16 p-8 bg-cta-hover/20 rounded-2xl border border-cta-hover/30 text-center">
                 <h3 className="text-2xl font-bold mb-4">
-                  Vill du ha ett skinande rent hem?
+                  Vill du ha ett skinande rent hem genom djuprengöring?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider i Stockholm den här veckan. Boka nu och få
-                  hotellkänsla hemma.
+                  Vi är experter på storstädning och har lediga tider i Stockholm den här veckan. Boka professionell storstädning i Stockholm nu och få hotellkänsla hemma.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka storstädning direkt
-                </Link>
+                </a>
               </div>
 
             </div>

@@ -47,17 +47,27 @@ export default function NotFound() {
               { label: 'Hemstädning', to: '/hemstadning' },
               { label: 'Fönsterputsning', to: '/fonsterputsning' },
               { label: 'Flyttstädning', to: '/flyttstadning' },
-              { label: 'Boka städning', to: '/boka-stadning' },
+              { label: 'Boka städning', to: 'https://boka.stodona.se' },
               { label: 'FAQ', to: '/faq' },
               { label: 'Blogg', to: '/blogg' },
             ].map(link => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="px-3 py-1.5 bg-white rounded-full text-sm font-medium hover:bg-cta-hover hover:text-white transition-all"
-              >
-                {link.label}
-              </Link>
+              link.to.startsWith('http') ? (
+                <a
+                  key={link.to}
+                  href={link.to}
+                  className="px-3 py-1.5 bg-white rounded-full text-sm font-medium hover:bg-cta-hover hover:text-white transition-all"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="px-3 py-1.5 bg-white rounded-full text-sm font-medium hover:bg-cta-hover hover:text-white transition-all"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
           </div>
         </div>

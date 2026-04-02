@@ -117,9 +117,9 @@ export default function BloggPost() {
                 <div className="card-rounded bg-cta-hover text-white p-8 text-center">
                   <h3 className="text-xl font-bold mb-3">Behöver du hjälp?</h3>
                   <p className="text-sm opacity-90 mb-6">Vi finns i hela Stockholmsområdet. Boka enkelt online med RUT-avdrag.</p>
-                  <Link to="/boka-stadning" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
+                  <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
                     Boka städning
-                  </Link>
+                  </a>
                 </div>
 
                 {/* Related posts */}
@@ -154,9 +154,9 @@ export default function BloggPost() {
         <div className="container-custom text-center max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Redo att prova professionell städning?</h2>
           <p className="text-lg text-text-secondary mb-8">Boka din första städning med Stodona. Ingen bindningstid, samma team varje gång.</p>
-          <Link to="/boka-stadning" className="btn-primary text-lg px-8 py-4">
+          <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4">
             Boka nu – med RUT-avdrag
-          </Link>
+          </a>
         </div>
       </section>
     </div>

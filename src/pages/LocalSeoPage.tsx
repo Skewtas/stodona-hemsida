@@ -105,14 +105,14 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
 
   // Service-specific intro text
   const serviceIntroTexts: Record<string, string> = {
-    hemstadning: `När du anlitar Stodona för ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du förvänta dig ett skinande rent hem, varje gång. Vi följer en noggrann checklista för att säkerställa att inget missas.`,
-    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt att få till perfekt. Våra professionella fönsterputsare ${prep} ${displayAreaName} har rätt utrustning och teknik för att ge dig skinande rena fönster, helt utan ränder.`,
-    storstadning: `Vår storstädning ${prep} ${displayAreaName} är en djupgående rengöring som når varje hörn av ditt hem. Perfekt som komplement till regelbunden hemstädning, eller inför speciella tillfällen.`,
-    flyttstadning: `Vår flyttstädning ${prep} ${displayAreaName} följer en noggrant utformad checklista som säkerställer att din bostad lämnas i toppskick. Vi erbjuder dessutom flyttstädningsgaranti.`,
-    foretagsstadning: `Vi erbjuder professionell företagsstädning ${prep} ${displayAreaName} anpassad efter era behov. Regelbunden eller engångsstädning – vi skapar en ren och trivsam arbetsmiljö.`,
-    byggstadning: `Efter renovering eller nybygge ${prep} ${displayAreaName} tar vi hand om all byggstädning. Från grovstädning till finstädning – vi lämnar lokalen inflyttningsklar.`,
-    trappstadning: `Håll ert trapphus rent och välkomnande med vår trappstädning ${prep} ${displayAreaName}. Vi erbjuder regelbunden städning anpassad efter er bostadsrättsförening eller fastighet.`,
-    bodstadning: `Professionell städning av manskapsbodar och etableringsytor ${prep} ${displayAreaName}. Vi säkerställer en ren och trivsam arbetsmiljö för era medarbetare.`,
+    hemstadning: `När du anlitar Stodona, din lokala städfirma, för professionell ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du alltid förvänta dig ett skinande rent hem. Vår erfarna städpersonal följer en noggrann checklista för bäst hemstädning varje gång.`,
+    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt. Som den främsta städfirman för fönsterputsning ${prep} ${displayAreaName} har vi utrustningen som krävs för att ge dig skinande och helt rändfria fönster.`,
+    storstadning: `Vår professionella storstädning ${prep} ${displayAreaName} är en djupgående rengöring för dig som vill ha marknadens bästa städhjälp. Perfekt för en ordentlig djuprengöring av hela bostaden.`,
+    flyttstadning: `Vår städfirma erbjuder marknadens bästa flyttstädning ${prep} ${displayAreaName}. Vi tillämpar en noggrann checklista för flyttstäd som säkerställer att din bostad blir godkänd med flyttstädningsgaranti.`,
+    foretagsstadning: `Vi är en rekommenderad städfirma som erbjuder skräddarsydd kontorsstädning och företagsstädning ${prep} ${displayAreaName}. Låt våra städexperter skapa en ren och trivsam arbetsmiljö för ert företag.`,
+    byggstadning: `Efter renovering eller nybygge behövs en rejäl grovstädning. Vi erbjuder professionell byggstädning ${prep} ${displayAreaName}. Från byggdamm till finstädning – vi är städfirman som gör lokalen inflyttningsklar.`,
+    trappstadning: `Håll ert trapphus välkomnande med marknadens mest prisvärda trappstädning ${prep} ${displayAreaName}. Vår städfirma underhåller BRF:er och fastigheter med högsta städkvalitet.`,
+    bodstadning: `Vi är städfirman för professionell bodstädning ${prep} ${displayAreaName}. Oavsett hur många etableringsytor eller manskapsbodar ni har, erbjuder vi löpande och noggrann byggbodstädning för en ren arbetsmiljö.`,
   };
   const introText = serviceIntroTexts[baseService.toLowerCase()] || serviceIntroTexts.hemstadning;
 
@@ -175,9 +175,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <p className="text-lg md:text-xl text-text-light/90 leading-relaxed mb-8 drop-shadow-md">
               {description}
             </p>
-            <Link to="/boka-stadning" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka {displayBaseService.toLowerCase()} {prep} {displayAreaName}
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -221,9 +221,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   Vi har lediga tider {prep} {displayAreaName} den här veckan. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <Link to="/boka-stadning" className="btn-primary">
+                <a href="https://boka.stodona.se" className="btn-primary">
                   Boka {displayBaseService.toLowerCase()} direkt
-                </Link>
+                </a>
               </div>
 
               <h2 className="text-3xl font-bold mt-16 mb-6">
@@ -360,12 +360,12 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           <p className="text-xl mb-10 opacity-90">
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett skinande rent resultat.
           </p>
-          <Link
-            to="/boka-stadning"
+          <a
+            href="https://boka.stodona.se"
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka {displayBaseService.toLowerCase()} nu
-          </Link>
+          </a>
         </div>
       </section>
     </div>

@@ -92,9 +92,9 @@ export default function Blogg() {
         <div className="container-custom text-center max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Behöver du hjälp med städningen?</h2>
           <p className="text-lg mb-8 opacity-90">Låt oss ta hand om städningen så kan du fokusera på det du gillar. RUT-avdrag ingår alltid.</p>
-          <Link to="/boka-stadning" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-lg px-8 py-4">
+          <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-lg px-8 py-4">
             Boka städning
-          </Link>
+          </a>
         </div>
       </section>
     </div>

@@ -39,10 +39,10 @@ const translations: TranslationMap = {
     'footer.sidkarta': { SV: 'Sidkarta', EN: 'Sitemap' },
 
     // ─── HOME: Hero ────────────────────────────────────────────────────
-    'home.hero.title1': { SV: 'Hotellkänsla hemma.', EN: 'Hotel feeling at home.' },
-    'home.hero.title2': { SV: 'På riktigt.', EN: 'For real.' },
+    'home.hero.title1': { SV: 'Bäst hemstädning i Stockholm.', EN: 'Hotel feeling at home.' },
+    'home.hero.title2': { SV: 'Hotellkänsla på riktigt.', EN: 'For real.' },
     'home.hero.subtitle': {
-        SV: 'Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Vi lär känna ert hem. Samma team varje gång.',
+        SV: 'Vi är en professionell städfirma som erbjuder allt från hemstädning och flyttstädning till storstädning i Stockholm. Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Samma team varje gång.',
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
     },
     'home.hero.cta1': { SV: 'Boka direkt', EN: 'Book now' },
@@ -131,8 +131,8 @@ const translations: TranslationMap = {
     'home.services.readmore': { SV: 'Läs mer', EN: 'Read more' },
 
     // ─── HOME: Final CTA ───────────────────────────────────────────────
-    'home.cta.title': { SV: 'Redo för hotellkänsla hemma?', EN: 'Ready for that hotel feeling at home?' },
-    'home.cta.subtitle': { SV: 'Boka din städning idag. Ingen bindningstid, bara ett renare hem.', EN: 'Book your cleaning today. No commitment, just a cleaner home.' },
+    'home.cta.title': { SV: 'Boka Stockholms mest rekommenderade städfirma', EN: 'Ready for that hotel feeling at home?' },
+    'home.cta.subtitle': { SV: 'Boka din hemstädning, flyttstädning eller storstädning idag. Ingen bindningstid, bara ett garanterat rent resultat.', EN: 'Book your cleaning today. No commitment, just a cleaner home.' },
     'home.cta.btn1': { SV: 'Boka städning direkt', EN: 'Book cleaning now' },
     'home.cta.btn2': { SV: 'Boka städning', EN: 'Book cleaning' },
     'home.cta.urgency': { SV: 'Tider fylls snabbt – säkra din tid idag.', EN: 'Slots fill fast – secure your time today.' },

@@ -78,12 +78,12 @@ export default function Foretagsstadning() {
               >
                 {t('foretag.hero.cta1', lang)}
               </Link>
-              <Link
-                to="/boka-stadning"
+              <a
+                href="https://boka.stodona.se"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('foretag.hero.cta2', lang)}
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -121,16 +121,23 @@ export default function Foretagsstadning() {
               <h2 className="text-4xl font-bold mb-6">
                 Anpassad företagsstädning
               </h2>
+              <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
+                <img 
+                  src="/kontorsstadning.jpg" 
+                  alt="Företagsstädning i Stockholm" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                På Stodona förstår vi att behovet av företagsstädning varierar väldigt mycket mellan olika företag och att varje behov är unikt. Vi har därför inget förutbestämt innehåll utan era önskemål och krav styr vad som ingår.
+                På Stodona förstår vi att behovet av professionell företagsstädning och kontorsstädning i Stockholm varierar väldigt mycket mellan olika företag. Varje behov är unikt, oavsett om ni söker daglig kontorsstädning eller flexibel städhjälp. Vi har därför inget förutbestämt innehåll – era specifika önskemål kring kontorsstädningen styr helt vad som ingår för att passa er verksamhet i Stockholm.
               </p>
               <p className="mb-8">
-                Oavsett om du behöver återkommande hjälp med städning, en extra grovstädning eller hjälp med städningen på något annat sätt så finns vi här för dig och ditt företag.
+                Oavsett om ni letar efter en pålitlig städfirma för löpande kontorsstädning, en extra noggrann grovstädning av era företagslokaler, eller skräddarsydd företagsstädning i Stockholm, så finns vi här för dig och ditt företag med den bästa servicen.
               </p>
 
-              <h3 className="text-2xl font-bold mt-12 mb-4">Rena lokaler ger nöjda anställda och kunder</h3>
+              <h3 className="text-2xl font-bold mt-12 mb-4">Professionell kontorsstädning ger nöjda anställda</h3>
               <p className="mb-8">
-                Under en arbetsdag är det mycket som ska hinnas med och städningen blir lätt bortprioriterad. Ett rent och städat kontor eller lokal är däremot viktigt både för dina anställda och kunder. Den rena och fräscha känslan förbättrar arbetsmiljön för dina anställda och kan öka deras motivation. Men det ger även kunder och besökare ett bättre intryck av ditt företag. Låt oss hjälpa ert företag att skapa de bästa förutsättningarna för kunder och anställda.
+                Under en intensiv arbetsdag i Stockholm är det mycket som ska hinnas med och kontorsstädningen blir lätt bortprioriterad. En skinande ren arbetsplats genom professionell kontorsstädning är däremot affärskritiskt både för dina anställda och kunder. Vår förstklassiga företagsstädning lyfter arbetsmiljön, minskar sjukfrånvaro och ökar motivationen hos er personal. Dessutom garanterar en perfekt utförd kontorsstädning i Stockholm att kunder och besökare alltid får ett strålande första intryck när de kliver in i era lokaler.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Låt oss hjälpa er med förbrukningsvaror</h3>
@@ -152,9 +159,9 @@ export default function Foretagsstadning() {
                     <CheckCircle2 className="w-5 h-5 text-cta-hover" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg mb-1">Kontor</h4>
+                    <h4 className="font-bold text-lg mb-1">Kontorsstädning</h4>
                     <p className="text-text-secondary text-sm">
-                      Skapa en trivsam och produktiv arbetsmiljö för dina medarbetare.
+                      Skapa en trivsam och produktiv arbetsmiljö för dina medarbetare med flexibel kontorsstädning i Stockholm.
                     </p>
                   </div>
                 </li>
@@ -218,10 +225,10 @@ export default function Foretagsstadning() {
               {/* Middle CTA */}
               <div className="my-16 p-8 bg-cta-hover/20 rounded-2xl border border-cta-hover/30 text-center">
                 <h3 className="text-2xl font-bold mb-4">
-                  Offertförfrågan Företagsstädning
+                  Offertförfrågan Kontorsstädning
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi anpassar städningen efter ditt företags behov och önskemål. Kontakta oss för att boka in ett företagsbesök och hitta en lösning som passar er.
+                  Boka marknadens bästa företagsstädning och kontorsstädning i Stockholm. Vi skräddarsyr lösningen efter era exakta behov.
                 </p>
                 <Link to="/kontakt" className="btn-primary">
                   Begär offert

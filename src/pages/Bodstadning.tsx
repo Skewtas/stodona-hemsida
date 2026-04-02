@@ -19,21 +19,28 @@ export default function Bodstadning() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Bodstädning & Dödsbostädning i Stockholm | Stodona</title>
-        <meta name="description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om allt från röjning till slutstädning med omsorg och respekt." />
-        <meta property="og:title" content="Bodstädning & Dödsbostädning i Stockholm | Stodona" />
-        <meta property="og:description" content="Känslosam och diskret bodstädning och dödsbostädning i Stockholm. Vi tar hand om röjning till slutstädning." />
+        <title>Bodstädning i Stockholm | Stodona</title>
+        <meta name="description" content="Professionell bodstädning i Stockholm. Vi sköter löpande städning av byggbodar och etableringsytor för en ren och säker arbetsmiljö." />
+        <meta property="og:title" content="Bodstädning i Stockholm | Stodona" />
+        <meta property="og:description" content="Professionell bodstädning i Stockholm för manskapsbodar och etableringsytor." />
         <link rel="canonical" href="https://stodona.se/bodstadning" />
       </Helmet>
       <ServiceSchema
         serviceName="Bodstädning"
-        serviceType="Dödsbostädning"
-        description="Diskret och professionell bodstädning/dödsbostädning i Stockholm."
+        serviceType="CommercialCleaningService"
+        description="Professionell bodstädning och städning av etableringsytor i Stockholm."
         url="/bodstadning"
-        image="https://stodona.se/stodona_right_image.jpg"
+        image="https://stodona.se/Bodstadning%20stodona.jpg"
       />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/Bodstadning stodona.jpg" 
+            alt="Bodstädning Stockholm" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <motion.h1
@@ -81,24 +88,24 @@ export default function Bodstadning() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-8 prose prose-lg max-w-none">
               <h2 className="text-4xl font-bold mb-6">
-                {lang === 'SV' ? 'Löpande städning av etableringsytor' : 'Ongoing cleaning of establishment areas'}
+                {lang === 'SV' ? 'Löpande Bodstädning i Stockholm' : 'Ongoing Site Cabin Cleaning'}
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
                 <img 
-                  src="https://picsum.photos/seed/stodona-construction/1200/800" 
+                  src="/Bodstadning stodona.jpg" 
                   alt="Bodstädning i Stockholm" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                {lang === 'SV' ? 'Bodstädning är en viktig del i att upprätthålla en god arbetsmiljö under pågående byggprojekt. Vi erbjuder flexibla lösningar för daglig eller veckovis städning av era bodar, inklusive påfyllning av förbrukningsmaterial.' : 'Site cabin cleaning is an important part of maintaining a good work environment during ongoing construction projects. We offer flexible solutions for daily or weekly cleaning of your cabins, including restocking of consumables.'}
+                {lang === 'SV' ? 'Vi på Stodona är en pålitlig städfirma som erbjuder professionell bodstädning för byggarbetsplatser i hela Stockholm. Regelbunden bodstädning är extremt viktigt för att upprätthålla en god arbetsmiljö under pågående byggprojekt. Vi erbjuder skräddarsydda, flexibla lösningar för daglig eller veckovis städning av era bodar.' : 'We offer professional construction cabin cleaning in Stockholm. Regular cabin cleaning is essential for a good work environment during construction projects.'}
               </p>
 
-              <h3 className="text-2xl font-bold mt-12 mb-4">{lang === 'SV' ? 'Vad ingår i bodstädningen?' : 'What is included in site cabin cleaning?'}</h3>
+              <h3 className="text-2xl font-bold mt-12 mb-4">{lang === 'SV' ? 'Vad ingår i vår bodstädning?' : 'What is included in site cabin cleaning?'}</h3>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-cta-hover shrink-0 mt-0.5" />{" "}
-                  <span>{lang === 'SV' ? 'Rengöring av golv i kontor, omklädningsrum och fikarum' : 'Cleaning of floors in offices, changing rooms and break rooms'}</span>
+                  <span>{lang === 'SV' ? 'Rengöring av golv i bodar, kontor, omklädningsrum och fikarum' : 'Cleaning of floors in cabins, offices, changing rooms and break rooms'}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-cta-hover shrink-0 mt-0.5" />{" "}

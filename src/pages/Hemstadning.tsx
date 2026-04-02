@@ -9,7 +9,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { QuickBookingWidget } from "../components/QuickBookingWidget";
+
 import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
@@ -156,21 +156,12 @@ export default function Hemstadning() {
         </div>
       </section>
 
-      {/* Bokahem-integration (Placeholder) */}
+      {/* Bokahem CTA */}
       <section className="py-16 bg-white border-b border-text-primary/10">
-        <div className="container-custom">
-          <div className="max-w-4xl mx-auto text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">
-              Boka din hemstädning på 60 sekunder.
-            </h2>
-            <p className="text-text-secondary">
-              Fyll i dina uppgifter nedan för att se pris och boka direkt.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <QuickBookingWidget />
-          </div>
+        <div className="container-custom flex justify-center">
+          <a href="https://boka.stodona.se" className="btn-primary text-lg px-8 py-4 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+            {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
+          </a>
         </div>
       </section>
 

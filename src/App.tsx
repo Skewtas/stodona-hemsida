@@ -49,7 +49,7 @@ import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } fr
 import ScrollToTop from "./components/ScrollToTop";
 
 // All service types to generate routes for
-const ALL_SERVICES = ['hemstadning', 'flyttstadning', 'foretagsstadning', 'fonsterputsning', 'storstadning', 'byggstadning', 'trappstadning'];
+const ALL_SERVICES = ['hemstadning', 'flyttstadning', 'foretagsstadning', 'fonsterputsning', 'storstadning', 'byggstadning', 'trappstadning', 'stadfirma'];
 
 // Map area paths to their sub-areas
 const SUB_AREA_MAP: Record<string, typeof SUB_AREAS_EKERO> = {

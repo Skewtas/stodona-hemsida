@@ -32,7 +32,8 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     byggstadning: 'Byggstädning',
     trappstadning: 'Trappstädning',
     bodstadning: 'Bod/etableringsstädning',
-    fonsterputsning: 'Fönsterputsning'
+    fonsterputsning: 'Fönsterputsning',
+    stadfirma: 'Städfirma'
   };
   const displayBaseService = serviceNameMap[baseService.toLowerCase()] || (baseService.charAt(0).toUpperCase() + baseService.slice(1).replace(/stadning/i, 'städning'));
 
@@ -72,6 +73,10 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     bodstadning: [
       { title: 'Bod/etablering', items: ['Dammsugning och moppning av golv', 'Avtorkning av bord, bänkar och ytor', 'Rengöring av köksutrustning och pentry', 'Rengöring av toaletter och duschrum', 'Tömning av papperskorgar'] },
     ],
+    stadfirma: [
+      { title: 'Vad vi erbjuder', items: ['Hemstädning för en smidigare vardag', 'Professionell storstädning och djuprengöring', 'Flyttstädning med 100% kvalitetsgaranti', 'Fönsterputsning för rändfria glas'] },
+      { title: 'Varför Stodona som städfirma?', items: ['Vi städar med egna checklistor för garanterat resultat', 'Samma städteam vid varje löpande städning', 'Fast pris utan dolda avgifter', 'All personal är kollektivansluten och ansvarsförsäkrad'] },
+    ],
   };
 
   // Service-specific FAQs
@@ -98,6 +103,11 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.' },
       { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura.' },
     ],
+    stadfirma: [
+      { q: 'Erbjuder ni städning i mitt område?', a: 'Ja! Vi har lokala team som städar dagligen och vi har oftast lediga tider redan samma vecka.' },
+      { q: 'Är ni ansvarsförsäkrade?', a: 'Självklart. Vi är fullt ansvarsförsäkrade så att du alltid kan känna dig helt trygg när vi städar.' },
+      { q: 'Hur fungerar RUT-avdraget när jag bokar en städfirma?', a: 'Vi sköter all administration. Du betalar bara 50% av kostnaden och RUT dras automatiskt direkt på din faktura.' },
+    ],
   };
 
   const activeChecklists = serviceChecklists[baseService.toLowerCase()] || serviceChecklists.hemstadning;
@@ -113,6 +123,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     byggstadning: `Efter renovering eller nybygge behövs en rejäl grovstädning. Vi erbjuder professionell byggstädning ${prep} ${displayAreaName}. Från byggdamm till finstädning – vi är städfirman som gör lokalen inflyttningsklar.`,
     trappstadning: `Håll ert trapphus välkomnande med marknadens mest prisvärda trappstädning ${prep} ${displayAreaName}. Vår städfirma underhåller BRF:er och fastigheter med högsta städkvalitet.`,
     bodstadning: `Vi är städfirman för professionell bodstädning ${prep} ${displayAreaName}. Oavsett hur många etableringsytor eller manskapsbodar ni har, erbjuder vi löpande och noggrann byggbodstädning för en ren arbetsmiljö.`,
+    stadfirma: `Letar du efter en trygg och pålitlig städfirma ${prep} ${displayAreaName}? Vi städar redan hos många nöjda kunder i närområdet varje vecka. Oavsett om du behöver veckostädning, en rejäl storstädning eller hjälp inför flytten så finns vårt team redo att leverera ett skinande rent resultat.`
   };
   const introText = serviceIntroTexts[baseService.toLowerCase()] || serviceIntroTexts.hemstadning;
 
@@ -169,6 +180,15 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <div className="w-16 h-16 bg-cta-hover rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
               <MapPin className="w-8 h-8 text-white" />
             </div>
+            
+            {/* Hyperlocal Trust Badge */}
+            <div className="inline-block bg-bg-dark/30 backdrop-blur-sm px-6 py-3 rounded-full mb-8 border border-white/20 text-white font-medium shadow-sm">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
+                <span className="text-sm md:text-base">Vi städar redan {prep} {displayAreaName} varje vecka. Lediga tider finns!</span>
+              </div>
+            </div>
+
             <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] mb-6 drop-shadow-lg">
               {displayBaseService} {prep} <span className="text-white italic font-normal">{displayAreaName}</span>
             </h1>
@@ -218,7 +238,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   Vill du ha ett skinande rent hem {prep} {displayAreaName}?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider {prep} {displayAreaName} den här veckan. Boka nu och få
+                  Vi har lediga tider i ditt område. Boka nu och få
                   hotellkänsla hemma.
                 </p>
                 <a href="https://boka.stodona.se" className="btn-primary">

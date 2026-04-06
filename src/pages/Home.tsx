@@ -176,12 +176,9 @@ export default function Home() {
             <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-8">
               {t('home.book.subtitle', lang)}
             </p>
-            <a
-              href="https://boka.stodona.se"
-              className="btn-primary text-lg px-8 py-4"
-            >
-              {t('home.hero.cta1', lang)}
-            </a>
+            <div className="mt-12 text-left">
+              <QuickBookingWidget />
+            </div>
           </motion.div>
         </div>
       </section>

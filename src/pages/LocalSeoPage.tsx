@@ -182,10 +182,10 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             </div>
             
             {/* Hyperlocal Trust Badge */}
-            <div className="inline-block bg-bg-dark/30 backdrop-blur-sm px-6 py-3 rounded-full mb-8 border border-white/20 text-white font-medium shadow-sm">
+            <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-full mb-8 border border-white/20 text-white font-medium shadow-lg hover:bg-white/15 transition-all">
               <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                <span className="text-sm md:text-base">Vi städar redan {prep} {displayAreaName} varje vecka. Lediga tider finns!</span>
+                <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0" />
+                <span className="text-sm md:text-base tracking-wide">Vi städar redan {prep} {displayAreaName} varje vecka. Lediga tider finns!</span>
               </div>
             </div>
 

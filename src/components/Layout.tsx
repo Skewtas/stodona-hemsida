@@ -9,6 +9,7 @@ import WelcomePopup from "./WelcomePopup";
 import ExitIntentPopup from "./ExitIntentPopup";
 import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
+import LiveBookingToast from "./LiveBookingToast";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -358,6 +359,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <WelcomePopup />
       <ExitIntentPopup />
       <StickyCTA />
+      <LiveBookingToast />
     </div>
   );
 }

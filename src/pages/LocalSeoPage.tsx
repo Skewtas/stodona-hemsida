@@ -386,6 +386,11 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           >
             Boka {displayBaseService.toLowerCase()} nu
           </a>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium opacity-90 text-white">
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Ingen bindningstid</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Full ansvarsförsäkring</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Kvalitetsgaranti</div>
+          </div>
         </div>
       </section>
     </div>

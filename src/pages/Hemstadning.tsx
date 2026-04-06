@@ -366,9 +366,11 @@ export default function Hemstadning() {
               Boka städning direkt
             </a>
           </div>
-          <p className="mt-6 text-sm font-medium opacity-80">
-            Tider fylls snabbt – säkra din tid idag.
-          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium opacity-90 text-text-primary">
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-text-primary" /> {lang === 'SV' ? 'Ingen bindningstid' : 'No binding time'}</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-text-primary" /> {lang === 'SV' ? 'Full ansvarsförsäkring' : 'Fully insured'}</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-text-primary" /> {lang === 'SV' ? 'Kvalitetsgaranti' : 'Quality guarantee'}</div>
+          </div>
         </div>
       </section>
     </div>

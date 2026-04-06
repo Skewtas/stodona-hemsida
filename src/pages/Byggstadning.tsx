@@ -303,9 +303,11 @@ export default function Byggstadning() {
               {lang === 'SV' ? 'Boka städning direkt' : 'Book cleaning directly'}
             </a>
           </div>
-          <p className="mt-6 text-sm font-medium opacity-80">
-            {lang === 'SV' ? 'Tider fylls snabbt – säkra din tid idag.' : 'Slots fill up fast – secure your time today.'}
-          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium opacity-90">
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> {lang === 'SV' ? 'Ingen bindningstid' : 'No binding time'}</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> {lang === 'SV' ? 'Full ansvarsförsäkring' : 'Fully insured'}</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> {lang === 'SV' ? 'Kvalitetsgaranti' : 'Quality guarantee'}</div>
+          </div>
         </div>
       </section>
     </div>

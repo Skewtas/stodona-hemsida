@@ -29,7 +29,20 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-text-primary text-bg-primary font-medium transition-colors hover:bg-cta-hover hover:text-text-primary;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-text-primary text-bg-primary font-medium transition-all hover:scale-[1.02] hover:bg-cta-hover hover:text-text-primary relative overflow-hidden;
+    animation: btn-pulse 4s infinite;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    animation: btn-shimmer 6s infinite;
   }
 
   .btn-secondary {
@@ -56,4 +69,16 @@
     padding-top: 6rem;
     padding-bottom: 3rem;
   }
+}
+
+@keyframes btn-shimmer {
+  0% { left: -100%; }
+  15% { left: 200%; }
+  100% { left: 200%; }
+}
+
+@keyframes btn-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(200, 182, 166, 0.4); }
+  30% { box-shadow: 0 0 0 15px rgba(200, 182, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 182, 166, 0); }
 }

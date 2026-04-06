@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import {
   CheckCircle2,
   Star,

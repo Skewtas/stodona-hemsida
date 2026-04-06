@@ -43,35 +43,31 @@ export const QuickBookingWidget: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl shadow-text-primary/10 border border-text-primary/5 max-w-xl mx-auto w-full relative overflow-hidden">
+    <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl shadow-text-primary/10 border border-text-primary/5 max-w-lg mx-auto w-full relative overflow-hidden">
       
       {/* Subtle background flair */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-cta-hover/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
       <div className="relative z-10">
-        <div className="flex items-center justify-center gap-2 mx-auto mb-6 bg-yellow-50 text-yellow-900 px-4 py-1.5 rounded-full w-max text-xs font-bold border border-yellow-200/50">
+        <div className="flex items-center justify-center gap-2 mx-auto mb-5 bg-yellow-50 text-yellow-900 px-4 py-1.5 rounded-full w-max text-xs font-bold border border-yellow-200/50">
           <div className="flex text-yellow-500">
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
           </div>
           <span>{lang === 'EN' ? '4.9/5 Average Rating' : '4.9/5 i snittbetyg'}</span>
         </div>
         
-        <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-text-primary text-center tracking-tight">
-          {lang === 'EN' ? 'Book cleaning in 60s' : 'Boka städning på 60s'}
-        </h3>
-        
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
           
           {/* Service Väljare (Cards istället för Dropdown) */}
           <div>
-            <label className="block text-sm font-semibold text-text-primary mb-3">
+            <label className="block text-sm font-semibold text-text-primary mb-2">
               1. {lang === 'EN' ? 'What do you need help with?' : 'Vad behöver du hjälp med?'}
             </label>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {servicesList.map(s => {
                 const isSelected = service === s.id;
                 const Icon = s.icon;
@@ -80,14 +76,14 @@ export const QuickBookingWidget: React.FC = () => {
                     key={s.id}
                     type="button"
                     onClick={() => setService(s.id)}
-                    className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 ${
                       isSelected 
-                      ? 'border-cta-hover bg-cta-hover/5 text-cta-hover shadow-md scale-[1.02]' 
-                      : 'border-text-primary/5 bg-bg-primary hover:border-cta-hover/30 hover:bg-white text-text-secondary'
+                      ? 'border-cta-hover bg-cta-hover/5 text-cta-hover shadow-sm scale-[1.02]' 
+                      : 'border-text-primary/5 bg-bg-primary hover:border-text-primary/10 hover:bg-white text-text-secondary'
                     }`}
                   >
-                    <Icon className={`w-7 h-7 mb-2 transition-colors ${isSelected ? 'text-cta-hover' : 'text-text-primary/40'}`} />
-                    <span className={`text-sm sm:text-base font-bold ${isSelected ? 'text-cta-hover' : 'text-text-primary'}`}>
+                    <Icon className={`w-5 h-5 mb-1.5 transition-colors ${isSelected ? 'text-cta-hover' : 'text-text-primary/40'}`} />
+                    <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-cta-hover' : 'text-text-primary'}`}>
                       {lang === 'EN' ? s.en : s.sv}
                     </span>
                   </button>
@@ -99,11 +95,11 @@ export const QuickBookingWidget: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             {/* Square Meters */}
             <div>
-              <label className="block text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
-                2. {lang === 'EN' ? 'Area (sqm)' : 'Boyta (kvm)'}
+              <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
+                2. {lang === 'EN' ? 'How many sqm is your home?' : 'Hur många kvm bor du på?'}
               </label>
               <div className="relative">
-                <Maximize className="w-5 h-5 text-text-primary/40 absolute left-4 top-1/2 -translate-y-1/2" />
+                <Maximize className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="number"
                   required
@@ -112,18 +108,18 @@ export const QuickBookingWidget: React.FC = () => {
                   placeholder="Ex: 75"
                   value={sqm}
                   onChange={(e) => setSqm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-bg-primary border-2 border-transparent focus:border-cta-hover focus:bg-white focus:ring-4 focus:ring-cta-hover/10 outline-none transition-all text-text-primary text-lg font-medium shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-9 pr-3 py-3 rounded-xl bg-bg-primary border border-transparent focus:border-cta-hover focus:bg-white focus:ring-2 focus:ring-cta-hover/10 outline-none transition-all text-text-primary text-base font-medium shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
 
             {/* Postal Code */}
             <div>
-              <label className="block text-sm font-semibold text-text-primary mb-2 flex items-center gap-2">
+              <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
                 3. {lang === 'EN' ? 'Postal Code' : 'Postnummer'}
               </label>
               <div className="relative">
-                <MapPin className="w-5 h-5 text-text-primary/40 absolute left-4 top-1/2 -translate-y-1/2" />
+                <MapPin className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
@@ -133,7 +129,7 @@ export const QuickBookingWidget: React.FC = () => {
                     setZipCode(e.target.value.replace(/\D/g, '').substring(0, 5));
                     setZipError('');
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl bg-bg-primary border-2 focus:bg-white focus:ring-4 outline-none transition-all text-text-primary text-lg font-medium shadow-inner ${zipError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-transparent focus:border-cta-hover focus:ring-cta-hover/10'}`}
+                  className={`w-full pl-9 pr-3 py-3 rounded-xl bg-bg-primary border focus:bg-white focus:ring-2 outline-none transition-all text-text-primary text-base font-medium shadow-inner ${zipError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-transparent focus:border-cta-hover focus:ring-cta-hover/10'}`}
                 />
               </div>
               {zipError && (
@@ -165,14 +161,14 @@ export const QuickBookingWidget: React.FC = () => {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover hover:text-white py-5 text-lg font-bold rounded-2xl flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
+              className="w-full btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover py-3.5 text-base font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
             >
               {lang === 'EN' ? 'See exact price & book' : 'Få exakt pris & boka'}
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             
-            <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-text-secondary">
-              <ShieldCheck className="w-4 h-4 text-green-600" />
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-medium text-text-secondary">
+              <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
               <span>{lang === 'EN' ? '100% Satisfaction Guarantee. No commitment.' : '100% Nöjd-Kund Garanti. Ingen bindningstid.'}</span>
             </div>
           </div>

@@ -64,9 +64,9 @@ export const QuickBookingWidget: React.FC = () => {
           
           {/* Service Väljare (Cards istället för Dropdown) */}
           <div>
-            <label className="block text-sm font-semibold text-text-primary mb-2">
-              1. {lang === 'EN' ? 'What do you need help with?' : 'Vad behöver du hjälp med?'}
-            </label>
+            <h3 className="text-xl sm:text-2xl font-bold text-text-primary mb-4 text-center">
+              {lang === 'EN' ? 'What type of cleaning do you need?' : 'Vad för typ av städning behöver du?'}
+            </h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {servicesList.map(s => {
                 const isSelected = service === s.id;
@@ -96,7 +96,7 @@ export const QuickBookingWidget: React.FC = () => {
             {/* Square Meters */}
             <div>
               <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
-                2. {lang === 'EN' ? 'How many sqm is your home?' : 'Hur många kvm bor du på?'}
+                {lang === 'EN' ? 'How many sqm is your home?' : 'Hur många kvm bor du på?'}
               </label>
               <div className="relative">
                 <Maximize className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -116,7 +116,7 @@ export const QuickBookingWidget: React.FC = () => {
             {/* Postal Code */}
             <div>
               <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
-                3. {lang === 'EN' ? 'Postal Code' : 'Postnummer'}
+                {lang === 'EN' ? 'Postal Code' : 'Postnummer'}
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />

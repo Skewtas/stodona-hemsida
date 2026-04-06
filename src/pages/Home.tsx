@@ -174,10 +174,7 @@ export default function Home() {
               {t('home.book.title1', lang)} <br />
               <span className="text-cta-hover italic font-normal">{t('home.book.title2', lang)}</span>
             </h2>
-            <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-8">
-              {t('home.book.subtitle', lang)}
-            </p>
-            <div className="mt-12 text-left">
+            <div className="mt-8 text-left">
               <QuickBookingWidget />
             </div>
           </motion.div>

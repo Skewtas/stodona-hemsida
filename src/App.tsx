@@ -20,6 +20,7 @@ const Fonsterputsning = React.lazy(() => import("./pages/Fonsterputsning"));
 const Trappstadning = React.lazy(() => import("./pages/Trappstadning"));
 const Bodstadning = React.lazy(() => import("./pages/Bodstadning"));
 const OmOss = React.lazy(() => import("./pages/OmOss"));
+const JobbaHosOss = React.lazy(() => import("./pages/JobbaHosOss"));
 const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
@@ -83,6 +84,7 @@ export default function App() {
           <Route path="/trappstadning" element={<Trappstadning />} />
           <Route path="/bodstadning" element={<Bodstadning />} />
           <Route path="/om-oss" element={<OmOss />} />
+          <Route path="/jobba-hos-oss" element={<JobbaHosOss />} />
           <Route path="/boka" element={<Boka />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
           <Route path="/priser" element={<Priser />} />

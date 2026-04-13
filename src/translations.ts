@@ -22,6 +22,7 @@ const translations: TranslationMap = {
     'footer.fonsterputsning': { SV: 'Fönsterputsning', EN: 'Window Cleaning' },
     'footer.byggstadning': { SV: 'Byggstädning', EN: 'Post-Construction Cleaning' },
     'footer.omoss': { SV: 'Om oss', EN: 'About us' },
+    'footer.jobba': { SV: 'Jobba hos oss', EN: 'Careers' },
     'footer.priser': { SV: 'Priser', EN: 'Pricing' },
     'footer.kontakt': { SV: 'Kontakt', EN: 'Contact' },
     'footer.kundportalen': { SV: 'Kundportalen', EN: 'Customer Portal' },

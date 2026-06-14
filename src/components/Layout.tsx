@@ -5,8 +5,7 @@ import Logo from "./Logo";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
-import WelcomePopup from "./WelcomePopup";
-import ExitIntentPopup from "./ExitIntentPopup";
+import DiscountPopup from "./DiscountPopup";
 import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
 import LiveBookingToast from "./LiveBookingToast";
@@ -361,8 +360,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
-      <WelcomePopup />
-      <ExitIntentPopup />
+      <DiscountPopup />
       <StickyCTA />
       <LiveBookingToast />
     </div>

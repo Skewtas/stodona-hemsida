@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
@@ -130,6 +130,7 @@ export default function AdminLeads() {
       <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
         <Helmet>
         <title>Admin Leads | Stodona</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <motion.div
           initial={{ opacity: 0, y: 20 }}

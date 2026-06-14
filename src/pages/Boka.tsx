@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { useEffect } from "react";
 
 export default function Boka() {
@@ -10,6 +10,7 @@ export default function Boka() {
     <div className="min-h-screen flex items-center justify-center">
       <Helmet>
         <title>Boka städning | Stodona</title>
+        <meta name="robots" content="noindex" />
       </Helmet>
       <p>Skickar dig till bokningen...</p>
     </div>

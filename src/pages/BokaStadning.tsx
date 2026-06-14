@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from "motion/react";
 import { FullBookingForm } from "../components/FullBookingForm";
 import { CheckCircle2, ShieldCheck, Clock, Star } from "lucide-react";

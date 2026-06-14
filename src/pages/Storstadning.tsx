@@ -15,7 +15,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 
 export default function Storstadning() {
   const { lang } = useLanguage();

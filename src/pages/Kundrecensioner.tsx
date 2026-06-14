@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Star, Quote, MapPin } from 'lucide-react';
@@ -131,7 +131,7 @@ export default function Kundrecensioner() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Stodona',
-    image: 'https://stodona.se/stodona-logo.png',
+    image: 'https://stodona.se/logotyp.png',
     telephone: '010-178 01 50',
     address: {
       '@type': 'PostalAddress',

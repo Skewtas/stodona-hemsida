@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "../seo";
 import { CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
 import WhyStodona from "../components/WhyStodona";
@@ -10,6 +10,7 @@ export default function Priser() {
       <Helmet>
         <title>Priser på städning | Stodona</title>
         <meta name="description" content="Se pris för hemstädning, flyttstädning med mera. Boka online för direktpris eller kontakta oss för en skräddarsydd offert." />
+        <link rel="canonical" href="https://stodona.se/priser" />
       </Helmet>
 
       {/* Hero Section */}

@@ -11,7 +11,7 @@ import WhyStodona from "../components/WhyStodona";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import ServiceSchema from '../components/ServiceSchema';
 
 export default function Bodstadning() {

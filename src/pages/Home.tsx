@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "../seo";
 import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import {
   CheckCircle2,
@@ -48,6 +48,32 @@ export default function Home() {
         <meta name="twitter:title" content="Stodona – Professionell städning i Stockholm" />
         <meta name="twitter:description" content="Hemstädning med RUT-avdrag. Samma team varje gång. Boka online!" />
         <meta name="twitter:image" content="https://stodona.se/stodona-stad.jpg" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LocalBusiness',
+            '@id': 'https://stodona.se/#business',
+            name: 'Stodona',
+            url: 'https://stodona.se',
+            logo: 'https://stodona.se/logotyp.png',
+            image: 'https://stodona.se/stodona-stad.jpg',
+            description:
+              'Professionell städfirma i Stockholm. Hemstädning, fönsterputsning, flyttstädning och storstädning med RUT-avdrag. Samma team varje gång.',
+            telephone: '010-178 01 50',
+            email: 'info@stodona.se',
+            priceRange: '$$',
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: 'Stockholm',
+              addressRegion: 'Stockholm',
+              addressCountry: 'SE',
+            },
+            areaServed: [
+              'Stockholm', 'Ekerö', 'Lidingö', 'Nacka', 'Solna', 'Sundbyberg',
+              'Danderyd', 'Täby', 'Bromma', 'Södermalm', 'Östermalm',
+            ].map((name) => ({ '@type': 'City', name })),
+          })}
+        </script>
       </Helmet>
       {/* Toast Notification */}
       <AnimatePresence>
@@ -114,7 +140,7 @@ export default function Home() {
             >
               <a
                 href="https://boka.stodona.se"
-                className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg"
+                className="btn-primary btn-attention bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg"
               >
                 {t('home.hero.cta1', lang)}
               </a>

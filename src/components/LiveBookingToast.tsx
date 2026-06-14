@@ -15,24 +15,39 @@ export default function LiveBookingToast() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Initial delay before showing the first toast
-    const initialTimer = setTimeout(() => {
-      setVisible(true);
-    }, 8000);
+    // Wait until the cookie banner has been answered so overlays never stack.
+    let initialTimer: ReturnType<typeof setTimeout>;
+    let intervalTimer: ReturnType<typeof setInterval>;
 
-    // Interval to cycle through bookings every 30 seconds
-    const intervalTimer = setInterval(() => {
-      setVisible(false);
-      
-      setTimeout(() => {
-        setCurrentBooking((prev) => (prev + 1) % bookings.length);
-        setVisible(true);
-      }, 1000); // 1 second gap between hide and show new
-    }, 30000);
+    const start = () => {
+      initialTimer = setTimeout(() => setVisible(true), 8000);
+
+      // Cycle through bookings every 30 seconds
+      intervalTimer = setInterval(() => {
+        setVisible(false);
+        setTimeout(() => {
+          setCurrentBooking((prev) => (prev + 1) % bookings.length);
+          setVisible(true);
+        }, 1000); // 1 second gap between hide and show new
+      }, 30000);
+    };
+
+    let poll: ReturnType<typeof setInterval>;
+    if (localStorage.getItem('cookie-consent')) {
+      start();
+    } else {
+      poll = setInterval(() => {
+        if (localStorage.getItem('cookie-consent')) {
+          clearInterval(poll);
+          start();
+        }
+      }, 500);
+    }
 
     return () => {
       clearTimeout(initialTimer);
       clearInterval(intervalTimer);
+      clearInterval(poll);
     };
   }, []);
 

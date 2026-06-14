@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 
 interface ServiceSchemaProps {
   serviceName: string;
@@ -26,7 +26,7 @@ export default function ServiceSchema({
     provider: {
       '@type': 'LocalBusiness',
       name: 'Stodona',
-      image: 'https://stodona.se/stodona-logo.png',
+      image: 'https://stodona.se/logotyp.png',
       telephone: '010-178 01 50',
       email: 'info@stodona.se',
       url: 'https://stodona.se',

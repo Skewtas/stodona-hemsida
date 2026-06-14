@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { 

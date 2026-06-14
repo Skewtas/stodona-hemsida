@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { Home, Search, ArrowLeft } from 'lucide-react';
 

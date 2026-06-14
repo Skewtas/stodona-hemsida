@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import React from 'react';
 import { motion } from 'motion/react';
 import { Gift, CheckCircle2 } from 'lucide-react';

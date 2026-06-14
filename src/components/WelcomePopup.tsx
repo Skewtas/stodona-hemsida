@@ -12,8 +12,29 @@ export default function WelcomePopup() {
 
   useEffect(() => {
     if (hasSeenPopup('welcome')) return;
-    const timer = setTimeout(() => setVisible(true), 3000);
-    return () => clearTimeout(timer);
+
+    let delayTimer: ReturnType<typeof setTimeout>;
+    // Only show once the cookie banner has been answered, so overlays never stack.
+    const startDelay = () => {
+      delayTimer = setTimeout(() => setVisible(true), 6000);
+    };
+
+    if (localStorage.getItem('cookie-consent')) {
+      startDelay();
+      return () => clearTimeout(delayTimer);
+    }
+
+    const poll = setInterval(() => {
+      if (localStorage.getItem('cookie-consent')) {
+        clearInterval(poll);
+        startDelay();
+      }
+    }, 500);
+
+    return () => {
+      clearInterval(poll);
+      clearTimeout(delayTimer);
+    };
   }, []);
 
   function handleClose() {

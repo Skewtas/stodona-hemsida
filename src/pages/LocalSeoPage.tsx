@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, HelpCircle, CheckCircle2, Star } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';

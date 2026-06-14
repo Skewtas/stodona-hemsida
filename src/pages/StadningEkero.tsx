@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, CheckCircle2, HelpCircle, Star, Sparkles } from 'lucide-react';

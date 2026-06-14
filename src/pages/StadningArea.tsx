@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, CheckCircle2, HelpCircle, Star, Sparkles } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
@@ -61,7 +61,7 @@ export default function StadningArea({ areaName, heroImage, subAreas }: Stadning
     url: `https://stodona.se/stadning-${slug}`,
     areaServed: { '@type': 'Place', name: areaName },
     priceRange: '$$',
-    image: 'https://stodona.se/stodona-logo.png',
+    image: 'https://stodona.se/logotyp.png',
   };
 
   return (

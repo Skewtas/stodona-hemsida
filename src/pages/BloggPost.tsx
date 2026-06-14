@@ -1,5 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -27,7 +27,7 @@ export default function BloggPost() {
     publisher: {
       '@type': 'Organization',
       name: 'Stodona',
-      logo: { '@type': 'ImageObject', url: 'https://stodona.se/stodona-logo.png' },
+      logo: { '@type': 'ImageObject', url: 'https://stodona.se/logotyp.png' },
     },
     image: `https://stodona.se${post.heroImage}`,
     url: `https://stodona.se/blogg/${post.slug}`,

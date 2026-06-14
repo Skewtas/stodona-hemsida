@@ -30,10 +30,14 @@
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-text-primary text-bg-primary font-medium transition-all hover:scale-[1.02] hover:bg-cta-hover hover:text-text-primary relative overflow-hidden;
+  }
+
+  /* Opt-in attention effect — use sparingly on the single primary CTA */
+  .btn-attention {
     animation: btn-pulse 4s infinite;
   }
 
-  .btn-primary::after {
+  .btn-attention::after {
     content: '';
     position: absolute;
     top: 0;
@@ -43,6 +47,13 @@
     background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
     transform: skewX(-20deg);
     animation: btn-shimmer 6s infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-attention,
+    .btn-attention::after {
+      animation: none;
+    }
   }
 
   .btn-secondary {

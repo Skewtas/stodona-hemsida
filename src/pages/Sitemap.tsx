@@ -15,7 +15,7 @@ import {
   FileText
 } from "lucide-react";
 import { SERVICE_AREAS, SERVICE_CARDS } from "../constants";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "../seo";
 
 export default function Sitemap() {
   const mainPages = [
@@ -52,6 +52,7 @@ export default function Sitemap() {
       <Helmet>
         <title>Sidkarta | Stodona – Alla sidor</title>
         <meta name="description" content="Komplett sidkarta för Stodona. Hitta alla tjänster, områden och sidor." />
+        <link rel="canonical" href="https://stodona.se/sidkarta" />
       </Helmet>
 
       {/* Hero Section */}

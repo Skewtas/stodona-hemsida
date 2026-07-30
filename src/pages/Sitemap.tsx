@@ -22,7 +22,7 @@ export default function Sitemap() {
     { name: "Startsida", path: "/", icon: Home },
     { name: "Om oss", path: "/om-oss", icon: Info },
     { name: "Kontakt", path: "/kontakt", icon: Phone },
-    { name: "Boka städning", path: "https://boka.stodona.se", icon: Sparkles },
+    { name: "Boka städning", path: "/bokning", icon: Sparkles },
     { name: "Kundportalen", path: "/kundportalen", icon: ShieldCheck },
     { name: "Blogg", path: "/blogg", icon: BookOpen },
     { name: "FAQ", path: "/faq", icon: HelpCircle },

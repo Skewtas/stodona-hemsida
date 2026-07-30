@@ -86,6 +86,7 @@ export default function App() {
           <Route path="/om-oss" element={<OmOss />} />
           <Route path="/jobba-hos-oss" element={<JobbaHosOss />} />
           <Route path="/boka" element={<Boka />} />
+          <Route path="/bokning" element={<BokaStadning />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
           <Route path="/priser" element={<Priser />} />
           <Route path="/kontakt" element={<Kontakt />} />

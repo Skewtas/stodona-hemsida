@@ -133,7 +133,7 @@ export default function Storstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                När vardagsstädningen inte räcker till är det dags för en riktig djuprengöring. Låt vårt duktiga team från Stodona, din pålitliga städfirma, fräscha upp din bostad från golv till tak. Vår grundliga storstädning i Stockholm tar bort ingrodd smuts och ger dig ett skinande rent och fläckfritt hem att njuta av. Boka marknadens bästa storstädning idag!
+                När vardagsstädningen inte räcker till är det dags för en riktig djuprengöring. Låt vårt duktiga team från Stodona, ditt pålitliga städbolag, fräscha upp din bostad från golv till tak. Vår grundliga storstädning i Stockholm tar bort ingrodd smuts och ger dig ett skinande rent och fläckfritt hem att njuta av. Boka marknadens bästa storstädning idag!
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Övriga ytor och rum</h3>

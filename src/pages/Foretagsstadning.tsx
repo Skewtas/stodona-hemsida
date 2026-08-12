@@ -132,7 +132,7 @@ export default function Foretagsstadning() {
                 På Stodona förstår vi att behovet av professionell företagsstädning och kontorsstädning i Stockholm varierar väldigt mycket mellan olika företag. Varje behov är unikt, oavsett om ni söker daglig kontorsstädning eller flexibel städhjälp. Vi har därför inget förutbestämt innehåll – era specifika önskemål kring kontorsstädningen styr helt vad som ingår för att passa er verksamhet i Stockholm.
               </p>
               <p className="mb-8">
-                Oavsett om ni letar efter en pålitlig städfirma för löpande kontorsstädning, en extra noggrann grovstädning av era företagslokaler, eller skräddarsydd företagsstädning i Stockholm, så finns vi här för dig och ditt företag med den bästa servicen.
+                Oavsett om ni letar efter ett pålitligt städbolag för löpande kontorsstädning, en extra noggrann grovstädning av era företagslokaler, eller skräddarsydd företagsstädning i Stockholm, så finns vi här för dig och ditt företag med den bästa servicen.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Professionell kontorsstädning ger nöjda anställda</h3>

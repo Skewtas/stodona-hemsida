@@ -208,7 +208,7 @@ export default function StadningEkero() {
                     <Star className="w-4 h-4 fill-current" />
                   </div>
                   <p className="italic text-sm mb-4">
-                    "Bästa städfirman vi anlitat på Ekerö. Alltid i tid, grundliga och det doftar fantastiskt när man kommer hem."
+                    "Bästa städbolaget vi anlitat på Ekerö. Alltid i tid, grundliga och det doftar fantastiskt när man kommer hem."
                   </p>
                   <p className="font-bold text-sm">— Sofia, Ekerö</p>
                 </div>

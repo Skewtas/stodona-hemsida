@@ -58,7 +58,7 @@ export default function Home() {
             logo: 'https://stodona.se/logotyp.png',
             image: 'https://stodona.se/stodona-stad.jpg',
             description:
-              'Professionell städfirma i Stockholm. Hemstädning, fönsterputsning, flyttstädning och storstädning med RUT-avdrag. Samma team varje gång.',
+              'Professionellt städbolag i Stockholm. Hemstädning, fönsterputsning, flyttstädning och storstädning med RUT-avdrag. Samma team varje gång.',
             telephone: '010-178 01 50',
             email: 'info@stodona.se',
             priceRange: '$$',

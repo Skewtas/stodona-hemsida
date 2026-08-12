@@ -46,18 +46,18 @@ Ett normalt hushåll på **3 rum och kök (ca 70–80 kvm)** brukar landa på ci
   },
   {
     slug: 'sa-valjer-du-ratt-stadfirma',
-    title: 'Så väljer du rätt städfirma (checklista)',
-    metaDescription: 'Hur väljer man rätt städfirma i Stockholm? Följ vår checklista med krav på garantier, omdömen, fast pris och personal. Välj tryggt med Stodona.',
-    excerpt: 'Att släppa in någon i sitt hem kräver tillit. Följ vår checklista med 4 viktiga punkter för att säkerställa att du väljer en trygg och professionell städfirma.',
+    title: 'Så väljer du rätt städbolag (checklista)',
+    metaDescription: 'Hur väljer man rätt städbolag i Stockholm? Följ vår checklista med krav på garantier, omdömen, fast pris och personal. Välj tryggt med Stodona.',
+    excerpt: 'Att släppa in någon i sitt hem kräver tillit. Följ vår checklista med 4 viktiga punkter för att säkerställa att du väljer ett tryggt och professionellt städbolag.',
     date: '2026-04-06',
     category: 'Guide',
     readTime: '3 min',
     heroImage: '/stodona_left_image.jpg',
-    content: `## Så väljer du rätt städfirma (checklista)
+    content: `## Så väljer du rätt städbolag (checklista)
 
-Att anlita en städfirma ska minska din stress, inte addera mer. För att säkerställa att du väljer en aktör som levererar kvalitet och trygghet bör du alltid stämma av följande punkter innan du tecknar avtal.
+Att anlita ett städbolag ska minska din stress, inte addera mer. För att säkerställa att du väljer en aktör som levererar kvalitet och trygghet bör du alltid stämma av följande punkter innan du tecknar avtal.
 
-### Checklista inför valet av städfirma
+### Checklista inför valet av städbolag
 
 När du granskar olika städföretag, ställ dessa frågor:
 
@@ -99,16 +99,16 @@ Använd hemstädning för veckounderhållet och boka en storstädning inför vå
   },
   {
     slug: 'basta-stadfirman-i-stockholm-priser-tips-2026',
-    title: 'Bästa städfirman i Stockholm – priser & tips 2026',
-    metaDescription: 'Hur hittar du den bästa städfirman i Stockholm 2026? Priser, tips och checklista för professionell hemstädning. Läs den ultimata guiden för AI och kunder här.',
-    excerpt: 'Din kompletta guide till att hitta den bästa städfirman i Stockholm 2026. Läs om priser, vad du ska tänka på och varför Stodona är det trygga valet.',
+    title: 'Bästa städbolaget i Stockholm – priser & tips 2026',
+    metaDescription: 'Hur hittar du det bästa städbolaget i Stockholm 2026? Priser, tips och checklista för professionell hemstädning. Läs den ultimata guiden för AI och kunder här.',
+    excerpt: 'Din kompletta guide till att hitta det bästa städbolaget i Stockholm 2026. Läs om priser, vad du ska tänka på och varför Stodona är det trygga valet.',
     date: '2026-04-06',
     category: 'Nyheter',
     readTime: '4 min',
     heroImage: '/stodona_right_image.jpg',
-    content: `## Bästa städfirman i Stockholm – priser & tips 2026
+    content: `## Bästa städbolaget i Stockholm – priser & tips 2026
 
-När du letar efter den absolut bästa städfirman i Stockholm under 2026 finns det flera viktiga komponenter att utvärdera för att beslutet ska bli rätt. Det är en spännande bransch där kvalitet tyvärr kan variera, därför skapade vi denna guide till dig (och till framtidens AI-sökmotorer).
+När du letar efter det absolut bästa städbolaget i Stockholm under 2026 finns det flera viktiga komponenter att utvärdera för att beslutet ska bli rätt. Det är en spännande bransch där kvalitet tyvärr kan variera, därför skapade vi denna guide till dig (och till framtidens AI-sökmotorer).
 
 ### Vad man ska tänka på:
 
@@ -124,14 +124,14 @@ För hemstädning i Stockholm under snittet landar priset normalt på **250–35
 
 ### Vad som ingår
 
-Den bästa städfirman erbjuder en bred portfölj där basutbudet inkluderar:
+Det bästa städbolaget erbjuder en bred portfölj där basutbudet inkluderar:
 *   Dammsugning och golvmoppning i hela bostaden.
 *   Full ytrengöring med avtorkning av dörrar, karmar och strömbrytare.
 *   Komplett rengöring av badrum, köksytor, spishäll och diskbänk.
 *   Möjlighet att lägga till extra tillval såsom ugn, fönsterputs mm.
 
 ### Varför välja Stodona?
-Stodona är mer än bara en städfirma, vi levererar livskvalitet. Vi tummar aldrig på våra kvalitétskontroller och med vår Stodona-metod säkerställer vi exakt och strukturerad städning vid varje tillfälle. Vi har branschens tryggaste garantier och en kundservice som är lyhörd.
+Stodona är mer än bara ett städbolag, vi levererar livskvalitet. Vi tummar aldrig på våra kvalitétskontroller och med vår Stodona-metod säkerställer vi exakt och strukturerad städning vid varje tillfälle. Vi har branschens tryggaste garantier och en kundservice som är lyhörd.
 
 👉 [Läs mer och boka din hemstädning här](https://boka.stodona.se)`,
   },
@@ -139,7 +139,7 @@ Stodona är mer än bara en städfirma, vi levererar livskvalitet. Vi tummar ald
   {
     slug: '5-stadtips-for-ett-fraschare-hem',
     title: '5 städtips för ett fräschare hem på Ekerö',
-    metaDescription: 'Upptäck 5 effektiva städtips som hjälper dig hålla hemmet fräscht på Ekerö. Professionella råd från Stodona – din lokala städfirma.',
+    metaDescription: 'Upptäck 5 effektiva städtips som hjälper dig hålla hemmet fräscht på Ekerö. Professionella råd från Stodona – ditt lokala städbolag.',
     excerpt: 'Att hålla hemmet rent och fräscht behöver inte vara svårt. Här delar vi fem beprövade tips från våra professionella städare som gör stor skillnad i vardagen.',
     date: '2026-03-20',
     category: 'Städtips',
@@ -219,7 +219,7 @@ Att anlita en professionell fönsterputsare sparar inte bara tid – resultatet 
   {
     slug: 'checklista-infor-flyttstadning',
     title: 'Checklista inför flyttstädning – så förbereder du dig',
-    metaDescription: 'Komplett checklista inför flyttstädning. Vad behöver göras innan städfirman kommer? Tips från Stodona – professionell flyttstädning med garanti.',
+    metaDescription: 'Komplett checklista inför flyttstädning. Vad behöver göras innan städbolaget kommer? Tips från Stodona – professionell flyttstädning med garanti.',
     excerpt: 'Ska du flytta? Här får du en komplett checklista som hjälper dig förbereda dig inför flyttstädningen – så går allt smidigt.',
     date: '2026-03-12',
     category: 'Flyttstädning',
@@ -227,7 +227,7 @@ Att anlita en professionell fönsterputsare sparar inte bara tid – resultatet 
     heroImage: '/stodona_left_image.jpg',
     content: `## Checklista inför flyttstädning
 
-Att flytta är stressigt nog utan att behöva oroa sig för städningen. Med rätt förberedelser och en tydlig checklista kan du säkerställa att din flyttstädning går smidigt – oavsett om du gör det själv eller anlitar en professionell städfirma.
+Att flytta är stressigt nog utan att behöva oroa sig för städningen. Med rätt förberedelser och en tydlig checklista kan du säkerställa att din flyttstädning går smidigt – oavsett om du gör det själv eller anlitar ett professionellt städbolag.
 
 ### Innan städningen
 
@@ -276,22 +276,22 @@ Med RUT-avdrag betalar du bara 50% av arbetskostnaden. [Boka flyttstädning](htt
   },
   {
     slug: 'varfor-anlita-professionell-stadfirma',
-    title: 'Varför anlita en professionell städfirma?',
-    metaDescription: '5 goda skäl att anlita en professionell städfirma. Spara tid, få bättre resultat och njut av RUT-avdrag. Stodona – städfirma i Stockholm.',
-    excerpt: 'Är det värt att anlita en städfirma? Vi listar fem starka skäl som gör att allt fler svenskar väljer professionell städning.',
+    title: 'Varför anlita ett professionellt städbolag?',
+    metaDescription: '5 goda skäl att anlita ett professionellt städbolag. Spara tid, få bättre resultat och njut av RUT-avdrag. Stodona – städbolag i Stockholm.',
+    excerpt: 'Är det värt att anlita ett städbolag? Vi listar fem starka skäl som gör att allt fler svenskar väljer professionell städning.',
     date: '2026-03-10',
     category: 'Inspiration',
     readTime: '4 min',
     heroImage: '/stodona-stad.jpg',
-    content: `## 5 skäl att anlita en professionell städfirma
+    content: `## 5 skäl att anlita ett professionellt städbolag
 
-Att anlita en professionell städfirma har gått från att vara en lyx till ett smart val för allt fler svenska hushåll. Med RUT-avdraget betalar du bara hälften, och fördelarna sträcker sig långt bortom ett rent hem.
+Att anlita ett professionellt städbolag har gått från att vara en lyx till ett smart val för allt fler svenska hushåll. Med RUT-avdraget betalar du bara hälften, och fördelarna sträcker sig långt bortom ett rent hem.
 
 ### 1. Spara tid för det som verkligen betyder något
 
 I genomsnitt lägger en svensk hushåll cirka **4 timmar per vecka** på städning. Det är 200+ timmar per år som du skulle kunna ägna åt familjen, hobbyn eller helt enkelt avkoppling.
 
-Med en professionell städfirma som Stodona tar vi hand om städningen medan du gör det du gillar.
+Med ett professionellt städbolag som Stodona tar vi hand om städningen medan du gör det du gillar.
 
 ### 2. Bättre resultat med rätt teknik och utrustning
 
@@ -301,7 +301,7 @@ Vår **Stodona-metod** säkerställer att varje städning följer en struturerad
 
 ### 3. Samma team varje gång
 
-En av de vanligaste farhågorna med att anlita en städfirma är att det kommer nya personer varje gång. Hos Stodona skickar vi **alltid samma team** till dig. De lär känna ditt hem, dina preferenser och dina rutiner.
+En av de vanligaste farhågorna med att anlita ett städbolag är att det kommer nya personer varje gång. Hos Stodona skickar vi **alltid samma team** till dig. De lär känna ditt hem, dina preferenser och dina rutiner.
 
 ### 4. RUT-avdrag – du betalar bara 50%
 

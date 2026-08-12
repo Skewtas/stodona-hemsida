@@ -133,7 +133,7 @@ export default function Flyttstadning() {
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
                 En riktig flyttstädning är mycket mer omfattande än en vanlig
-                hemstädning. Låt vår städfirma för flyttstädning rengöra din bostad från golv till tak för att
+                hemstädning. Låt vårt städbolag för flyttstädning rengöra din bostad från golv till tak för att
                 säkerställa att nästa ägare eller hyresgäst möts av ett perfekt
                 resultat. Vi är experter på flyttstädning i Stockholm och garanterar alltid högsta kvalitet på vårt flyttstäd.
               </p>
@@ -219,7 +219,7 @@ export default function Flyttstadning() {
                   Slipp stressen med marknadens bästa flyttstädning i Stockholm
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi är en rekommenderad städfirma med snabba och lediga tider för flyttstädning i Stockholm den här veckan. Boka din professionella flyttstädning nu och
+                  Vi är ett rekommenderat städbolag med snabba och lediga tider för flyttstädning i Stockholm den här veckan. Boka din professionella flyttstädning nu och
                   låt oss ta hand om hela städningen med garanti.
                 </p>
                 <a href="https://boka.stodona.se" className="btn-primary">

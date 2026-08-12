@@ -98,7 +98,7 @@ export default function Bodstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                {lang === 'SV' ? 'Vi på Stodona är en pålitlig städfirma som erbjuder professionell bodstädning för byggarbetsplatser i hela Stockholm. Regelbunden bodstädning är extremt viktigt för att upprätthålla en god arbetsmiljö under pågående byggprojekt. Vi erbjuder skräddarsydda, flexibla lösningar för daglig eller veckovis städning av era bodar.' : 'We offer professional construction cabin cleaning in Stockholm. Regular cabin cleaning is essential for a good work environment during construction projects.'}
+                {lang === 'SV' ? 'Vi på Stodona är ett pålitligt städbolag som erbjuder professionell bodstädning för byggarbetsplatser i hela Stockholm. Regelbunden bodstädning är extremt viktigt för att upprätthålla en god arbetsmiljö under pågående byggprojekt. Vi erbjuder skräddarsydda, flexibla lösningar för daglig eller veckovis städning av era bodar.' : 'We offer professional construction cabin cleaning in Stockholm. Regular cabin cleaning is essential for a good work environment during construction projects.'}
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">{lang === 'SV' ? 'Vad ingår i vår bodstädning?' : 'What is included in site cabin cleaning?'}</h3>

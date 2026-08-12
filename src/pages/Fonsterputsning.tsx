@@ -83,7 +83,7 @@ export default function Fonsterputsning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                Att putsa fönster kan vara både tidskrävande och riktigt svårt att få till perfekt utan rätt teknik. Låt oss på Stodona, din lokala städfirma, ta hand om din fönsterputs i Stockholm åt dig. Våra experter på fönsterputsning har rätt utrustning och professionell metodik för att erbjuda marknadens bästa fönsterputs. Vi garanterar dig skinande rena, välputsade och helt rändfria fönster året om med vår populära fönsterputsning i Stockholm.
+                Att putsa fönster kan vara både tidskrävande och riktigt svårt att få till perfekt utan rätt teknik. Låt oss på Stodona, ditt lokala städbolag, ta hand om din fönsterputs i Stockholm åt dig. Våra experter på fönsterputsning har rätt utrustning och professionell metodik för att erbjuda marknadens bästa fönsterputs. Vi garanterar dig skinande rena, välputsade och helt rändfria fönster året om med vår populära fönsterputsning i Stockholm.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Vad ingår?</h3>
@@ -131,7 +131,7 @@ export default function Fonsterputsning() {
                   Dags för rändfri fönsterputs i Stockholm?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Boka professionell fönsterputsning idag och njut av en kristallklar utsikt. Vi är din städfirma för perfekt fönsterputs.
+                  Boka professionell fönsterputsning idag och njut av en kristallklar utsikt. Vi är ditt städbolag för perfekt fönsterputs.
                 </p>
                 <a href="https://boka.stodona.se" className="btn-primary">
                   Boka fönsterputsning

@@ -91,7 +91,7 @@ export default function BokaStadning() {
                 <span className="font-bold">4.9/5</span>
               </div>
               <p className="text-sm text-text-secondary italic">
-                {lang === 'SV' ? '"Bästa städfirman jag anlitat. Proffsigt bemötande och fantastiskt resultat!"' : '"Best cleaning company I\'ve hired. Professional treatment and fantastic results!"'}
+                {lang === 'SV' ? '"Bästa städbolaget jag anlitat. Proffsigt bemötande och fantastiskt resultat!"' : '"Best cleaning company I\'ve hired. Professional treatment and fantastic results!"'}
               </p>
             </div>
 

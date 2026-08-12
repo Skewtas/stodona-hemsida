@@ -43,7 +43,7 @@ const translations: TranslationMap = {
     'home.hero.title1': { SV: 'Bäst hemstädning i Stockholm.', EN: 'Hotel feeling at home.' },
     'home.hero.title2': { SV: 'Hotellkänsla på riktigt.', EN: 'For real.' },
     'home.hero.subtitle': {
-        SV: 'Vi är en professionell städfirma som erbjuder allt från hemstädning och flyttstädning till storstädning i Stockholm. Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Samma team varje gång.',
+        SV: 'Vi är ett professionellt städbolag som erbjuder allt från hemstädning och flyttstädning till storstädning i Stockholm. Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Samma team varje gång.',
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
     },
     'home.hero.cta1': { SV: 'Boka städning', EN: 'Book cleaning' },
@@ -132,7 +132,7 @@ const translations: TranslationMap = {
     'home.services.readmore': { SV: 'Läs mer', EN: 'Read more' },
 
     // ─── HOME: Final CTA ───────────────────────────────────────────────
-    'home.cta.title': { SV: 'Boka Stockholms mest rekommenderade städfirma', EN: 'Ready for that hotel feeling at home?' },
+    'home.cta.title': { SV: 'Boka Stockholms mest rekommenderade städbolag', EN: 'Ready for that hotel feeling at home?' },
     'home.cta.subtitle': { SV: 'Boka din hemstädning, flyttstädning eller storstädning idag. Ingen bindningstid, bara ett garanterat rent resultat.', EN: 'Book your cleaning today. No commitment, just a cleaner home.' },
     'home.cta.btn1': { SV: 'Boka städning direkt', EN: 'Book cleaning now' },
     'home.cta.btn2': { SV: 'Boka städning', EN: 'Book cleaning' },
@@ -204,7 +204,7 @@ const translations: TranslationMap = {
     'hemstadning.method.p2': { SV: 'Våra städare är utbildade i att arbeta systematiskt, rum för rum, uppifrån och ner. Vi använder endast miljövänliga och effektiva rengöringsprodukter som är skonsamma mot ditt hem och vår miljö.', EN: 'Our cleaners are trained to work systematically, room by room, top to bottom. We only use eco-friendly and effective cleaning products that are gentle on your home and our environment.' },
     'hemstadning.rut.title': { SV: 'RUT-avdrag för hemstädning', EN: 'RUT tax deduction for home cleaning' },
     'hemstadning.rut.text': { SV: 'När du anlitar oss för hemstädning har du rätt till RUT-avdrag. Det innebär att du endast betalar 50% av arbetskostnaden. Vi sköter all administration och drar av beloppet direkt på din faktura. Smidigt och enkelt!', EN: 'When you hire us for home cleaning, you are entitled to the RUT tax deduction. This means you only pay 50% of the labor cost. We handle all administration and deduct the amount directly on your invoice. Smooth and simple!' },
-    'hemstadning.review.text': { SV: '"Bästa städfirman jag anlitat. Alltid i tid, noggranna och det doftar fantastiskt när man kommer hem."', EN: '"Best cleaning company I\'ve hired. Always on time, thorough and it smells amazing when you come home."' },
+    'hemstadning.review.text': { SV: '"Bästa städbolaget jag anlitat. Alltid i tid, noggranna och det doftar fantastiskt när man kommer hem."', EN: '"Best cleaning company I\'ve hired. Always on time, thorough and it smells amazing when you come home."' },
     'hemstadning.faq.title': { SV: 'Vanliga frågor om hemstädning', EN: 'Frequently asked questions about home cleaning' },
     'hemstadning.faq.subtitle': { SV: 'Här har vi samlat de vanligaste frågorna vi får om vår hemstädning.', EN: 'Here we have gathered the most common questions we receive about our home cleaning.' },
     'hemstadning.faq.q1': { SV: 'Har ni med er eget städmaterial?', EN: 'Do you bring your own cleaning supplies?' },

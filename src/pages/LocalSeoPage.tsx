@@ -33,7 +33,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     trappstadning: 'Trappstädning',
     bodstadning: 'Bod/etableringsstädning',
     fonsterputsning: 'Fönsterputsning',
-    stadfirma: 'Städfirma'
+    stadfirma: 'Städbolag'
   };
   const displayBaseService = serviceNameMap[baseService.toLowerCase()] || (baseService.charAt(0).toUpperCase() + baseService.slice(1).replace(/stadning/i, 'städning'));
 
@@ -75,7 +75,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     ],
     stadfirma: [
       { title: 'Vad vi erbjuder', items: ['Hemstädning för en smidigare vardag', 'Professionell storstädning och djuprengöring', 'Flyttstädning med 100% kvalitetsgaranti', 'Fönsterputsning för rändfria glas'] },
-      { title: 'Varför Stodona som städfirma?', items: ['Vi städar med egna checklistor för garanterat resultat', 'Samma städteam vid varje löpande städning', 'Fast pris utan dolda avgifter', 'All personal är kollektivansluten och ansvarsförsäkrad'] },
+      { title: 'Varför Stodona som städbolag?', items: ['Vi städar med egna checklistor för garanterat resultat', 'Samma städteam vid varje löpande städning', 'Fast pris utan dolda avgifter', 'All personal är kollektivansluten och ansvarsförsäkrad'] },
     ],
   };
 
@@ -106,7 +106,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     stadfirma: [
       { q: 'Erbjuder ni städning i mitt område?', a: 'Ja! Vi har lokala team som städar dagligen och vi har oftast lediga tider redan samma vecka.' },
       { q: 'Är ni ansvarsförsäkrade?', a: 'Självklart. Vi är fullt ansvarsförsäkrade så att du alltid kan känna dig helt trygg när vi städar.' },
-      { q: 'Hur fungerar RUT-avdraget när jag bokar en städfirma?', a: 'Vi sköter all administration. Du betalar bara 50% av kostnaden och RUT dras automatiskt direkt på din faktura.' },
+      { q: 'Hur fungerar RUT-avdraget när jag bokar ett städbolag?', a: 'Vi sköter all administration. Du betalar bara 50% av kostnaden och RUT dras automatiskt direkt på din faktura.' },
     ],
   };
 
@@ -115,15 +115,15 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
 
   // Service-specific intro text
   const serviceIntroTexts: Record<string, string> = {
-    hemstadning: `När du anlitar Stodona, din lokala städfirma, för professionell ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du alltid förvänta dig ett skinande rent hem. Vår erfarna städpersonal följer en noggrann checklista för bäst hemstädning varje gång.`,
-    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt. Som den främsta städfirman för fönsterputsning ${prep} ${displayAreaName} har vi utrustningen som krävs för att ge dig skinande och helt rändfria fönster.`,
+    hemstadning: `När du anlitar Stodona, ditt lokala städbolag, för professionell ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du alltid förvänta dig ett skinande rent hem. Vår erfarna städpersonal följer en noggrann checklista för bäst hemstädning varje gång.`,
+    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt. Som det främsta städbolaget för fönsterputsning ${prep} ${displayAreaName} har vi utrustningen som krävs för att ge dig skinande och helt rändfria fönster.`,
     storstadning: `Vår professionella storstädning ${prep} ${displayAreaName} är en djupgående rengöring för dig som vill ha marknadens bästa städhjälp. Perfekt för en ordentlig djuprengöring av hela bostaden.`,
-    flyttstadning: `Vår städfirma erbjuder marknadens bästa flyttstädning ${prep} ${displayAreaName}. Vi tillämpar en noggrann checklista för flyttstäd som säkerställer att din bostad blir godkänd med flyttstädningsgaranti.`,
-    foretagsstadning: `Vi är en rekommenderad städfirma som erbjuder skräddarsydd kontorsstädning och företagsstädning ${prep} ${displayAreaName}. Låt våra städexperter skapa en ren och trivsam arbetsmiljö för ert företag.`,
-    byggstadning: `Efter renovering eller nybygge behövs en rejäl grovstädning. Vi erbjuder professionell byggstädning ${prep} ${displayAreaName}. Från byggdamm till finstädning – vi är städfirman som gör lokalen inflyttningsklar.`,
-    trappstadning: `Håll ert trapphus välkomnande med marknadens mest prisvärda trappstädning ${prep} ${displayAreaName}. Vår städfirma underhåller BRF:er och fastigheter med högsta städkvalitet.`,
-    bodstadning: `Vi är städfirman för professionell bodstädning ${prep} ${displayAreaName}. Oavsett hur många etableringsytor eller manskapsbodar ni har, erbjuder vi löpande och noggrann byggbodstädning för en ren arbetsmiljö.`,
-    stadfirma: `Letar du efter en trygg och pålitlig städfirma ${prep} ${displayAreaName}? Vi städar redan hos många nöjda kunder i närområdet varje vecka. Oavsett om du behöver veckostädning, en rejäl storstädning eller hjälp inför flytten så finns vårt team redo att leverera ett skinande rent resultat.`
+    flyttstadning: `Vårt städbolag erbjuder marknadens bästa flyttstädning ${prep} ${displayAreaName}. Vi tillämpar en noggrann checklista för flyttstäd som säkerställer att din bostad blir godkänd med flyttstädningsgaranti.`,
+    foretagsstadning: `Vi är ett rekommenderat städbolag som erbjuder skräddarsydd kontorsstädning och företagsstädning ${prep} ${displayAreaName}. Låt våra städexperter skapa en ren och trivsam arbetsmiljö för ert företag.`,
+    byggstadning: `Efter renovering eller nybygge behövs en rejäl grovstädning. Vi erbjuder professionell byggstädning ${prep} ${displayAreaName}. Från byggdamm till finstädning – vi är städbolaget som gör lokalen inflyttningsklar.`,
+    trappstadning: `Håll ert trapphus välkomnande med marknadens mest prisvärda trappstädning ${prep} ${displayAreaName}. Vårt städbolag underhåller BRF:er och fastigheter med högsta städkvalitet.`,
+    bodstadning: `Vi är städbolaget för professionell bodstädning ${prep} ${displayAreaName}. Oavsett hur många etableringsytor eller manskapsbodar ni har, erbjuder vi löpande och noggrann byggbodstädning för en ren arbetsmiljö.`,
+    stadfirma: `Letar du efter ett tryggt och pålitligt städbolag ${prep} ${displayAreaName}? Vi städar redan hos många nöjda kunder i närområdet varje vecka. Oavsett om du behöver veckostädning, en rejäl storstädning eller hjälp inför flytten så finns vårt team redo att leverera ett skinande rent resultat.`
   };
   const introText = serviceIntroTexts[baseService.toLowerCase()] || serviceIntroTexts.hemstadning;
 
@@ -284,7 +284,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                     <Star className="w-4 h-4 fill-current" />
                   </div>
                   <p className="italic text-sm mb-4">
-                    "Bästa städfirman jag anlitat. Alltid i tid, noggranna och
+                    "Bästa städbolaget jag anlitat. Alltid i tid, noggranna och
                     det doftar fantastiskt när man kommer hem."
                   </p>
                   <p className="font-bold text-sm">— Sofia, {displayAreaName}</p>

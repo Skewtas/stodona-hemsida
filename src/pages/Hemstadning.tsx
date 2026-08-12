@@ -175,7 +175,7 @@ export default function Hemstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                När du anlitar Stodona, din lokala städfirma, för hemstädning i Stockholm kan du
+                När du anlitar Stodona, ditt lokala städbolag, för hemstädning i Stockholm kan du
                 alltid förvänta dig ett skinande rent hem. Vår professionella städpersonal erbjuder förstklassig hemstädning och följer en noggrann checklista för att garantera att ingenting missas i vårt städ. Boka städhjälp i Stockholm hos oss för bäst hemstädning varje gång.
               </p>
 
@@ -247,7 +247,7 @@ export default function Hemstadning() {
                   Vill du ha ett skinande rent hem?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi är en topprankad städfirma med snabba och lediga tider för professionell hemstädning i Stockholm den här veckan. Boka din städhjälp nu och få
+                  Vi är ett topprankat städbolag med snabba och lediga tider för professionell hemstädning i Stockholm den här veckan. Boka din städhjälp nu och få
                   lyxig hotellkänsla hemma med vårt fullkomliga städ.
                 </p>
                 <a href="https://boka.stodona.se" className="btn-primary">
@@ -305,7 +305,7 @@ export default function Hemstadning() {
                     <Star className="w-4 h-4 fill-current" />
                   </div>
                   <p className="italic text-sm mb-4">
-                    "Bästa städfirman jag anlitat. Alltid i tid, noggranna och
+                    "Bästa städbolaget jag anlitat. Alltid i tid, noggranna och
                     det doftar fantastiskt när man kommer hem."
                   </p>
                   <p className="font-bold text-sm">— Sofia, Stockholm</p>

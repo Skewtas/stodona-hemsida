@@ -129,7 +129,7 @@ export default function Byggstadning() {
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                Efter en nybyggnation, ombyggnad eller rot-renovering är etableringsytorna ofta fulla med svårstädat och farligt byggdamm. Vi som professionell städfirma utför noggrann byggstädning i Stockholm som innefattar allt från tung grovstädning till den allra sista avslutande finstädningen. Vår expertis inom byggstäd säkerställer att fastigheten är helt inflyttningsklar.
+                Efter en nybyggnation, ombyggnad eller rot-renovering är etableringsytorna ofta fulla med svårstädat och farligt byggdamm. Vi som professionellt städbolag utför noggrann byggstädning i Stockholm som innefattar allt från tung grovstädning till den allra sista avslutande finstädningen. Vår expertis inom byggstäd säkerställer att fastigheten är helt inflyttningsklar.
               </p>
 
               <h3 className="text-2xl font-bold mt-12 mb-4">Grovstädning</h3>
@@ -226,7 +226,7 @@ export default function Byggstadning() {
                   Behöver du hjälp med byggstädning?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Låt vår expertiserade städfirma hantera all byggstädning och grovstädning åt er. Vi erbjuder flexibla tider för professionell byggstädning i Stockholm och ser till att arbetsplatsen eller bostaden blir 100% dammfri och redo.
+                  Låt vårt expertiserade städbolag hantera all byggstädning och grovstädning åt er. Vi erbjuder flexibla tider för professionell byggstädning i Stockholm och ser till att arbetsplatsen eller bostaden blir 100% dammfri och redo.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <a href="https://boka.stodona.se" className="btn-primary">

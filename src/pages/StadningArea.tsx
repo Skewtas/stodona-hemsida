@@ -156,7 +156,7 @@ export default function StadningArea({ areaName, heroImage, subAreas }: Stadning
                   <div className="flex text-yellow-500 mb-4">
                     <Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" />
                   </div>
-                  <p className="italic text-sm mb-4">"Bästa städfirman vi anlitat {prep} {areaName}. Alltid i tid, grundliga och det doftar fantastiskt hemma."</p>
+                  <p className="italic text-sm mb-4">"Bästa städbolaget vi anlitat {prep} {areaName}. Alltid i tid, grundliga och det doftar fantastiskt hemma."</p>
                   <p className="font-bold text-sm">— Nöjd kund, {areaName}</p>
                 </div>
                 <WhyStodona />

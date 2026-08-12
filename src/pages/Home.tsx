@@ -104,8 +104,8 @@ export default function Home() {
           >
             <source src="/stodona-hero.mp4" type="video/mp4" />
           </video>
-          {/* Dark Overlay 50% */}
-          <div className="absolute inset-0 bg-black/50"></div>
+          {/* Lättare gradient-overlay – mörkast nedåt vänster där texten ligger, ljusare uppåt höger så videon syns */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/30 to-black/10"></div>
         </div>
 
         <div className="container-custom relative z-20">

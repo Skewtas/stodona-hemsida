@@ -102,7 +102,7 @@ export default function Home() {
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src="/stodonavideo.mp4" type="video/mp4" />
+            <source src="/stodona-hero.mp4" type="video/mp4" />
           </video>
           {/* Dark Overlay 50% */}
           <div className="absolute inset-0 bg-black/50"></div>

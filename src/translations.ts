@@ -9,7 +9,7 @@ const translations: TranslationMap = {
     'nav.fonsterputsning': { SV: 'Fönsterputsning', EN: 'Window Cleaning' },
     'nav.flyttstadning': { SV: 'Flyttstädning', EN: 'Move-Out Cleaning' },
     'nav.foretagsstadning': { SV: 'Företagsstädning', EN: 'Office Cleaning' },
-    'nav.boka': { SV: 'Boka direkt', EN: 'Book now' },
+    'nav.boka': { SV: 'Boka städning', EN: 'Book cleaning' },
 
     // ─── LAYOUT: Footer columns ────────────────────────────────────────
     'footer.services': { SV: 'Tjänster', EN: 'Services' },
@@ -46,7 +46,7 @@ const translations: TranslationMap = {
         SV: 'Vi är en professionell städfirma som erbjuder allt från hemstädning och flyttstädning till storstädning i Stockholm. Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Samma team varje gång.',
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
     },
-    'home.hero.cta1': { SV: 'Boka direkt', EN: 'Book now' },
+    'home.hero.cta1': { SV: 'Boka städning', EN: 'Book cleaning' },
     'home.hero.cta2': { SV: 'Få prisförslag och info', EN: 'Get a quote and info' },
     'home.hero.bullet1': { SV: 'RUT direkt på fakturan', EN: 'RUT tax deduction applied' },
     'home.hero.bullet2': { SV: 'Ingen bindningstid', EN: 'No commitment' },

@@ -181,6 +181,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 5. Tjänstekort – fullbredd, direkt under heron */}
+      <section className="relative bg-white py-16 sm:py-24">
+        <div className="container-custom mb-10 sm:mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col md:flex-row md:items-end justify-between gap-6"
+          >
+            <div className="max-w-2xl">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                {t('home.services.title', lang)}
+              </h2>
+              <p className="text-text-secondary text-lg">
+                {t('home.services.subtitle', lang)}
+              </p>
+            </div>
+            <a href="https://boka.stodona.se" className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
+              {t('home.services.allprices', lang)}
+            </a>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          {SERVICE_CARDS.map((service, index) => (
+            <motion.div
+              key={service.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+            >
+              <Link
+                to={service.link}
+                className="group relative block overflow-hidden h-[440px] lg:h-[520px]"
+              >
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/90 transition-colors duration-500"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-text-light">
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-2 drop-shadow-md">
+                    {service.title}
+                  </h3>
+                  <p className="text-text-light/85 mb-4 max-w-sm drop-shadow">
+                    {service.description}
+                  </p>
+                  <div className="inline-flex items-center text-sm font-bold uppercase tracking-wide">
+                    {t('home.services.readmore', lang)}
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* 4. Boka Section */}
       <section className="pt-8 pb-4 bg-white relative overflow-hidden">
         {/* Subtle background glow */}
@@ -444,74 +507,6 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Tjänstekort */}
-      <section className="section-spacing relative overflow-hidden bg-white">
-        {/* Decorative background element */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-bg-primary/30 -z-10 rounded-l-full blur-3xl transform translate-x-1/3"></div>
-
-        <div className="container-custom relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"
-          >
-            <div className="max-w-2xl">
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                {t('home.services.title', lang)}
-              </h2>
-              <p className="text-text-secondary text-lg">
-                {t('home.services.subtitle', lang)}
-              </p>
-            </div>
-            <a href="https://boka.stodona.se" className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
-              {t('home.services.allprices', lang)}
-            </a>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SERVICE_CARDS.map((service, index) => (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Link
-                  to={service.link}
-                  className="group block card-rounded bg-white overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-text-primary/5 hover:border-cta-hover/30 h-full flex flex-col"
-                >
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
-                    <img
-                      src={service.image}
-                      alt={service.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="p-8 flex-grow flex flex-col">
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-cta-hover transition-colors duration-300">
-                      {service.title}
-                    </h3>
-                    <p className="text-text-secondary mb-6 line-clamp-2 flex-grow">
-                      {service.description}
-                    </p>
-                    <div className="flex items-center text-sm font-bold text-text-primary group-hover:text-cta-hover transition-colors duration-300 mt-auto">
-                      {t('home.services.readmore', lang)}{" "}
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>

@@ -172,7 +172,7 @@ export default function Barnpassning() {
             </h1>
             <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
               Barnpassning med samma omtanke, noggrannhet och kvalitet som gjort Stodona
-              till ett av Stockholms mest rekommenderade städbolag. Personligt utvalda,
+              till ett av Stockholms mest rekommenderade servicebolag. Personligt utvalda,
               referenstagna och HLR-utbildade barnvakter – för din största trygghet.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">

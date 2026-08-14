@@ -44,6 +44,8 @@ const Priser = React.lazy(() => import("./pages/Priser"));
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
 const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
 const BarnpassningForetag = React.lazy(() => import("./pages/BarnpassningForetag"));
+const NyKund = React.lazy(() => import("./pages/NyKund"));
+const BarnvaktAnsokan = React.lazy(() => import("./pages/BarnvaktAnsokan"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -100,6 +102,10 @@ export default function App() {
           <Route path="/barnvakt-jobb" element={<BarnvaktJobb />} />
           <Route path="/barnpassning-foretag" element={<BarnpassningForetag />} />
           <Route path="/foretag-barnpassning" element={<BarnpassningForetag />} />
+          <Route path="/ny-kund" element={<NyKund />} />
+          <Route path="/bli-kund" element={<NyKund />} />
+          <Route path="/barnvakt-ansokan" element={<BarnvaktAnsokan />} />
+          <Route path="/ansok-barnvakt" element={<BarnvaktAnsokan />} />
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />

@@ -67,7 +67,7 @@ export default function NannyPricing() {
               </ul>
 
               <a
-                href="#forfragan"
+                href="/ny-kund"
                 className={`btn-primary w-full ${
                   plan.featured
                     ? "bg-cta-hover text-text-primary hover:bg-white"

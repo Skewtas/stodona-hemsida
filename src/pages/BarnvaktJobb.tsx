@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
@@ -11,7 +10,6 @@ import {
   Users,
   CheckCircle2,
   Sparkles,
-  Loader2,
   ArrowRight,
 } from "lucide-react";
 
@@ -33,61 +31,13 @@ const requirements = [
 ];
 
 const steps = [
-  { step: "01", title: "Skicka ansökan", text: "Fyll i formuläret nedan – det tar bara ett par minuter." },
+  { step: "01", title: "Skicka ansökan", text: "Fyll i vår ansökan – det tar bara ett par minuter." },
   { step: "02", title: "Vi hör av oss", text: "Känns det som en match bjuder vi in dig till en personlig intervju." },
   { step: "03", title: "Kontroll & introduktion", text: "Vi tar referenser, kontrollerar registerutdrag och ger dig en grundlig introduktion." },
   { step: "04", title: "Välkommen till teamet", text: "Vi matchar dig med familjer som passar dig – och du är igång!" },
 ];
 
 export default function BarnvaktJobb() {
-  const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    age: "",
-    area: "",
-    availability: "Flexibelt",
-    experience: "",
-    link: "",
-    about: "",
-  });
-
-  function update(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const payload = new FormData();
-      payload.append("subject", "Jobbansökan: Barnvakt");
-      payload.append("Namn", form.name);
-      payload.append("E-post", form.email);
-      payload.append("Telefon", form.phone);
-      payload.append("Ålder", form.age);
-      payload.append("Ort/område", form.area);
-      payload.append("Tillgänglighet", form.availability);
-      payload.append("Erfarenhet", form.experience);
-      payload.append("CV / LinkedIn", form.link);
-      payload.append("Om mig", form.about);
-      const res = await fetch("https://formspree.io/f/xojkdewo", {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: payload,
-      });
-      if (res.ok) setDone(true);
-      else throw new Error("fel");
-    } catch {
-      alert("Något gick fel. Försök igen eller mejla oss på info@stodona.se.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <div className="flex flex-col">
       <Helmet>
@@ -240,98 +190,22 @@ export default function BarnvaktJobb() {
         </div>
       </section>
 
-      {/* Ansökningsformulär */}
+      {/* Ansökan CTA */}
       <section id="ansokan" className="section-spacing bg-bg-dark text-text-light scroll-mt-24">
-        <div className="container-custom max-w-2xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-6">
-              Skicka din ansökan
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">Redo att göra skillnad?</h2>
-            <p className="text-text-light/80 text-lg">
-              Fyll i formuläret så hör vi av oss. Vi ser fram emot att lära känna dig!
-            </p>
-          </div>
+        <div className="container-custom max-w-2xl mx-auto text-center">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-6">
+            Skicka din ansökan
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">Redo att göra skillnad?</h2>
+          <p className="text-text-light/80 text-lg mb-10">
+            Fyll i vår ansökan så lär vi känna dig. Det tar bara några minuter – vi ser
+            fram emot att höra från dig!
+          </p>
+          <Link to="/barnvakt-ansokan" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg inline-flex">
+            Till ansökan <ArrowRight className="w-5 h-5 ml-2" />
+          </Link>
 
-          {done ? (
-            <div className="bg-white text-text-primary rounded-3xl p-10 text-center">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
-              <h3 className="text-3xl font-bold mb-3">Tack för din ansökan!</h3>
-              <p className="text-text-secondary text-lg max-w-md mx-auto">
-                Vi har tagit emot den och hör av oss inom kort. Lycka till!
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="bg-white text-text-primary rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium mb-2">Namn</label>
-                  <input name="name" required value={form.name} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">E-post</label>
-                  <input type="email" name="email" required value={form.email} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Telefon</label>
-                  <input type="tel" name="phone" required value={form.phone} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ålder</label>
-                  <input name="age" placeholder="Ex: 24" value={form.age} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ort / område</label>
-                  <input name="area" placeholder="Ex: Södermalm" value={form.area} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium mb-2">Tillgänglighet</label>
-                  <select name="availability" value={form.availability} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50 cursor-pointer">
-                    <option>Flexibelt</option>
-                    <option>Dagtid</option>
-                    <option>Kvällar</option>
-                    <option>Helger</option>
-                    <option>Kvällar & helger</option>
-                  </select>
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium mb-2">Din erfarenhet av barn</label>
-                  <textarea name="experience" rows={2} required value={form.experience} onChange={update}
-                    placeholder="Berätta kort om din erfarenhet – jobb, utbildning, egna barn, syskon m.m."
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50 resize-none" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium mb-2">Länk till CV eller LinkedIn (frivilligt)</label>
-                  <input name="link" placeholder="https://..." value={form.link} onChange={update}
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium mb-2">Berätta lite om dig själv</label>
-                  <textarea name="about" rows={3} value={form.about} onChange={update}
-                    placeholder="Vem är du, och varför vill du bli barnvakt hos oss?"
-                    className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50 resize-none" />
-                </div>
-              </div>
-              <button type="submit" disabled={submitting}
-                className="w-full btn-primary bg-cta-hover text-text-primary hover:bg-text-primary hover:text-bg-primary py-4 flex items-center justify-center gap-2 disabled:opacity-50">
-                {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Skicka ansökan <ArrowRight className="w-5 h-5" /></>}
-              </button>
-              <p className="text-xs text-center text-text-secondary">
-                Genom att skicka in godkänner du vår{" "}
-                <a href="/integritetspolicy" className="text-cta-hover underline">integritetspolicy</a>.
-              </p>
-            </form>
-          )}
-
-          <p className="text-center mt-8 text-text-light/70">
+          <p className="mt-12 text-text-light/70">
             Söker du istället barnpassning?{" "}
             <Link to="/barnpassning" className="text-cta-hover font-medium hover:underline">
               Läs om vår barnpassning här

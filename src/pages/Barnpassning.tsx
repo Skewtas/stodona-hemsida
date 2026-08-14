@@ -374,6 +374,25 @@ export default function Barnpassning() {
         </div>
       </section>
 
+      {/* För företag CTA */}
+      <section className="py-16 bg-bg-dark text-text-light">
+        <div className="container-custom flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="max-w-2xl">
+            <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-4">
+              För företag
+            </span>
+            <h2 className="text-2xl md:text-4xl font-bold mb-2">Barnpassning som personalförmån</h2>
+            <p className="text-text-light/75">
+              Stötta era medarbetare i småbarnslivet – behåll talanger, minska frånvaro
+              och stärk er employer branding.
+            </p>
+          </div>
+          <Link to="/barnpassning-foretag" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shrink-0">
+            Läs mer för företag
+          </Link>
+        </div>
+      </section>
+
       {/* Rekrytering CTA */}
       <section className="py-14 bg-cta-hover text-text-primary">
         <div className="container-custom flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">

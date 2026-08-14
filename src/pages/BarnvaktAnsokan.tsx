@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
-import { Baby, CheckCircle2, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Baby, CheckCircle2, Loader2, ArrowRight, ShieldCheck, Upload } from "lucide-react";
 
 const ageGroups = ["0–1 år", "1–3 år", "3–6 år", "6–12 år", "12+ år"];
 const dayOptions = ["Vardagar dagtid", "Vardagar kväll", "Helger", "Flexibelt"];
@@ -16,6 +16,9 @@ export default function BarnvaktAnsokan() {
   const [done, setDone] = useState(false);
   const [groups, setGroups] = useState<string[]>([]);
   const [days, setDays] = useState<string[]>([]);
+  const [cv, setCv] = useState<File | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [fileError, setFileError] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -47,6 +50,20 @@ export default function BarnvaktAnsokan() {
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
   }
 
+  const MAX_MB = 10;
+  function pickFile(setFile: (f: File | null) => void) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const f = e.target.files?.[0] ?? null;
+      if (f && f.size > MAX_MB * 1024 * 1024) {
+        setFileError(`Filen "${f.name}" är för stor (max ${MAX_MB} MB).`);
+        e.target.value = "";
+        return;
+      }
+      setFileError("");
+      setFile(f);
+    };
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -72,8 +89,10 @@ export default function BarnvaktAnsokan() {
       p.append("Kan börja", form.startDate);
       p.append("Kan visa utdrag ur belastningsregistret", form.register);
       p.append("Referenser", form.references);
-      p.append("CV / LinkedIn", form.link);
+      p.append("CV / LinkedIn (länk)", form.link);
       p.append("Om mig", form.about);
+      if (cv) p.append("CV-fil", cv);
+      if (photo) p.append("Foto", photo);
       const res = await fetch("https://formspree.io/f/xojkdewo", {
         method: "POST",
         headers: { Accept: "application/json" },
@@ -275,6 +294,35 @@ export default function BarnvaktAnsokan() {
                   <div>
                     <label className={labelClass}>Länk till CV eller LinkedIn (frivilligt)</label>
                     <input name="link" placeholder="https://..." value={form.link} onChange={update} className={inputClass} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className={labelClass}>Ladda upp CV (frivilligt)</label>
+                      <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary cursor-pointer hover:border-cta-hover transition-colors">
+                        <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
+                          <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
+                        </span>
+                        <span className="text-sm text-text-secondary truncate">
+                          {cv ? cv.name : "PDF eller Word"}
+                        </span>
+                        <input type="file" accept=".pdf,.doc,.docx,.rtf,.txt,application/pdf" className="hidden" onChange={pickFile(setCv)} />
+                      </label>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Ladda upp foto (frivilligt)</label>
+                      <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary cursor-pointer hover:border-cta-hover transition-colors">
+                        <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
+                          <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
+                        </span>
+                        <span className="text-sm text-text-secondary truncate">
+                          {photo ? photo.name : "JPG eller PNG"}
+                        </span>
+                        <input type="file" accept="image/*" className="hidden" onChange={pickFile(setPhoto)} />
+                      </label>
+                    </div>
+                    {fileError && <p className="sm:col-span-2 text-red-500 text-sm">{fileError}</p>}
+                    <p className="sm:col-span-2 text-xs text-text-secondary">Max 10 MB per fil.</p>
                   </div>
                   <div>
                     <label className={labelClass}>Varför vill du bli barnvakt hos oss? *</label>

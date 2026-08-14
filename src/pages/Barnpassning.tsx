@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
 import NannyTeam from "../components/NannyTeam";
+import NannyPricing from "../components/NannyPricing";
 import {
   Baby,
   Heart,
@@ -311,6 +312,9 @@ export default function Barnpassning() {
           </div>
         </div>
       </section>
+
+      {/* Priser & upplägg */}
+      <NannyPricing />
 
       {/* Barnvakter */}
       <NannyTeam />

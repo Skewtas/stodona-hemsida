@@ -42,6 +42,7 @@ const AdminLeads = React.lazy(() => import("./pages/AdminLeads"));
 const Priser = React.lazy(() => import("./pages/Priser"));
 // Dold sida – ej länkad i meny/footer/sidkarta, noindex. Nås endast via direkt URL.
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
+const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -94,6 +95,8 @@ export default function App() {
           {/* Dold tjänst – barnpassning/nanny (ej länkad, noindex) */}
           <Route path="/barnpassning" element={<Barnpassning />} />
           <Route path="/nanny" element={<Barnpassning />} />
+          <Route path="/jobba-som-barnvakt" element={<BarnvaktJobb />} />
+          <Route path="/barnvakt-jobb" element={<BarnvaktJobb />} />
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />

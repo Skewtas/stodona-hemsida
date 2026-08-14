@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
+import NannyTeam from "../components/NannyTeam";
 import {
   Baby,
   Heart,
@@ -310,6 +312,9 @@ export default function Barnpassning() {
         </div>
       </section>
 
+      {/* Barnvakter */}
+      <NannyTeam />
+
       {/* Promise */}
       <section className="section-spacing bg-cta-hover/15">
         <div className="container-custom">
@@ -366,6 +371,21 @@ export default function Barnpassning() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Rekrytering CTA */}
+      <section className="py-14 bg-cta-hover text-text-primary">
+        <div className="container-custom flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-1">Vill du jobba som barnvakt?</h2>
+            <p className="text-text-primary/80">
+              Vi söker varma, ansvarsfulla personer som älskar barn. Bli en del av Stodona.
+            </p>
+          </div>
+          <Link to="/jobba-som-barnvakt" className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4 shrink-0">
+            Sök jobb som barnvakt
+          </Link>
         </div>
       </section>
 

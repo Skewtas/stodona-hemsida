@@ -48,14 +48,19 @@ export default function NannyPricing() {
                 {plan.tagline}
               </p>
 
-              <div className="mb-1 flex items-end gap-1">
+              <div className="flex items-end gap-1">
                 <span className="text-4xl font-bold">{plan.price}</span>
                 <span className={`mb-1 ${plan.featured ? "text-text-light/70" : "text-text-secondary"}`}>{plan.unit}</span>
               </div>
-              <p className={`text-sm ${plan.featured ? "text-cta-hover" : "text-text-secondary"}`}>{plan.hint}</p>
-              <p className={`text-sm font-medium mb-6 mt-1 ${plan.featured ? "text-text-light/80" : "text-text-primary"}`}>
-                {plan.afterRut}
-              </p>
+              <div className="mb-6 mt-1">
+                <span className={`inline-flex items-center gap-2 text-sm ${plan.featured ? "text-text-light/70" : "text-text-secondary"}`}>
+                  <span className={`text-xs font-bold uppercase tracking-wide ${plan.featured ? "text-cta-hover" : "text-cta-hover"}`}>
+                    efter RUT-avdrag
+                  </span>
+                  <span className="line-through opacity-70">{plan.beforeRut}</span>
+                </span>
+                <p className={`text-sm mt-1 ${plan.featured ? "text-text-light/70" : "text-text-secondary"}`}>{plan.hint}</p>
+              </div>
 
               <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map((f) => (
@@ -86,9 +91,9 @@ export default function NannyPricing() {
             <a href="#forfragan" className="text-cta-hover font-medium hover:underline">Kontakta oss</a> så löser vi det.
           </p>
           <p className="text-xs text-text-secondary/80 max-w-2xl mx-auto">
-            Priser inkl. moms, före RUT-avdrag. Barnpassning i hemmet ger rätt till
-            RUT-avdrag (50 % på arbetskostnaden). Inga bindningstider – säg upp abonnemang
-            när som helst.
+            Priserna visas efter RUT-avdrag (50 % på arbetskostnaden). Överstruket pris är
+            ordinarie pris före avdrag. Priser inkl. moms. Inga bindningstider – säg upp
+            abonnemang när som helst.
           </p>
         </div>
       </div>

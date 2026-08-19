@@ -15,14 +15,15 @@ export interface Nanny {
 
 // Prisupplägg för barnpassning.
 // OBS: EXEMPELPRISER – sätt era egna nivåer. Barnpassning i hemmet är
-// RUT-berättigat (50%); `afterRut` visar priset efter avdrag.
+// RUT-berättigat (50%). `price` visar priset EFTER RUT-avdrag (huvudsiffran),
+// `beforeRut` visar ordinarie pris före avdrag (mindre).
 export interface NannyPlan {
   name: string;
   tagline: string;
-  price: string; // huvudsiffra, t.ex. "6 590 kr"
+  price: string; // huvudsiffra EFTER RUT, t.ex. "3 295 kr"
   unit: string; // t.ex. "/månad" eller "/timme"
-  hint: string; // t.ex. "≈ 330 kr/tim"
-  afterRut: string; // t.ex. "≈ 3 295 kr/mån efter RUT"
+  hint: string; // t.ex. "20 timmar/månad · ≈ 165 kr/tim"
+  beforeRut: string; // ordinarie pris före RUT, t.ex. "6 590 kr/mån"
   featured?: boolean;
   features: string[];
 }
@@ -31,10 +32,10 @@ export const NANNY_PLANS: NannyPlan[] = [
   {
     name: "Flexibel",
     tagline: "När behovet dyker upp",
-    price: "395 kr",
+    price: "198 kr",
     unit: "/timme",
     hint: "Ingen bindningstid",
-    afterRut: "≈ 198 kr/tim efter RUT",
+    beforeRut: "395 kr/tim",
     features: [
       "Boka enstaka tillfällen vid behov",
       "Minsta bokning 3 timmar",
@@ -45,10 +46,10 @@ export const NANNY_PLANS: NannyPlan[] = [
   {
     name: "Vardag",
     tagline: "För dig som behöver hjälp regelbundet",
-    price: "6 590 kr",
+    price: "3 295 kr",
     unit: "/månad",
-    hint: "20 timmar/månad · ≈ 330 kr/tim",
-    afterRut: "≈ 3 295 kr/mån efter RUT",
+    hint: "20 timmar/månad · ≈ 165 kr/tim",
+    beforeRut: "6 590 kr/mån",
     featured: true,
     features: [
       "20 timmar barnpassning varje månad",
@@ -61,10 +62,10 @@ export const NANNY_PLANS: NannyPlan[] = [
   {
     name: "Familj",
     tagline: "Fast barnvakt i vardagen",
-    price: "12 600 kr",
+    price: "6 300 kr",
     unit: "/månad",
-    hint: "40 timmar/månad · ≈ 315 kr/tim",
-    afterRut: "≈ 6 300 kr/mån efter RUT",
+    hint: "40 timmar/månad · ≈ 158 kr/tim",
+    beforeRut: "12 600 kr/mån",
     features: [
       "40 timmar barnpassning varje månad",
       "Vårt bästa timpris",

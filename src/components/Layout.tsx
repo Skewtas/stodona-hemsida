@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Phone, Mail, User } from "lucide-react";
 import Logo from "./Logo";
 import { useLanguage } from "../context/LanguageContext";
@@ -10,9 +10,39 @@ import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
 import LiveBookingToast from "./LiveBookingToast";
 
+// Barnpassnings-relaterade sidor ska inte visa städnings-notiser (rabattpopup,
+// live-bokningstoast, mobil städ-CTA) eftersom de är irrelevanta där.
+const BABYSITTING_PREFIXES = [
+  "/barnpassning",
+  "/barnvakt",
+  "/nanny",
+  "/jobba-som-barnvakt",
+  "/foretag-barnpassning",
+  "/ny-kund",
+  "/bli-kund",
+  "/ansok-barnvakt",
+];
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { lang, setLang } = useLanguage();
+  const { pathname } = useLocation();
+  const isBabysittingPage = BABYSITTING_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // På barnpassningssidorna visar vi barnpassnings-nav istället för städtjänster.
+  const navItems = isBabysittingPage
+    ? [
+        { to: "/", label: "Hemservice" },
+        { to: "/barnpassning", label: "Barnpassning för privatpersoner" },
+        { to: "/barnpassning-foretag", label: "Barnpassning för företag" },
+      ]
+    : [
+        { to: "/hemstadning", label: t("nav.hemstadning", lang) },
+        { to: "/storstadning", label: t("nav.storstadning", lang) },
+        { to: "/fonsterputsning", label: t("nav.fonsterputsning", lang) },
+        { to: "/flyttstadning", label: t("nav.flyttstadning", lang) },
+        { to: "/foretagsstadning", label: t("nav.foretagsstadning", lang) },
+      ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -23,36 +53,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <Link
-              to="/hemstadning"
-              className="text-sm font-medium hover:text-cta-hover transition-colors"
-            >
-              {t('nav.hemstadning', lang)}
-            </Link>
-            <Link
-              to="/storstadning"
-              className="text-sm font-medium hover:text-cta-hover transition-colors"
-            >
-              {t('nav.storstadning', lang)}
-            </Link>
-            <Link
-              to="/fonsterputsning"
-              className="text-sm font-medium hover:text-cta-hover transition-colors"
-            >
-              {t('nav.fonsterputsning', lang)}
-            </Link>
-            <Link
-              to="/flyttstadning"
-              className="text-sm font-medium hover:text-cta-hover transition-colors"
-            >
-              {t('nav.flyttstadning', lang)}
-            </Link>
-            <Link
-              to="/foretagsstadning"
-              className="text-sm font-medium hover:text-cta-hover transition-colors"
-            >
-              {t('nav.foretagsstadning', lang)}
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-sm font-medium hover:text-cta-hover transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
@@ -81,9 +90,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <User className="w-4 h-4" />
               </a>
             </div>
-            <a href="https://boka.stodona.se" className="btn-primary py-2 px-5 text-sm">
-              {t('nav.boka', lang)}
-            </a>
+            {isBabysittingPage ? (
+              <Link to="/ny-kund" className="btn-primary py-2 px-5 text-sm">
+                Boka/Se upplägg
+              </Link>
+            ) : (
+              <a href="https://boka.stodona.se" className="btn-primary py-2 px-5 text-sm">
+                {t('nav.boka', lang)}
+              </a>
+            )}
             <div className="flex items-center gap-1 text-xs font-semibold ml-2">
               <button
                 onClick={() => setLang('SV')}
@@ -112,41 +127,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-bg-primary border-b border-text-primary/10 p-6 flex flex-col gap-4 shadow-lg">
-            <Link
-              to="/hemstadning"
-              className="text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.hemstadning', lang)}
-            </Link>
-            <Link
-              to="/storstadning"
-              className="text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.storstadning', lang)}
-            </Link>
-            <Link
-              to="/fonsterputsning"
-              className="text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.fonsterputsning', lang)}
-            </Link>
-            <Link
-              to="/flyttstadning"
-              className="text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.flyttstadning', lang)}
-            </Link>
-            <Link
-              to="/foretagsstadning"
-              className="text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.foretagsstadning', lang)}
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-lg font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
 
             <div className="flex items-center gap-6 pt-4 border-t border-text-primary/10 mt-2">
               <a
@@ -174,13 +164,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </a>
             </div>
 
-            <a
-              href="https://boka.stodona.se"
-              className="btn-primary w-full mt-4"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.boka', lang)}
-            </a>
+            {isBabysittingPage ? (
+              <Link
+                to="/ny-kund"
+                className="btn-primary w-full mt-4 text-center"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Boka/Se upplägg
+              </Link>
+            ) : (
+              <a
+                href="https://boka.stodona.se"
+                className="btn-primary w-full mt-4"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t('nav.boka', lang)}
+              </a>
+            )}
             <div className="flex items-center justify-center gap-2 text-sm font-semibold mt-4">
               <button
                 onClick={() => setLang('SV')}
@@ -215,36 +215,68 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {t('footer.services', lang)}
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
-              <li>
-                <Link to="/hemstadning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.hemstadning', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/flyttstadning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.flyttstadning', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/foretagsstadning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.foretagsstadning', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/storstadning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.storstadning', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/fonsterputsning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.fonsterputsning', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/byggstadning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.byggstadning', lang)}
-                </Link>
-              </li>
+              {isBabysittingPage ? (
+                <>
+                  <li>
+                    <Link to="/barnpassning" className="hover:text-cta-hover transition-colors">
+                      Barnpassning
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/barnpassning-foretag" className="hover:text-cta-hover transition-colors">
+                      Barnpassning för företag
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/jobba-som-barnvakt" className="hover:text-cta-hover transition-colors">
+                      Jobba som barnvakt
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/ny-kund" className="hover:text-cta-hover transition-colors">
+                      Bli kund
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/" className="hover:text-cta-hover transition-colors">
+                      Hemservice &amp; städning
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/hemstadning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.hemstadning', lang)}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/flyttstadning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.flyttstadning', lang)}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/foretagsstadning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.foretagsstadning', lang)}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/storstadning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.storstadning', lang)}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/fonsterputsning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.fonsterputsning', lang)}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/byggstadning" className="hover:text-cta-hover transition-colors">
+                      {t('footer.byggstadning', lang)}
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
           <div>
@@ -360,9 +392,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
-      <DiscountPopup />
-      <StickyCTA />
-      <LiveBookingToast />
+      {!isBabysittingPage && (
+        <>
+          <DiscountPopup />
+          <StickyCTA />
+          <LiveBookingToast />
+        </>
+      )}
     </div>
   );
 }

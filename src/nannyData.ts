@@ -13,65 +13,121 @@ export interface Nanny {
   funFact: string;
 }
 
-// Prisupplägg för barnpassning.
-// OBS: EXEMPELPRISER – sätt era egna nivåer. Barnpassning i hemmet är
-// RUT-berättigat (50%). `price` visar priset EFTER RUT-avdrag (huvudsiffran),
-// `beforeRut` visar ordinarie pris före avdrag (mindre).
+// ─────────────────────────────────────────────────────────────────────────
+// PRISLOGIK – EN ENDA KÄLLA (används av både kundsidan och personal/admin)
+// ─────────────────────────────────────────────────────────────────────────
+// Alla priser är KUNDENS pris EFTER RUT-avdrag (50 % redan avdraget).
+//
+//   PROVA PÅ    3 timmar          = 499 kr efter RUT (engång, per familj)
+//   FLEX        0 fasta tim/mån   = 269 kr/tim efter RUT
+//   MINI        8 tim/mån         = 229 kr/tim  → 1 832 kr/mån
+//   FAMILJ      16 tim/mån        = 209 kr/tim  → 3 344 kr/mån   (MEST POPULÄR)
+//   FAMILJ PLUS 32+ tim/mån       = 199 kr/tim  → 6 368 kr/mån
+//
+// EXTRA TIMMAR: debiteras alltid enligt kundens AKTUELLA pakets timpris.
+//   Ex: Familj-kund (16 tim, 209 kr/tim) använder 20 tim
+//       → alla 20 tim debiteras 209 kr/tim = 4 180 kr.
+// Rekommendation via timmar/månad: 0–7 Flex · 8–15 Mini · 16–31 Familj · 32+ Familj Plus
 export interface NannyPlan {
+  key: "flex" | "mini" | "familj" | "familjplus";
   name: string;
   tagline: string;
-  price: string; // huvudsiffra EFTER RUT, t.ex. "3 295 kr"
-  unit: string; // t.ex. "/månad" eller "/timme"
-  hint: string; // t.ex. "20 timmar/månad · ≈ 165 kr/tim"
-  beforeRut: string; // ordinarie pris före RUT, t.ex. "6 590 kr/mån"
+  hourly: number; // kr/timme EFTER RUT – den fasta timpris som gäller för paketet
+  hoursPerMonth: number; // fasta timmar/månad (0 = ingen fast volym)
+  hoursLabel: string; // hur timvolymen visas, t.ex. "Från 32 timmar/månad"
+  weekly?: string; // t.ex. "Cirka 4 timmar barnpassning per vecka"
+  monthly?: number; // normal månadskostnad EFTER RUT (hourly × hoursPerMonth)
+  badge?: string; // t.ex. "MEST POPULÄR"
   featured?: boolean;
+  cta: string;
   features: string[];
 }
 
+export const NANNY_TRIAL = {
+  hours: 3,
+  price: 499, // kr efter RUT
+  cta: "Prova barnpassning",
+};
+
 export const NANNY_PLANS: NannyPlan[] = [
   {
-    name: "Flexibel",
-    tagline: "När behovet dyker upp",
-    price: "198 kr",
-    unit: "/timme",
-    hint: "Ingen bindningstid",
-    beforeRut: "395 kr/tim",
+    key: "flex",
+    name: "Flex",
+    tagline: "För familjer som behöver barnpassning ibland och vill kunna boka vid behov.",
+    hourly: 269,
+    hoursPerMonth: 0,
+    hoursLabel: "Ingen fast månadsvolym",
+    cta: "Boka barnpassning",
     features: [
-      "Boka enstaka tillfällen vid behov",
-      "Minsta bokning 3 timmar",
-      "Kväll & helg möjligt",
-      "Perfekt för det oplanerade",
+      "Ingen fast månadsvolym",
+      "Bokning efter tillgänglighet",
+      "Matchning med kvalitetssäkrad barnvakt",
+      "Passar kvällar, helger och enstaka tillfällen",
+      "Minst 3 timmar per bokning",
     ],
   },
   {
-    name: "Vardag",
-    tagline: "För dig som behöver hjälp regelbundet",
-    price: "3 295 kr",
-    unit: "/månad",
-    hint: "20 timmar/månad · ≈ 165 kr/tim",
-    beforeRut: "6 590 kr/mån",
-    featured: true,
+    key: "mini",
+    name: "Mini",
+    tagline: "Cirka 2 timmar barnpassning per vecka.",
+    hourly: 229,
+    hoursPerMonth: 8,
+    hoursLabel: "8 timmar/månad",
+    weekly: "Cirka 2 timmar barnpassning per vecka",
+    monthly: 1832,
+    cta: "Välj Mini",
     features: [
-      "20 timmar barnpassning varje månad",
-      "Lägre timpris än tillfällig bokning",
-      "Samma trygga barnvakt så ofta som möjligt",
-      "Prioriterad bokning",
-      "Rulla över oanvända timmar en månad",
+      "Återkommande barnpassning",
+      "Vi eftersträvar samma barnvakt varje gång",
+      "Personlig matchning",
+      "Möjlighet till hämtning från förskola/skola",
+      "Barnpassning hemma",
+      "Enklare mellanmål eller mat till barnet i samband med barnpassningen",
+      "Extra timmar kan bokas enligt paketets timpris",
     ],
   },
   {
+    key: "familj",
     name: "Familj",
-    tagline: "Fast barnvakt i vardagen",
-    price: "6 300 kr",
-    unit: "/månad",
-    hint: "40 timmar/månad · ≈ 158 kr/tim",
-    beforeRut: "12 600 kr/mån",
+    tagline: "Cirka 4 timmar barnpassning per vecka.",
+    hourly: 209,
+    hoursPerMonth: 16,
+    hoursLabel: "16 timmar/månad",
+    weekly: "Cirka 4 timmar barnpassning per vecka",
+    monthly: 3344,
+    badge: "MEST POPULÄR",
+    featured: true,
+    cta: "Välj Familj",
     features: [
-      "40 timmar barnpassning varje månad",
-      "Vårt bästa timpris",
-      "Dedikerad fast barnvakt",
-      "Prioriterad bokning & flexibel schemaläggning",
-      "Personlig kontaktperson hos oss",
+      "Fast återkommande barnvakt",
+      "Återkommande schema",
+      "Personlig matchning",
+      "Hämtning från förskola eller skola",
+      "Barnpassning hemma",
+      "Mellanmål/enklare middag till barnet",
+      "Extra timmar enligt samma timpris",
+      "Prioriterad hjälp vid behov av förändringar i schemat",
+    ],
+  },
+  {
+    key: "familjplus",
+    name: "Familj Plus",
+    tagline: "För familjer som behöver regelbunden hjälp en eller flera dagar i veckan.",
+    hourly: 199,
+    hoursPerMonth: 32,
+    hoursLabel: "Från 32 timmar/månad",
+    monthly: 6368,
+    cta: "Välj Familj Plus",
+    features: [
+      "Fast barnvakt",
+      "Fast återkommande schema",
+      "Personlig matchning",
+      "Hämtning från förskola/skola",
+      "Barnpassning hemma",
+      "Mellanmål/enklare middag",
+      "Extra timmar enligt samma timpris",
+      "Prioriterad kundservice",
+      "Vi hjälper i möjligaste mån till med ersättare om ordinarie barnvakt är frånvarande",
     ],
   },
 ];

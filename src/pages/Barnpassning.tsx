@@ -108,11 +108,11 @@ export default function Barnpassning() {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover brightness-110"
+            className="absolute inset-0 w-full h-full object-cover object-top brightness-[1.15]"
           >
             <source src="/barnpassning-familj.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/85 via-bg-dark/55 to-bg-dark/25"></div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/70 via-bg-dark/40 to-bg-dark/15"></div>
         </div>
 
         <div className="container-custom relative z-10">

@@ -103,11 +103,15 @@ export default function Barnpassning() {
       {/* Hero */}
       <section className="relative min-h-[90vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/familj-stodona.jpg"
-            alt="Trygg familj hemma"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover brightness-110"
+          >
+            <source src="/barnpassning-familj.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/85 via-bg-dark/55 to-bg-dark/25"></div>
         </div>
 

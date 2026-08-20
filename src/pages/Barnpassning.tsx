@@ -170,46 +170,13 @@ export default function Barnpassning() {
       {/* Intro / emotional */}
       <section className="section-spacing bg-white overflow-hidden">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Text till vänster */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.7 }}
-              className="lg:col-span-6 relative"
-            >
-              <div className="rounded-[2rem] overflow-hidden shadow-2xl">
-                <img
-                  src="/familj-stodona.jpg"
-                  alt="Familj med barn hemma i soffan"
-                  loading="lazy"
-                  className="w-full h-[420px] sm:h-[520px] object-cover"
-                />
-              </div>
-              <div className="hidden sm:block absolute -bottom-10 -right-2 lg:-right-8 w-44 h-52 rounded-[1.5rem] overflow-hidden shadow-2xl ring-[6px] ring-white">
-                <img
-                  src="/barnpassning-lek.jpg"
-                  alt="Barnvakt som läser tillsammans med barn"
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -top-5 left-4 sm:-left-6 bg-white rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-cta-hover/20 flex items-center justify-center shrink-0">
-                  <Heart className="w-5 h-5 text-cta-hover" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold leading-none">1 av 10</p>
-                  <p className="text-xs text-text-secondary">sökande blir barnvakt hos oss</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: 0.1 }}
               className="lg:col-span-6"
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
@@ -234,6 +201,39 @@ export default function Barnpassning() {
                     {t}
                   </span>
                 ))}
+              </div>
+            </motion.div>
+
+            {/* Video till höger */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="lg:col-span-6 relative"
+            >
+              <div className="rounded-[2rem] overflow-hidden shadow-2xl bg-bg-primary">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  poster="/barnpassning-lek.jpg"
+                  className="w-full h-[380px] sm:h-[480px] lg:h-[540px] object-cover"
+                  style={{ filter: "contrast(1.12) saturate(1.12)" }}
+                >
+                  <source src="/barnpassning-lek-ute.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div className="absolute -bottom-6 left-4 sm:-left-6 bg-white rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-cta-hover/20 flex items-center justify-center shrink-0">
+                  <Heart className="w-5 h-5 text-cta-hover" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold leading-none">1 av 10</p>
+                  <p className="text-xs text-text-secondary">sökande blir barnvakt hos oss</p>
+                </div>
               </div>
             </motion.div>
           </div>

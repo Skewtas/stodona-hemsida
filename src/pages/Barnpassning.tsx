@@ -108,7 +108,8 @@ export default function Barnpassning() {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover object-top brightness-[1.15]"
+            className="absolute inset-0 w-full h-full object-cover object-top"
+            style={{ filter: "brightness(1.12) contrast(1.22) saturate(1.18)" }}
           >
             <source src="/barnpassning-familj.mp4" type="video/mp4" />
           </video>
@@ -127,14 +128,16 @@ export default function Barnpassning() {
               Nyhet · Barnpassning & Nanny
             </span>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">
-              Här vill du lämna
+              Med våra härliga tjejer vill du lämna
               <br />
-              <span className="italic font-normal text-cta-hover">ditt barn.</span>
+              <span className="italic font-normal text-cta-hover">dina barn.</span>
             </h1>
             <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
-              Barnpassning med samma omtanke, noggrannhet och kvalitet som gjort Stodona
-              till ett av Stockholms mest rekommenderade servicebolag. Personligt utvalda,
-              referenstagna och HLR-utbildade barnvakter – för din största trygghet.
+              Vi har under flera år haft barnpassning för några av våra Hemservice-kunder,
+              nu öppnar vi upp barnpassning för alla! Med samma omtanke, noggrannhet och
+              kvalitet som gjort Stodona till ett av Stockholms mest rekommenderade
+              servicebolag. Personligt utvalda, referenstagna och HLR-utbildade barnvakter
+              – för din största trygghet.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/ny-kund" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
@@ -165,25 +168,75 @@ export default function Barnpassning() {
       </section>
 
       {/* Intro / emotional */}
-      <section className="section-spacing bg-white">
-        <div className="container-custom max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-          >
-            <Heart className="w-10 h-10 text-cta-hover mx-auto mb-6" />
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-              Att lämna sitt barn är det största förtroende som finns.
-            </h2>
-            <p className="text-lg md:text-xl text-text-secondary leading-relaxed">
-              Vi tar det på största allvar. Varje barnvakt vi skickar hem till dig är
-              utvald med samma omsorg som vi själva skulle kräva för våra egna barn –
-              varm, ansvarsfull och noggrant kontrollerad. Du ska kunna gå ut genom
-              dörren med ett lugnt hjärta.
-            </p>
-          </motion.div>
+      <section className="section-spacing bg-white overflow-hidden">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7 }}
+              className="lg:col-span-6 relative"
+            >
+              <div className="rounded-[2rem] overflow-hidden shadow-2xl">
+                <img
+                  src="/familj-stodona.jpg"
+                  alt="Familj med barn hemma i soffan"
+                  loading="lazy"
+                  className="w-full h-[420px] sm:h-[520px] object-cover"
+                />
+              </div>
+              <div className="hidden sm:block absolute -bottom-10 -right-2 lg:-right-8 w-44 h-52 rounded-[1.5rem] overflow-hidden shadow-2xl ring-[6px] ring-white">
+                <img
+                  src="/barnpassning-lek.jpg"
+                  alt="Barnvakt som läser tillsammans med barn"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -top-5 left-4 sm:-left-6 bg-white rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-cta-hover/20 flex items-center justify-center shrink-0">
+                  <Heart className="w-5 h-5 text-cta-hover" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold leading-none">1 av 10</p>
+                  <p className="text-xs text-text-secondary">sökande blir barnvakt hos oss</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="lg:col-span-6"
+            >
+              <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
+                Därför Stodona
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                Att lämna sitt barn är det största förtroende som finns.
+              </h2>
+              <p className="text-lg md:text-xl text-text-secondary leading-relaxed mb-8">
+                Vi tar det på största allvar. Varje barnvakt vi skickar hem till dig är
+                utvald med samma omsorg som vi själva skulle kräva för våra egna barn –
+                varm, ansvarsfull och noggrant kontrollerad. Du ska kunna gå ut genom
+                dörren med ett lugnt hjärta.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {["Trygga rutiner", "Samma ansikte varje gång", "Alltid nåbara"].map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-2 bg-bg-primary text-text-primary text-sm font-medium px-4 py-2 rounded-full"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -209,7 +262,31 @@ export default function Barnpassning() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7 }}
+              className="lg:col-span-5 lg:sticky lg:top-28"
+            >
+              <div className="relative rounded-[2rem] overflow-hidden shadow-xl">
+                <img
+                  src="/barnpassning-narhet.jpg"
+                  alt="Barnvakt och barn mysigt tillsammans"
+                  loading="lazy"
+                  className="w-full h-[380px] lg:h-[600px] object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg-dark/90 via-bg-dark/50 to-transparent p-7 pt-20">
+                  <p className="text-text-light text-lg md:text-xl font-medium leading-snug">
+                    ”Vi väljer bara barnvakter vi själva skulle lämna våra egna barn till.”
+                  </p>
+                  <p className="text-text-light/70 text-sm mt-3">Stodona · barnpassningsteamet</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="lg:col-span-7 space-y-5">
             {vetting.map((v, i) => (
               <motion.div
                 key={v.step}
@@ -228,6 +305,7 @@ export default function Barnpassning() {
                 </div>
               </motion.div>
             ))}
+            </div>
           </div>
         </div>
       </section>
@@ -271,6 +349,47 @@ export default function Barnpassning() {
         </div>
       </section>
 
+      {/* Bildband – vardagen med en barnvakt */}
+      <section className="relative py-28 md:py-40 overflow-hidden text-text-light">
+        <img
+          src="/barnpassning-band.jpg"
+          alt="Barnvakt som läser tillsammans med två barn"
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-bg-dark/90 via-bg-dark/65 to-bg-dark/25"></div>
+        <div className="container-custom relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="max-w-xl"
+          >
+            <Sparkles className="w-9 h-9 text-cta-hover mb-6" />
+            <h2 className="text-3xl md:text-5xl font-bold leading-tight mb-5">
+              Lek, läxor, mellanmål och lugna kvällar
+            </h2>
+            <p className="text-lg text-text-light/85 leading-relaxed mb-8">
+              En Stodona-barnvakt är närvarande på riktigt. Ingen mobil i handen –
+              utan lek på golvet, sagor i soffan och en trygg rutin som gör kvällen
+              lika lugn för barnen som för er.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {["HLR-utbildade", "Referenstagna", "Belastningsregister", "Försäkrade"].map((t) => (
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 text-sm font-medium px-4 py-2 rounded-full"
+                >
+                  <ShieldCheck className="w-4 h-4 text-cta-hover" />
+                  {t}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Hemservice i samband med barnpassning */}
       <section className="section-spacing bg-bg-dark text-text-light">
         <div className="container-custom">
@@ -302,13 +421,22 @@ export default function Barnpassning() {
               </Link>
             </motion.div>
 
-            <motion.ul
+            <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6 }}
-              className="space-y-4"
+              className="space-y-6"
             >
+              <div className="rounded-[2rem] overflow-hidden shadow-2xl">
+                <img
+                  src="/stodona_left_image.jpg"
+                  alt="Nystädat kök i ett hem"
+                  loading="lazy"
+                  className="w-full h-56 md:h-72 object-cover"
+                />
+              </div>
+              <ul className="space-y-4">
               {[
                 "Lättare hushållssysslor under passet – disk, plocka undan och ordning i barnens rum.",
                 "Vill ni ha en riktig städning? Vi bokar in vårt städteam i samband med barnpassningen.",
@@ -319,7 +447,8 @@ export default function Barnpassning() {
                   <span className="text-text-light/90 font-medium">{point}</span>
                 </li>
               ))}
-            </motion.ul>
+              </ul>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -346,11 +475,19 @@ export default function Barnpassning() {
               <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
                 Trygghet, öppenhet och äkta omtanke
               </h2>
-              <p className="text-text-secondary text-lg leading-relaxed">
+              <p className="text-text-secondary text-lg leading-relaxed mb-8">
                 Vi bygger den här tjänsten på samma värderingar som gjort tusentals
                 Stockholmare trygga med att släppa in oss i sina hem. Nu tar vi samma
                 omsorg ett steg längre – till det finaste ni har.
               </p>
+              <div className="rounded-[2rem] overflow-hidden shadow-2xl">
+                <img
+                  src="/barnpassning-lasstund.jpg"
+                  alt="Barnvakt och barn under en lässtund"
+                  loading="lazy"
+                  className="w-full h-64 md:h-80 object-cover"
+                />
+              </div>
             </motion.div>
 
             <motion.ul

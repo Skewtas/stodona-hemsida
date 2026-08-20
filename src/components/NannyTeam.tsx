@@ -44,7 +44,10 @@ export default function NannyTeam() {
               className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-text-primary/5 flex flex-col"
             >
               {/* Porträtt / avatar */}
-              <div className="relative h-64 bg-gradient-to-br from-cta-hover/30 to-bg-dark/80 flex items-center justify-center overflow-hidden">
+              <div className="relative h-64 bg-gradient-to-br from-cta-hover via-cta-hover/70 to-bg-dark/70 flex items-center justify-center overflow-hidden">
+                {/* mjuk dekor bakom initialerna */}
+                <div className="absolute -top-10 -right-8 w-40 h-40 rounded-full bg-white/20 blur-2xl"></div>
+                <div className="absolute -bottom-12 -left-10 w-44 h-44 rounded-full bg-bg-dark/20 blur-2xl"></div>
                 {n.image ? (
                   <img
                     src={n.image}

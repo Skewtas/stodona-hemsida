@@ -2,6 +2,17 @@
   "installCommand": "bun install",
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/hemstadning-stockholm", "destination": "/hemstadning", "permanent": true },
+    { "source": "/flyttstadning-stockholm", "destination": "/flyttstadning", "permanent": true },
+    { "source": "/storstadning-stockholm", "destination": "/storstadning", "permanent": true },
+    { "source": "/fonsterputsning-stockholm", "destination": "/fonsterputsning", "permanent": true },
+    { "source": "/foretagsstadning-stockholm", "destination": "/foretagsstadning", "permanent": true },
+    { "source": "/byggstadning-stockholm", "destination": "/byggstadning", "permanent": true },
+    { "source": "/trappstadning-stockholm", "destination": "/trappstadning", "permanent": true },
+    { "source": "/stadning-stockholm", "destination": "/", "permanent": true },
+    { "source": "/stockholm", "destination": "/", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/sitemap.xml",

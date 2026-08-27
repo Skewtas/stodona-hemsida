@@ -127,82 +127,76 @@ export default function DiscountPopup() {
             transition={{ type: 'spring', duration: 0.5 }}
             className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
           >
-            {/* Header */}
-            <div className="relative p-8 text-center text-text-light overflow-hidden">
-              <img
-                src="/stodona_right_image.jpg"
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-bg-dark/80" />
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-cta-hover/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
-                  <Gift className="w-8 h-8 text-cta-hover" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">{copy.heading}</h2>
-                <p className="text-sm text-text-light/70">{copy.sub}</p>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-8">
-              {!submitted ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Din e-postadress *"
-                      required
-                      className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Ditt telefonnummer"
-                      className="w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary focus:outline-none focus:ring-2 focus:ring-cta-hover/50 text-sm"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 bg-bg-dark text-text-light font-bold rounded-xl hover:bg-black transition-all disabled:opacity-50 text-sm"
-                  >
-                    {loading ? 'Skickar...' : copy.cta}
-                  </button>
-                  <p className="text-xs text-text-secondary text-center">
-                    Vi delar aldrig din information. Läs vår{' '}
-                    <a href="/integritetspolicy" className="text-cta-hover underline">integritetspolicy</a>.
-                  </p>
-                </form>
-              ) : (
-                <div className="text-center py-6">
-                  <div className="text-4xl mb-4">🎉</div>
-                  <h3 className="text-2xl font-bold mb-1">Tack!</h3>
-                  <p className="text-text-secondary text-sm mb-6">
-                    Här är din personliga rabattkod:
-                  </p>
-                  <div className="bg-bg-dark rounded-2xl py-5 px-8 inline-block shadow-lg">
-                    <span className="text-3xl font-bold tracking-[0.2em] text-cta-hover">VLKMN15</span>
-                  </div>
-                  <p className="text-sm text-text-secondary mt-5">
-                    Ange koden vid <a href="https://boka.stodona.se" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Close button */}
+            {/* Stäng */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-text-light transition-colors z-20"
+              aria-label="Stäng"
+              className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-text-primary/5 hover:bg-text-primary/10 text-text-secondary hover:text-text-primary transition-colors z-20"
             >
               <X className="w-4 h-4" />
             </button>
+
+            {/* Varm accent-topp */}
+            <div className="h-1.5 bg-gradient-to-r from-cta-hover via-cta-hover/60 to-cta-hover" />
+
+            {!submitted ? (
+              <div className="px-8 pt-9 pb-8">
+                <div className="w-16 h-16 rounded-2xl bg-cta-hover flex items-center justify-center mx-auto mb-6 shadow-md shadow-cta-hover/30">
+                  <Gift className="w-8 h-8 text-white" />
+                </div>
+
+                <h2 className="text-2xl sm:text-[28px] leading-tight font-bold text-center mb-2">
+                  {copy.heading}
+                </h2>
+                <p className="text-text-secondary text-center mb-7 leading-relaxed">
+                  {copy.sub}
+                </p>
+
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Din e-postadress *"
+                    required
+                    className="w-full px-4 py-3.5 rounded-xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70"
+                  />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Ditt telefonnummer"
+                    className="w-full px-4 py-3.5 rounded-xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 bg-text-primary text-bg-primary font-bold rounded-xl hover:bg-cta-hover hover:text-text-primary transition-colors disabled:opacity-50"
+                  >
+                    {loading ? 'Skickar…' : copy.cta}
+                  </button>
+                </form>
+
+                <p className="text-xs text-text-secondary/80 text-center mt-4">
+                  Vi delar aldrig din information. Läs vår{' '}
+                  <a href="/integritetspolicy" className="text-cta-hover underline hover:text-text-primary">integritetspolicy</a>.
+                </p>
+              </div>
+            ) : (
+              <div className="px-8 pt-12 pb-10 text-center">
+                <div className="text-5xl mb-4">🎉</div>
+                <h3 className="text-2xl font-bold mb-1">Tack!</h3>
+                <p className="text-text-secondary text-sm mb-6">
+                  Här är din personliga rabattkod:
+                </p>
+                <div className="bg-bg-primary border-2 border-dashed border-cta-hover rounded-2xl py-5 px-8 inline-block">
+                  <span className="text-3xl font-bold tracking-[0.25em] text-text-primary">VLKMN15</span>
+                </div>
+                <p className="text-sm text-text-secondary mt-5">
+                  Ange koden vid <a href="https://boka.stodona.se" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt.
+                </p>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

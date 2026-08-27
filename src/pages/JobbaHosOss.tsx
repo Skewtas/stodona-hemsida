@@ -34,7 +34,7 @@ const ROLES = [
 ];
 
 const PERKS = [
-  { icon: Wallet, title: "Schyssta villkor", text: "Kollektivavtalsenlig lön, försäkring och trygga anställningsvillkor." },
+  { icon: Wallet, title: "Schyssta villkor", text: "Marknadsmässig lön, försäkring och trygga anställningsvillkor." },
   { icon: Clock, title: "Flexibelt", text: "Vi gör vårt bästa för att anpassa schemat efter din vardag." },
   { icon: GraduationCap, title: "Utveckling", text: "Ordentlig introduktion, upplärning och chans att växa hos oss." },
   { icon: Users, title: "Härligt team", text: "Du blir en del av ett omtänksamt gäng som stöttar varandra." },
@@ -43,7 +43,7 @@ const PERKS = [
 ];
 
 const inputClass =
-  "w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70";
+  "w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70";
 const labelClass = "block text-sm font-medium mb-2";
 
 export default function JobbaHosOss() {
@@ -145,7 +145,7 @@ export default function JobbaHosOss() {
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">
               Bli en del av
               <br />
-              <span className="italic font-normal text-cta-hover">Stodona-familjen.</span>
+              <span className="italic font-normal text-cta-hover">Stodona-teamet!</span>
             </h1>
             <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-8 drop-shadow-md">
               Vi växer och söker härliga, ansvarsfulla människor som vill göra skillnad i
@@ -174,7 +174,7 @@ export default function JobbaHosOss() {
               <span className="text-text-light/40">·</span>
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-cta-hover" /> Ansvarsförsäkrade</span>
               <span className="text-text-light/40">·</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cta-hover" /> Kollektivavtal</span>
+              <span className="inline-flex items-center gap-1.5"><Heart className="w-4 h-4 text-cta-hover" /> Härligt team</span>
             </div>
           </motion.div>
         </div>
@@ -307,12 +307,13 @@ export default function JobbaHosOss() {
       </section>
 
       {/* Ansökningsformulär */}
-      <section id="ansok" className="section-spacing bg-white scroll-mt-20 relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 w-96 h-96 bg-cta-hover/10 blur-3xl rounded-full -z-0" />
+      <section id="ansok" className="section-spacing bg-bg-dark text-text-light scroll-mt-20 relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 w-96 h-96 bg-cta-hover/20 blur-3xl rounded-full z-0" />
+        <div aria-hidden className="pointer-events-none absolute -top-10 -left-10 w-80 h-80 bg-cta-hover/10 blur-3xl rounded-full z-0" />
         <div className="container-custom max-w-2xl mx-auto relative z-10">
           {state === "success" ? (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="bg-bg-primary rounded-3xl p-10 text-center">
+              className="bg-white text-text-primary rounded-3xl p-10 text-center shadow-2xl">
               <motion.div
                 initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.1 }}
                 className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
@@ -327,11 +328,11 @@ export default function JobbaHosOss() {
           ) : (
             <>
               <div className="text-center mb-10">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-6">
                   Ansök
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold mb-3 leading-tight">Skicka din ansökan</h2>
-                <p className="text-text-secondary text-lg">
+                <p className="text-text-light/70 text-lg">
                   Fyll i formuläret och bifoga gärna ditt CV. Det tar bara någon minut.
                 </p>
               </div>
@@ -342,7 +343,7 @@ export default function JobbaHosOss() {
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.5 }}
                 onSubmit={handleSubmit}
-                className="bg-bg-primary/50 rounded-3xl p-6 sm:p-8 border border-text-primary/5 shadow-sm space-y-5"
+                className="bg-white text-text-primary rounded-3xl p-6 sm:p-8 shadow-2xl border-t-4 border-cta-hover space-y-5"
               >
                 <div>
                   <label className={labelClass}>Tjänst du söker</label>
@@ -392,7 +393,7 @@ export default function JobbaHosOss() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className={labelClass}>Ladda upp CV (frivilligt)</label>
-                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-white cursor-pointer hover:border-cta-hover transition-colors">
+                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
                       <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
                         <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
                       </span>
@@ -402,7 +403,7 @@ export default function JobbaHosOss() {
                   </div>
                   <div>
                     <label className={labelClass}>Ladda upp foto (frivilligt)</label>
-                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-white cursor-pointer hover:border-cta-hover transition-colors">
+                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
                       <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
                         <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
                       </span>

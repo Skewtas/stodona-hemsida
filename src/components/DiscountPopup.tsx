@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Gift } from 'lucide-react';
+import { X, Gift, Sparkles } from 'lucide-react';
 import { submitLead, hasSeenPopup, markPopupSeen } from '../utils/leadCapture';
 
 // Single discount popup (15% rabatt / VLKMN15). Fires on whichever trigger comes
@@ -10,8 +10,8 @@ type Trigger = 'welcome' | 'exit';
 
 const COPY: Record<Trigger, { heading: string; sub: React.ReactNode; cta: string }> = {
   welcome: {
-    heading: 'Välkommen till Stodona!',
-    sub: <>Boka din första städning idag och få <strong className="text-cta-hover">15% rabatt</strong></>,
+    heading: 'Dags att boka städning? 🧼🤍',
+    sub: <>Ta <strong className="text-cta-hover">15% rabatt</strong> på din första städning hos oss – bara att fylla i.</>,
     cta: 'Få min rabattkod →',
   },
   exit: {
@@ -125,7 +125,7 @@ export default function DiscountPopup() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+            className="relative bg-gradient-to-b from-white via-white to-bg-primary/40 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
           >
             {/* Stäng */}
             <button
@@ -138,11 +138,24 @@ export default function DiscountPopup() {
 
             {/* Varm accent-topp */}
             <div className="h-1.5 bg-gradient-to-r from-cta-hover via-cta-hover/60 to-cta-hover" />
+            {/* Mjuk glöd för liv */}
+            <div aria-hidden className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 w-60 h-60 rounded-full bg-cta-hover/25 blur-3xl" />
 
             {!submitted ? (
-              <div className="px-8 pt-9 pb-8">
-                <div className="w-16 h-16 rounded-2xl bg-cta-hover flex items-center justify-center mx-auto mb-6 shadow-md shadow-cta-hover/30">
-                  <Gift className="w-8 h-8 text-white" />
+              <div className="relative px-8 pt-9 pb-8">
+                {/* Rabatt-pill */}
+                <div className="flex justify-center mb-5">
+                  <span className="inline-flex items-center gap-1.5 bg-cta-hover/20 text-text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full border border-cta-hover/30">
+                    <Sparkles className="w-3.5 h-3.5 text-cta-hover" /> Spara 15%
+                  </span>
+                </div>
+
+                {/* Badge med glöd */}
+                <div className="relative w-16 h-16 mx-auto mb-6">
+                  <div aria-hidden className="absolute inset-0 rounded-2xl bg-cta-hover/40 blur-xl" />
+                  <div className="relative w-16 h-16 rounded-2xl bg-cta-hover flex items-center justify-center shadow-lg shadow-cta-hover/40 ring-4 ring-cta-hover/15">
+                    <Gift className="w-8 h-8 text-white" />
+                  </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-[28px] leading-tight font-bold text-center mb-2">

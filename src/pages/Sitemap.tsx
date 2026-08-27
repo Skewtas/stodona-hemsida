@@ -23,6 +23,8 @@ export default function Sitemap() {
     { name: "Om oss", path: "/om-oss", icon: Info },
     { name: "Kontakt", path: "/kontakt", icon: Phone },
     { name: "Boka städning", path: "/bokning", icon: Sparkles },
+    { name: "Byta städbolag", path: "/byta-stadbolag", icon: ShieldCheck },
+    { name: "Jobba hos oss", path: "/jobba-hos-oss", icon: Star },
     { name: "Kundportalen", path: "/kundportalen", icon: ShieldCheck },
     { name: "Blogg", path: "/blogg", icon: BookOpen },
     { name: "FAQ", path: "/faq", icon: HelpCircle },

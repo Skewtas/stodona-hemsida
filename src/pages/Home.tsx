@@ -488,6 +488,22 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Byta städbolag CTA */}
+      <section className="py-14 bg-bg-dark text-text-light">
+        <div className="container-custom flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="max-w-2xl">
+            <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-4">
+              Missnöjd med ditt städbolag?
+            </span>
+            <h2 className="text-2xl md:text-4xl font-bold mb-2">Byta städbolag är enklare än du tror</h2>
+            <p className="text-text-light/75">Vi tar reda på vad som inte fungerat – och ser till att det blir rätt.</p>
+          </div>
+          <Link to="/byta-stadbolag" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shrink-0">
+            Läs om att byta till Stodona
+          </Link>
+        </div>
+      </section>
+
       {/* 7. Stark slut-CTA */}
       <section className="py-16 sm:py-24 bg-cta-hover text-text-primary relative overflow-hidden">
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">

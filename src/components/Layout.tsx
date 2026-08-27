@@ -290,6 +290,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
+                <Link to="/byta-stadbolag" className="hover:text-cta-hover transition-colors">
+                  Byta städbolag
+                </Link>
+              </li>
+              <li>
                 <Link to="/jobba-hos-oss" className="hover:text-cta-hover transition-colors">
                   {t('footer.jobba', lang)}
                 </Link>

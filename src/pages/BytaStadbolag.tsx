@@ -92,6 +92,23 @@ export default function BytaStadbolag() {
     mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
   };
 
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "Så byter du städbolag till Stodona",
+    description: "Byt städbolag i fyra enkla steg – vi gör en noggrann bedömning och sköter övergången.",
+    step: STEPS.map((s, i) => ({ "@type": "HowToStep", position: i + 1, name: s.title, text: s.text })),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Hem", item: "https://stodona.se/" },
+      { "@type": "ListItem", position: 2, name: "Byta städbolag", item: "https://stodona.se/byta-stadbolag" },
+    ],
+  };
+
   return (
     <div className="flex flex-col">
       <Helmet>
@@ -101,7 +118,15 @@ export default function BytaStadbolag() {
           content="Byta städbolag är enklare än du tror. Vi tar reda på vad som inte fungerat och ser till att det blir rätt – med extra noggrann uppföljning tillsammans med dig och städaren."
         />
         <link rel="canonical" href="https://stodona.se/byta-stadbolag" />
+        <meta property="og:title" content="Byta till Stodona – Byt städbolag enkelt och tryggt" />
+        <meta property="og:description" content="Byta städbolag är enklare än du tror. Vi tar reda på vad som inte fungerat och ser till att det blir rätt." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://stodona.se/byta-stadbolag" />
+        <meta property="og:image" content="https://stodona.se/stodona-stad.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
       {/* Hero */}

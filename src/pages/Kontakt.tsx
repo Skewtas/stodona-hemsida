@@ -128,7 +128,7 @@ export default function Kontakt() {
                     </div>
                     <div>
                       <h3 className="font-bold text-lg">{lang === 'SV' ? 'Här finns vårt kontor' : 'Our office'}</h3>
-                      <p className="text-text-secondary">{lang === 'SV' ? 'Ågatan 12B, Sundbyberg. (endast bokade besök)' : 'Ågatan 12B, Sundbyberg. (by appointment only)'}</p>
+                      <p className="text-text-secondary">{lang === 'SV' ? 'Sommarvägen 5, 169 31 Solna. (endast bokade besök)' : 'Sommarvägen 5, 169 31 Solna. (by appointment only)'}</p>
                     </div>
                   </div>
 

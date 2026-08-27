@@ -82,6 +82,7 @@ export default async function handler(request: Request) {
       blog_lead_magnet: '📥 Städchecklista',
       sticky_cta: '📱 Ring mig',
       fastpris: '💰 Fast pris-förfrågan',
+      byta_stadbolag: '🔄 Byta städbolag',
     };
 
     const lead = {

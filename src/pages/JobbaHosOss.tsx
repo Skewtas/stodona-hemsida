@@ -79,6 +79,9 @@ export default function JobbaHosOss() {
     try {
       const fd = new FormData(form);
       fd.append("subject", `Jobbansökan: ${role}`);
+      fd.append("_subject", `Jobbansökan: ${role}`);
+      // Skicka kopia till båda mottagarna (kräver att Formspree-planen stödjer CC).
+      fd.append("_cc", "info@stodona.se,mikaela.wigert@stodona.se");
       const res = await fetch("https://formspree.io/f/xojkdewo", {
         method: "POST",
         headers: { Accept: "application/json" },

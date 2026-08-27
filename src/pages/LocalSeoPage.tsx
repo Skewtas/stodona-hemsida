@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from "../seo";
 import { motion } from 'motion/react';
-import { MapPin, ArrowRight, HelpCircle, CheckCircle2, Star } from 'lucide-react';
+import { MapPin, ArrowRight, HelpCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -149,6 +149,16 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     priceRange: '$$',
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stodona.se/' },
+      { '@type': 'ListItem', position: 2, name: displayBaseService, item: `https://stodona.se/${baseService.toLowerCase()}` },
+      { '@type': 'ListItem', position: 3, name: `${displayBaseService} ${prep} ${displayAreaName}`, item: `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}` },
+    ],
+  };
+
   return (
     <div className="flex flex-col">
       <Helmet>
@@ -157,6 +167,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
         <link rel="canonical" href={`https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`} />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
       {/* Hero Section */}
@@ -276,18 +287,16 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <div className="lg:col-span-4">
               <div className="sticky top-32 space-y-8">
                 <div className="card-rounded bg-bg-dark text-text-light p-8 shadow-sm">
-                  <div className="flex text-yellow-500 mb-4">
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
+                  <div className="flex items-center gap-2 mb-5">
+                    <ShieldCheck className="w-6 h-6 text-cta-hover shrink-0" />
+                    <h3 className="font-bold text-lg">Tryggt hela vägen</h3>
                   </div>
-                  <p className="italic text-sm mb-4">
-                    "Bästa städbolaget jag anlitat. Alltid i tid, noggranna och
-                    det doftar fantastiskt när man kommer hem."
-                  </p>
-                  <p className="font-bold text-sm">— Sofia, {displayAreaName}</p>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Fullt ansvarsförsäkrade</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> RUT-avdrag – du betalar bara 50%</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Nöjd-kund-garanti</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Ingen bindningstid</li>
+                  </ul>
                 </div>
 
                 <WhyStodona />
@@ -370,6 +379,44 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
           </div>
         </section>
       )}
+
+      {/* Relaterade tjänster – intern länkning till huvudtjänstesidorna */}
+      <section className="section-spacing bg-bg-primary">
+        <div className="container-custom">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Fler städtjänster {prep} {displayAreaName}</h2>
+            <p className="text-text-secondary text-lg">
+              Vi hjälper dig med hela hemmet – utforska våra andra tjänster.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            {[
+              { slug: 'hemstadning', name: 'Hemstädning' },
+              { slug: 'flyttstadning', name: 'Flyttstädning' },
+              { slug: 'storstadning', name: 'Storstädning' },
+              { slug: 'fonsterputsning', name: 'Fönsterputsning' },
+              { slug: 'foretagsstadning', name: 'Företagsstädning' },
+              { slug: 'byggstadning', name: 'Byggstädning' },
+            ]
+              .filter((s) => s.slug !== baseService.toLowerCase())
+              .map((s) => (
+                <Link
+                  key={s.slug}
+                  to={`/${s.slug}`}
+                  className="flex items-center justify-between gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+                >
+                  <span className="font-medium text-text-primary group-hover:text-cta-hover transition-colors">{s.name}</span>
+                  <ArrowRight className="w-4 h-4 text-text-secondary group-hover:text-cta-hover group-hover:translate-x-1 transition-all shrink-0" />
+                </Link>
+              ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/priser" className="text-cta-hover font-medium hover:underline">
+              Se priser för städning →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* General CTA */}
       <section className="py-20 bg-cta-hover text-white relative overflow-hidden">

@@ -75,6 +75,8 @@ export default function Home() {
             loop
             muted
             playsInline
+            preload="metadata"
+            poster="/hero-poster.jpg"
             className="absolute inset-0 w-full h-full object-cover"
           >
             <source src="/stodona-hero.mp4" type="video/mp4" />

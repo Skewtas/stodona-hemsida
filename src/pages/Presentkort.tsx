@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
 import {
@@ -50,35 +50,76 @@ const labelClass = "block text-sm font-medium mb-2";
 
 export default function Presentkort() {
   const [state, setState] = useState<"idle" | "submitting" | "success">("idle");
+  const [paid, setPaid] = useState(false);
   const [amount, setAmount] = useState("1 000 kr");
   const [custom, setCustom] = useState("");
   const [delivery, setDelivery] = useState("Skicka till mig");
 
+  // Kund som kommer tillbaka från en genomförd Stripe-betalning.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("betalt") === "1") {
+      setPaid(true);
+      setState("success");
+      track("presentkort_paid");
+    }
+  }, []);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formEl = e.currentTarget;
+    const snap = new FormData(formEl); // fånga värdena innan ev. reset
+    const chosen = amount === "Annat belopp" ? `${custom} kr` : amount;
+    const amountKr = Number((amount === "Annat belopp" ? custom : amount).replace(/[^\d]/g, ""));
     setState("submitting");
+
+    // 1) Registrera beställningen (så leadet alltid fångas, även om betalning avbryts).
     try {
-      const chosen = amount === "Annat belopp" ? `${custom} kr` : amount;
-      const fd = new FormData(formEl);
+      const fd = new FormData();
+      for (const [k, v] of snap.entries()) fd.append(k, v);
       fd.append("Belopp", chosen);
       fd.append("Leverans", delivery);
       fd.append("subject", `Presentkort-beställning: ${chosen}`);
       fd.append("_subject", `Presentkort-beställning: ${chosen}`);
-      const res = await fetch("https://formspree.io/f/xojkdewo", {
+      await fetch("https://formspree.io/f/xojkdewo", {
         method: "POST",
         headers: { Accept: "application/json" },
         body: fd,
       });
-      if (res.ok) {
-        track("presentkort_order", { amount: chosen });
-        setState("success");
-        formEl.reset();
-      } else throw new Error("fel");
     } catch {
-      setState("idle");
-      alert("Något gick fel. Försök igen eller mejla oss på info@stodona.se.");
+      /* fortsätt ändå */
     }
+
+    // 2) Försök starta Stripe-betalning. Faller tillbaka på manuellt flöde om ej konfigurerat.
+    try {
+      const res = await fetch("/api/gift-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: amountKr,
+          buyer: snap.get("Köparens namn"),
+          email: snap.get("E-post"),
+          recipient: snap.get("Mottagarens namn"),
+          recipientEmail: snap.get("Mottagarens e-post"),
+          delivery,
+          message: snap.get("Hälsning"),
+        }),
+      });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) {
+          track("presentkort_order", { amount: chosen, method: "stripe" });
+          window.location.href = url;
+          return;
+        }
+      }
+    } catch {
+      /* faller tillbaka nedan */
+    }
+
+    // 3) Fallback: manuellt beställningsflöde.
+    track("presentkort_order", { amount: chosen, method: "manual" });
+    setState("success");
+    formEl.reset();
   }
 
   const faqSchema = {
@@ -199,10 +240,11 @@ export default function Presentkort() {
               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Gift className="w-10 h-10" />
               </div>
-              <h3 className="text-3xl font-bold mb-3">Tack för din beställning!</h3>
+              <h3 className="text-3xl font-bold mb-3">{paid ? "Tack för ditt köp!" : "Tack för din beställning!"}</h3>
               <p className="text-text-secondary text-lg max-w-md mx-auto">
-                Vi har tagit emot den och hör av oss inom kort med betalning och ditt
-                färdiga presentkort.
+                {paid
+                  ? "Betalningen är mottagen. Vi skickar ditt färdiga presentkort inom kort."
+                  : "Vi har tagit emot den och hör av oss inom kort med betalning och ditt färdiga presentkort."}
               </p>
             </motion.div>
           ) : (

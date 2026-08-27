@@ -24,6 +24,7 @@ const JobbaHosOss = React.lazy(() => import("./pages/JobbaHosOss"));
 const JobbAnnons = React.lazy(() => import("./pages/JobbAnnons"));
 const BytaStadbolag = React.lazy(() => import("./pages/BytaStadbolag"));
 const Presentkort = React.lazy(() => import("./pages/Presentkort"));
+const PresentkortMall = React.lazy(() => import("./pages/PresentkortMall"));
 const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
@@ -100,6 +101,7 @@ export default function App() {
           <Route path="/byta-stadbolag" element={<BytaStadbolag />} />
           <Route path="/byta-till-stodona" element={<BytaStadbolag />} />
           <Route path="/presentkort" element={<Presentkort />} />
+          <Route path="/presentkort-mall" element={<PresentkortMall />} />
           <Route path="/boka" element={<Boka />} />
           <Route path="/bokning" element={<BokaStadning />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />

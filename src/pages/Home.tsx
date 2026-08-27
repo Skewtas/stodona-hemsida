@@ -8,6 +8,7 @@ import {
   Sparkles,
   ArrowRight,
   MapPin,
+  Gift,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { SERVICE_CARDS } from "../constants";
@@ -485,6 +486,22 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Presentkort – säsongs-CTA */}
+      <section className="py-14 bg-cta-hover text-text-primary">
+        <div className="container-custom flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-text-primary/10 text-text-primary text-xs font-bold tracking-widest uppercase mb-4">
+              <Gift className="w-4 h-4" /> Presentkort
+            </span>
+            <h2 className="text-2xl md:text-4xl font-bold mb-2">Ge bort ett rent hem 🎁</h2>
+            <p className="text-text-primary/80">Den perfekta presenten till jul, inflytt eller nybliven förälder.</p>
+          </div>
+          <Link to="/presentkort" className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4 shrink-0">
+            Köp presentkort
+          </Link>
         </div>
       </section>
 

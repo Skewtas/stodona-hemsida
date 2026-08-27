@@ -20,16 +20,17 @@ import {
   Loader2,
   ArrowRight,
   ArrowDown,
+  Star,
 } from "lucide-react";
 
 const ROLES = [
-  { id: "Hemstädare", icon: Home, desc: "Skapa hotellkänsla i våra kunders hem. Regelbundna uppdrag, mest dagtid." },
-  { id: "Byggstädare", icon: HardHat, desc: "Grov- och finstädning efter bygg och renovering. Varierat och fysiskt." },
-  { id: "Flytt- & storstädare", icon: Sparkles, desc: "Djuprengöring och flyttstäd med garanti – för dig som gillar noggrannhet." },
-  { id: "Fönsterputsare", icon: Wind, desc: "Ge skinande rena fönster året runt, hemma och på företag." },
-  { id: "Barnvakt", icon: Baby, desc: "Trygg och varm barnpassning i familjers hem." },
-  { id: "Konsult", icon: Briefcase, desc: "Uppdrag som konsult inom service och städ – flexibelt upplägg." },
-  { id: "Underleverantör", icon: Handshake, desc: "Är ni ett städbolag som vill samarbeta? Bli underleverantör till Stodona." },
+  { id: "Hemstädare", icon: Home, image: "/stodona_right_image.jpg", desc: "Skapa hotellkänsla i våra kunders hem. Regelbundna uppdrag, mest dagtid." },
+  { id: "Byggstädare", icon: HardHat, image: "/byggstadning.jpg", desc: "Grov- och finstädning efter bygg och renovering. Varierat och fysiskt." },
+  { id: "Flytt- & storstädare", icon: Sparkles, image: "/stodona-stad.jpg", desc: "Djuprengöring och flyttstäd med garanti – för dig som gillar noggrannhet." },
+  { id: "Fönsterputsare", icon: Wind, image: "/fonster-stodona.jpg", desc: "Ge skinande rena fönster året runt, hemma och på företag." },
+  { id: "Barnvakt", icon: Baby, image: "/familj-stodona.jpg", desc: "Trygg och varm barnpassning i familjers hem." },
+  { id: "Konsult", icon: Briefcase, image: "/kontorsstadning.jpg", desc: "Uppdrag som konsult inom service och städ – flexibelt upplägg." },
+  { id: "Underleverantör", icon: Handshake, image: "/stodona_left_image.jpg", desc: "Är ni ett städbolag som vill samarbeta? Bli underleverantör till Stodona." },
 ];
 
 const PERKS = [
@@ -42,7 +43,7 @@ const PERKS = [
 ];
 
 const inputClass =
-  "w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70";
+  "w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70";
 const labelClass = "block text-sm font-medium mb-2";
 
 export default function JobbaHosOss() {
@@ -107,27 +108,46 @@ export default function JobbaHosOss() {
       </Helmet>
 
       {/* Hero */}
-      <section className="relative min-h-[75vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
-        <div className="absolute inset-0 z-0">
-          <img src="/stodona-stad.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/90 via-bg-dark/65 to-bg-dark/40" />
-        </div>
+      <section className="relative min-h-[85vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
+        <motion.img
+          src="/stodona-stad.jpg"
+          alt=""
+          initial={{ scale: 1.15 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        <div className="absolute inset-0 z-0 bg-gradient-to-tr from-bg-dark/92 via-bg-dark/70 to-bg-dark/40" />
+        {/* Animerade glöd-blobbar */}
+        <motion.div
+          aria-hidden
+          animate={{ y: [0, -24, 0], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute -top-20 -right-10 w-96 h-96 rounded-full bg-cta-hover/25 blur-3xl z-0"
+        />
+        <motion.div
+          aria-hidden
+          animate={{ y: [0, 20, 0], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 rounded-full bg-cta-hover/15 blur-3xl z-0"
+        />
+
         <div className="container-custom relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-3xl"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs font-bold tracking-widest uppercase mb-6">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-3xl">
+            <motion.span
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs font-bold tracking-widest uppercase mb-6"
+            >
               <Sparkles className="w-4 h-4 text-cta-hover" /> Jobba med oss
-            </span>
+            </motion.span>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">
               Bli en del av
               <br />
               <span className="italic font-normal text-cta-hover">Stodona-familjen.</span>
             </h1>
-            <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
+            <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-8 drop-shadow-md">
               Vi växer och söker härliga, ansvarsfulla människor som vill göra skillnad i
               vardagen – i Stockholm och Stockholmsområdet. Hitta din roll och sök på
               någon minut.
@@ -144,13 +164,26 @@ export default function JobbaHosOss() {
                 Gör en spontanansökan
               </button>
             </div>
+            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-text-light/85">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </span>
+                4.9/5 i snittbetyg
+              </span>
+              <span className="text-text-light/40">·</span>
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-cta-hover" /> Ansvarsförsäkrade</span>
+              <span className="text-text-light/40">·</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cta-hover" /> Kollektivavtal</span>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Perks */}
-      <section className="section-spacing bg-white">
-        <div className="container-custom">
+      <section className="section-spacing bg-white relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-cta-hover/5 blur-3xl rounded-l-full -z-0" />
+        <div className="container-custom relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -172,10 +205,11 @@ export default function JobbaHosOss() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: (i % 3) * 0.1 }}
-                className="bg-bg-primary rounded-3xl p-8"
+                whileHover={{ y: -6 }}
+                className="group bg-bg-primary rounded-3xl p-8 border border-transparent hover:border-cta-hover/30 hover:shadow-xl transition-all duration-300"
               >
-                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-6">
-                  <p.icon className="w-7 h-7 text-cta-hover" />
+                <div className="w-14 h-14 rounded-2xl bg-white group-hover:bg-cta-hover flex items-center justify-center mb-6 transition-colors duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <p.icon className="w-7 h-7 text-cta-hover group-hover:text-white transition-colors duration-300" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">{p.title}</h3>
                 <p className="text-text-secondary leading-relaxed">{p.text}</p>
@@ -185,9 +219,10 @@ export default function JobbaHosOss() {
         </div>
       </section>
 
-      {/* Lediga tjänster */}
-      <section id="tjanster" className="section-spacing bg-bg-primary scroll-mt-20">
-        <div className="container-custom">
+      {/* Lediga tjänster – bild-kort */}
+      <section id="tjanster" className="section-spacing bg-bg-primary scroll-mt-20 relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[40rem] h-[40rem] bg-cta-hover/10 blur-3xl rounded-full -z-0" />
+        <div className="container-custom relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -200,55 +235,69 @@ export default function JobbaHosOss() {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Hitta din roll</h2>
             <p className="text-text-secondary text-lg">
-              Klicka på en tjänst för att söka – eller gör en spontanansökan längst ner.
+              Klicka på en tjänst för att söka – eller gör en spontanansökan.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {ROLES.map((r, i) => (
-              <motion.div
+              <motion.button
+                type="button"
                 key={r.id}
-                initial={{ opacity: 0, y: 24 }}
+                onClick={() => applyFor(r.id)}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                className="group bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-text-primary/5 flex flex-col"
+                whileHover={{ y: -8 }}
+                className="group relative text-left rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow duration-300 h-80"
               >
-                <div className="w-14 h-14 rounded-2xl bg-cta-hover/15 group-hover:bg-cta-hover flex items-center justify-center mb-6 transition-colors duration-300">
-                  <r.icon className="w-7 h-7 text-cta-hover group-hover:text-white transition-colors duration-300" />
+                <img
+                  src={r.image}
+                  alt={r.id}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[900ms] ease-out"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 group-hover:from-black/95 transition-colors duration-500" />
+
+                <span className="absolute top-4 left-4 w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                  <r.icon className="w-6 h-6 text-white" />
+                </span>
+                <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 bg-green-500/90 text-white text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Öppen
+                </span>
+
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-text-light">
+                  <h3 className="text-2xl font-bold mb-1 drop-shadow">{r.id}</h3>
+                  <p className="text-text-light/85 text-sm leading-relaxed mb-4 drop-shadow">{r.desc}</p>
+                  <span className="inline-flex items-center gap-2 font-bold text-cta-hover group-hover:gap-3 transition-all">
+                    Sök tjänsten <ArrowRight className="w-4 h-4" />
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-bold">{r.id}</h3>
-                  <span className="text-[11px] font-bold uppercase tracking-wide bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Öppen</span>
-                </div>
-                <p className="text-text-secondary leading-relaxed mb-6 flex-grow">{r.desc}</p>
-                <button
-                  type="button"
-                  onClick={() => applyFor(r.id)}
-                  className="inline-flex items-center gap-2 font-bold text-text-primary group-hover:text-cta-hover transition-colors mt-auto"
-                >
-                  Sök tjänsten <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </motion.div>
+              </motion.button>
             ))}
 
             {/* Spontanansökan-kort */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5 }}
-              className="rounded-3xl p-8 bg-bg-dark text-text-light flex flex-col justify-center"
+              whileHover={{ y: -8 }}
+              className="relative rounded-3xl overflow-hidden bg-bg-dark text-text-light p-8 flex flex-col justify-center h-80 shadow-md"
             >
-              <h3 className="text-xl font-bold mb-2">Hittar du ingen passande roll?</h3>
-              <p className="text-text-light/75 mb-6 flex-grow">
+              <div aria-hidden className="pointer-events-none absolute -top-10 -right-8 w-48 h-48 rounded-full bg-cta-hover/25 blur-2xl" />
+              <Sparkles className="w-10 h-10 text-cta-hover mb-4 relative z-10" />
+              <h3 className="text-2xl font-bold mb-2 relative z-10">Hittar du ingen passande roll?</h3>
+              <p className="text-text-light/75 mb-6 relative z-10">
                 Vi vill ändå gärna höra från dig. Skicka en spontanansökan så hör vi av oss
                 när något dyker upp.
               </p>
               <button
                 type="button"
                 onClick={() => applyFor("Spontanansökan")}
-                className="inline-flex items-center gap-2 font-bold text-cta-hover hover:text-white transition-colors"
+                className="inline-flex items-center gap-2 font-bold text-cta-hover hover:text-white transition-colors relative z-10 self-start"
               >
                 Gör en spontanansökan <ArrowRight className="w-4 h-4" />
               </button>
@@ -258,14 +307,18 @@ export default function JobbaHosOss() {
       </section>
 
       {/* Ansökningsformulär */}
-      <section id="ansok" className="section-spacing bg-white scroll-mt-20">
-        <div className="container-custom max-w-2xl mx-auto">
+      <section id="ansok" className="section-spacing bg-white scroll-mt-20 relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 w-96 h-96 bg-cta-hover/10 blur-3xl rounded-full -z-0" />
+        <div className="container-custom max-w-2xl mx-auto relative z-10">
           {state === "success" ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               className="bg-bg-primary rounded-3xl p-10 text-center">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <motion.div
+                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.1 }}
+                className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
                 <CheckCircle2 className="w-10 h-10" />
-              </div>
+              </motion.div>
               <h2 className="text-3xl font-bold mb-3">Tack för din ansökan!</h2>
               <p className="text-text-secondary text-lg max-w-md mx-auto">
                 Vi har tagit emot den och hör av oss så snart vi kan. Lycka till!
@@ -283,7 +336,14 @@ export default function JobbaHosOss() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="bg-bg-primary/40 rounded-3xl p-6 sm:p-8 border border-text-primary/5 space-y-5">
+              <motion.form
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.5 }}
+                onSubmit={handleSubmit}
+                className="bg-bg-primary/50 rounded-3xl p-6 sm:p-8 border border-text-primary/5 shadow-sm space-y-5"
+              >
                 <div>
                   <label className={labelClass}>Tjänst du söker</label>
                   <select name="role" value={role} onChange={(e) => setRole(e.target.value)}
@@ -363,7 +423,7 @@ export default function JobbaHosOss() {
                   Dina uppgifter hanteras tryggt enligt vår{" "}
                   <a href="/integritetspolicy" className="text-cta-hover underline">integritetspolicy</a>.
                 </p>
-              </form>
+              </motion.form>
             </>
           )}
         </div>

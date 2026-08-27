@@ -24,6 +24,7 @@ export default function Sitemap() {
     { name: "Kontakt", path: "/kontakt", icon: Phone },
     { name: "Boka städning", path: "/bokning", icon: Sparkles },
     { name: "Byta städbolag", path: "/byta-stadbolag", icon: ShieldCheck },
+    { name: "Presentkort", path: "/presentkort", icon: Sparkles },
     { name: "Jobba hos oss", path: "/jobba-hos-oss", icon: Star },
     { name: "Kundportalen", path: "/kundportalen", icon: ShieldCheck },
     { name: "Blogg", path: "/blogg", icon: BookOpen },

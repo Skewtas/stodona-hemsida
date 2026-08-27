@@ -1,5 +1,23 @@
 # Prerendering (SSG) – måste aktiveras i en miljö med webbläsare
 
+> **STATUS:** Scaffolding är redan på plats i repot (opt-in, påverkar inte
+> produktions-bygget):
+> - `src/main.tsx` hydrerar om `#root` har innehåll, annars vanlig mount.
+> - `package.json` har ett opt-in-script `prerender` (`vite build && react-snap`)
+>   + `reactSnap`-config (endast publika sidor, inte de dolda nanny-sidorna).
+> - `react-snap` ligger i devDependencies.
+>
+> **Kvar att göra (i en miljö med webbläsare, t.ex. Vercel-preview):**
+> 1. `bun install` (hämtar react-snap + Chromium).
+> 2. `bun run prerender` och kontrollera att `dist/hemstadning/index.html`
+>    m.fl. innehåller synlig H1/brödtext i källan, utan hydration-varningar.
+>    OBS: whileInView-animationer kan snapshotas med `opacity:0` – verifiera
+>    att texten finns i DOM (bra för SEO) och överväg att stänga av
+>    initial-opacity vid prerender om det stör.
+> 3. När det funkar: byt Vercels build-kommando från `bun run build` till
+>    `bun run prerender`.
+
+
 ## Varför
 Stodona.se är en client-side-renderad React/Vite-SPA. `dist/index.html` har en
 tom `<body>` – allt innehåll ritas av JavaScript. Sökrobotar som **inte** kör JS

@@ -6,9 +6,21 @@
   "scripts": {
     "dev": "vite --port 3000",
     "build": "vite build",
+    "prerender": "vite build && react-snap",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
+  },
+  "reactSnap": {
+    "source": "dist",
+    "minifyHtml": { "collapseWhitespace": false },
+    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "inlineCss": false,
+    "include": [
+      "/", "/hemstadning", "/flyttstadning", "/storstadning", "/fonsterputsning",
+      "/foretagsstadning", "/byggstadning", "/trappstadning", "/priser", "/om-oss",
+      "/kontakt", "/faq", "/recensioner", "/blogg"
+    ]
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
@@ -25,8 +37,8 @@
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.14",
+    "react-snap": "^1.23.0",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "vite-plugin-prerender": "^1.0.8"
+    "typescript": "~5.8.2"
   }
 }

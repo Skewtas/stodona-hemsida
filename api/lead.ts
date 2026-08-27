@@ -81,6 +81,7 @@ export default async function handler(request: Request) {
       footer_newsletter: '📧 Newsletter',
       blog_lead_magnet: '📥 Städchecklista',
       sticky_cta: '📱 Ring mig',
+      fastpris: '💰 Fast pris-förfrågan',
     };
 
     const lead = {
@@ -102,6 +103,39 @@ export default async function handler(request: Request) {
       } catch (error) {
         console.error('KV write error:', error);
       }
+    }
+
+    // Vidarebefordra e-post till nyhetsbrevssystemen (headof + Marketing).
+    // Aktiveras genom att sätta miljövariablerna nedan i Vercel. Endpoints
+    // förväntas ta emot JSON { email, name, phone, source, page }.
+    if (email) {
+      const newsletterTargets = [
+        { name: 'headof', url: process.env.NEWSLETTER_HEADOF_URL, token: process.env.NEWSLETTER_HEADOF_TOKEN },
+        { name: 'marketing', url: process.env.NEWSLETTER_MARKETING_URL, token: process.env.NEWSLETTER_MARKETING_TOKEN },
+      ];
+      await Promise.all(
+        newsletterTargets.map(async (tgt) => {
+          if (!tgt.url) return;
+          try {
+            await fetch(tgt.url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(tgt.token ? { Authorization: `Bearer ${tgt.token}` } : {}),
+              },
+              body: JSON.stringify({
+                email,
+                name: lead.name,
+                phone: lead.phone,
+                source: lead.source,
+                page: lead.page,
+              }),
+            });
+          } catch (err) {
+            console.error(`Newsletter forward (${tgt.name}) error:`, err);
+          }
+        })
+      );
     }
 
     // Send notification email via Resend

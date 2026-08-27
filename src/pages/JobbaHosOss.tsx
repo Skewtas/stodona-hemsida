@@ -1,353 +1,373 @@
-import { Helmet } from "../seo";
 import { useState } from "react";
+import { Helmet } from "../seo";
 import { motion } from "motion/react";
-import { 
-  Briefcase, 
-  Heart, 
-  MapPin, 
-  Send, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Home,
+  HardHat,
+  Sparkles,
+  Wind,
+  Baby,
+  Briefcase,
+  Handshake,
+  Wallet,
+  Clock,
+  GraduationCap,
+  Users,
+  Heart,
   ShieldCheck,
-  Star,
+  CheckCircle2,
   Upload,
-  User,
-  Coffee
+  Loader2,
+  ArrowRight,
+  ArrowDown,
 } from "lucide-react";
-import { useLanguage } from "../context/LanguageContext";
+
+const ROLES = [
+  { id: "Hemstädare", icon: Home, desc: "Skapa hotellkänsla i våra kunders hem. Regelbundna uppdrag, mest dagtid." },
+  { id: "Byggstädare", icon: HardHat, desc: "Grov- och finstädning efter bygg och renovering. Varierat och fysiskt." },
+  { id: "Flytt- & storstädare", icon: Sparkles, desc: "Djuprengöring och flyttstäd med garanti – för dig som gillar noggrannhet." },
+  { id: "Fönsterputsare", icon: Wind, desc: "Ge skinande rena fönster året runt, hemma och på företag." },
+  { id: "Barnvakt", icon: Baby, desc: "Trygg och varm barnpassning i familjers hem." },
+  { id: "Konsult", icon: Briefcase, desc: "Uppdrag som konsult inom service och städ – flexibelt upplägg." },
+  { id: "Underleverantör", icon: Handshake, desc: "Är ni ett städbolag som vill samarbeta? Bli underleverantör till Stodona." },
+];
+
+const PERKS = [
+  { icon: Wallet, title: "Schyssta villkor", text: "Kollektivavtalsenlig lön, försäkring och trygga anställningsvillkor." },
+  { icon: Clock, title: "Flexibelt", text: "Vi gör vårt bästa för att anpassa schemat efter din vardag." },
+  { icon: GraduationCap, title: "Utveckling", text: "Ordentlig introduktion, upplärning och chans att växa hos oss." },
+  { icon: Users, title: "Härligt team", text: "Du blir en del av ett omtänksamt gäng som stöttar varandra." },
+  { icon: Heart, title: "Meningsfullt", text: "Ditt arbete gör verklig skillnad i människors vardag." },
+  { icon: ShieldCheck, title: "Tryggt varumärke", text: "Ett av Stockholms mest rekommenderade servicebolag." },
+];
+
+const inputClass =
+  "w-full px-4 py-3 rounded-xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 focus:border-cta-hover/40 transition-all placeholder:text-text-secondary/70";
+const labelClass = "block text-sm font-medium mb-2";
 
 export default function JobbaHosOss() {
-  const { lang } = useLanguage();
-  const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
+  const [state, setState] = useState<"idle" | "submitting" | "success">("idle");
+  const [role, setRole] = useState("Hemstädare");
+  const [cvName, setCvName] = useState("");
+  const [photoName, setPhotoName] = useState("");
+  const [fileError, setFileError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormState("submitting");
-    
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    // Hardcoded subject to match job applications
-    formData.append("subject", "Jobbansökan - Stodona Hemsida");
+  function applyFor(roleId: string) {
+    setRole(roleId);
+    document.getElementById("ansok")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-    try {
-      const response = await fetch('https://formspree.io/f/xojkdewo', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        setFormState("success");
-        form.reset();
-      } else {
-        setFormState("idle");
-        alert("Något gick fel. Vänligen försök igen.");
+  function checkFile(setName: (v: string) => void) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const f = e.target.files?.[0];
+      if (f && f.size > 10 * 1024 * 1024) {
+        setFileError(`Filen "${f.name}" är för stor (max 10 MB).`);
+        e.target.value = "";
+        setName("");
+        return;
       }
-    } catch (error) {
-      setFormState("idle");
-      alert("Ett nätverksfel uppstod. Vänligen försök igen senare.");
+      setFileError("");
+      setName(f ? f.name : "");
+    };
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setState("submitting");
+    try {
+      const fd = new FormData(form);
+      fd.append("subject", `Jobbansökan: ${role}`);
+      const res = await fetch("https://formspree.io/f/xojkdewo", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: fd,
+      });
+      if (res.ok) {
+        setState("success");
+        form.reset();
+        setCvName("");
+        setPhotoName("");
+      } else throw new Error("fel");
+    } catch {
+      setState("idle");
+      alert("Något gick fel. Försök igen eller mejla oss på info@stodona.se.");
     }
-  };
+  }
 
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Jobba hos Stodona – Bli en del av vårt team | Stodona</title>
-        <meta name="description" content="Söker du jobb som lokalvårdare eller inom städ i Stockholm? Vi på Stodona letar alltid efter engagerad personal. Ansök enkelt online idag!" />
-        <meta property="og:title" content="Jobba hos Stodona – Bli en del av vårt team i Stockholm" />
-        <meta property="og:description" content="Bli en del av ett städbolag som bryr sig. Sök jobb hos Stodona idag." />
+        <title>Jobba hos Stodona – Lediga tjänster i Stockholm | Stodona</title>
+        <meta
+          name="description"
+          content="Sök jobb hos Stodona i Stockholm. Vi söker hemstädare, byggstädare, fönsterputsare, barnvakter, konsulter och underleverantörer. Enkel ansökan – bifoga CV direkt."
+        />
         <link rel="canonical" href="https://stodona.se/jobba-hos-oss" />
       </Helmet>
-      
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
+
+      {/* Hero */}
+      <section className="relative min-h-[75vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/familj-stodona.jpg" 
-            alt="Jobba hos Stodona Stockholm" 
-            className="w-full h-full object-cover opacity-30"
-          />
+          <img src="/stodona-stad.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/90 via-bg-dark/65 to-bg-dark/40" />
         </div>
         <div className="container-custom relative z-10">
-          <div className="max-w-3xl">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
-            >
-              {lang === 'SV' ? 'Bli en del av' : 'Join'} <br /> 
-              <span className="italic font-normal text-cta-hover">Team Stodona</span>.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
-            >
-              {lang === 'SV' ? 'Vi letar alltid efter engagerade och noggranna stjärnor till vårt växande städbolag i Stockholm. Här blir du inte bara en anställd, du blir en del av vår familj.' : 'We are always looking for dedicated and meticulous stars for our growing cleaning company in Stockholm. Here you don\'t just become an employee, you become part of our family.'}
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
-      {/* Intro & Benefits */}
-      <section className="section-spacing bg-bg-primary">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-6">
-              {lang === 'SV' ? 'Varför jobba med oss?' : 'Why work with us?'}
-            </h2>
-            <p className="text-xl text-text-secondary">
-              {lang === 'SV' 
-                ? 'Stodona grundades med en tydlig vision – att vara branschens bästa arbetsgivare. När vår personal mår bra, mår våra kunder bra.' 
-                : 'Stodona was founded with a clear vision - to be the best employer in the industry. When our staff feel good, our customers feel good.'}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl"
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs font-bold tracking-widest uppercase mb-6">
+              <Sparkles className="w-4 h-4 text-cta-hover" /> Jobba med oss
+            </span>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">
+              Bli en del av
+              <br />
+              <span className="italic font-normal text-cta-hover">Stodona-familjen.</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
+              Vi växer och söker härliga, ansvarsfulla människor som vill göra skillnad i
+              vardagen – i Stockholm och Stockholmsområdet. Hitta din roll och sök på
+              någon minut.
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="card-rounded bg-white p-8 border border-text-primary/5 shadow-sm text-center"
-            >
-              <div className="w-14 h-14 bg-cta-hover/10 text-cta-hover rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Vi bryr oss' : 'We care'}</h3>
-              <p className="text-text-secondary leading-relaxed">
-                {lang === 'SV' ? 'Vi satsar på god arbetsmiljö och en stark gemenskap. För oss är du otroligt viktig.' : 'We focus on a good work environment and strong community. You are incredibly important to us.'}
-              </p>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="card-rounded bg-white p-8 border border-text-primary/5 shadow-sm text-center"
-            >
-              <div className="w-14 h-14 bg-cta-hover/10 text-cta-hover rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <ShieldCheck className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Trygga villkor' : 'Secure conditions'}</h3>
-              <p className="text-text-secondary leading-relaxed">
-                {lang === 'SV' ? 'Full försäkring, kollektivavtalsliknande villkor och rättvis lön. Det är en självklarhet för oss.' : 'Full insurance coverage, collective agreement-like terms and fair pay. A given for us.'}
-              </p>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="card-rounded bg-white p-8 border border-text-primary/5 shadow-sm text-center"
-            >
-              <div className="w-14 h-14 bg-cta-hover/10 text-cta-hover rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Star className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Utbildning & support' : 'Training & support'}</h3>
-              <p className="text-text-secondary leading-relaxed">
-                {lang === 'SV' ? 'Du får grundlig internutbildning och vi finns alltid ett samtal bort under arbetspasset.' : 'You receive thorough internal training and we are always just a phone call away during your shift.'}
-              </p>
-            </motion.div>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <a href="#tjanster" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+                Se lediga tjänster <ArrowDown className="w-5 h-5 ml-2" />
+              </a>
+              <button
+                type="button"
+                onClick={() => applyFor("Spontanansökan")}
+                className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-text-primary text-lg px-8 py-4 backdrop-blur-sm"
+              >
+                Gör en spontanansökan
+              </button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Application Form Section */}
+      {/* Perks */}
       <section className="section-spacing bg-white">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            
-            {/* Info */}
-            <div className="lg:col-span-5 space-y-8">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                  {lang === 'SV' ? 'Vem letar vi efter?' : 'Who are we looking for?'}
-                </h2>
-                <div className="prose prose-lg text-text-secondary">
-                  <p>
-                    {lang === 'SV' 
-                    ? 'Vi söker dig som älskar att se resultat av ditt arbete, är ansvarsfull och sprider positiv energi. Erfarenhet av städning är ett stort plus, men det viktigaste är din inställning!' 
-                    : 'We are looking for someone who loves seeing the results of their work, is responsible and spreads positive energy. Cleaning experience is a plus, but attitude is everything!'}
-                  </p>
-                  
-                  <h4 className="font-bold text-text-primary mt-8 mb-4">{lang === 'SV' ? 'Krav för att söka:' : 'Requirements to apply:'}</h4>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-cta-hover mt-0.5 shrink-0" />
-                      <span>{lang === 'SV' ? 'Noggrann och har ett sinne för detaljer.' : 'Meticulous with an eye for detail.'}</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-cta-hover mt-0.5 shrink-0" />
-                      <span>{lang === 'SV' ? 'Pålitlig och passar tider.' : 'Reliable and punctual.'}</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-cta-hover mt-0.5 shrink-0" />
-                      <span>{lang === 'SV' ? 'Förstår vikten av utmärkt kundservice.' : 'Understands the importance of excellent customer service.'}</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-cta-hover mt-0.5 shrink-0" />
-                      <span>{lang === 'SV' ? 'Talar svenska eller engelska obehindrat.' : 'Speaks Swedish or English fluently.'}</span>
-                    </li>
-                  </ul>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-2xl mx-auto mb-14"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Varför jobba hos oss?</h2>
+            <p className="text-text-secondary text-lg">
+              Vi tar hand om vårt team lika bra som vi tar hand om våra kunder.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PERKS.map((p, i) => (
+              <motion.div
+                key={p.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: (i % 3) * 0.1 }}
+                className="bg-bg-primary rounded-3xl p-8"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-6">
+                  <p.icon className="w-7 h-7 text-cta-hover" />
                 </div>
-              </div>
-
-              <div className="p-6 bg-cta-hover/10 rounded-2xl border border-cta-hover/20 mt-8">
-                <div className="flex items-center gap-3 mb-3">
-                  <Coffee className="w-6 h-6 text-cta-hover" />
-                  <h4 className="font-bold text-lg">{lang === 'SV' ? 'Så går det till' : 'How it works'}</h4>
-                </div>
-                <p className="text-sm text-text-secondary leading-relaxed">
-                  {lang === 'SV' 
-                  ? 'När vi mottagit din ansökan går vi igenom den. Om din profil stämmer överens med det vi letar efter kommer vi att kontakta dig för en kort intervju över telefon eller e-post, och därefter boka in ett personligt möte.' 
-                  : 'Once we receive your application, we review it. If your profile matches what we are looking for, we will contact you for a brief phone or email interview, followed by an in-person meeting.'}
-                </p>
-              </div>
-            </div>
-
-            {/* Application Form */}
-            <div className="lg:col-span-7">
-              <div id="skicka-ansokan" className="card-rounded bg-bg-primary p-8 md:p-12 shadow-sm border border-text-primary/5">
-                {formState === "success" ? (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-12"
-                  >
-                    <div className="w-20 h-20 bg-cta-hover/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle2 className="w-10 h-10 text-cta-hover" />
-                    </div>
-                    <h2 className="text-3xl font-bold mb-4">{lang === 'SV' ? 'Tack för din ansökan!' : 'Thank you for your application!'}</h2>
-                    <p className="text-text-secondary text-lg mb-8">
-                      {lang === 'SV' ? 'Vi har mottagit dina uppgifter och återkommer till dig så snart vi kan.' : 'We have received your details and will get back to you as soon as possible.'}
-                    </p>
-                    <button 
-                      onClick={() => setFormState("idle")}
-                      className="btn-primary"
-                    >
-                      {lang === 'SV' ? 'Skicka en ny ansökan' : 'Submit a new application'}
-                    </button>
-                  </motion.div>
-                ) : (
-                  <>
-                    <h2 className="text-3xl font-bold mb-2">{lang === 'SV' ? 'Skicka din ansökan' : 'Submit your application'}</h2>
-                    <p className="text-text-secondary mb-8">{lang === 'SV' ? 'Berätta lite om dig själv så hörs vi snart.' : 'Tell us a bit about yourself and we will be in touch.'}</p>
-                    
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label htmlFor="name" className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'Fullständigt namn*' : 'Full name*'}</label>
-                          <input 
-                            type="text" 
-                            id="name" 
-                            name="name"
-                            required
-                            className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
-                            placeholder={lang === 'SV' ? 'För & Efternamn' : 'First & Last name'}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor="email" className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'E-post*' : 'Email*'}</label>
-                          <input 
-                            type="email" 
-                            id="email" 
-                            name="email"
-                            required
-                            className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
-                            placeholder="din@epost.se"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label htmlFor="phone" className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'Telefonnummer*' : 'Phone number*'}</label>
-                          <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone"
-                            required
-                            className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white"
-                            placeholder="070-000 00 00"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor="experience" className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'Har du städerfarenhet?' : 'Do you have cleaning experience?'}</label>
-                          <select 
-                            id="experience" 
-                            name="experience"
-                            className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white appearance-none cursor-pointer"
-                          >
-                            <option value="Ja, över 2 år">{lang === 'SV' ? 'Ja, mer än 2 år' : 'Yes, more than 2 years'}</option>
-                            <option value="Ja, upp till 2 år">{lang === 'SV' ? 'Ja, mindre än 2 år' : 'Yes, less than 2 years'}</option>
-                            <option value="Nej, men jag är lättlärd">{lang === 'SV' ? 'Nej, men jag vill lära mig' : 'No, but I want to learn'}</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'Bifoga CV (frivilligt men rekommenderat)' : 'Attach CV (optional but recommended)'}</label>
-                        <div className="relative">
-                          <input 
-                            type="file" 
-                            id="cv-upload"
-                            name="cv_attachment"
-                            className="hidden"
-                            accept=".pdf,.doc,.docx"
-                            onChange={(e) => {
-                              const fileName = e.target.files?.[0]?.name;
-                              const label = document.getElementById('cv-label');
-                              if (label && fileName) label.textContent = fileName;
-                            }}
-                          />
-                          <label 
-                            htmlFor="cv-upload"
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 hover:border-cta-hover hover:bg-cta-hover/5 cursor-pointer transition-all bg-white"
-                          >
-                            <Upload className="w-5 h-5 text-text-secondary" />
-                            <span id="cv-label" className="text-text-secondary">{lang === 'SV' ? 'Ladda upp CV (.pdf, .doc)' : 'Upload CV (.pdf, .doc)'}</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label htmlFor="message" className="text-sm font-semibold text-text-primary">{lang === 'SV' ? 'Kort om dig själv*' : 'Briefly about yourself*'}</label>
-                        <textarea 
-                          id="message" 
-                          name="message"
-                          rows={4}
-                          required
-                          className="w-full px-4 py-3 rounded-xl border border-text-primary/10 focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/20 outline-none transition-all bg-white resize-none"
-                          placeholder={lang === 'SV' ? 'Varför vill du jobba med oss på Stodona?' : 'Why do you want to work with us at Stodona?'}
-                        ></textarea>
-                      </div>
-
-                      <button 
-                        type="submit" 
-                        disabled={formState === "submitting"}
-                        className="w-full btn-primary py-4 flex items-center justify-center gap-2 text-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        {formState === "submitting" ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            {lang === 'SV' ? 'Skickar...' : 'Sending...'}
-                          </>
-                        ) : (
-                          <>
-                            {lang === 'SV' ? 'Skicka ansökan' : 'Submit application'}
-                            <Send className="w-5 h-5" />
-                          </>
-                        )}
-                      </button>
-                      
-                    </form>
-                  </>
-                )}
-              </div>
-            </div>
+                <h3 className="text-xl font-bold mb-2">{p.title}</h3>
+                <p className="text-text-secondary leading-relaxed">{p.text}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Lediga tjänster */}
+      <section id="tjanster" className="section-spacing bg-bg-primary scroll-mt-20">
+        <div className="container-custom">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-2xl mx-auto mb-14"
+          >
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
+              Lediga tjänster
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Hitta din roll</h2>
+            <p className="text-text-secondary text-lg">
+              Klicka på en tjänst för att söka – eller gör en spontanansökan längst ner.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ROLES.map((r, i) => (
+              <motion.div
+                key={r.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
+                className="group bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-text-primary/5 flex flex-col"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-cta-hover/15 group-hover:bg-cta-hover flex items-center justify-center mb-6 transition-colors duration-300">
+                  <r.icon className="w-7 h-7 text-cta-hover group-hover:text-white transition-colors duration-300" />
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-xl font-bold">{r.id}</h3>
+                  <span className="text-[11px] font-bold uppercase tracking-wide bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Öppen</span>
+                </div>
+                <p className="text-text-secondary leading-relaxed mb-6 flex-grow">{r.desc}</p>
+                <button
+                  type="button"
+                  onClick={() => applyFor(r.id)}
+                  className="inline-flex items-center gap-2 font-bold text-text-primary group-hover:text-cta-hover transition-colors mt-auto"
+                >
+                  Sök tjänsten <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </motion.div>
+            ))}
+
+            {/* Spontanansökan-kort */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5 }}
+              className="rounded-3xl p-8 bg-bg-dark text-text-light flex flex-col justify-center"
+            >
+              <h3 className="text-xl font-bold mb-2">Hittar du ingen passande roll?</h3>
+              <p className="text-text-light/75 mb-6 flex-grow">
+                Vi vill ändå gärna höra från dig. Skicka en spontanansökan så hör vi av oss
+                när något dyker upp.
+              </p>
+              <button
+                type="button"
+                onClick={() => applyFor("Spontanansökan")}
+                className="inline-flex items-center gap-2 font-bold text-cta-hover hover:text-white transition-colors"
+              >
+                Gör en spontanansökan <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Ansökningsformulär */}
+      <section id="ansok" className="section-spacing bg-white scroll-mt-20">
+        <div className="container-custom max-w-2xl mx-auto">
+          {state === "success" ? (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-bg-primary rounded-3xl p-10 text-center">
+              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+              <h2 className="text-3xl font-bold mb-3">Tack för din ansökan!</h2>
+              <p className="text-text-secondary text-lg max-w-md mx-auto">
+                Vi har tagit emot den och hör av oss så snart vi kan. Lycka till!
+              </p>
+            </motion.div>
+          ) : (
+            <>
+              <div className="text-center mb-10">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
+                  Ansök
+                </span>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 leading-tight">Skicka din ansökan</h2>
+                <p className="text-text-secondary text-lg">
+                  Fyll i formuläret och bifoga gärna ditt CV. Det tar bara någon minut.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="bg-bg-primary/40 rounded-3xl p-6 sm:p-8 border border-text-primary/5 space-y-5">
+                <div>
+                  <label className={labelClass}>Tjänst du söker</label>
+                  <select name="role" value={role} onChange={(e) => setRole(e.target.value)}
+                    className={`${inputClass} cursor-pointer`}>
+                    {ROLES.map((r) => <option key={r.id}>{r.id}</option>)}
+                    <option>Spontanansökan</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>Namn *</label>
+                    <input name="Namn" required className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>E-post *</label>
+                    <input type="email" name="E-post" required className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Telefon *</label>
+                    <input type="tel" name="Telefon" required className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Ort / område</label>
+                    <input name="Ort" placeholder="Ex: Solna" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Kan börja</label>
+                    <input name="Kan börja" placeholder="Ex: omgående" className={inputClass} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>Din erfarenhet</label>
+                    <textarea name="Erfarenhet" rows={3}
+                      placeholder="Berätta kort om din erfarenhet som är relevant för tjänsten."
+                      className={`${inputClass} resize-none`} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>Berätta lite om dig själv</label>
+                    <textarea name="Om mig" rows={4}
+                      placeholder="Vem är du, och varför vill du jobba hos Stodona?"
+                      className={`${inputClass} resize-none`} />
+                  </div>
+                </div>
+
+                {/* Bilagor */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className={labelClass}>Ladda upp CV (frivilligt)</label>
+                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-white cursor-pointer hover:border-cta-hover transition-colors">
+                      <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
+                        <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
+                      </span>
+                      <span className="text-sm text-text-secondary truncate">{cvName || "PDF eller Word"}</span>
+                      <input type="file" name="CV" accept=".pdf,.doc,.docx,.rtf,.txt,application/pdf" className="hidden" onChange={checkFile(setCvName)} />
+                    </label>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Ladda upp foto (frivilligt)</label>
+                    <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-white cursor-pointer hover:border-cta-hover transition-colors">
+                      <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
+                        <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
+                      </span>
+                      <span className="text-sm text-text-secondary truncate">{photoName || "JPG eller PNG"}</span>
+                      <input type="file" name="Foto" accept="image/*" className="hidden" onChange={checkFile(setPhotoName)} />
+                    </label>
+                  </div>
+                  {fileError && <p className="sm:col-span-2 text-red-500 text-sm">{fileError}</p>}
+                  <p className="sm:col-span-2 text-xs text-text-secondary">Max 10 MB per fil.</p>
+                </div>
+
+                <button type="submit" disabled={state === "submitting"}
+                  className="w-full btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover hover:text-text-primary py-4 flex items-center justify-center gap-2 disabled:opacity-50">
+                  {state === "submitting" ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Skicka ansökan <ArrowRight className="w-5 h-5" /></>}
+                </button>
+                <p className="text-xs text-center text-text-secondary flex items-center justify-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-cta-hover" />
+                  Dina uppgifter hanteras tryggt enligt vår{" "}
+                  <a href="/integritetspolicy" className="text-cta-hover underline">integritetspolicy</a>.
+                </p>
+              </form>
+            </>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

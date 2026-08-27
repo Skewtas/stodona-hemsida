@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Phone, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
+import { track } from '../utils/analytics';
 
 export default function StickyCTA() {
   const [phone, setPhone] = useState('');
@@ -14,6 +15,7 @@ export default function StickyCTA() {
     if (!phone) return;
     setLoading(true);
     await submitLead({ email: '', phone, source: 'sticky_cta' });
+    track("lead_capture", { source: 'sticky_cta' });
     setLoading(false);
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);

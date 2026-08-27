@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowRight, MapPin, Maximize, Sparkles, Star, ShieldCheck, Home, Box, Wind } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { track } from '../utils/analytics';
 
 const servicesList = [
   { id: 'hemstadning', sv: 'Hemstädning', en: 'Home Cleaning', icon: Home, base: 22, min: 600 },
@@ -34,6 +35,7 @@ export const QuickBookingWidget: React.FC = () => {
       setZipError(lang === 'EN' ? 'Sorry, we only cover Stockholm manually yet' : 'Tyvärr täcker vi bara Stockholm just nu');
       return;
     }
+    track("booking_widget_submit", { service, sqm, estimated_price: estimatedPrice ?? undefined });
     const params = new URLSearchParams({
       service: service,
       zip: zipCode,

@@ -55,6 +55,7 @@ const LoadingFallback = () => (
 );
 import { SERVICE_AREAS, SUB_AREAS_NACKA, SUB_AREAS_EKERO, SUB_AREAS_LIDINGO } from "./constants";
 import ScrollToTop from "./components/ScrollToTop";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 
 // All service types to generate routes for
 const ALL_SERVICES = ['hemstadning', 'flyttstadning', 'foretagsstadning', 'fonsterputsning', 'storstadning', 'byggstadning', 'trappstadning', 'stadfirma'];
@@ -78,6 +79,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <ScrollToTop />
+      <AnalyticsTracker />
       <Layout>
         <React.Suspense fallback={<LoadingFallback />}>
         <Routes>

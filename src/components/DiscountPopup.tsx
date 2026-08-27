@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Gift, Sparkles } from 'lucide-react';
 import { submitLead, hasSeenPopup, markPopupSeen } from '../utils/leadCapture';
+import { track } from '../utils/analytics';
 
 // Single discount popup (15% rabatt / VLKMN15). Fires on whichever trigger comes
 // first — a timed welcome or exit intent — and shows once per 7 days, so the two
@@ -99,6 +100,7 @@ export default function DiscountPopup() {
     if (!email) return;
     setLoading(true);
     await submitLead({ email, phone, source: trigger === 'exit' ? 'exit_intent' : 'welcome_popup' });
+    track("lead_capture", { source: trigger === 'exit' ? 'exit_intent' : 'welcome_popup' });
     setLoading(false);
     setSubmitted(true);
     markPopupSeen('discount');

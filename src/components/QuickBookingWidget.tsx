@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowRight, MapPin, Maximize, Sparkles, Star, ShieldCheck, Home, Box, Wind } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { track } from '../utils/analytics';
+import { submitLead } from '../utils/leadCapture';
 
 const servicesList = [
   { id: 'hemstadning', sv: 'Hemstädning', en: 'Home Cleaning', icon: Home, base: 22, min: 600 },
@@ -17,6 +18,28 @@ export const QuickBookingWidget: React.FC = () => {
   const [zipError, setZipError] = useState('');
   const [sqm, setSqm] = useState('');
   const [service, setService] = useState('hemstadning');
+
+  // Fastpris – fånga leadet innan kunden lämnar för det externa bokningssystemet.
+  const [showFastpris, setShowFastpris] = useState(false);
+  const [fpName, setFpName] = useState('');
+  const [fpPhone, setFpPhone] = useState('');
+  const [fpLoading, setFpLoading] = useState(false);
+  const [fpDone, setFpDone] = useState(false);
+
+  async function handleFastpris() {
+    if (!fpPhone) return;
+    setFpLoading(true);
+    await submitLead({
+      email: '',
+      phone: fpPhone,
+      name: fpName,
+      source: 'fastpris',
+      page: `fastpris · ${service}${sqm ? ` · ${sqm} kvm` : ''}`,
+    });
+    track('lead_capture', { source: 'fastpris_widget', service });
+    setFpLoading(false);
+    setFpDone(true);
+  }
 
   // Prisuppskattning
   const estimatedPrice = useMemo(() => {
@@ -160,7 +183,7 @@ export const QuickBookingWidget: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-2.5">
             <button
               type="submit"
               className="w-full btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover py-3.5 text-base font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
@@ -168,8 +191,54 @@ export const QuickBookingWidget: React.FC = () => {
               {lang === 'EN' ? 'See exact price & book' : 'Få exakt pris & boka'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            
-            <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-medium text-text-secondary">
+
+            {/* Fastpris – fånga leadet innan avhopp */}
+            {fpDone ? (
+              <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-50 text-green-700 text-sm font-medium">
+                <ShieldCheck className="w-4 h-4" />
+                {lang === 'EN' ? 'Thanks! We will call you with a fixed price.' : 'Tack! Vi ringer dig med ett fast pris.'}
+              </div>
+            ) : !showFastpris ? (
+              <button
+                type="button"
+                onClick={() => setShowFastpris(true)}
+                className="w-full py-3 rounded-xl border border-text-primary/15 font-semibold text-text-primary hover:border-cta-hover hover:text-cta-hover transition-colors text-sm"
+              >
+                {lang === 'EN' ? 'Prefer a fixed price? We’ll call you' : 'Vill du ha fast pris? Vi ringer dig'}
+              </button>
+            ) : (
+              <div className="space-y-2 bg-bg-primary rounded-xl p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={fpName}
+                    onChange={(e) => setFpName(e.target.value)}
+                    placeholder={lang === 'EN' ? 'Name' : 'Namn'}
+                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-transparent focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/10 outline-none text-sm"
+                  />
+                  <input
+                    type="tel"
+                    value={fpPhone}
+                    onChange={(e) => setFpPhone(e.target.value)}
+                    placeholder={lang === 'EN' ? 'Phone *' : 'Telefon *'}
+                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-transparent focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/10 outline-none text-sm"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleFastpris}
+                  disabled={fpLoading}
+                  className="w-full py-2.5 bg-cta-hover text-text-primary font-bold rounded-lg text-sm hover:brightness-105 transition disabled:opacity-50"
+                >
+                  {fpLoading ? (lang === 'EN' ? 'Sending…' : 'Skickar…') : (lang === 'EN' ? 'Call me about a fixed price' : 'Ring mig om fast pris')}
+                </button>
+              </div>
+            )}
+
+            <p className="text-center text-[11px] text-text-secondary/80">
+              {lang === 'EN' ? 'Standard rate 285 kr/h – or get a fixed price.' : 'Ordinarie timpris 285 kr/h – eller få ett fast pris.'}
+            </p>
+
+            <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-text-secondary">
               <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
               <span>{lang === 'EN' ? '100% Satisfaction Guarantee. No commitment.' : '100% Nöjd-Kund Garanti. Ingen bindningstid.'}</span>
             </div>

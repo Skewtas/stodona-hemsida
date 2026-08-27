@@ -1,6 +1,7 @@
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
 import { FullBookingForm } from "../components/FullBookingForm";
+import TrustBar from "../components/TrustBar";
 import { CheckCircle2, ShieldCheck, Clock, Star } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -42,6 +43,7 @@ export default function BokaStadning() {
               >
                 {lang === 'SV' ? 'Boka städning här' : 'Book cleaning here'} →
               </a>
+              <TrustBar className="mt-6" />
             </motion.div>
 
             <motion.div

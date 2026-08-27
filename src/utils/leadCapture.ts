@@ -5,7 +5,7 @@ export interface LeadData {
   email: string;
   phone?: string;
   name?: string;
-  source: 'welcome_popup' | 'exit_intent' | 'footer_newsletter' | 'blog_lead_magnet' | 'sticky_cta';
+  source: 'welcome_popup' | 'exit_intent' | 'footer_newsletter' | 'blog_lead_magnet' | 'sticky_cta' | 'fastpris';
   page?: string;
 }
 

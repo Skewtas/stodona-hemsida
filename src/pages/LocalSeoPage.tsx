@@ -410,9 +410,12 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                 </Link>
               ))}
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2">
             <Link to="/priser" className="text-cta-hover font-medium hover:underline">
               Se priser för städning →
+            </Link>
+            <Link to="/presentkort" className="text-cta-hover font-medium hover:underline">
+              🎁 Ge bort städning som present →
             </Link>
           </div>
         </div>

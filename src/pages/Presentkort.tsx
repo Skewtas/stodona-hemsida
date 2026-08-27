@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
 import { motion } from "motion/react";
 import {
@@ -128,6 +129,24 @@ export default function Presentkort() {
     mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
   };
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "Presentkort på städning – Stodona",
+    description: "Presentkort på professionell städning i Stockholm. Ge bort ett rent hem och mer fritid.",
+    image: "https://stodona.se/stodona-stad.jpg",
+    brand: { "@type": "Brand", name: "Stodona" },
+    category: "Presentkort",
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "SEK",
+      lowPrice: "500",
+      highPrice: "3000",
+      availability: "https://schema.org/InStock",
+      url: "https://stodona.se/presentkort",
+    },
+  };
+
   return (
     <div className="flex flex-col">
       <Helmet>
@@ -144,6 +163,7 @@ export default function Presentkort() {
         <meta property="og:image" content="https://stodona.se/stodona-stad.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
       </Helmet>
 
       {/* Hero */}
@@ -171,6 +191,10 @@ export default function Presentkort() {
             <a href="#bestall" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Beställ presentkort <Gift className="w-5 h-5 ml-2" />
             </a>
+            <p className="mt-4 text-sm text-text-light/75">
+              Letar du efter en julklapp?{" "}
+              <Link to="/julklapp-stadning" className="text-cta-hover underline hover:text-white">Ge bort städning i jul →</Link>
+            </p>
             <TrustBar light className="mt-8" />
           </motion.div>
         </div>

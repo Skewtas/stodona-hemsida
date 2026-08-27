@@ -17,7 +17,6 @@ export default function JobApplicationForm({
   const [state, setState] = useState<"idle" | "submitting" | "success">("idle");
   const [role, setRole] = useState(defaultRole);
   const [cvName, setCvName] = useState("");
-  const [photoName, setPhotoName] = useState("");
   const [fileError, setFileError] = useState("");
 
   function checkFile(setName: (v: string) => void) {
@@ -54,7 +53,6 @@ export default function JobApplicationForm({
         setState("success");
         form.reset();
         setCvName("");
-        setPhotoName("");
       } else throw new Error("fel");
     } catch {
       setState("idle");
@@ -106,64 +104,31 @@ export default function JobApplicationForm({
         </div>
       )}
 
+      <div>
+        <label className={labelClass}>Namn *</label>
+        <input name="Namn" required className={inputClass} />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="sm:col-span-2">
-          <label className={labelClass}>Namn *</label>
-          <input name="Namn" required className={inputClass} />
-        </div>
         <div>
           <label className={labelClass}>E-post *</label>
           <input type="email" name="E-post" required className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Telefon *</label>
-          <input type="tel" name="Telefon" required className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Ort / område</label>
+          <label className={labelClass}>Ort</label>
           <input name="Ort" placeholder="Ex: Solna" className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Kan börja</label>
-          <input name="Kan börja" placeholder="Ex: omgående" className={inputClass} />
-        </div>
-        <div className="sm:col-span-2">
-          <label className={labelClass}>Din erfarenhet</label>
-          <textarea name="Erfarenhet" rows={3}
-            placeholder="Berätta kort om din erfarenhet som är relevant för tjänsten."
-            className={`${inputClass} resize-none`} />
-        </div>
-        <div className="sm:col-span-2">
-          <label className={labelClass}>Berätta lite om dig själv</label>
-          <textarea name="Om mig" rows={4}
-            placeholder="Vem är du, och varför vill du jobba hos Stodona?"
-            className={`${inputClass} resize-none`} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div>
-          <label className={labelClass}>Ladda upp CV (frivilligt)</label>
-          <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
-              <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
-            </span>
-            <span className="text-sm text-text-secondary truncate">{cvName || "PDF eller Word"}</span>
-            <input type="file" name="CV" accept=".pdf,.doc,.docx,.rtf,.txt,application/pdf" className="hidden" onChange={checkFile(setCvName)} />
-          </label>
-        </div>
-        <div>
-          <label className={labelClass}>Ladda upp foto (frivilligt)</label>
-          <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
-              <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
-            </span>
-            <span className="text-sm text-text-secondary truncate">{photoName || "JPG eller PNG"}</span>
-            <input type="file" name="Foto" accept="image/*" className="hidden" onChange={checkFile(setPhotoName)} />
-          </label>
-        </div>
-        {fileError && <p className="sm:col-span-2 text-red-500 text-sm">{fileError}</p>}
-        <p className="sm:col-span-2 text-xs text-text-secondary">Max 10 MB per fil.</p>
+      <div>
+        <label className={labelClass}>Ladda upp CV</label>
+        <label className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
+            <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
+          </span>
+          <span className="text-sm text-text-secondary truncate">{cvName || "PDF eller Word (max 10 MB)"}</span>
+          <input type="file" name="CV" accept=".pdf,.doc,.docx,.rtf,.txt,application/pdf" className="hidden" onChange={checkFile(setCvName)} />
+        </label>
+        {fileError && <p className="text-red-500 text-sm mt-2">{fileError}</p>}
       </div>
 
       <button type="submit" disabled={state === "submitting"}

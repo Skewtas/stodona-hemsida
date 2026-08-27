@@ -107,7 +107,7 @@ export default function Kontakt() {
                     <div>
                       <h3 className="font-bold text-lg">{lang === 'SV' ? 'Ring oss' : 'Call us'}</h3>
                       <p className="text-text-secondary">010-178 01 50</p>
-                      <p className="text-sm text-text-secondary/60 mt-1">{lang === 'SV' ? 'Vardagar: 08:00 - 17:00' : 'Weekdays: 08:00 - 17:00'}</p>
+                      <p className="text-sm text-text-secondary/60 mt-1">{lang === 'SV' ? 'Vardagar: 10:00 - 16:00' : 'Weekdays: 10:00 - 16:00'}</p>
                     </div>
                   </div>
 

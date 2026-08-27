@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 3000",
     "build": "vite build",
-    "prerender": "vite build && react-snap",
+    "postbuild": "bun scripts/indexnow.mjs --if-vercel",
+    "prerender": "vite build && react-snap && bun scripts/indexnow.mjs --if-vercel",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"

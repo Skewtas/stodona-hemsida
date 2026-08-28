@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { track } from "../utils/analytics";
 import TrustBar from "../components/TrustBar";
+import UspMarquee from "../components/UspMarquee";
 
 // OBS: exempelbelopp – sätt era egna nivåer.
 const AMOUNTS = ["500 kr", "1 000 kr", "2 000 kr", "3 000 kr"];
@@ -199,6 +200,9 @@ export default function Presentkort() {
           </motion.div>
         </div>
       </section>
+
+      {/* Snurrande USP-rad direkt under heron */}
+      <UspMarquee />
 
       {/* Occasions */}
       <section className="section-spacing bg-white">

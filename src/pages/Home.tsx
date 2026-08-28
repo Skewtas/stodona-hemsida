@@ -16,6 +16,7 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ContactPopup from "../components/ContactPopup";
+import UspMarquee from "../components/UspMarquee";
 import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
@@ -158,6 +159,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Snurrande USP-rad direkt under heron – bygger köplust */}
+      <UspMarquee />
 
       {/* 5. Tjänstekort – fullbredd, direkt under heron */}
       <section className="relative bg-white py-16 sm:py-24">

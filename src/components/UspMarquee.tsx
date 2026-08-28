@@ -18,7 +18,7 @@ export default function UspMarquee({ className = "" }: { className?: string }) {
 
   return (
     <div
-      className={`usp-marquee bg-cta-hover text-text-primary overflow-hidden border-y border-text-primary/10 ${className}`}
+      className={`usp-marquee bg-text-primary text-text-light overflow-hidden ${className}`}
       role="marquee"
       aria-label="Fördelar med att boka städning hos Stodona"
     >
@@ -29,9 +29,9 @@ export default function UspMarquee({ className = "" }: { className?: string }) {
             aria-hidden={i >= USPS.length}
             className="inline-flex items-center gap-2.5 px-6 sm:px-8 text-sm sm:text-[15px] font-semibold whitespace-nowrap shrink-0"
           >
-            <u.icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0" strokeWidth={2.2} />
+            <u.icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0 text-cta-hover" strokeWidth={2.2} />
             {u.text}
-            <span aria-hidden className="ml-4 sm:ml-6 text-text-primary/30 select-none">◆</span>
+            <span aria-hidden className="ml-4 sm:ml-6 text-cta-hover/50 select-none">◆</span>
           </span>
         ))}
       </div>

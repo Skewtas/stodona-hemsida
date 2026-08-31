@@ -145,14 +145,15 @@ export default function JobApplicationForm({
       </div>
 
       <div>
-        <label className={labelClass}>Ladda upp CV</label>
+        <label className={labelClass}>Ladda upp CV <span className="font-normal text-text-secondary">(valfritt)</span></label>
         <label className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-dashed border-text-primary/20 bg-bg-primary/60 cursor-pointer hover:border-cta-hover transition-colors">
           <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary shrink-0">
             <Upload className="w-4 h-4 text-cta-hover" /> Välj fil
           </span>
-          <span className="text-sm text-text-secondary truncate">{cvName || "PDF eller Word (max 10 MB)"}</span>
+          <span className="text-sm text-text-secondary truncate">{cvName || "Ingen fil vald"}</span>
           <input type="file" name="CV" accept=".pdf,.doc,.docx,.rtf,.txt,application/pdf" className="hidden" onChange={checkFile(setCvName)} />
         </label>
+        <p className="text-xs text-text-secondary mt-1.5">PDF eller Word, max 10 MB. Har du inget CV till hands? Sök ändå – vi hör av oss.</p>
         {fileError && <p className="text-red-500 text-sm mt-2">{fileError}</p>}
       </div>
 

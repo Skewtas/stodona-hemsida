@@ -37,26 +37,51 @@ export default function JobApplicationForm({
     e.preventDefault();
     const form = e.currentTarget;
     setState("submitting");
+    const chosen = lockRole ? defaultRole : role;
+    const fd = new FormData(form);
+    fd.append("Tjänst", chosen);
+
+    // 1) Primärt: vår egen endpoint som mejlar ansökan + CV-bilaga till info@stodona.se.
     try {
-      const fd = new FormData(form);
-      const chosen = lockRole ? defaultRole : role;
-      fd.append("Tjänst", chosen);
-      fd.append("subject", `Jobbansökan: ${chosen}`);
-      fd.append("_subject", `Jobbansökan: ${chosen}`);
-      // Ansökningar skickas till info@stodona.se (Formspree-formulärets mottagare).
+      const res = await fetch("/api/job-application", { method: "POST", body: fd });
+      if (res.ok) {
+        setState("success");
+        form.reset();
+        setCvName("");
+        return;
+      }
+      // 501 = Resend ej konfigurerad → falla tillbaka nedan. Andra fel loggas.
+      if (res.status !== 501) throw new Error(`status ${res.status}`);
+    } catch (err) {
+      // Nätverksfel eller endpoint saknas – fortsätt till fallback.
+      console.error("job-application endpoint:", err);
+    }
+
+    // 2) Fallback: skicka åtminstone kontaktuppgifterna (utan fil) till Formspree,
+    //    så en ansökan aldrig går förlorad. Sökanden ombeds mejla CV separat.
+    try {
       const res = await fetch("https://formspree.io/f/xojkdewo", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: fd,
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Namn: fd.get("Namn"),
+          "E-post": fd.get("E-post"),
+          Ort: fd.get("Ort"),
+          Tjänst: chosen,
+          _subject: `Jobbansökan: ${chosen}`,
+          OBS: "CV kunde ej bifogas automatiskt – be sökande mejla sitt CV till info@stodona.se.",
+        }),
       });
       if (res.ok) {
         setState("success");
         form.reset();
         setCvName("");
-      } else throw new Error("fel");
+        return;
+      }
+      throw new Error("formspree fallback");
     } catch {
       setState("idle");
-      alert("Något gick fel. Försök igen eller mejla oss på info@stodona.se.");
+      alert("Något gick fel. Försök igen eller mejla din ansökan direkt till info@stodona.se.");
     }
   }
 

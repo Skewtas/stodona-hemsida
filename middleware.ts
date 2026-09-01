@@ -39,9 +39,8 @@ function loginPage(showError: boolean, path: string): string {
     padding:24px; position:relative; overflow:hidden; }
   /* Startsidans video – kraftigt uppljusad bakgrund */
   .bgvid { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
-    filter:brightness(1.5) saturate(1.05) contrast(.97); }
-  .veil { position:fixed; inset:0; z-index:1; pointer-events:none;
-    background:radial-gradient(120% 90% at 50% 32%, rgba(244,241,235,.12), rgba(244,241,235,.4) 68%, rgba(244,241,235,.62) 100%); }
+    filter:brightness(1.35) saturate(1.08) contrast(.98); }
+  .veil { position:fixed; inset:0; z-index:1; pointer-events:none; background:rgba(244,241,235,.28); }
   .glow { position:fixed; z-index:1; pointer-events:none; width:60vmax; height:60vmax; left:50%; top:38%;
     transform:translate(-50%,-50%); background:radial-gradient(closest-side, rgba(200,182,166,.35), transparent 70%);
     filter:blur(30px); }

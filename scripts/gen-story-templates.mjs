@@ -42,28 +42,28 @@ function topScrim(strength = 0.6) {
 const T = [
   {
     id: "fore", cat: "Före", file: "stodona-story-fore.png", photo: "stodona_left_image.jpg",
-    svg: () => `${topScrim(0.62)}${lines(["Idag kommer", "@stodona.se"], { x: 80, y: 230, lh: 108, size: 92, fill: "#fff" })}${footer()}`,
+    svg: () => `${topScrim(0.62)}${lines(["Idag kommer", "@stodona.se"], { x: 80, y: 340, lh: 108, size: 92, fill: "#fff" })}${footer()}`,
   },
   {
     id: "under", cat: "Under", file: "stodona-story-under.png", photo: "stodona-damm.jpg",
-    svg: () => `${topScrim(0.62)}${lines(["Stodona tar hand", "om hemmet medan", "jag får tid till annat."], { x: 80, y: 210, lh: 96, size: 74, fill: "#fff" })}${footer()}`,
+    svg: () => `${topScrim(0.62)}${lines(["Stodona tar hand", "om hemmet medan", "jag får tid till annat."], { x: 80, y: 310, lh: 96, size: 74, fill: "#fff" })}${footer()}`,
   },
   {
     id: "efter", cat: "Efter", file: "stodona-story-efter.png", photo: "stodona-stad.jpg",
-    svg: () => `${topScrim(0.6)}${lines(["Den bästa känslan –", "ett helt nystädat hem."], { x: 80, y: 220, lh: 100, size: 80, fill: "#fff" })}${footer()}`,
+    svg: () => `${topScrim(0.6)}${lines(["Den bästa känslan –", "ett helt nystädat hem."], { x: 80, y: 330, lh: 100, size: 80, fill: "#fff" })}${footer()}`,
   },
   {
     id: "rekommendation", cat: "Efter", file: "stodona-story-rekommendation.png", photo: "stodona_right_image.jpg",
-    svg: () => `${topScrim(0.62)}${lines(["Så nöjd med", "resultatet från", "@stodona.se"], { x: 80, y: 220, lh: 104, size: 84, fill: "#fff" })}${footer()}`,
+    svg: () => `${topScrim(0.62)}${lines(["Så nöjd med", "resultatet från", "@stodona.se"], { x: 80, y: 310, lh: 104, size: 84, fill: "#fff" })}${footer()}`,
   },
   {
     id: "fore-efter", cat: "Före och efter", file: "stodona-story-fore-efter.png", color: BG,
     svg: () => `
-      <rect x="60" y="150" width="960" height="640" rx="28" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-dasharray="16 14"/>
-      <rect x="60" y="830" width="960" height="640" rx="28" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-dasharray="16 14"/>
-      ${lines(["FÖRE"], { x: 90, y: 250, lh: 0, size: 44, fill: ACCENT, family: "Helvetica, Arial, sans-serif", weight: "800" })}
-      ${lines(["EFTER"], { x: 90, y: 930, lh: 0, size: 44, fill: ACCENT, family: "Helvetica, Arial, sans-serif", weight: "800" })}
-      ${lines(["Lägg in dina egna", "före- och efterbilder"], { x: 540, y: 470, lh: 56, size: 40, fill: MUTED, family: "Helvetica, Arial, sans-serif", weight: "600", anchor: "middle" })}
+      <rect x="60" y="230" width="960" height="600" rx="28" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-dasharray="16 14"/>
+      <rect x="60" y="860" width="960" height="600" rx="28" fill="none" stroke="${ACCENT}" stroke-width="4" stroke-dasharray="16 14"/>
+      ${lines(["FÖRE"], { x: 90, y: 320, lh: 0, size: 44, fill: ACCENT, family: "Helvetica, Arial, sans-serif", weight: "800" })}
+      ${lines(["EFTER"], { x: 90, y: 950, lh: 0, size: 44, fill: ACCENT, family: "Helvetica, Arial, sans-serif", weight: "800" })}
+      ${lines(["Lägg in dina egna", "före- och efterbilder"], { x: 540, y: 530, lh: 56, size: 40, fill: MUTED, family: "Helvetica, Arial, sans-serif", weight: "600", anchor: "middle" })}
       ${footer()}`,
   },
   {
@@ -111,7 +111,7 @@ async function build() {
 
   // Prominent logga högst upp: färgversion (för ljus bakgrund) + vit silhuett
   // (för foto/mörk bakgrund, via dest-in på en vit platta).
-  const TOP_H = 60;
+  const TOP_H = 104;
   const logoTopColor = await sharp(join(PUB, "logotyp.png")).resize({ height: TOP_H }).png().toBuffer();
   const { width: topW } = await sharp(logoTopColor).metadata();
   const logoTopWhite = await sharp({ create: { width: topW, height: TOP_H, channels: 4, background: "#ffffff" } })
@@ -138,7 +138,7 @@ async function build() {
     const composites = [
       { input: overlay, top: 0, left: 0 },
       // Prominent logga högst upp (centrerad)
-      { input: topWhite ? logoTopWhite : logoTopColor, top: 70, left: Math.round((W - topW) / 2) },
+      { input: topWhite ? logoTopWhite : logoTopColor, top: 56, left: Math.round((W - topW) / 2) },
       // Liten logga i footer-baren (vänsterjusterad)
       { input: logo, top: 1660 + Math.round((216 - 48) / 2), left: 96 },
     ];

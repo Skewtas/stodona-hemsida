@@ -7,7 +7,8 @@
     "dev": "vite --port 3000",
     "build": "vite build",
     "postbuild": "bun scripts/indexnow.mjs --if-vercel",
-    "prerender": "vite build && react-snap && bun scripts/indexnow.mjs --if-vercel",
+    "prerender": "vite build && node scripts/prerender.mjs",
+    "build:ssg": "vite build && (playwright install chromium && node scripts/prerender.mjs || echo prerender_skipped) && bun scripts/indexnow.mjs --if-vercel",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
@@ -52,9 +53,10 @@
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "jszip": "^3.10.1",
+    "playwright": "^1.62.1",
+    "react-snap": "^1.23.0",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.1.14",
-    "react-snap": "^1.23.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2"
   }

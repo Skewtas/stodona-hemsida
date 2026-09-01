@@ -1,6 +1,6 @@
 {
   "installCommand": "bun install",
-  "buildCommand": "bun run build",
+  "buildCommand": "bun run build:ssg",
   "outputDirectory": "dist",
   "redirects": [
     { "source": "/hemstadning-stockholm", "destination": "/hemstadning", "permanent": true },

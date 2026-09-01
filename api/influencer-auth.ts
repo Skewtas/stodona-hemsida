@@ -5,7 +5,7 @@
 
 export const config = { runtime: "edge" };
 
-const PAGE_PATH = "/influencersamarbete-9f3c7a2b";
+const PAGE_PATH = "/influencersamarbete";
 const MAX_AGE = 60 * 60 * 12; // 12 timmar
 
 async function sha256hex(s: string): Promise<string> {

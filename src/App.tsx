@@ -111,7 +111,8 @@ export default function App() {
           <Route path="/bokning" element={<BokaStadning />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
           <Route path="/priser" element={<Priser />} />
-          {/* Dold influencer-sida – svårgissad URL, ej länkad, noindex */}
+          {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
+          <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />
 
           {/* Dold tjänst – barnpassning/nanny (ej länkad, noindex) */}

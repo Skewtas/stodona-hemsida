@@ -28,6 +28,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useLanguage();
   const { pathname } = useLocation();
   const isBabysittingPage = BABYSITTING_PREFIXES.some((p) => pathname.startsWith(p));
+  // Dold influencer-sida: dölj publika kampanj-overlays (15%-remsa/popup, boknotiser)
+  // så den exklusiva känslan bevaras och inte krockar med 50%-erbjudandet.
+  const isInfluencerPage = pathname.startsWith("/influencersamarbete");
 
   // På barnpassningssidorna visar vi barnpassnings-nav istället för städtjänster.
   const navItems = isBabysittingPage
@@ -402,7 +405,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
-      {!isBabysittingPage && (
+      {!isBabysittingPage && !isInfluencerPage && (
         <>
           <DiscountPopup />
           <StickyCTA />

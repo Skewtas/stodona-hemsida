@@ -32,6 +32,7 @@ const CONFIG = {
   rabatt: 50,
   handle: "@stodona.se",
   webb: "www.stodona.se",
+  masterCode: "INFL50ST", // influencerns INTERNA bokningskod – endast på denna lösenordslåsta sida
   bokaUrl: "https://boka.stodona.se",
   kontaktNamn: "din kontaktperson hos Stodona",
   kontaktEpost: "info@stodona.se",
@@ -275,6 +276,132 @@ function StoryLibrary() {
   );
 }
 
+/* —————— din personliga rabattkod (hämtas säkert från Bokis) —————— */
+function PersonalCode() {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "done">("idle");
+  const [res, setRes] = useState<null | { found: boolean; displayName?: string; followerCode?: string | null; followerCodeStatus?: string | null; uses?: number }>(null);
+  const [err, setErr] = useState("");
+  const [copiedText, setCopiedText] = useState(false);
+
+  async function lookup(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setState("loading"); setErr(""); setRes(null);
+    try {
+      const r = await fetch("/api/influencer-code", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim() }) });
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 501 || data?.error === "not_configured") {
+        setErr("Tjänsten aktiveras inom kort – hör av dig till din kontaktperson om du behöver din kod nu.");
+        setState("idle"); return;
+      }
+      if (!r.ok) throw new Error();
+      setRes(data); setState("done");
+    } catch {
+      setErr("Kunde inte hämta just nu. Försök igen eller kontakta din kontaktperson.");
+      setState("idle");
+    }
+  }
+
+  const code = res?.followerCode ?? null;
+  const status = res?.followerCodeStatus ?? null;
+  const storyText = code ? `Reklam i samarbete med ${CONFIG.handle} ✨ Boka din städning på ${CONFIG.webb} och använd min kod ${code} för 15 % rabatt.` : "";
+
+  return (
+    <section id="minkod" className="section-spacing bg-white scroll-mt-24">
+      <div className="container-custom max-w-2xl">
+        <Reveal className="text-center mb-8">
+          <span className="text-xs font-bold uppercase tracking-widest text-cta-hover">Endast för dig</span>
+          <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-3">Din personliga rabattkod</h2>
+          <p className="text-text-secondary text-lg">Ger dina följare <strong>15 % rabatt</strong>. Ange e-posten du registrerats med hos Stodona.</p>
+        </Reveal>
+
+        {state !== "done" && (
+          <form onSubmit={lookup} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="din@epost.se"
+              className="flex-1 px-4 py-3 rounded-2xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 transition-all" />
+            <button type="submit" disabled={state === "loading"} className="btn-primary bg-cta-hover text-text-primary hover:bg-text-primary hover:text-bg-primary px-7 py-3 inline-flex items-center justify-center gap-2 disabled:opacity-50">
+              {state === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Hämta min kod <ArrowRight className="w-5 h-5" /></>}
+            </button>
+          </form>
+        )}
+        {err && <p className="text-center text-amber-700 text-sm mt-4">{err}</p>}
+
+        {state === "done" && res && (
+          <div className="mt-2">
+            {!res.found && (
+              <div className="rounded-3xl bg-bg-primary p-8 text-center">
+                <p className="text-text-secondary">Vi hittade ingen influencer med den e-posten. Kontrollera att det är samma e-post som vid bokningen, eller kontakta din kontaktperson på Stodona.</p>
+                <button onClick={() => { setState("idle"); setRes(null); }} className="mt-4 text-cta-hover font-medium hover:underline">Försök igen</button>
+              </div>
+            )}
+            {res.found && !code && (
+              <div className="rounded-3xl bg-bg-primary p-8 text-center">
+                <Sparkles className="w-8 h-8 text-cta-hover mx-auto mb-3" />
+                <p className="text-text-primary font-medium">Din personliga kod skapas automatiskt vid din första bokning med influencerrabatten.</p>
+                <button onClick={() => { setState("idle"); setRes(null); }} className="mt-4 text-cta-hover font-medium hover:underline">Hämta annan</button>
+              </div>
+            )}
+            {res.found && code && (
+              <div className="rounded-3xl bg-bg-primary p-6 sm:p-8">
+                <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+                  <div>
+                    <p className="text-xs text-text-secondary mb-1">Din kod {res.displayName ? `(${res.displayName})` : ""}</p>
+                    <p className="font-display text-4xl font-bold tracking-tight">{code}</p>
+                  </div>
+                  {status === "active"
+                    ? <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-full"><Check className="w-4 h-4" /> Aktiv</span>
+                    : status === "pending_publication"
+                    ? <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-full"><AlertTriangle className="w-4 h-4" /> Väntar på godkännande</span>
+                    : status === "paused"
+                    ? <span className="text-sm font-semibold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-full">Pausad</span>
+                    : <span className="text-sm font-semibold text-text-secondary bg-stone-100 px-3 py-1.5 rounded-full">Avslutad</span>}
+                </div>
+
+                {status === "pending_publication" && (
+                  <p className="text-sm text-text-secondary mb-4">Din personliga kod är skapad och <strong>aktiveras när Stodona har godkänt din publicering</strong>.</p>
+                )}
+                {status === "active" && (
+                  <p className="text-sm text-green-700 mb-4">Din kod är aktiv och redo att delas. {typeof res.uses === "number" ? `Använd ${res.uses} gånger.` : ""}</p>
+                )}
+                {(status === "paused" || status === "cancelled") && (
+                  <p className="text-sm text-text-secondary mb-4">Kontakta din kontaktperson på Stodona om du vill aktivera koden igen.</p>
+                )}
+
+                <div className="flex flex-wrap gap-2 mb-5">
+                  <CopyChip value={code} big />
+                  <CopyChip value={CONFIG.webb} big />
+                </div>
+
+                {status === "active" && (
+                  <div>
+                    <p className="text-sm font-semibold mb-2">Färdig text att kopiera</p>
+                    <div className="rounded-2xl bg-white p-4 text-sm text-text-secondary border border-text-primary/5">{storyText}</div>
+                    <button onClick={async () => { try { await navigator.clipboard.writeText(storyText); setCopiedText(true); setTimeout(() => setCopiedText(false), 1500); } catch { /* */ } }}
+                      className="btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover hover:text-text-primary w-full py-3 mt-3 flex items-center justify-center gap-2">
+                      {copiedText ? <><Check className="w-4 h-4 text-green-500" /> Kopierad!</> : <><Copy className="w-4 h-4" /> Kopiera min rabattkod-text</>}
+                    </button>
+                  </div>
+                )}
+                <button onClick={() => { setState("idle"); setRes(null); setEmail(""); }} className="mt-4 text-cta-hover text-sm font-medium hover:underline">Hämta annan kod</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Intern bokningskod – endast på denna lösenordslåsta sida, aldrig till följare */}
+        <div className="mt-8 rounded-2xl border border-text-primary/10 bg-bg-primary/60 p-5 flex items-start gap-3">
+          <ShieldCheck className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="text-text-primary font-medium mb-1">Så bokar du med 50 % (din interna kod)</p>
+            <p className="text-text-secondary">Ange koden <CopyChip value={CONFIG.masterCode} /> vid bokning på {CONFIG.webb}. <strong>Detta är din egen kod – dela den aldrig med dina följare.</strong> Följarna använder din personliga 15 %-kod ovan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* —————— sidan —————— */
 export default function InfluencerSamarbete() {
   const [submitting, setSubmitting] = useState(false);
@@ -371,6 +498,9 @@ export default function InfluencerSamarbete() {
           </div>
         </div>
       </section>
+
+      {/* Din personliga rabattkod (hämtas säkert från Bokis) */}
+      <PersonalCode />
 
       {/* 4. Story-sektion */}
       <section className="section-spacing bg-bg-dark text-text-light relative overflow-hidden">

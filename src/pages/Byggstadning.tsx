@@ -14,6 +14,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Byggstadning() {
   const { lang } = useLanguage();
@@ -112,6 +113,17 @@ export default function Byggstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om byggstädning i Stockholm"
+        answer={<>Byggstädning är den grundliga städningen efter renovering eller nybygge – vi tar bort byggdamm, spill och rester så att lokalen blir <strong className="text-text-primary">inflyttningsklar</strong>. Stodona byggstädar bostäder och lokaler i hela Stockholm med rätt utrustning för fint byggdamm. För privatpersoner kan RUT-avdrag tillämpas.</>}
+        facts={[
+          { label: "Pris", value: "Offert efter yta" },
+          { label: "RUT-avdrag", value: "50 % (privat)" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "Ingår", value: "Byggdamm & rester" },
+        ]}
+      />
 
       {/* Content Section */}
       <section className="section-spacing">

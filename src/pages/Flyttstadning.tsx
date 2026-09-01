@@ -15,6 +15,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Flyttstadning() {
   const { lang } = useLanguage();
@@ -113,6 +114,17 @@ export default function Flyttstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om flyttstädning i Stockholm"
+        answer={<>Flyttstädning är en noggrann helstädning av bostaden inför flytt, enligt besiktnings- och mäklarstandard – kök inklusive vitvaror, badrum, fönster, garderober och alla ytor. Stodona flyttstädar i hela Stockholm med RUT-avdrag och <strong className="text-text-primary">godkänt-garanti</strong>: blir hyresvärd eller köpare inte nöjd kommer vi tillbaka utan extra kostnad.</>}
+        facts={[
+          { label: "Pris", value: "Fast pris efter kvm" },
+          { label: "RUT-avdrag", value: "50 % dras direkt" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "Garanti", value: "Godkänt-garanti" },
+        ]}
+      />
 
 
 

@@ -12,6 +12,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Fonsterputsning() {
   const { lang } = useLanguage();
@@ -66,6 +67,17 @@ export default function Fonsterputsning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om fönsterputsning i Stockholm"
+        answer={<>Fönsterputsning hos Stodona ger <strong className="text-text-primary">strimfria, klara fönster</strong> in- och utvändigt, inklusive karmar och bågar. Vi putsar villor, lägenheter och företag i Stockholm. För privatpersoner gäller RUT-avdrag, så du betalar bara halva arbetskostnaden.</>}
+        facts={[
+          { label: "Pris", value: "Efter antal fönster" },
+          { label: "RUT-avdrag", value: "50 % (privat)" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "Bindningstid", value: "Ingen" },
+        ]}
+      />
 
       {/* Content Section */}
       <section className="section-spacing">

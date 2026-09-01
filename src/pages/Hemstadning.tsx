@@ -16,6 +16,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Hemstadning() {
   const hemstadningFaq = [
@@ -155,6 +156,17 @@ export default function Hemstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om hemstädning i Stockholm"
+        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Ordinarie timpris är <strong className="text-text-primary">285 kr/h</strong>, och med RUT-avdraget betalar du bara halva arbetskostnaden. Vill du hellre ha ett fast pris ordnar vi det.</>}
+        facts={[
+          { label: "Pris", value: "285 kr/h – halva efter RUT" },
+          { label: "RUT-avdrag", value: "50 % dras direkt" },
+          { label: "Områden", value: "Stockholm med omnejd" },
+          { label: "Bindningstid", value: "Ingen" },
+        ]}
+      />
 
 
 

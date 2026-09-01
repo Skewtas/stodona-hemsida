@@ -14,6 +14,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Foretagsstadning() {
   const { lang } = useLanguage();
@@ -112,6 +113,17 @@ export default function Foretagsstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om företagsstädning i Stockholm"
+        answer={<>Företagsstädning håller kontoret rent, representativt och hälsosamt – regelbunden städning av arbetsplatser, kök, toaletter och gemensamma ytor efter era behov och tider. Stodona städar företag i hela Stockholm med tydliga rutiner, <strong className="text-text-primary">fast kontaktperson</strong> och kvalitetsuppföljning.</>}
+        facts={[
+          { label: "Pris", value: "Offert efter behov" },
+          { label: "Avtal", value: "Flexibelt, ingen bindning" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "Tider", value: "Anpassas efter er" },
+        ]}
+      />
 
       {/* Content Section */}
       <section className="section-spacing">

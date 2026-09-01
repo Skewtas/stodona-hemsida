@@ -16,6 +16,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Storstadning() {
   const { lang } = useLanguage();
@@ -114,6 +115,17 @@ export default function Storstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om storstädning i Stockholm"
+        answer={<>Storstädning är en djupare städning än den vanliga hemstädningen – vi tar det som sällan hinns med: bakom och under möbler, lister, dörrar, köksluckor, kalk och fönster. Perfekt inför högtider eller som en nystart. Utförs i hela Stockholm och ger rätt till <strong className="text-text-primary">RUT-avdrag</strong> för privatpersoner.</>}
+        facts={[
+          { label: "Pris", value: "Fast pris efter behov" },
+          { label: "RUT-avdrag", value: "50 % dras direkt" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "Ingår", value: "Djuprengöring" },
+        ]}
+      />
 
 
 

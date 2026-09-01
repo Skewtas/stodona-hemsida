@@ -13,6 +13,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import AnswerFirst from "../components/AnswerFirst";
 
 export default function Trappstadning() {
   const { lang } = useLanguage();
@@ -87,6 +88,17 @@ export default function Trappstadning() {
           </div>
         </div>
       </section>
+
+      <AnswerFirst
+        heading="Kort om trappstädning i Stockholm"
+        answer={<>Trappstädning håller fastighetens trapphus rent och välkomnande – vi städar golv, räcken, dörrar, hiss och entré enligt schema. Stodona sköter trappstädning för bostadsrättsföreningar och fastighetsägare i hela Stockholm, med <strong className="text-text-primary">fast kontaktperson</strong> och tydlig kvalitetsuppföljning.</>}
+        facts={[
+          { label: "Pris", value: "Offert per trapphus" },
+          { label: "Avtal", value: "Löpande schema" },
+          { label: "Områden", value: "Hela Stockholm" },
+          { label: "För", value: "BRF & fastighetsägare" },
+        ]}
+      />
 
       {/* Content Section */}
       <section className="section-spacing bg-white">

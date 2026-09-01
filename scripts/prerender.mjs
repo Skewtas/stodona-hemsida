@@ -3,12 +3,12 @@
 //
 // Kör: node scripts/prerender.mjs   (efter `vite build`)
 // - Startar en liten statisk server över dist/ (SPA-fallback).
-// - Driver din installerade Chrome (channel: "chrome"); på Vercel faller den
-//   tillbaka till Playwrights egen Chromium.
+// - På Vercel: puppeteer-core + @sparticuz/chromium (fungerar i byggmiljön).
+//   Lokalt: puppeteer-core + din installerade Google Chrome.
 // - Skriver dist/<route>/index.html med den färdig-renderade HTML:en.
 //
 // Routes läses från package.json → reactSnap.include (en enda källa).
-import { chromium } from "playwright";
+import puppeteer from "puppeteer-core";
 import http from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -53,22 +53,38 @@ const server = http.createServer(async (req, res) => {
 });
 await new Promise((r) => server.listen(PORT, r));
 
-let browser;
-try {
-  browser = await chromium.launch({ channel: "chrome", args: ["--no-sandbox", "--disable-setuid-sandbox"] });
-  console.log("→ använder installerad Chrome");
-} catch {
-  browser = await chromium.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
-  console.log("→ använder Playwright-Chromium");
+// Välj webbläsare: Vercel/CI → @sparticuz/chromium, lokalt → installerad Chrome.
+const serverless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+let launchOpts;
+if (serverless) {
+  const chromium = (await import("@sparticuz/chromium")).default;
+  launchOpts = {
+    args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath: await chromium.executablePath(),
+    headless: true,
+  };
+  console.log("→ Vercel: @sparticuz/chromium");
+} else {
+  const candidates = process.platform === "darwin"
+    ? ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium"]
+    : ["/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium"];
+  const exe = process.env.CHROME_PATH || candidates.find((c) => existsSync(c));
+  if (!exe) throw new Error("Ingen lokal Chrome hittad – sätt CHROME_PATH");
+  launchOpts = { executablePath: exe, args: ["--no-sandbox", "--disable-setuid-sandbox"], headless: true };
+  console.log("→ lokalt: " + exe);
 }
+
+const browser = await puppeteer.launch(launchOpts);
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const results = [];
 for (const route of ROUTES) {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const page = await browser.newPage();
   try {
+    await page.setViewport({ width: 1280, height: 900 });
     await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForSelector("#root > *", { timeout: 20000 });
-    // Scrolla igenom sidan så att whileInView-innehåll ritas ut (och lägg i DOM).
+    // Scrolla igenom sidan så att whileInView-innehåll ritas ut (och hamnar i DOM).
     await page.evaluate(() => new Promise((res) => {
       let y = 0;
       const tick = () => {
@@ -78,7 +94,7 @@ for (const route of ROUTES) {
       };
       tick();
     }));
-    await page.waitForTimeout(400); // låt seo.tsx uppdatera <head>
+    await wait(400); // låt seo.tsx uppdatera <head>
     const html = await page.content();
     const h2 = (html.match(/<h2/g) || []).length;
     results.push({ route, html });

@@ -108,6 +108,17 @@ async function build() {
   await mkdir(OUT, { recursive: true });
   const logo = await sharp(join(PUB, "logotyp.png")).resize({ height: 48 }).png().toBuffer();
   const logoMeta = await sharp(logo).metadata();
+
+  // Prominent logga högst upp: färgversion (för ljus bakgrund) + vit silhuett
+  // (för foto/mörk bakgrund, via dest-in på en vit platta).
+  const TOP_H = 60;
+  const logoTopColor = await sharp(join(PUB, "logotyp.png")).resize({ height: TOP_H }).png().toBuffer();
+  const { width: topW } = await sharp(logoTopColor).metadata();
+  const logoTopWhite = await sharp({ create: { width: topW, height: TOP_H, channels: 4, background: "#ffffff" } })
+    .composite([{ input: logoTopColor, blend: "dest-in" }])
+    .png()
+    .toBuffer();
+
   const zip = new JSZip();
 
   for (const t of T) {
@@ -122,9 +133,13 @@ async function build() {
       base = sharp({ create: { width: W, height: H, channels: 4, background: t.color || BG } });
     }
     const overlay = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${t.svg()}</svg>`);
-    // logga i footer-baren (vänsterjusterad)
+    // Vit logga på foto/mörk bakgrund, färgad på ljus bakgrund.
+    const topWhite = !!t.photo || t.color === DARK;
     const composites = [
       { input: overlay, top: 0, left: 0 },
+      // Prominent logga högst upp (centrerad)
+      { input: topWhite ? logoTopWhite : logoTopColor, top: 70, left: Math.round((W - topW) / 2) },
+      // Liten logga i footer-baren (vänsterjusterad)
       { input: logo, top: 1660 + Math.round((216 - 48) / 2), left: 96 },
     ];
     const png = await sharp(await base.png().toBuffer()).composite(composites).png({ quality: 90 }).toBuffer();

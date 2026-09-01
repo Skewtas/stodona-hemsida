@@ -24,7 +24,9 @@ export default async function handler(request: Request): Promise<Response> {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const PW = process.env.INFLUENCER_PW;
+  // Fallback så sidan funkar direkt (lösenordet är inte känsligt); kan
+  // överridas med miljövariabeln INFLUENCER_PW i Vercel.
+  const PW = process.env.INFLUENCER_PW || "StodonaCreator50!";
   let password = "";
   let next = PAGE_PATH;
 

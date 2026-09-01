@@ -39,9 +39,9 @@ function loginPage(showError: boolean, path: string): string {
     padding:24px; position:relative; overflow:hidden; }
   /* Startsidans video – kraftigt uppljusad bakgrund */
   .bgvid { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
-    filter:brightness(1.9) saturate(1.05) contrast(.96); }
+    filter:brightness(1.5) saturate(1.05) contrast(.97); }
   .veil { position:fixed; inset:0; z-index:1; pointer-events:none;
-    background:radial-gradient(120% 80% at 50% 30%, rgba(244,241,235,.35), rgba(244,241,235,.72) 70%, rgba(244,241,235,.9) 100%); }
+    background:radial-gradient(120% 90% at 50% 32%, rgba(244,241,235,.12), rgba(244,241,235,.4) 68%, rgba(244,241,235,.62) 100%); }
   .glow { position:fixed; z-index:1; pointer-events:none; width:60vmax; height:60vmax; left:50%; top:38%;
     transform:translate(-50%,-50%); background:radial-gradient(closest-side, rgba(200,182,166,.35), transparent 70%);
     filter:blur(30px); }
@@ -64,7 +64,7 @@ function loginPage(showError: boolean, path: string): string {
   button:hover { background:var(--accent); color:var(--ink); transform:translateY(-1px); box-shadow:0 10px 24px rgba(21,21,21,.18); }
   .err { color:#b91c1c; background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:12px 14px; font-size:14px; margin:0 0 20px; }
   .foot { margin:22px 0 0; font-size:12px; }
-  @media (prefers-reduced-motion: reduce) { .card { animation:none; } .bgvid { filter:brightness(1.7) saturate(1.02); } }
+  @media (prefers-reduced-motion: reduce) { .card { animation:none; } .bgvid { filter:brightness(1.45) saturate(1.02); } }
 </style>
 </head><body>
   <video class="bgvid" autoplay loop muted playsinline preload="metadata" poster="/hero-poster.jpg">

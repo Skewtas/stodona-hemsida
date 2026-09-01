@@ -119,6 +119,7 @@ export default function NyKund() {
     kids: "",
     ages: "",
     important: "",
+    hoursPerSession: "",
     startDate: "",
     other: "",
   });
@@ -148,6 +149,7 @@ export default function NyKund() {
       p.append("Barnens åldrar", form.ages);
       p.append("Viktigt att veta (allergier m.m.)", form.important);
       p.append("Önskat upplägg", plan);
+      p.append("Timmar per tillfälle", form.hoursPerSession);
       p.append("När behövs hjälp", days.join(", "));
       p.append("Önskad hjälp med", tasks.join(", "));
       p.append("Önskad start", form.startDate);
@@ -340,6 +342,10 @@ export default function NyKund() {
                         <Chip key={o} label={o} active={plan === o} onClick={() => setPlan(plan === o ? "" : o)} />
                       ))}
                     </div>
+                  </div>
+                  <div className="sm:max-w-xs">
+                    <label className={labelClass}>Ungefär hur många timmar per tillfälle?</label>
+                    <input name="hoursPerSession" value={form.hoursPerSession} onChange={update} placeholder="Ex: 3–4 timmar" className={inputClass} />
                   </div>
                   <div>
                     <span className={labelClass}>När på dygnet?</span>

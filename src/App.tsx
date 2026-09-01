@@ -26,6 +26,8 @@ const BytaStadbolag = React.lazy(() => import("./pages/BytaStadbolag"));
 const Presentkort = React.lazy(() => import("./pages/Presentkort"));
 const PresentkortMall = React.lazy(() => import("./pages/PresentkortMall"));
 const Julklapp = React.lazy(() => import("./pages/Julklapp"));
+// Dold influencer-sida (noindex, ej i meny/sitemap/sök) – nås via direktlänk.
+const InfluencerSamarbete = React.lazy(() => import("./pages/InfluencerSamarbete"));
 const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
@@ -109,6 +111,9 @@ export default function App() {
           <Route path="/bokning" element={<BokaStadning />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
           <Route path="/priser" element={<Priser />} />
+          {/* Dold influencer-sida – svårgissad URL, ej länkad, noindex */}
+          <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />
+
           {/* Dold tjänst – barnpassning/nanny (ej länkad, noindex) */}
           <Route path="/barnpassning" element={<Barnpassning />} />
           <Route path="/nanny" element={<Barnpassning />} />

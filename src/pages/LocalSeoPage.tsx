@@ -12,6 +12,9 @@ interface LocalSeoPageProps {
   description: string;
   heroImage: string;
   subAreas?: { name: string; link: string }[];
+  /** Om satt: canonical pekar hit (konsoliderar tunna service×område-sidor
+   *  till tjänstesidan). Utan värde self-canonicalas sidan (för ortssidor). */
+  canonical?: string;
 }
 
 function getPreposition(area: string): string {
@@ -19,7 +22,7 @@ function getPreposition(area: string): string {
   return paAreas.some(a => area.toLowerCase().includes(a.toLowerCase())) ? 'på' : 'i';
 }
 
-export default function LocalSeoPage({ baseService, areaName, description, heroImage, subAreas }: LocalSeoPageProps) {
+export default function LocalSeoPage({ baseService, areaName, description, heroImage, subAreas, canonical }: LocalSeoPageProps) {
   const { lang } = useLanguage();
   const { area } = useParams<{ area: string }>();
   const displayAreaName = areaName || (area ? area.charAt(0).toUpperCase() + area.slice(1) : 'Okänt område');
@@ -164,7 +167,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       <Helmet>
         <title>{displayBaseService} {prep} {displayAreaName} | Stodona – Boka med RUT-avdrag</title>
         <meta name="description" content={`${displayBaseService} ${prep} ${displayAreaName}. ${introText.substring(0, 150)}... Boka enkelt online – Stodona.`} />
-        <link rel="canonical" href={`https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`} />
+        <link rel="canonical" href={canonical || `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`} />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>

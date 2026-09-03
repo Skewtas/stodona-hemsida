@@ -188,6 +188,7 @@ export default function App() {
                   element={
                     <LocalSeoPage
                       baseService={service}
+                    canonical={`https://stodona.se/${service}`}
                       areaName={area.name}
                       description={area.description}
                       heroImage={area.heroImage}
@@ -210,6 +211,7 @@ export default function App() {
                   element={
                     <LocalSeoPage
                       baseService={service}
+                    canonical={`https://stodona.se/${service}`}
                       areaName={subArea.name}
                       description={subArea.description}
                       heroImage={subArea.heroImage}
@@ -230,6 +232,7 @@ export default function App() {
                   element={
                     <LocalSeoPage
                       baseService={service}
+                    canonical={`https://stodona.se/${service}`}
                       areaName={subArea.name}
                       description={subArea.description}
                       heroImage={subArea.heroImage}
@@ -250,6 +253,7 @@ export default function App() {
                   element={
                     <LocalSeoPage
                       baseService={service}
+                    canonical={`https://stodona.se/${service}`}
                       areaName={subArea.name}
                       description={subArea.description}
                       heroImage={subArea.heroImage}

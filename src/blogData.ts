@@ -506,5 +506,116 @@ Du slipper all administration – vi sköter allt med Skatteverket.
 
 [Boka städning med RUT-avdrag](https://boka.stodona.se) hos Stodona idag!`,
   },
-  
+  {
+    slug: 'hur-ofta-hemstadning',
+    title: 'Hur ofta bör man ha hemstädning?',
+    metaDescription: 'Hur ofta bör man ha hemstädning? Varje vecka, varannan vecka eller var fjärde? Vi hjälper dig välja rätt intervall utifrån hushåll och behov.',
+    excerpt: 'Varje vecka, varannan eller en gång i månaden? Så väljer du rätt städintervall för just ditt hem.',
+    date: '2026-09-03',
+    category: 'Guide',
+    readTime: '3 min',
+    heroImage: '/stodona-stad.jpg',
+    content: `## Hur ofta bör man ha hemstädning?
+
+De flesta hushåll trivs bäst med hemstädning **varannan vecka**. Det håller hemmet jämnt fräscht utan att kosta för mycket, och passar en vanlig familj eller ett par som jobbar. Men det rätta intervallet beror på hur ni lever.
+
+### Vanliga intervall
+
+*   **Varje vecka:** Passar större familjer, hushåll med husdjur eller allergier, och den som vill ha ett alltid genomstädat hem.
+*   **Varannan vecka:** Det vanligaste valet. En bra balans mellan pris och fräschhet för de flesta hushåll.
+*   **Var fjärde vecka:** Passar mindre hushåll, singlar eller par som själva håller efter mellan tillfällena.
+*   **Enstaka tillfällen:** När du behöver hjälp inför besök, efter en period av mycket att göra, eller vill testa.
+
+### Bra att veta om priset
+
+Ju tätare intervall, desto lägre pris per tillfälle – hemmet hålls hela tiden efter och varje städning går snabbare. Med Stodona betalar du dessutom bara halva arbetskostnaden tack vare [RUT-avdraget](https://stodona.se/rut-avdrag), och du har ingen bindningstid.
+
+### Vårt tips
+
+Börja med varannan vecka. Känns det för glest eller för tätt justerar vi enkelt – du är aldrig bunden. Läs mer om [hemstädning](https://stodona.se/hemstadning) eller [boka direkt](https://boka.stodona.se).`,
+  },
+  {
+    slug: 'vad-ingar-i-flyttstadning',
+    title: 'Vad ingår i en flyttstädning?',
+    metaDescription: 'Vad ingår i en flyttstädning? Komplett lista rum för rum – kök, badrum, fönster och alla ytor – enligt besiktningsstandard. Godkänt-garanti hos Stodona.',
+    excerpt: 'En flyttstädning är mer än en vanlig städning. Här är exakt vad som ingår, rum för rum.',
+    date: '2026-09-03',
+    category: 'Guide',
+    readTime: '3 min',
+    heroImage: '/stodona_left_image.jpg',
+    content: `## Vad ingår i en flyttstädning?
+
+En flyttstädning är en **noggrann helstädning av hela bostaden** enligt besiktnings- och mäklarstandard, så att nästa person kan flytta in i ett skinande rent hem. Den är mer omfattande än en vanlig hemstädning – här tar vi allt, även det som annars sällan städas.
+
+### Det här ingår, rum för rum
+
+*   **Kök:** Rengöring in- och utvändigt av skåp och lådor, avfettning, spis, ugn, fläkt och vitvaror (kyl/frys ur- och avfrostad), diskbänk och kakel.
+*   **Badrum & toalett:** Kalkborttagning, blandare, dusch/badkar, toalett, speglar, kakel och golvbrunn.
+*   **Alla rum:** Dammtorkning av ytor, lister, dörrar, dörrkarmar, element och garderober in- och utvändigt.
+*   **Fönster:** Putsning av fönster in- och utvändigt samt karmar och bågar.
+*   **Golv:** Dammsugning och våttorkning av samtliga golv.
+
+### Godkänt-garanti
+
+Hos Stodona ingår en **godkänt-garanti**: blir hyresvärden, köparen eller besiktningsmannen inte nöjd kommer vi tillbaka och åtgärdar utan extra kostnad. Flyttstädning ger dessutom [RUT-avdrag](https://stodona.se/rut-avdrag) för privatpersoner.
+
+Förbered dig gärna med vår [checklista inför flyttstädning](https://stodona.se/blogg/checklista-infor-flyttstadning), läs mer om [flyttstädning](https://stodona.se/flyttstadning) eller [boka direkt](https://boka.stodona.se).`,
+  },
+  {
+    slug: 'hur-fungerar-fonsterputsning',
+    title: 'Hur fungerar fönsterputsning?',
+    metaDescription: 'Hur fungerar professionell fönsterputsning? Så går det till, vad som ingår, hur ofta du bör putsa och hur RUT-avdraget gör det billigare. Guide från Stodona.',
+    excerpt: 'Så går professionell fönsterputsning till – och varför resultatet blir strimfritt.',
+    date: '2026-09-03',
+    category: 'Guide',
+    readTime: '2 min',
+    heroImage: '/fonster-stodona.jpg',
+    content: `## Hur fungerar fönsterputsning?
+
+Professionell fönsterputsning gör dina fönster **strimfria och klara in- och utvändigt** – inklusive karmar och bågar. Vi använder rätt verktyg och teknik så att resultatet håller längre än när man putsar själv med trasa och glasrengöring.
+
+### Så går det till
+
+1.  **Genomgång:** Vi räknar fönster och stämmer av eventuella svåråtkomliga partier.
+2.  **Rengöring:** Vi tar bort damm, smuts och fett från glas, karmar och bågar.
+3.  **Putsning:** Med skrapa och mopp får vi bort vatten utan att lämna strimmor.
+4.  **Kontroll:** Vi går igenom resultatet så att varje ruta blir klar.
+
+### Hur ofta bör man putsa fönster?
+
+De flesta putsar fönstren **två gånger om året** – på våren och hösten. Bor du nära en trafikerad väg eller vid havet kan det behövas oftare. Läs mer i vår guide om [hur ofta du bör putsa fönster](https://stodona.se/blogg/hur-ofta-bor-man-putsa-fonster).
+
+### Pris och RUT
+
+För privatpersoner gäller [RUT-avdrag](https://stodona.se/rut-avdrag), så du betalar bara halva arbetskostnaden. Priset beror på antal fönster och åtkomst. Läs mer om [fönsterputsning](https://stodona.se/fonsterputsning) eller [boka direkt](https://boka.stodona.se).`,
+  },
+  {
+    slug: 'hur-bokar-man-stadfirma-stockholm',
+    title: 'Hur bokar man en städfirma i Stockholm?',
+    metaDescription: 'Hur bokar man en städfirma i Stockholm? Så enkelt går det till, steg för steg – välj tjänst, få pris med RUT och boka på 60 sekunder. Guide från Stodona.',
+    excerpt: 'Att boka städning ska vara enkelt. Så här går det till, steg för steg.',
+    date: '2026-09-03',
+    category: 'Guide',
+    readTime: '2 min',
+    heroImage: '/stodona_right_image.jpg',
+    content: `## Hur bokar man en städfirma i Stockholm?
+
+Att boka en städfirma är enklare än många tror. Hos Stodona bokar du **online på cirka 60 sekunder** – du väljer tjänst och tid, ser priset direkt med RUT-avdrag och behöver inte binda dig.
+
+### Steg för steg
+
+1.  **Välj tjänst:** Hemstädning, flyttstädning, storstädning, fönsterputsning eller annan tjänst.
+2.  **Ange bostad:** Storlek (kvm) och adress, så räknas priset ut direkt.
+3.  **Välj tid:** Välj intervall (t.ex. varannan vecka) eller ett enstaka tillfälle.
+4.  **Bekräfta:** Fyll i dina uppgifter – RUT-avdraget dras automatiskt på fakturan.
+
+### Vad ska man tänka på?
+
+*   Kontrollera att företaget har **försäkring och garanti** – Stodona är ansvarsförsäkrat med nöjd-kund-garanti.
+*   Se till att **RUT-avdraget sköts åt dig** så att du bara betalar halva arbetskostnaden.
+*   Välj gärna ett bolag som erbjuder **samma team varje gång** och ingen bindningstid.
+
+Läs mer om vad du bör tänka på i [Så väljer du rätt städbolag](https://stodona.se/blogg/sa-valjer-du-ratt-stadfirma), eller [boka städning direkt](https://boka.stodona.se).`,
+  },
+
 ];

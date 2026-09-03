@@ -34,7 +34,15 @@
       "/kontakt",
       "/faq",
       "/recensioner",
-      "/blogg"
+      "/blogg",
+      "/rut-avdrag",
+      "/sa-arbetar-vi",
+      "/kvalitet-och-trygghet",
+      "/avbokning",
+      "/blogg/hur-ofta-hemstadning",
+      "/blogg/vad-ingar-i-flyttstadning",
+      "/blogg/hur-fungerar-fonsterputsning",
+      "/blogg/hur-bokar-man-stadfirma-stockholm"
     ]
   },
   "dependencies": {

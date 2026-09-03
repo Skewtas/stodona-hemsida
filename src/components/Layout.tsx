@@ -318,6 +318,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
+                <Link to="/rut-avdrag" className="hover:text-cta-hover transition-colors">RUT-avdrag</Link>
+              </li>
+              <li>
+                <Link to="/sa-arbetar-vi" className="hover:text-cta-hover transition-colors">Så arbetar vi</Link>
+              </li>
+              <li>
+                <Link to="/kvalitet-och-trygghet" className="hover:text-cta-hover transition-colors">Kvalitet &amp; trygghet</Link>
+              </li>
+              <li>
+                <Link to="/avbokning" className="hover:text-cta-hover transition-colors">Avbokning</Link>
+              </li>
+              <li>
                 <Link to="/kundportalen" className="hover:text-cta-hover transition-colors">
                   {t('footer.kundportalen', lang)}
                 </Link>

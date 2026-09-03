@@ -47,6 +47,10 @@ const Kundrecensioner = React.lazy(() => import("./pages/Kundrecensioner"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const AdminLeads = React.lazy(() => import("./pages/AdminLeads"));
 const Priser = React.lazy(() => import("./pages/Priser"));
+const RutAvdrag = React.lazy(() => import("./pages/RutAvdrag"));
+const SaArbetarVi = React.lazy(() => import("./pages/SaArbetarVi"));
+const KvalitetTrygghet = React.lazy(() => import("./pages/KvalitetTrygghet"));
+const Avbokning = React.lazy(() => import("./pages/Avbokning"));
 // Dold sida – ej länkad i meny/footer/sidkarta, noindex. Nås endast via direkt URL.
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
 const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
@@ -111,6 +115,10 @@ export default function App() {
           <Route path="/bokning" element={<BokaStadning />} />
           <Route path="/boka-stadning" element={<BokaStadning />} />
           <Route path="/priser" element={<Priser />} />
+          <Route path="/rut-avdrag" element={<RutAvdrag />} />
+          <Route path="/sa-arbetar-vi" element={<SaArbetarVi />} />
+          <Route path="/kvalitet-och-trygghet" element={<KvalitetTrygghet />} />
+          <Route path="/avbokning" element={<Avbokning />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
           <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />

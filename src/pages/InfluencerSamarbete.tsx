@@ -92,8 +92,8 @@ const SERVICES = [
 ];
 
 const STEG = [
-  { n: "1", icon: CalendarClock, title: "Välj och boka", text: "Välj någon av Stodonas tjänster och boka enligt överenskommelsen." },
-  { n: "2", icon: Sparkles, title: "Vi tar hand om jobbet", text: "Stodona utför tjänsten medan du fokuserar på annat." },
+  { n: "1", icon: CalendarClock, title: "Välj och boka", text: "Ange rabattkoden INFL50ST vid bokning. Allt är helt obundet – du kan när som helst avsluta eller pausa." },
+  { n: "2", icon: Sparkles, title: "Vi tar hand om städningen", text: "Vi sköter allt medan du fokuserar på annat." },
   { n: "3", icon: Share2, title: "Dela och få 50 %", text: "Publicera minst en story samma kalendervecka och få 50 % rabatt på tillfället." },
 ];
 
@@ -447,7 +447,7 @@ export default function InfluencerSamarbete() {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">Få <span className="italic font-normal text-cta-hover">50 % rabatt</span> på din städning</motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="text-lg sm:text-xl text-text-light/90 max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow">Boka någon av Stodonas tjänster, dela upplevelsen med dina följare och få 50 % rabatt på det aktuella tillfället.</motion.p>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="flex flex-wrap items-center justify-center gap-3">
-            <Cta to="#ansok" className="text-lg">Få 50 % rabatt <ArrowRight className="w-5 h-5" /></Cta>
+            <Cta href={CONFIG.bokaUrl} className="text-lg">Få 50 % rabatt <ArrowRight className="w-5 h-5" /></Cta>
             <Cta href={CONFIG.bokaUrl} variant="secondary" className="!text-text-light !border-white/40 hover:!bg-white hover:!text-text-primary text-lg">Boka din städning</Cta>
           </motion.div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.7 }} className="text-sm text-text-light/70 mt-5">Gäller alla våra tjänster enligt överenskommelse.</motion.p>
@@ -493,7 +493,7 @@ export default function InfluencerSamarbete() {
           </Reveal>
           <StepsProcess />
           <div className="text-center mt-12">
-            <Cta to="#ansok">Påbörja samarbetet <ArrowRight className="w-5 h-5" /></Cta>
+            <Cta href={CONFIG.bokaUrl}>Påbörja samarbetet <ArrowRight className="w-5 h-5" /></Cta>
             <div className="mt-4"><button onClick={() => scrollTo("villkor")} className="text-sm text-cta-hover font-medium hover:underline">Läs publiceringsvillkoren</button></div>
           </div>
         </div>
@@ -546,7 +546,7 @@ export default function InfluencerSamarbete() {
           <Reveal>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">Redo för ett renare hem till halva priset?</h2>
             <p className="text-text-light/85 text-lg mb-8">Välj en tjänst, dela din upplevelse och få 50 % rabatt på det överenskomna tillfället.</p>
-            <div className="flex flex-wrap justify-center gap-3"><Cta href={CONFIG.bokaUrl} className="text-lg">Boka och få 50 % <ArrowRight className="w-5 h-5" /></Cta><Cta to="#ansok" variant="light">Påbörja samarbetet</Cta></div>
+            <div className="flex flex-wrap justify-center gap-3"><Cta href={CONFIG.bokaUrl} className="text-lg">Boka och få 50 % <ArrowRight className="w-5 h-5" /></Cta><Cta href={CONFIG.bokaUrl} variant="light">Påbörja samarbetet</Cta></div>
             <p className="text-xs text-text-light/60 mt-5">Rabatten förutsätter att publiceringsvillkoren uppfylls.</p>
           </Reveal>
         </div>
@@ -563,7 +563,7 @@ export default function InfluencerSamarbete() {
           <div className="rounded-2xl bg-white/70 border border-cta-hover/30 p-5 text-center mb-6"><p className="text-text-primary"><strong>Exempel:</strong> Om tjänsten utförs på en tisdag måste storyn publiceras senast <strong>söndag samma vecka</strong>.</p></div>
           <div className="rounded-3xl border-2 border-text-primary bg-text-primary text-text-light p-6 sm:p-8 text-center mb-8"><AlertTriangle className="w-7 h-7 text-cta-hover mx-auto mb-3" /><p className="text-xl sm:text-2xl font-bold leading-snug">Om en godkänd story inte publiceras samma kalendervecka gäller ordinarie pris för det aktuella tillfället.</p></div>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">{RULE_POINTS.map((p, i) => (<li key={i} className="flex items-start gap-3 rounded-2xl bg-white p-4"><Info className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /><span className="text-text-primary text-sm">{p}</span></li>))}</ul>
-          <div className="text-center mt-8"><Cta to="#ansok">Jag vill samarbeta <Handshake className="w-5 h-5" /></Cta></div>
+          <div className="text-center mt-8"><Cta href={CONFIG.bokaUrl}>Jag vill samarbeta <Handshake className="w-5 h-5" /></Cta></div>
         </div>
       </section>
 
@@ -573,7 +573,7 @@ export default function InfluencerSamarbete() {
           <Reveal>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Ditt nästa Stodona-tillfälle till 50 % rabatt</h2>
             <p className="text-text-secondary text-lg mb-8">Påbörja samarbetet, välj en tjänst och dela upplevelsen med dina följare.</p>
-            <div className="flex flex-wrap justify-center gap-3"><Cta to="#ansok" className="text-lg">Få 50 % rabatt <ArrowRight className="w-5 h-5" /></Cta><Cta href={CONFIG.bokaUrl} variant="secondary">Boka din tjänst</Cta></div>
+            <div className="flex flex-wrap justify-center gap-3"><Cta href={CONFIG.bokaUrl} className="text-lg">Få 50 % rabatt <ArrowRight className="w-5 h-5" /></Cta><Cta href={CONFIG.bokaUrl} variant="secondary">Boka din tjänst</Cta></div>
             <p className="text-xs text-text-secondary mt-5">Rabatten gäller det aktuella, överenskomna tjänstetillfället när publiceringsvillkoren är uppfyllda.</p>
           </Reveal>
         </div>
@@ -618,9 +618,9 @@ export default function InfluencerSamarbete() {
 
       {/* Fast mobil-CTA */}
       {!done && (
-        <button onClick={() => scrollTo("ansok")} className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-cta-hover text-text-primary font-bold py-3.5 flex items-center justify-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+        <a href={CONFIG.bokaUrl} target="_blank" rel="noopener" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-cta-hover text-text-primary font-bold py-3.5 flex items-center justify-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
           <Sparkles className="w-5 h-5" /> Få 50 % rabatt
-        </button>
+        </a>
       )}
     </div>
   );

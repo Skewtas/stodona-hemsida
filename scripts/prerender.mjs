@@ -125,9 +125,11 @@ async function renderRoute(route) {
     // animation inte hann bli klar innan snapshotten fryses annars in som OSYNLIGA
     // i den statiska HTML:en – besökare utan (eller före) JS ser en tom sida.
     // Vi rensar därför bort kvarvarande initial-styles före capture.
-    const unhidden = await page.evaluate(() => {
-      // Frys rAF först. Annars hinner motion skriva tillbaka sitt initial-läge
-      // mellan städningen och capturen på sidor där animationen är mitt i steget.
+    // Städning OCH serialisering i samma synkrona block. Delas de upp hinner
+    // React rendera om däremellan och sätta tillbaka opacity: 0 på enstaka
+    // sektioner (syntes på /faq och /recensioner).
+    const { unhidden, html } = await page.evaluate(() => {
+      // Frys rAF så motion inte kan skriva tillbaka sitt initial-läge.
       window.requestAnimationFrame = () => 0;
       let n = 0;
       for (const el of document.querySelectorAll('[style*="opacity"]')) {
@@ -140,10 +142,8 @@ async function renderRoute(route) {
         if (!el.getAttribute('style')) el.removeAttribute('style');
         n++;
       }
-      return n;
+      return { unhidden: n, html: '<!DOCTYPE html>' + document.documentElement.outerHTML };
     });
-
-    const html = await page.content();
     const h2 = (html.match(/<h2/g) || []).length;
     const stillHidden = (html.match(/opacity:\s*0(?!\.)/g) || []).length;
     results.push({ route, html });

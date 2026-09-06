@@ -1,6 +1,8 @@
 // Centralized lead capture utility
 // Currently sends to API endpoint, can be swapped to Timewave later
 
+import { track } from './analytics';
+
 export interface LeadData {
   email: string;
   phone?: string;
@@ -24,6 +26,10 @@ export async function submitLead(data: LeadData): Promise<{ success: boolean; me
     });
 
     if (response.ok) {
+      // GA4-konvertering. Loggas här i stället för i varje formulär, så att
+      // ingen lead-källa kan glömmas bort (footer och blogg saknade tidigare
+      // spårning helt).
+      track('lead_capture', { source: data.source });
       return { success: true, message: 'Tack! Vi hör av oss snart.' };
     }
     return { success: false, message: 'Något gick fel. Försök igen.' };

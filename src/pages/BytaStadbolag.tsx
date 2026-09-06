@@ -21,7 +21,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { submitLead } from "../utils/leadCapture";
-import { track } from "../utils/analytics";
 import TrustBar from "../components/TrustBar";
 
 const SIGNS = [
@@ -81,7 +80,6 @@ export default function BytaStadbolag() {
       source: "byta_stadbolag",
       page: `byta städbolag – ${form.reason || "ingen orsak angiven"}`.slice(0, 200),
     });
-    track("lead_capture", { source: "byta_stadbolag" });
     setLoading(false);
     setDone(true);
   }

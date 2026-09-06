@@ -37,7 +37,6 @@ export const QuickBookingWidget: React.FC = () => {
       source: 'fastpris',
       page: `fastpris · ${service}${sqm ? ` · ${sqm} kvm` : ''}`,
     });
-    track('lead_capture', { source: 'fastpris_widget', service });
     setFpLoading(false);
     setFpDone(true);
   }

@@ -10,7 +10,31 @@ function initials(name: string) {
     .join("");
 }
 
+// Vad som faktiskt görs innan en barnvakt möter en familj. Visas så länge
+// NANNIES är tom – vi presenterar hellre processen än påhittade personer.
+const VETTING = [
+  {
+    title: "Personlig intervju",
+    text: "Alla söker till oss, ingen headhuntas via annons. Vi träffar varje person och går igenom erfarenhet, motivation och hur de ser på barn.",
+  },
+  {
+    title: "Referenser tas",
+    text: "Vi ringer tidigare familjer och arbetsgivare. Kan vi inte nå någon som kan gå i god för personen, går hen inte vidare.",
+  },
+  {
+    title: "Utdrag ur belastningsregistret",
+    text: "Utdrag krävs innan första uppdraget – utan undantag, oavsett hur bra intervjun gick.",
+  },
+  {
+    title: "HLR och första hjälpen för barn",
+    text: "Alla ska kunna agera om något händer. Utbildningen är ett krav, inte ett plus i kanten.",
+  },
+];
+
 export default function NannyTeam() {
+  // Fylls NANNIES med riktiga barnvakter visas profilerna i stället.
+  const hasProfiles = NANNIES.length > 0;
+
   return (
     <section className="section-spacing bg-bg-primary">
       <div className="container-custom">
@@ -22,16 +46,38 @@ export default function NannyTeam() {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-white text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
-            Möt några av våra barnvakter
+            {hasProfiles ? "Möt några av våra barnvakter" : "Så väljer vi våra barnvakter"}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Riktiga människor. Genuin omtanke.
+            {hasProfiles ? "Riktiga människor. Genuin omtanke." : "Fyra steg innan någon får komma hem till er"}
           </h2>
           <p className="text-text-secondary text-lg">
-            Varje barnvakt är personligt utvald för sin värme, erfarenhet och
-            kärlek till barn. Här är ett smakprov på teamet.
+            {hasProfiles
+              ? "Varje barnvakt är personligt utvald för sin värme, erfarenhet och kärlek till barn. Här är ett smakprov på teamet."
+              : "Vi tar inte in barnvakter via annons och matchning på måfå. Varje person går igenom samma process innan hen möter en familj."}
           </p>
         </motion.div>
+
+        {!hasProfiles && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {VETTING.map((step, i) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="bg-white rounded-3xl p-7 border border-text-primary/5 shadow-sm"
+              >
+                <div className="w-10 h-10 rounded-full bg-cta-hover/15 text-cta-hover font-bold flex items-center justify-center mb-4">
+                  {i + 1}
+                </div>
+                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                <p className="text-text-secondary leading-relaxed">{step.text}</p>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {NANNIES.map((n, i) => (

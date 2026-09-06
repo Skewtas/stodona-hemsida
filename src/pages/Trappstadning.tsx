@@ -37,10 +37,14 @@ export default function Trappstadning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/Trappstadning stodona.jpg" 
-            alt="Trappstädning Stockholm" 
+          <img
+            src="/Trappstadning stodona.jpg"
+            alt="Trappstädning Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="1536"
+            height="1024"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">
@@ -110,10 +114,13 @@ export default function Trappstadning() {
                 {lang === 'SV' ? 'Professionell trappstädning för BRF & Fastighetsägare' : 'Professional staircase cleaning for housing associations & property owners'}
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
-                <img 
-                  src="/Trappstadning stodona.jpg" 
-                  alt="Trappstädning i Stockholm" 
+                <img
+                  src="/Trappstadning stodona.jpg"
+                  alt="Trappstädning i Stockholm"
                   className="w-full h-full object-cover"
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

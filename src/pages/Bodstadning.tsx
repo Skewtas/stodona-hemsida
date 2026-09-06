@@ -36,10 +36,14 @@ export default function Bodstadning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/Bodstadning stodona.jpg" 
-            alt="Bodstädning Stockholm" 
+          <img
+            src="/Bodstadning stodona.jpg"
+            alt="Bodstädning Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="1536"
+            height="1024"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">
@@ -92,10 +96,13 @@ export default function Bodstadning() {
                 {lang === 'SV' ? 'Löpande Bodstädning i Stockholm' : 'Ongoing Site Cabin Cleaning'}
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
-                <img 
-                  src="/Bodstadning stodona.jpg" 
-                  alt="Bodstädning i Stockholm" 
+                <img
+                  src="/Bodstadning stodona.jpg"
+                  alt="Bodstädning i Stockholm"
                   className="w-full h-full object-cover"
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

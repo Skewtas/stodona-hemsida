@@ -36,10 +36,14 @@ export default function Fonsterputsning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/fonster-stodona.jpg" 
-            alt="Fönsterputsning Stockholm" 
+          <img
+            src="/fonster-stodona.jpg"
+            alt="Fönsterputsning Stockholm"
             className="w-full h-full object-cover opacity-30"
+            width="1366"
+            height="768"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">
@@ -89,10 +93,13 @@ export default function Fonsterputsning() {
                 Professionell fönsterputsning
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
-                <img 
-                  src="/fonster-stodona.jpg" 
-                  alt="Fönsterputsning i Stockholm" 
+                <img
+                  src="/fonster-stodona.jpg"
+                  alt="Fönsterputsning i Stockholm"
                   className="w-full h-full object-cover"
+                  width="1366"
+                  height="768"
+                  loading="lazy"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

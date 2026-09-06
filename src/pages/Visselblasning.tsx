@@ -59,10 +59,14 @@ export default function Visselblasning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/stodona_right_image.jpg" 
-            alt="Visselblåsning Stodona Stockholm" 
+          <img
+            src="/stodona_right_image.jpg"
+            alt="Visselblåsning Stodona Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="800"
+            height="1600"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">

@@ -51,7 +51,15 @@ export default function BloggPost() {
       {/* Hero */}
       <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden bg-bg-primary">
         <div className="absolute inset-0 w-full h-full z-0">
-          <img src={post.heroImage} alt={post.title} className="w-full h-full object-cover opacity-30" />
+          <img
+            src={post.heroImage}
+            alt={post.title}
+            className="w-full h-full object-cover opacity-30"
+            width="640"
+            height="640"
+            loading="eager"
+            fetchPriority="high"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/80 to-bg-primary"></div>
         </div>
         <div className="container-custom relative z-10 max-w-3xl mx-auto">

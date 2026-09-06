@@ -38,10 +38,14 @@ export default function Foretagsstadning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/kontorsstadning.jpg" 
-            alt="Företagsstädning Stockholm" 
+          <img
+            src="/kontorsstadning.jpg"
+            alt="Företagsstädning Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="1536"
+            height="1024"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">
@@ -135,10 +139,13 @@ export default function Foretagsstadning() {
                 Anpassad företagsstädning
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
-                <img 
-                  src="/kontorsstadning.jpg" 
-                  alt="Företagsstädning i Stockholm" 
+                <img
+                  src="/kontorsstadning.jpg"
+                  alt="Företagsstädning i Stockholm"
                   className="w-full h-full object-cover"
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

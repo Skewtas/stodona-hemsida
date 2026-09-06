@@ -14,6 +14,9 @@ export default function Logo({
           src="/logotyp.png?v=2"
           alt="Stodona"
           className="h-8 md:h-12 object-contain"
+          width="2000"
+          height="567"
+          loading="lazy"
         />
       </div>
     );
@@ -26,6 +29,9 @@ export default function Logo({
         src="/logotyp.png?v=2"
         alt="Stodona"
         className="h-8 md:h-12 object-contain brightness-0 invert"
+        width="2000"
+        height="567"
+        loading="lazy"
       />
       {/* Colored leaf overlay - clipped to show only the right part */}
       <img
@@ -33,6 +39,9 @@ export default function Logo({
         alt=""
         className="h-8 md:h-12 object-contain absolute top-0 left-0"
         style={{ clipPath: "inset(0 0 0 82%)" }}
+        width="2000"
+        height="567"
+        loading="lazy"
       />
     </div>
   );

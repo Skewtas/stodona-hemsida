@@ -62,7 +62,13 @@ export default function JobbAnnons() {
 
       {/* Hero */}
       <section className="relative pt-32 pb-16 overflow-hidden text-text-light">
-        <img src={job.image} alt="" className="absolute inset-0 w-full h-full object-cover z-0" />
+        <img
+          src={job.image}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          loading="eager"
+          fetchPriority="high"
+        />
         <div className="absolute inset-0 z-0 bg-gradient-to-tr from-bg-dark/92 via-bg-dark/70 to-bg-dark/45" />
         <div aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-80 h-80 rounded-full bg-cta-hover/20 blur-3xl z-0" />
 

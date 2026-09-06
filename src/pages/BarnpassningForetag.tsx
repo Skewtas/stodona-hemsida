@@ -110,7 +110,15 @@ export default function BarnpassningForetag() {
       {/* Hero */}
       <section className="relative min-h-[80vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
         <div className="absolute inset-0 z-0">
-          <img src="/familj-stodona.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src="/familj-stodona.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            width="1024"
+            height="1536"
+            loading="eager"
+            fetchPriority="high"
+          />
           <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/92 via-bg-dark/70 to-bg-dark/40"></div>
         </div>
 

@@ -20,10 +20,14 @@ export default function OmOss() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/familj-stodona.jpg" 
-            alt="Om Stodona Stockholm" 
+          <img
+            src="/familj-stodona.jpg"
+            alt="Om Stodona Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="1024"
+            height="1536"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">

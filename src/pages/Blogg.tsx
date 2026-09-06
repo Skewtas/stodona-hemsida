@@ -53,6 +53,9 @@ export default function Blogg() {
                       src={post.heroImage}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      width="640"
+                      height="640"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-6">

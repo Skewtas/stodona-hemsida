@@ -99,6 +99,7 @@ export default function NannyTeam() {
                     src={n.image}
                     alt={n.name}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
                   />
                 ) : (
                   <span className="text-6xl font-bold text-white/90 font-display drop-shadow">

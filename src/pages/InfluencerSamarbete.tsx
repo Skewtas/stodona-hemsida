@@ -243,7 +243,12 @@ function StoryLibrary() {
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-3xl overflow-hidden max-w-3xl w-full max-h-[90vh] overflow-y-auto grid grid-cols-1 sm:grid-cols-2">
               <div className="bg-bg-primary p-5 flex items-center justify-center">
-                <img src={open.file} alt={`Story-mall: ${open.name}`} className="max-h-[60vh] w-auto rounded-2xl shadow-lg" />
+                <img
+                  src={open.file}
+                  alt={`Story-mall: ${open.name}`}
+                  className="max-h-[60vh] w-auto rounded-2xl shadow-lg"
+                  loading="lazy"
+                />
               </div>
               <div className="p-6 relative">
                 <button onClick={() => setOpen(null)} className="absolute top-4 right-4 text-text-secondary hover:text-text-primary"><X className="w-6 h-6" /></button>
@@ -542,7 +547,15 @@ export default function InfluencerSamarbete() {
 
       {/* 6. Mid-page skärmbred CTA */}
       <section className="relative py-24 sm:py-28 overflow-hidden text-text-light">
-        <img src="/stodona-damm.jpg" alt="" aria-hidden loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+        <img
+          src="/stodona-damm.jpg"
+          alt=""
+          hidden
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+          width="1366"
+          height="768"
+        />
         <div className="absolute inset-0 bg-bg-dark/80" />
         <motion.div aria-hidden animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 10, repeat: Infinity }} className="absolute top-10 left-1/4 w-80 h-80 rounded-full bg-cta-hover/25 blur-3xl" />
         <div className="container-custom relative z-10 text-center max-w-2xl">

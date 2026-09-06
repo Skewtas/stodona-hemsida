@@ -81,10 +81,14 @@ export default function Hemstadning() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/stodona_right_image.jpg" 
-            alt="Hemstädning Stockholm" 
+          <img
+            src="/stodona_right_image.jpg"
+            alt="Hemstädning Stockholm"
             className="w-full h-full object-cover opacity-40"
+            width="800"
+            height="1600"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         <div className="container-custom relative z-10">
@@ -180,11 +184,13 @@ export default function Hemstadning() {
                 Vad ingår i vår hemstädning?
               </h2>
               <div className="mb-8 rounded-2xl overflow-hidden aspect-video shadow-lg">
-                <img 
-                  src="/stodona_right_image.jpg" 
-                  alt="Noggrann hemstädning med hotellkänsla i Stockholm av Stodona" 
+                <img
+                  src="/stodona_right_image.jpg"
+                  alt="Noggrann hemstädning med hotellkänsla i Stockholm av Stodona"
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  width="800"
+                  height="1600"
                 />
               </div>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">

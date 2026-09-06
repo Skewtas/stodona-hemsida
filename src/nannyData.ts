@@ -18,7 +18,7 @@ export interface Nanny {
 // ─────────────────────────────────────────────────────────────────────────
 // Alla priser är KUNDENS pris EFTER RUT-avdrag (50 % redan avdraget).
 //
-//   PROVA PÅ    3 timmar          = 499 kr efter RUT (engång, per familj)
+//   PROVA PÅ    3 timmar          = 799 kr efter RUT (engång, per familj)
 //   FLEX        0 fasta tim/mån   = 269 kr/tim efter RUT
 //   MINI        8 tim/mån         = 229 kr/tim  → 1 832 kr/mån
 //   FAMILJ      16 tim/mån        = 209 kr/tim  → 3 344 kr/mån   (MEST POPULÄR)
@@ -45,7 +45,7 @@ export interface NannyPlan {
 
 export const NANNY_TRIAL = {
   hours: 3,
-  price: 499, // kr efter RUT
+  price: 799, // kr efter RUT
   cta: "Prova barnpassning",
 };
 

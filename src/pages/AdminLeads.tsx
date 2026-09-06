@@ -58,12 +58,19 @@ export default function AdminLeads() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/lead?password=${encodeURIComponent(pwd)}`);
+      // Lösenordet går i Authorization-headern – aldrig i URL:en, som annars
+      // sparas i historik, serverloggar och skickas vidare i Referer.
+      const res = await fetch('/api/lead', {
+        headers: { Authorization: `Bearer ${pwd}` },
+      });
       const data = await res.json();
       if (res.ok) {
         setLeads(data.leads || []);
         setAuthenticated(true);
         sessionStorage.setItem('leads-pwd', pwd);
+      } else if (res.status === 503) {
+        setError('LEADS_ADMIN_PASSWORD är inte satt i Vercel.');
+        setAuthenticated(false);
       } else {
         setError('Fel lösenord');
         setAuthenticated(false);

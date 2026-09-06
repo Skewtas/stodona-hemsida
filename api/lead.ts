@@ -18,21 +18,40 @@ async function kvRequest(url: string, token: string, command: string[]) {
   return res.json();
 }
 
+// Jämförelse i konstant tid så att svarstiden inte avslöjar hur många tecken
+// av lösenordet som stämmer.
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 export default async function handler(request: Request) {
   const KV_URL = process.env.KV_REST_API_URL;
   const KV_TOKEN = process.env.KV_REST_API_TOKEN;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const ADMIN_PASSWORD = process.env.LEADS_ADMIN_PASSWORD || 'stodona2026';
+  const ADMIN_PASSWORD = process.env.LEADS_ADMIN_PASSWORD;
 
-  // GET: Retrieve leads
+  // GET: Retrieve leads (admin only)
   if (request.method === 'GET') {
-    const url = new URL(request.url);
-    const password = url.searchParams.get('password');
+    // Fail closed: utan satt lösenord i miljön går endpointen inte att öppna alls.
+    if (!ADMIN_PASSWORD) {
+      return new Response(
+        JSON.stringify({ error: 'LEADS_ADMIN_PASSWORD saknas i miljön' }),
+        { status: 503, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
+      );
+    }
 
-    if (password !== ADMIN_PASSWORD) {
+    // Lösenordet skickas i header – aldrig i query-strängen, som annars hamnar
+    // i serverloggar, proxyloggar och Referer-headers.
+    const auth = request.headers.get('authorization') || '';
+    const password = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+
+    if (!safeEqual(password, ADMIN_PASSWORD)) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
       });
     }
 
@@ -42,7 +61,7 @@ export default async function handler(request: Request) {
         const leads = (result.result || []).map((item: string) => JSON.parse(item));
         return new Response(JSON.stringify({ leads, count: leads.length }), {
           status: 200,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         });
       } catch (error) {
         console.error('KV read error:', error);
@@ -52,7 +71,7 @@ export default async function handler(request: Request) {
     // Fallback: return empty
     return new Response(JSON.stringify({ leads: [], count: 0, note: 'KV not configured' }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   }
 

@@ -49,10 +49,10 @@ const services = [
   },
   {
     icon: BookOpen,
-    title: "Läxhjälp",
-    text: "Stöttande läxhjälp och pedagogisk lek som gör lärandet roligt.",
+    title: "Stöd med läxorna",
+    text: "Barnvakten sitter med när läxorna ska göras – en naturlig del av passningen, inte något ni bokar separat.",
     img: "/tjanst-laxhjalp.jpg",
-    alt: "Barn som får läxhjälp av sin barnvakt",
+    alt: "Barn som sitter med sina läxor tillsammans med sin barnvakt",
   },
   {
     icon: Utensils,
@@ -91,7 +91,7 @@ const faqs = [
   },
   {
     q: "Gäller RUT-avdrag för barnpassning?",
-    a: "Ja. Barnpassning i hemmet och hämtning eller lämning på förskola och skola är RUT-berättigat, så du betalar 50 % av arbetskostnaden. Stodona drar av det direkt på fakturan och sköter administrationen mot Skatteverket. Läxhjälp och undervisning omfattas däremot inte av RUT.",
+    a: "Ja. Barnpassning i hemmet och hämtning eller lämning på förskola och skola är RUT-berättigat, så du betalar 50 % av arbetskostnaden. Stodona drar av det direkt på fakturan och sköter administrationen mot Skatteverket. Vi säljer inte läxhjälp som egen tjänst – att barnvakten sitter med vid läxorna ingår i passningen. Ren undervisning är däremot något annat och omfattas inte av RUT.",
   },
   {
     q: "Vad är skillnaden mellan barnvakt och nanny?",

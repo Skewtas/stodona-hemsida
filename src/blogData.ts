@@ -717,7 +717,7 @@ Vill du bara testa först kostar ett prova-på-pass på **3 timmar 799 kr** efte
 
 *   **Hur ofta du bokar.** Det här är den stora faktorn. Ett fast schema är billigare per timme än enstaka kvällar, eftersom barnvakten kan planera sin vecka.
 *   **Om du använder RUT.** Utan RUT-avdrag blir kostnaden dubbelt så hög. Se nästa avsnitt.
-*   **Uppdragets innehåll.** Ren barnpassning, hämtning från förskola och enklare måltider ingår. Läxhjälp och undervisning är en annan sak – de omfattas inte av RUT.
+*   **Uppdragets innehåll.** Barnpassning, hämtning från förskola, enklare måltider och att sitta med vid läxorna ingår i timpriset – vi säljer inga tilläggstjänster ovanpå.
 
 ### Vad drar RUT av?
 
@@ -762,7 +762,7 @@ Men allt en barnvakt gör omfattas inte. Här är gränsdragningen.
 *   **Läxhjälp och undervisning.** Hjälp med läxor togs bort ur RUT 2015 och räknas som undervisning, inte hushållsarbete.
 *   **Ren transport** där barnpassning inte ingår.
 
-Det betyder inte att en barnvakt inte får sitta med vid köksbordet när läxan ska göras. Men den delen kan inte faktureras med RUT-avdrag, och ett städbolag som påstår något annat gör dig en otjänst – det är du som kund som blir ansvarig om Skatteverket underkänner avdraget.
+Här är gränsen viktig att förstå rätt. Att barnvakten sitter med vid köksbordet när läxan ska göras är en naturlig del av barnpassningen – det är så vi jobbar, och det är inget vi tar separat betalt för. Det som faller utanför RUT är **läxhjälp som köpt tjänst**, alltså när undervisning är det du betalar för. Säljer någon undervisningstimmar med RUT-avdrag ska du vara vaksam: det är du som kund som blir ansvarig om Skatteverket underkänner avdraget.
 
 ### Så mycket sparar du
 

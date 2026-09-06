@@ -32,7 +32,7 @@ const dayOptions = ["Vardagar dagtid", "Vardagar kväll", "Helger", "Oregelbunde
 const taskOptions = [
   "Barnpassning i hemmet",
   "Hämtning & lämning",
-  "Läxhjälp",
+  "Stöd med läxorna",
   "Matlagning & mellanmål",
   "Lek & aktiviteter",
   "Lättare hushållssysslor",

@@ -152,7 +152,7 @@ export const JOBS: Job[] = [
       "Som barnvakt tar du hand om barn i familjers hem med värme, närvaro och ansvar. Du hjälper till med allt från lek och läxor till hämtning och enklare måltider. Alla våra barnvakter är noggrant utvalda och kontrollerade för familjernas trygghet.",
     tasks: [
       "Barnpassning i familjens hem, dag eller kväll",
-      "Lek, aktiviteter och läxhjälp",
+      "Lek, aktiviteter och stöd med läxorna",
       "Hämtning och lämning vid behov",
       "Enklare måltider och rutiner",
     ],

@@ -19,6 +19,7 @@ import ContactPopup from "../components/ContactPopup";
 import UspMarquee from "../components/UspMarquee";
 import { useSearchParams } from "react-router-dom";
 import { bookingUrl } from "../utils/bookingUrl";
+import HeroVideo from "../components/HeroVideo";
 
 export default function Home() {
   const { lang } = useLanguage();
@@ -73,17 +74,11 @@ export default function Home() {
       <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden text-text-light">
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-full z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
+          <HeroVideo
+            src="/stodona-hero.mp4"
             poster="/hero-poster.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="/stodona-hero.mp4" type="video/mp4" />
-          </video>
+            alt="Nystädat sovrum med uppbäddad säng"
+          />
           {/* Lättare gradient-overlay – mörkast nedåt vänster där texten ligger, ljusare uppåt höger så videon syns */}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/30 to-black/10"></div>
         </div>
@@ -304,6 +299,8 @@ export default function Home() {
                   className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                   loading="lazy"
+                  width="1024"
+                  height="1536"
                 />
               </div>
             </motion.div>

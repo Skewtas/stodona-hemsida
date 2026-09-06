@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "../seo";
+import HeroVideo from "../components/HeroVideo";
 import { motion } from "motion/react";
 import {
   Baby,
@@ -180,15 +181,12 @@ export default function NyKund() {
       <section className="relative bg-bg-dark text-text-light pt-32 pb-20 overflow-hidden">
         {/* Videobakgrund med gradient-overlay så texten alltid är läsbar */}
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
+          <HeroVideo
+            src="/barnpassning-familj.mp4"
+            poster="/barnpassning-familj-poster.jpg"
+            alt="Familj hemma tillsammans med sin barnvakt"
             className="absolute inset-0 w-full h-full object-cover brightness-110"
-          >
-            <source src="/barnpassning-familj.mp4" type="video/mp4" />
-          </video>
+          />
           {/* Lätt skugga bara där texten ligger (nedre vänster) så videon förblir ljus */}
           <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/55 via-bg-dark/20 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/45 via-transparent to-transparent" />

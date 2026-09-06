@@ -7,6 +7,7 @@ import NannyPricing from "../components/NannyPricing";
 import NannyTrial from "../components/NannyTrial";
 import NannyWizard from "../components/NannyWizard";
 import AnswerFirst from "../components/AnswerFirst";
+import HeroVideo from "../components/HeroVideo";
 import { NANNY_PLANS, NANNY_TRIAL as NANNY_TRIAL_OFFER } from "../nannyData";
 import {
   Baby,
@@ -243,16 +244,13 @@ export default function Barnpassning() {
       {/* Hero */}
       <section className="relative min-h-[90vh] flex flex-col justify-center pt-28 pb-20 overflow-hidden text-text-light">
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
+          <HeroVideo
+            src="/barnpassning-lek-ute.mp4"
+            poster="/barnpassning-lek-ute-poster.jpg"
+            alt="Barnvakt som leker ute med barn"
             className="absolute inset-0 w-full h-full object-cover object-top"
             style={{ filter: "brightness(0.92) contrast(1.02) saturate(1.08)" }}
-          >
-            <source src="/barnpassning-lek-ute.mp4" type="video/mp4" />
-          </video>
+          />
           <div className="absolute inset-0 bg-bg-dark/25"></div>
           <div className="absolute inset-0 bg-gradient-to-tr from-bg-dark/75 via-bg-dark/40 to-bg-dark/15"></div>
         </div>
@@ -331,18 +329,13 @@ export default function Barnpassning() {
 
       {/* Intro / emotional */}
       <section className="relative py-28 md:py-40 overflow-hidden text-text-light">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          poster="/barnpassning-lek.jpg"
+        <HeroVideo
+          src="/barnpassning-familj.mp4"
+          poster="/barnpassning-familj-poster.jpg"
+          alt="Familj hemma tillsammans med sin barnvakt"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: "contrast(1.12) saturate(1.12)" }}
-        >
-          <source src="/barnpassning-familj.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-bg-dark/90 via-bg-dark/70 to-bg-dark/35"></div>
         <div className="container-custom relative z-10">
           <motion.div
@@ -447,6 +440,8 @@ export default function Barnpassning() {
           alt="Barnvakt som läser tillsammans med två barn"
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
+          width="1600"
+          height="660"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-bg-dark/90 via-bg-dark/65 to-bg-dark/25"></div>
         <div className="container-custom relative z-10">
@@ -525,6 +520,8 @@ export default function Barnpassning() {
                   alt="Nystädat kök i ett hem"
                   loading="lazy"
                   className="w-full h-56 md:h-72 object-cover"
+                  width="800"
+                  height="1600"
                 />
               </div>
               <ul className="space-y-4">
@@ -577,6 +574,8 @@ export default function Barnpassning() {
                   alt="Barnvakt och barn under en lässtund"
                   loading="lazy"
                   className="w-full h-64 md:h-80 object-cover"
+                  width="1536"
+                  height="887"
                 />
               </div>
             </motion.div>

@@ -107,6 +107,12 @@ async function renderRoute(route) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 900 });
+    // Signalera förrendering innan sidans skript körs. HeroVideo använder det
+    // för att alltid lämna kvar posterbilden i den statiska HTML:en – annars
+    // skulle mobilbesökare börja ladda hero-videon före hydrering.
+    await page.evaluateOnNewDocument(() => {
+      window.__PRERENDER__ = true;
+    });
     await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForSelector("#root > *", { timeout: 20000 });
     // Scrolla igenom sidan så att whileInView-innehåll ritas ut (och hamnar i DOM).

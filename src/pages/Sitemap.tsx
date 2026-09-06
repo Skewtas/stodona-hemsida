@@ -22,7 +22,7 @@ export default function Sitemap() {
     { name: "Startsida", path: "/", icon: Home },
     { name: "Om oss", path: "/om-oss", icon: Info },
     { name: "Kontakt", path: "/kontakt", icon: Phone },
-    { name: "Boka städning", path: "/bokning", icon: Sparkles },
+    { name: "Boka städning", path: "/boka-stadning", icon: Sparkles },
     { name: "Byta städbolag", path: "/byta-stadbolag", icon: ShieldCheck },
     { name: "Presentkort", path: "/presentkort", icon: Sparkles },
     { name: "Jobba hos oss", path: "/jobba-hos-oss", icon: Star },

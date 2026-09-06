@@ -17,6 +17,7 @@ import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
 import AnswerFirst from "../components/AnswerFirst";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Storstadning() {
   const { lang } = useLanguage();
@@ -76,13 +77,13 @@ export default function Storstadning() {
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('stor.hero.cta1', lang)}
               </a>
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('stor.hero.cta2', lang)}
@@ -340,7 +341,7 @@ export default function Storstadning() {
                 <p className="mb-6 text-text-secondary">
                   Vi är experter på storstädning och har lediga tider i Stockholm den här veckan. Boka professionell storstädning i Stockholm nu och få hotellkänsla hemma.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <a href={bookingUrl()} className="btn-primary">
                   Boka storstädning direkt
                 </a>
               </div>
@@ -357,7 +358,7 @@ export default function Storstadning() {
                   <p className="text-sm mb-4 text-text-primary/80">
                     {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
                   </p>
-                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                  <a href={bookingUrl()} className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
                 </div>

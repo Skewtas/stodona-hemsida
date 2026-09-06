@@ -3,6 +3,7 @@ import { Phone, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
 import { track } from '../utils/analytics';
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function StickyCTA() {
   const [phone, setPhone] = useState('');
@@ -38,7 +39,7 @@ export default function StickyCTA() {
         {!showInput ? (
           <>
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="flex-1 py-3 bg-cta-hover text-text-primary font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all"
             >
               Boka nu – 15% rabatt

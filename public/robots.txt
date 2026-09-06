@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+# SPA-skalet (fallback för icke-förrenderade URL:er) – ska aldrig indexeras
+Disallow: /app.html
 
 # AI Search Crawlers
 User-agent: ChatGPT-User

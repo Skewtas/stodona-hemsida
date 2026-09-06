@@ -3,6 +3,7 @@ import { ArrowRight, MapPin, Maximize, Sparkles, Star, ShieldCheck, Home, Box, W
 import { useLanguage } from '../context/LanguageContext';
 import { track } from '../utils/analytics';
 import { submitLead } from '../utils/leadCapture';
+import { bookingUrl } from "../utils/bookingUrl";
 
 const servicesList = [
   { id: 'hemstadning', sv: 'Hemstädning', en: 'Home Cleaning', icon: Home, base: 22, min: 600 },
@@ -59,12 +60,8 @@ export const QuickBookingWidget: React.FC = () => {
       return;
     }
     track("booking_widget_submit", { service, sqm, estimated_price: estimatedPrice ?? undefined });
-    const params = new URLSearchParams({
-      service: service,
-      zip: zipCode,
-      sqm: sqm
-    });
-    window.location.href = `https://boka.stodona.se?${params.toString()}`;
+    // bookingUrl lägger till influencerreferensen utan att röra service/zip/sqm.
+    window.location.href = bookingUrl({ service, zip: zipCode, sqm });
   };
 
   return (

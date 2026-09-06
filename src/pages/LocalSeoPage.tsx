@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { MapPin, ArrowRight, HelpCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
 import { useLanguage } from '../context/LanguageContext';
+import { bookingUrl } from "../utils/bookingUrl";
 
 interface LocalSeoPageProps {
   baseService: string;
@@ -209,7 +210,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <p className="text-lg md:text-xl text-text-light/90 leading-relaxed mb-8 drop-shadow-md">
               {description}
             </p>
-            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka {displayBaseService.toLowerCase()} {prep} {displayAreaName}
             </a>
           </motion.div>
@@ -255,7 +256,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   Vi har lediga tider i ditt område. Boka nu och få
                   hotellkänsla hemma.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <a href={bookingUrl()} className="btn-primary">
                   Boka {displayBaseService.toLowerCase()} direkt
                 </a>
               </div>
@@ -434,7 +435,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett skinande rent resultat.
           </p>
           <a
-            href="https://boka.stodona.se"
+            href={bookingUrl()}
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka {displayBaseService.toLowerCase()} nu

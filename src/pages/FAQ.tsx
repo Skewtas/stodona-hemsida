@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { HelpCircle, ChevronDown, ChevronUp, ExternalLink, Search } from 'lucide-react';
+import { bookingUrl } from "../utils/bookingUrl";
 
 interface FaqItem {
   q: string;
@@ -363,7 +364,7 @@ export default function FAQ() {
               { title: 'Skatteverket – RUT-avdrag', url: 'https://www.skatteverket.se/privat/fastigheterochbostad/rotochrutarbete/rutarbete.4.2ef18e6a125bbb56b74000007782.html', desc: 'Allt om RUT-avdrag och vilka tjänster som berättigar.' },
               { title: 'Konsumentverket', url: 'https://www.konsumentverket.se/', desc: 'Dina rättigheter som konsument vid köp av tjänster.' },
               { title: 'Folkhälsomyndigheten – inomhusmiljö', url: 'https://www.folkhalsomyndigheten.se/livsvillkor-levnadsvanor/miljohalsa-och-halsoskydd/inomhusmiljo/', desc: 'Om vikten av en ren och hälsosam inomhusmiljö.' },
-              { title: 'Stodona – Boka städning', url: 'https://boka.stodona.se', desc: 'Boka din städning snabbt och enkelt online.' },
+              { title: 'Stodona – Boka städning', url: bookingUrl(), desc: 'Boka din städning snabbt och enkelt online.' },
             ].map((link, i) => (
               <a
                 key={i}

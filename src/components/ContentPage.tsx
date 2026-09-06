@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { HelpCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Helmet } from "../seo";
 import AnswerFirst from "./AnswerFirst";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export interface ContentSection {
   heading: string;
@@ -127,7 +128,7 @@ export default function ContentPage(p: ContentPageProps) {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Redo att boka?</h2>
           <p className="text-text-light/80 mb-8">Boka på 60 sekunder – RUT-avdraget dras direkt, ingen bindningstid.</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 inline-flex items-center gap-2">
+            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 inline-flex items-center gap-2">
               Boka städning <ArrowRight className="w-5 h-5" />
             </a>
             <Link to="/kontakt" className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark px-8 py-4">

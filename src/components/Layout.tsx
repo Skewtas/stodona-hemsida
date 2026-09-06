@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Phone, Mail, User } from "lucide-react";
 import Logo from "./Logo";
@@ -9,6 +9,8 @@ import DiscountPopup from "./DiscountPopup";
 import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
 import LiveBookingToast from "./LiveBookingToast";
+import { capturePartnerRefOnLoad, migrateRefOnConsent } from "../utils/partnerRef";
+import { bookingUrl, installBookingLinkInterceptor } from "../utils/bookingUrl";
 
 // Barnpassnings-relaterade sidor ska inte visa städnings-notiser (rabattpopup,
 // live-bokningstoast, mobil städ-CTA) eftersom de är irrelevanta där.
@@ -28,6 +30,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useLanguage();
   const { pathname } = useLocation();
   const isBabysittingPage = BABYSITTING_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // Influencerspårning. Webbplatsen BÄR bara referensen vidare till
+  // boka.stodona.se — ingen provision, ingen partnerdata och ingen rabatt
+  // beräknas här. Interceptorn är ett säkerhetsnät för bokningslänkar som
+  // skrivits som fri text (t.ex. i bloggartiklar) och därför inte går genom
+  // hjälpfunktionen `bookingUrl()`.
+  useEffect(() => {
+    capturePartnerRefOnLoad();
+    migrateRefOnConsent();
+    return installBookingLinkInterceptor();
+  }, []);
   // Dold influencer-sida: dölj publika kampanj-overlays (15%-remsa/popup, boknotiser)
   // så den exklusiva känslan bevaras och inte krockar med 50%-erbjudandet.
   const isInfluencerPage = pathname.startsWith("/influencersamarbete");
@@ -98,7 +111,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 Boka/Se upplägg
               </Link>
             ) : (
-              <a href="https://boka.stodona.se" className="btn-primary py-2 px-5 text-sm">
+              <a href={bookingUrl()} className="btn-primary py-2 px-5 text-sm">
                 {t('nav.boka', lang)}
               </a>
             )}
@@ -177,7 +190,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             ) : (
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-primary w-full mt-4"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -308,7 +321,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <a href="https://boka.stodona.se" className="hover:text-cta-hover transition-colors">
+                <a href={bookingUrl()} className="hover:text-cta-hover transition-colors">
                   {t('footer.priser', lang)}
                 </a>
               </li>

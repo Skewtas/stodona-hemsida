@@ -18,6 +18,7 @@ import { t } from "../translations";
 import ContactPopup from "../components/ContactPopup";
 import UspMarquee from "../components/UspMarquee";
 import { useSearchParams } from "react-router-dom";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Home() {
   const { lang } = useLanguage();
@@ -39,7 +40,7 @@ export default function Home() {
       <Helmet>
         <title>Stodona – Professionell städning i Stockholm | Hemstädning med RUT-avdrag</title>
         <meta name="description" content="Stodona erbjuder hemstädning, fönsterputsning, flyttstädning och storstädning i Stockholm. Samma team varje gång. RUT-avdrag – betala bara 50%. Boka online!" />
-        <link rel="canonical" href="https://stodona.se" />
+        <link rel="canonical" href="https://stodona.se/" />
         <meta property="og:title" content="Stodona – Professionell städning i Stockholm" />
         <meta property="og:description" content="Hemstädning, fönsterputsning och flyttstädning med RUT-avdrag. Samma team varje gång. Boka online!" />
         <meta property="og:type" content="website" />
@@ -118,7 +119,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
             >
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-primary btn-attention bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg"
               >
                 {t('home.hero.cta1', lang)}
@@ -181,7 +182,7 @@ export default function Home() {
                 {t('home.services.subtitle', lang)}
               </p>
             </div>
-            <a href="https://boka.stodona.se" className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
+            <a href={bookingUrl()} className="btn-secondary shrink-0 hover:bg-cta-hover hover:border-cta-hover hover:text-text-primary transition-all duration-300">
               {t('home.services.allprices', lang)}
             </a>
           </motion.div>
@@ -297,7 +298,7 @@ export default function Home() {
 
               <div className="mt-12">
                 <a
-                  href="https://boka.stodona.se"
+                  href={bookingUrl()}
                   className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg inline-flex items-center gap-2"
                 >
                   {t('home.insight.cta', lang)}
@@ -536,13 +537,13 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               {t('home.cta.btn1', lang)}
             </a>
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="btn-secondary border-text-primary text-text-primary hover:bg-text-primary hover:text-bg-primary text-lg px-8 py-4"
             >
               {t('home.cta.btn2', lang)}

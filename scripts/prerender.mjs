@@ -20,7 +20,29 @@ const DIST = join(ROOT, "dist");
 const PORT = 4318;
 
 const pkg = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
-const ROUTES = (pkg.reactSnap && pkg.reactSnap.include) || ["/"];
+
+// Routes = allt i sitemap.xml (en enda sanningskälla för vad som ska indexeras)
+// unionerat med package.json → reactSnap.include. Varje URL i sitemapen MÅSTE
+// förrenderas: annars serveras SPA-fallbacken (= startsidans HTML) till robotar
+// utan JavaScript, vilket ger fel canonical, fel titel och duplicerat innehåll.
+async function sitemapRoutes() {
+  const file = join(ROOT, "public", "sitemap.xml");
+  if (!existsSync(file)) return [];
+  const xml = await readFile(file, "utf8");
+  return [...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)]
+    .map((m) => {
+      try { return new URL(m[1]).pathname; } catch { return null; }
+    })
+    .filter((p) => p && p.startsWith("/"))
+    .map((p) => (p !== "/" && p.endsWith("/") ? p.slice(0, -1) : p));
+}
+
+const ROUTES = [...new Set([
+  "/",
+  ...(await sitemapRoutes()),
+  ...((pkg.reactSnap && pkg.reactSnap.include) || []),
+])];
+const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY || 3);
 
 const MIME = {
   ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css",
@@ -78,7 +100,10 @@ const browser = await puppeteer.launch(launchOpts);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const results = [];
-for (const route of ROUTES) {
+const queue = [...ROUTES];
+let done = 0;
+
+async function renderRoute(route) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 900 });
@@ -98,22 +123,36 @@ for (const route of ROUTES) {
     const html = await page.content();
     const h2 = (html.match(/<h2/g) || []).length;
     results.push({ route, html });
-    console.log(`✓ ${route}  (${(html.length / 1024).toFixed(0)} kB, ${h2} h2)`);
+    console.log(`✓ ${++done}/${ROUTES.length} ${route}  (${(html.length / 1024).toFixed(0)} kB, ${h2} h2)`);
   } catch (e) {
+    done++;
     console.error(`✗ ${route}: ${e.message}`);
   } finally {
     await page.close();
   }
 }
 
+await Promise.all(
+  Array.from({ length: Math.min(CONCURRENCY, queue.length) }, async () => {
+    for (let route = queue.shift(); route; route = queue.shift()) await renderRoute(route);
+  })
+);
+
 await browser.close();
 server.close();
 
 // Skriv filerna SIST (så basskalet var orört under körningen).
+// app.html = det orörda SPA-skalet. Vercels SPA-fallback pekar hit i stället för
+// index.html (som nu innehåller den förrenderade STARTSIDAN) – annars skulle varje
+// icke-förrenderad URL svara med startsidans innehåll och canonical.
+await writeFile(join(DIST, "app.html"), BASE_HTML, "utf8");
+
 for (const { route, html } of results) {
   const outDir = route === "/" ? DIST : join(DIST, route);
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, "index.html"), html, "utf8");
 }
 console.log(`\nFörrenderade ${results.length}/${ROUTES.length} sidor → dist/`);
+const missing = ROUTES.filter((r) => !results.some((x) => x.route === r));
+if (missing.length) console.warn(`⚠ Saknar förrendering (serveras som tomt SPA-skal): ${missing.join(", ")}`);
 if (results.length === 0) process.exit(1);

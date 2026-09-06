@@ -14,6 +14,7 @@ import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
 import AnswerFirst from "../components/AnswerFirst";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Trappstadning() {
   const { lang } = useLanguage();
@@ -151,7 +152,7 @@ export default function Trappstadning() {
                   {lang === 'SV' ? 'Vi skräddarsyr ett städschema som passar just er fastighet. Kontakta oss för ett kostnadsfritt besök och offert.' : 'We tailor a cleaning schedule that suits your property. Contact us for a free visit and quote.'}
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <a href="https://boka.stodona.se" className="btn-primary">
+                  <a href={bookingUrl()} className="btn-primary">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
                   <Link to="/kontakt" className="btn-secondary border-bg-dark text-bg-dark hover:bg-bg-dark hover:text-text-light px-6 py-3 rounded-full font-bold">
@@ -170,7 +171,7 @@ export default function Trappstadning() {
                   <p className="text-sm mb-4 text-text-primary/80">
                     {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
                   </p>
-                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                  <a href={bookingUrl()} className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
                 </div>
@@ -193,7 +194,7 @@ export default function Trappstadning() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               {lang === 'SV' ? 'Boka städning direkt' : 'Book cleaning directly'}

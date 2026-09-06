@@ -17,6 +17,7 @@ import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
 import AnswerFirst from "../components/AnswerFirst";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Hemstadning() {
   const hemstadningFaq = [
@@ -117,13 +118,13 @@ export default function Hemstadning() {
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('hemstadning.hero.cta1', lang)}
               </a>
               <a
-                href="https://boka.stodona.se"
+                href={bookingUrl()}
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
               >
                 {t('hemstadning.hero.cta2', lang)}
@@ -262,7 +263,7 @@ export default function Hemstadning() {
                   Vi är ett topprankat städbolag med snabba och lediga tider för professionell hemstädning i Stockholm den här veckan. Boka din städhjälp nu och få
                   lyxig hotellkänsla hemma med vårt fullkomliga städ.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <a href={bookingUrl()} className="btn-primary">
                   Boka hemstädning direkt
                 </a>
               </div>
@@ -303,7 +304,7 @@ export default function Hemstadning() {
                   <p className="text-sm mb-4 text-text-primary/80">
                     {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
                   </p>
-                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                  <a href={bookingUrl()} className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
                 </div>
@@ -372,7 +373,7 @@ export default function Hemstadning() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Boka städning direkt

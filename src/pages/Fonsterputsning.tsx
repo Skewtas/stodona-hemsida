@@ -13,6 +13,7 @@ import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
 import AnswerFirst from "../components/AnswerFirst";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Fonsterputsning() {
   const { lang } = useLanguage();
@@ -145,7 +146,7 @@ export default function Fonsterputsning() {
                 <p className="mb-6 text-text-secondary">
                   Boka professionell fönsterputsning idag och njut av en kristallklar utsikt. Vi är ditt städbolag för perfekt fönsterputs.
                 </p>
-                <a href="https://boka.stodona.se" className="btn-primary">
+                <a href={bookingUrl()} className="btn-primary">
                   Boka fönsterputsning
                 </a>
               </div>
@@ -162,7 +163,7 @@ export default function Fonsterputsning() {
                   <p className="text-sm mb-4 text-text-primary/80">
                     {lang === 'SV' ? 'Se ditt pris och boka direkt online. Snabbt och smidigt!' : 'See your price and book directly online. Fast and easy!'}
                   </p>
-                  <a href="https://boka.stodona.se" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                  <a href={bookingUrl()} className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
                 </div>
@@ -232,7 +233,7 @@ export default function Fonsterputsning() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
-              href="https://boka.stodona.se"
+              href={bookingUrl()}
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               {lang === 'SV' ? 'Boka städning direkt' : 'Book cleaning directly'}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Gift, Sparkles } from 'lucide-react';
 import { submitLead, hasSeenPopup, markPopupSeen } from '../utils/leadCapture';
 import { track } from '../utils/analytics';
+import { bookingUrl } from "../utils/bookingUrl";
 
 // Single discount popup (15% rabatt / VLKMN15). Fires on whichever trigger comes
 // first — a timed welcome or exit intent — and shows once per 7 days, so the two
@@ -208,7 +209,7 @@ export default function DiscountPopup() {
                   <span className="text-3xl font-bold tracking-[0.25em] text-text-primary">VLKMN15</span>
                 </div>
                 <p className="text-sm text-text-secondary mt-5">
-                  Ange koden vid <a href="https://boka.stodona.se" className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt.
+                  Ange koden vid <a href={bookingUrl()} className="text-cta-hover font-medium hover:underline">bokning</a> för 15% rabatt.
                 </p>
               </div>
             )}

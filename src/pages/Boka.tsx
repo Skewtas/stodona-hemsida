@@ -1,9 +1,10 @@
 import { Helmet } from "../seo";
 import { useEffect } from "react";
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function Boka() {
   useEffect(() => {
-    window.location.replace("https://boka.stodona.se");
+    window.location.replace(bookingUrl());
   }, []);
 
   return (

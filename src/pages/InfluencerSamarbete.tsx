@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Helmet } from "../seo";
 import { Link } from "react-router-dom";
+import { bookingUrl } from "../utils/bookingUrl";
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from "motion/react";
 import {
   Sparkles,
@@ -33,7 +34,9 @@ const CONFIG = {
   handle: "@stodona.se",
   webb: "www.stodona.se",
   masterCode: "INFL50ST", // influencerns INTERNA bokningskod – endast på denna lösenordslåsta sida
-  bokaUrl: "https://boka.stodona.se",
+  // Getter i stället för konstant: alla CONFIG.bokaUrl-användningar nedan får
+  // influencerreferensen automatiskt, utan att sidan behöver känna till den.
+  get bokaUrl() { return bookingUrl(); },
   kontaktNamn: "din kontaktperson hos Stodona",
   kontaktEpost: "info@stodona.se",
   heroVideo: "/stodona-hero.mp4",

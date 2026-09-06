@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Gift, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function VarvaEnVan() {
   const { lang } = useLanguage();
@@ -100,7 +101,7 @@ export default function VarvaEnVan() {
           </div>
 
           <div className="text-center mt-12">
-            <a href="https://boka.stodona.se" className="btn-primary">
+            <a href={bookingUrl()} className="btn-primary">
               {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
             </a>
           </div>

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { Home, Search, ArrowLeft } from 'lucide-react';
+import { bookingUrl } from "../utils/bookingUrl";
 
 export default function NotFound() {
   return (
@@ -47,7 +48,7 @@ export default function NotFound() {
               { label: 'Hemstädning', to: '/hemstadning' },
               { label: 'Fönsterputsning', to: '/fonsterputsning' },
               { label: 'Flyttstädning', to: '/flyttstadning' },
-              { label: 'Boka städning', to: 'https://boka.stodona.se' },
+              { label: 'Boka städning', to: bookingUrl() },
               { label: 'FAQ', to: '/faq' },
               { label: 'Blogg', to: '/blogg' },
             ].map(link => (

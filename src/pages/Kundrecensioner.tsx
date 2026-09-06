@@ -2,6 +2,7 @@ import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Star, Quote, MapPin } from 'lucide-react';
+import { bookingUrl } from "../utils/bookingUrl";
 
 interface Testimonial {
   name: string;
@@ -245,7 +246,7 @@ export default function Kundrecensioner() {
             Testa Stodona utan bindningstid. Samma team varje gång och alltid med RUT-avdrag.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-lg px-8 py-4">
+            <a href={bookingUrl()} className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-lg px-8 py-4">
               Boka städning
             </a>
             <a href="tel:0101780150" className="btn-primary bg-transparent border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-4">

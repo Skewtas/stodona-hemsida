@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, CheckCircle2, HelpCircle, Star, Sparkles } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
+import { bookingUrl } from "../utils/bookingUrl";
 
 const services = [
   {
@@ -106,7 +107,7 @@ export default function StadningEkero() {
             <p className="text-base text-text-light/70 mb-8 drop-shadow-md">
               Vi är det lokala valet för hundratals hushåll på Ekerö. Samma team, hög kvalitet, varje gång.
             </p>
-            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka städning på Ekerö
             </a>
           </motion.div>
@@ -222,7 +223,7 @@ export default function StadningEkero() {
                   <p className="text-sm opacity-90 mb-6">
                     Vi har lediga tider på Ekerö. Boka snabbt och enkelt online.
                   </p>
-                  <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
+                  <a href={bookingUrl()} className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">
                     Boka nu
                   </a>
                 </div>
@@ -330,7 +331,7 @@ export default function StadningEkero() {
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett resultat du älskar.
           </p>
           <a
-            href="https://boka.stodona.se"
+            href={bookingUrl()}
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka städning nu

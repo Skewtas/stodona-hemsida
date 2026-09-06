@@ -3,6 +3,7 @@ import { Helmet } from "../seo";
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight, CheckCircle2, HelpCircle, Star, Sparkles } from 'lucide-react';
 import WhyStodona from '../components/WhyStodona';
+import { bookingUrl } from "../utils/bookingUrl";
 
 interface SubAreaLink {
   name: string;
@@ -94,7 +95,7 @@ export default function StadningArea({ areaName, heroImage, subAreas }: Stadning
             <p className="text-base text-text-light/70 mb-8 drop-shadow-md">
               Vi är det lokala valet för hundratals hushåll {prep} {areaName}. Samma team, hög kvalitet, varje gång.
             </p>
-            <a href="https://boka.stodona.se" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka städning {prep} {areaName}
             </a>
           </motion.div>
@@ -164,7 +165,7 @@ export default function StadningArea({ areaName, heroImage, subAreas }: Stadning
                   <Sparkles className="w-8 h-8 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-3">Boka städning idag</h3>
                   <p className="text-sm opacity-90 mb-6">Vi har lediga tider {prep} {areaName}. Boka snabbt och enkelt online.</p>
-                  <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">Boka nu</a>
+                  <a href={bookingUrl()} className="btn-primary bg-white text-cta-hover hover:bg-bg-primary text-sm px-6 py-3">Boka nu</a>
                 </div>
               </div>
             </div>
@@ -217,7 +218,7 @@ export default function StadningArea({ areaName, heroImage, subAreas }: Stadning
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Redo för ett skinande rent hem {prep} {areaName}?</h2>
           <p className="text-xl mb-10 opacity-90">Boka din städning snabbt och enkelt. Njut av mer fritid och ett resultat du älskar.</p>
-          <a href="https://boka.stodona.se" className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4">Boka städning nu</a>
+          <a href={bookingUrl()} className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4">Boka städning nu</a>
         </div>
       </section>
     </div>

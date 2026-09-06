@@ -160,6 +160,7 @@ export default function App() {
                 element={
                   <LocalSeoPage
                     baseService="hemstadning"
+                    canonical={`https://stodona.se/${area.path}`}
                     areaName={area.name}
                     description={area.description}
                     heroImage={area.heroImage}

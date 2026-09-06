@@ -26,6 +26,8 @@ export interface ContentPageProps {
   sections: ContentSection[];
   faq?: ContentFaq[];
   related?: { label: string; to: string }[];
+  /** Ersätter standardtexten under "Redo att boka?" (t.ex. på abonnemangssidan). */
+  ctaText?: string;
 }
 
 export default function ContentPage(p: ContentPageProps) {
@@ -126,7 +128,9 @@ export default function ContentPage(p: ContentPageProps) {
       <section className="py-16 bg-bg-dark text-text-light">
         <div className="container-custom max-w-3xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Redo att boka?</h2>
-          <p className="text-text-light/80 mb-8">Boka på 60 sekunder – RUT-avdraget dras direkt, ingen bindningstid.</p>
+          <p className="text-text-light/80 mb-8">
+            {p.ctaText ?? "Boka på 60 sekunder – RUT-avdraget dras direkt, ingen bindningstid."}
+          </p>
           <div className="flex flex-wrap justify-center gap-3">
             <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 inline-flex items-center gap-2">
               Boka städning <ArrowRight className="w-5 h-5" />

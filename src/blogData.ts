@@ -618,4 +618,73 @@ Att boka en städfirma är enklare än många tror. Hos Stodona bokar du **onlin
 Läs mer om vad du bör tänka på i [Så väljer du rätt städbolag](https://stodona.se/blogg/sa-valjer-du-ratt-stadfirma), eller [boka städning direkt](https://boka.stodona.se).`,
   },
 
+  {
+    slug: 'stadabonnemang-lonar-det-sig',
+    title: 'Städabonnemang – lönar det sig att binda sig?',
+    metaDescription: 'Städabonnemang i Stockholm: så mycket lägre blir priset med 3, 6 eller 12 månaders bindning – med riktiga räkneexempel. När det lönar sig och när du hellre bokar fritt.',
+    excerpt: 'Vi har lanserat städabonnemang: binder du dig 3, 6 eller 12 månader blir varje städning billigare. Här är exakta siffror – och en ärlig genomgång av när det inte lönar sig.',
+    date: '2026-09-06',
+    category: 'Priser',
+    readTime: '4 min',
+    heroImage: '/stodona-stad.jpg',
+    content: `## Städabonnemang – lönar det sig att binda sig?
+
+Vi har lanserat **städabonnemang**. Kort sagt: bokar du återkommande hemstädning och binder dig i 3, 6 eller 12 månader betalar du mindre per städning. Bokar du helt fritt tillkommer 10 % på priset.
+
+Här är exakt hur det ser ut – och när det faktiskt lönar sig.
+
+### Så påverkar bindningstiden priset
+
+*   **Ingen bindning:** +10 % på priset
+*   **3 månader:** +6 %
+*   **6 månader:** +3 %
+*   **12 månader:** vårt lägsta pris
+
+Ingen rabattkod, inget krångel. Du väljer bindningstid i bokningen och ser priset direkt.
+
+### Räkneexempel: 70 kvm, varannan vecka
+
+Priser per städtillfälle, inklusive moms och efter RUT-avdrag:
+
+*   **Utan bindning:** 1 255 kr
+*   **3 månader:** 1 208 kr
+*   **6 månader:** 1 175 kr
+*   **12 månader:** 1 140 kr
+
+Skillnaden är 115 kr per städning mellan att stå fritt och att binda ett år. Med 26 städtillfällen på ett år blir det **2 990 kr lägre kostnad**.
+
+### Städar du varje vecka blir skillnaden större
+
+Samma bostad, men städning varje vecka:
+
+*   **Utan bindning:** 1 153 kr per gång
+*   **12 månader:** 1 048 kr per gång
+
+52 tillfällen om året ger **5 460 kr** i lägre kostnad. Ju oftare du städar, desto mer betyder procenten.
+
+### När lönar det sig – och när gör det inte det?
+
+Abonnemang lönar sig när du redan vet att du vill ha städhjälp under en längre period. Bor du kvar, har ett hushåll som ser ungefär likadant ut framöver och har bestämt dig för att städning är värt pengarna – då är det bara att räkna hem.
+
+Det lönar sig **sämre** om du:
+
+*   är på väg att flytta eller byta bostadsstorlek
+*   inte vet ännu hur ofta du behöver hjälp
+*   vill testa oss först innan du bestämmer dig
+
+I de lägena är 10 % ett rimligt pris för att stå helt fritt. Du kan alltid gå över till abonnemang senare, när du vet att det fungerar.
+
+### Vad händer efter bindningstiden?
+
+Abonnemanget löper vidare automatiskt till samma pris, med **en månads uppsägningstid**. Du behöver inte binda om dig, och du behöver inte göra något alls för att fortsätta.
+
+Och en viktig sak: bindningstiden gäller abonnemanget, inte varje enskild städning. Enstaka tillfällen kan du fortfarande [avboka kostnadsfritt](https://stodona.se/avbokning) fram till 48 timmar innan.
+
+### RUT-avdraget gäller precis som vanligt
+
+Alla priser ovan är redan efter [RUT-avdrag](https://stodona.se/rut-avdrag) – du betalar 50 % av arbetskostnaden och vi sköter administrationen mot Skatteverket.
+
+Läs mer om [städabonnemang](https://stodona.se/stadabonnemang) och vad som ingår, jämför med våra [priser](https://stodona.se/priser) för enstaka städning, eller [räkna ut ditt pris direkt](https://boka.stodona.se) – du ser vad varje bindningstid kostar innan du bekräftar.`,
+  },
+
 ];

@@ -51,7 +51,8 @@ const RutAvdrag = React.lazy(() => import("./pages/RutAvdrag"));
 const SaArbetarVi = React.lazy(() => import("./pages/SaArbetarVi"));
 const KvalitetTrygghet = React.lazy(() => import("./pages/KvalitetTrygghet"));
 const Avbokning = React.lazy(() => import("./pages/Avbokning"));
-// Dold sida – ej länkad i meny/footer/sidkarta, noindex. Nås endast via direkt URL.
+const Stadabonnemang = React.lazy(() => import("./pages/Stadabonnemang"));
+// Publik tjänst – barnpassning/nanny (lanserad 2026-09-06).
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
 const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
 const BarnpassningForetag = React.lazy(() => import("./pages/BarnpassningForetag"));
@@ -119,11 +120,13 @@ export default function App() {
           <Route path="/sa-arbetar-vi" element={<SaArbetarVi />} />
           <Route path="/kvalitet-och-trygghet" element={<KvalitetTrygghet />} />
           <Route path="/avbokning" element={<Avbokning />} />
+          <Route path="/stadabonnemang" element={<Stadabonnemang />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
           <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />
 
-          {/* Dold tjänst – barnpassning/nanny (ej länkad, noindex) */}
+          {/* Barnpassning/nanny – publik tjänst. Formulärsidorna (/ny-kund,
+              /barnvakt-ansokan) är fortsatt noindex. */}
           <Route path="/barnpassning" element={<Barnpassning />} />
           <Route path="/nanny" element={<Barnpassning />} />
           <Route path="/jobba-som-barnvakt" element={<BarnvaktJobb />} />

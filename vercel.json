@@ -11,7 +11,9 @@
     { "source": "/byggstadning-stockholm", "destination": "/byggstadning", "permanent": true },
     { "source": "/trappstadning-stockholm", "destination": "/trappstadning", "permanent": true },
     { "source": "/stadning-stockholm", "destination": "/", "permanent": true },
-    { "source": "/stockholm", "destination": "/", "permanent": true }
+    { "source": "/stockholm", "destination": "/", "permanent": true },
+    { "source": "/abonnemang", "destination": "/stadabonnemang", "permanent": true },
+    { "source": "/stadabonemang", "destination": "/stadabonnemang", "permanent": true }
   ],
   "headers": [
     {

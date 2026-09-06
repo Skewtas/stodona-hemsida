@@ -90,10 +90,7 @@ export default function Home() {
 
         <div className="container-custom relative z-20">
           <div className="max-w-3xl mt-4 sm:mt-12 md:mt-24">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+            <h1
               className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-4 sm:mb-6 drop-shadow-lg"
             >
               {t('home.hero.title1', lang)}
@@ -101,21 +98,15 @@ export default function Home() {
               <span className="italic font-normal text-cta-hover">
                 {t('home.hero.title2', lang)}
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+            <p
               className="text-base sm:text-lg md:text-xl text-text-light/90 mb-6 sm:mb-10 max-w-2xl leading-relaxed drop-shadow-md"
             >
               {t('home.hero.subtitle', lang)}
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+            <div
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
             >
               <a
@@ -130,14 +121,11 @@ export default function Home() {
               >
                 {t('home.hero.cta2', lang)}
               </button>
-            </motion.div>
+            </div>
 
             <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
+            <div
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-text-light/90 drop-shadow-md"
             >
               <div className="flex items-center gap-2">
@@ -156,7 +144,7 @@ export default function Home() {
                 <CheckCircle2 className="w-4 h-4 text-cta-hover" />
                 <span>{t('home.hero.bullet4', lang)}</span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>

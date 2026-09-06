@@ -119,11 +119,38 @@ async function renderRoute(route) {
       };
       tick();
     }));
-    await wait(400); // låt seo.tsx uppdatera <head>
+    await wait(700); // låt seo.tsx uppdatera <head> och animationer landa
+
+    // Motion sätter sitt initial-läge som inline-style (opacity: 0). Element vars
+    // animation inte hann bli klar innan snapshotten fryses annars in som OSYNLIGA
+    // i den statiska HTML:en – besökare utan (eller före) JS ser en tom sida.
+    // Vi rensar därför bort kvarvarande initial-styles före capture.
+    const unhidden = await page.evaluate(() => {
+      // Frys rAF först. Annars hinner motion skriva tillbaka sitt initial-läge
+      // mellan städningen och capturen på sidor där animationen är mitt i steget.
+      window.requestAnimationFrame = () => 0;
+      let n = 0;
+      for (const el of document.querySelectorAll('[style*="opacity"]')) {
+        const style = el.getAttribute('style') || '';
+        if (!/opacity:\s*0(\D|$)/.test(style)) continue;
+        // Rör inte det som är dolt på riktigt (t.ex. stängda dialoger).
+        if (el.hasAttribute('hidden') || /display:\s*none/.test(style)) continue;
+        el.style.removeProperty('opacity');
+        el.style.removeProperty('transform');
+        if (!el.getAttribute('style')) el.removeAttribute('style');
+        n++;
+      }
+      return n;
+    });
+
     const html = await page.content();
     const h2 = (html.match(/<h2/g) || []).length;
+    const stillHidden = (html.match(/opacity:\s*0(?!\.)/g) || []).length;
     results.push({ route, html });
-    console.log(`✓ ${++done}/${ROUTES.length} ${route}  (${(html.length / 1024).toFixed(0)} kB, ${h2} h2)`);
+    console.log(
+      `✓ ${++done}/${ROUTES.length} ${route}  (${(html.length / 1024).toFixed(0)} kB, ${h2} h2` +
+      `${unhidden ? `, ${unhidden} synliggjorda` : ""}${stillHidden ? `, ⚠ ${stillHidden} kvar dolda` : ""})`
+    );
   } catch (e) {
     done++;
     console.error(`✗ ${route}: ${e.message}`);

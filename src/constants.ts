@@ -50,21 +50,21 @@ export const SERVICE_AREAS = [
     name: "Ekerö",
     path: "ekero",
     description: "Gör som flera hundra hushåll på Ekerö med omnejd och boka hemstädning med oss. Vi erbjuder hög städkvalité och service.",
-    heroImage: "/ekerobron_ekero.png",
+    heroImage: "/ekerobron_ekero.webp",
     subAreas: SUB_AREAS_EKERO.map(sub => ({...sub, link: `/hemstadning-ekero-${sub.path}`}))
   },
   {
     name: "Lidingö",
     path: "lidingo",
     description: "Högkvalitativ hemstädning och flyttstädning på Lidingö. Låt oss ta hand om städningen så du kan njuta av din fritid.",
-    heroImage: "/lidingobron_lidingo.png",
+    heroImage: "/lidingobron_lidingo.webp",
     subAreas: SUB_AREAS_LIDINGO.map(sub => ({...sub, link: `/hemstadning-lidingo-${sub.path}`}))
   },
   {
     name: "Nacka",
     path: "nacka",
     description: "Effektiv och noggrann städning i Nacka, inklusive Värmdö och Saltsjöboo. Vi erbjuder skräddarsydda städlösningar för alla behov.",
-    heroImage: "/skurubron_nacka.png",
+    heroImage: "/skurubron_nacka.webp",
     subAreas: [
       { name: "Värmdö", link: "/hemstadning-varmdo" },
       { name: "Saltsjöboo", link: "/hemstadning-saltsjoboo" },
@@ -75,126 +75,126 @@ export const SERVICE_AREAS = [
     name: "Sundbyberg",
     path: "sundbyberg",
     description: "Pålitlig hemstädning och flyttstädning i Sundbyberg. Vi garanterar ett skinande rent resultat varje gång.",
-    heroImage: "/sundbyberg_sundbyberg.png",
+    heroImage: "/sundbyberg_sundbyberg.webp",
     subAreas: []
   },
   {
     name: "Solna",
     path: "solna",
     description: "Professionell städning i Solna för både privatpersoner och företag. Vi anpassar oss efter dina önskemål.",
-    heroImage: "/solna_solna.png",
+    heroImage: "/solna_solna.webp",
     subAreas: []
   },
   {
     name: "Östermalm",
     path: "ostermalm",
     description: "Exklusiv hemstädning på Östermalm med fokus på detaljer och kvalitet. Upplev skillnaden med Stodona.",
-    heroImage: "/ostermalm_ostermalm.png",
+    heroImage: "/ostermalm_ostermalm.webp",
     subAreas: []
   },
   {
     name: "Vasastan",
     path: "vasastan",
     description: "Pålitlig och noggrann hemstädning i Vasastan. Vi skapar ett rent och fräscht hem för dig att trivas i.",
-    heroImage: "/vasastan_vasastan.png",
+    heroImage: "/vasastan_vasastan.webp",
     subAreas: []
   },
   {
     name: "Torsplan",
     path: "torsplan",
     description: "Effektiv hemstädning och företagsstädning vid Torsplan. Enkel bokning och flexibla lösningar.",
-    heroImage: "/torsplan_torsplan.png",
+    heroImage: "/torsplan_torsplan.webp",
     subAreas: []
   },
   {
     name: "Södermalm",
     path: "sodermalm",
     description: "Högkvalitativ städning på Södermalm. Vi erbjuder allt från hemstädning till flyttstädning med garanti.",
-    heroImage: "/sodermalm_sodermalm.png",
+    heroImage: "/sodermalm_sodermalm.webp",
     subAreas: []
   },
   {
     name: "Haninge",
     path: "haninge",
     description: "Pålitlig hemstädning och flyttstädning i Haninge. Vi gör ditt hem skinande rent och fräscht.",
-    heroImage: "/haninge_haninge.png",
+    heroImage: "/haninge_haninge.webp",
     subAreas: []
   },
   {
     name: "Huddinge",
     path: "huddinge",
     description: "Professionell hemstädning och flyttstädning i Huddinge. Vi erbjuder städtjänster med hög kvalitet och nöjdhetsgaranti.",
-    heroImage: "/huddinge_huddinge.png",
+    heroImage: "/huddinge_huddinge.webp",
     subAreas: []
   },
   {
     name: "Bromma",
     path: "bromma",
     description: "Högkvalitativ hemstädning och flyttstädning i Bromma. Låt oss ta hand om städningen så du kan njuta av din fritid.",
-    heroImage: "/bromma_bromma.png",
+    heroImage: "/bromma_bromma.webp",
     subAreas: []
   },
   {
     name: "Djursholm",
     path: "djursholm",
     description: "Exklusiv hemstädning i Djursholm med fokus på detaljer och kvalitet. Upplev skillnaden med Stodona.",
-    heroImage: "/djursholm_djursholm.png",
+    heroImage: "/djursholm_djursholm.webp",
     subAreas: []
   },
   {
     name: "Täby",
     path: "taby",
     description: "Pålitlig och noggrann hemstädning i Täby. Vi skapar ett rent och fräscht hem för dig att trivas i.",
-    heroImage: "/taby_taby.png",
+    heroImage: "/taby_taby.webp",
     subAreas: []
   },
   {
     name: "Danderyd",
     path: "danderyd",
     description: "Professionell städning i Danderyd för både privatpersoner och företag. Vi anpassar oss efter dina önskemål.",
-    heroImage: "/danderyd_danderyd.png",
+    heroImage: "/danderyd_danderyd.webp",
     subAreas: []
   },
   {
     name: "Järfälla",
     path: "jarfalla",
     description: "Effektiv hemstädning och företagsstädning i Järfälla. Enkel bokning och flexibla lösningar.",
-    heroImage: "/jarfalla_jarfalla.png",
+    heroImage: "/jarfalla_jarfalla.webp",
     subAreas: []
   },
   {
     name: "Tyresö",
     path: "tyreso",
     description: "Högkvalitativ städning i Tyresö. Vi erbjuder allt från hemstädning till flyttstädning med garanti.",
-    heroImage: "/tyreso_tyreso.png",
+    heroImage: "/tyreso_tyreso.webp",
     subAreas: []
   },
   {
     name: "Sollentuna",
     path: "sollentuna",
     description: "Högkvalitativ städning i Sollentuna. Vi erbjuder allt från hemstädning till flyttstädning med garanti.",
-    heroImage: "/sollentuna_sollentuna.png",
+    heroImage: "/sollentuna_sollentuna.webp",
     subAreas: []
   },
   {
     name: "Vaxholm",
     path: "vaxholm",
     description: "Professionell hemstädning och flyttstädning på Vaxholm. Vi erbjuder städtjänster med hög kvalitet och nöjdhetsgaranti.",
-    heroImage: "/vaxholm_vaxholm.png",
+    heroImage: "/vaxholm_vaxholm.webp",
     subAreas: []
   },
   {
     name: "Upplands Väsby",
     path: "upplands-vasby",
     description: "Högkvalitativ hemstädning och flyttstädning i Upplands Väsby. Låt oss ta hand om städningen så du kan njuta av din fritid.",
-    heroImage: "/upplandsvasby_upplandsvasby.png",
+    heroImage: "/upplandsvasby_upplandsvasby.webp",
     subAreas: []
   },
   {
     name: "Andra delar av Stockholm",
     path: "stockholm",
     description: "Vi täcker hela Storstockholm. Kontakta oss för städning i ditt område.",
-    heroImage: "/stockholm_stockholm.png",
+    heroImage: "/stockholm_stockholm.webp",
     subAreas: []
   },
 ];

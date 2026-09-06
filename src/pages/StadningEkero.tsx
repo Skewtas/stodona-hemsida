@@ -81,10 +81,14 @@ export default function StadningEkero() {
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-primary">
         <div className="absolute inset-0 w-full h-full z-0">
           <img
-            src="/ekerobron_ekero.png"
+            src="/ekerobron_ekero.webp"
             alt="Städning på Ekerö – Stodona"
             className="w-full h-full object-cover object-center opacity-70"
             referrerPolicy="no-referrer"
+            width="640"
+            height="640"
+            loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/50"></div>
         </div>

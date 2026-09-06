@@ -1,66 +1,83 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, X } from 'lucide-react';
+import { claimOverlay, releaseOverlay, whenCookieBannerAnswered } from '../utils/overlays';
 
-const bookings = [
-  { name: 'Mikael', area: 'Bromma', service: 'hemstädning', time: 'precis' },
-  { name: 'Sofia', area: 'Ekerö', service: 'flyttstädning', time: 'för 2 min sedan' },
-  { name: 'Anna', area: 'Nacka', service: 'fönsterputsning', time: 'för 5 min sedan' },
-  { name: 'Johan', area: 'Lidingö', service: 'storstädning', time: 'precis' },
-  { name: 'Elin', area: 'Stockholm', service: 'hemstädning', time: 'för 10 min sedan' },
-];
+// Visar de senaste RIKTIGA bokningarna från /api/recent-bookings – förnamn och
+// tjänst, inget annat. Finns inga bokningar visas ingenting alls; komponenten
+// hittar aldrig på data.
+
+type Booking = { firstName: string; service: string; ts: string };
+
+function relativeTime(ts: string): string {
+  const minutes = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+  if (minutes < 2) return 'precis nu';
+  if (minutes < 60) return `för ${minutes} min sedan`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return hours === 1 ? 'för en timme sedan' : `för ${hours} timmar sedan`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? 'igår' : `för ${days} dagar sedan`;
+}
 
 export default function LiveBookingToast() {
-  const [currentBooking, setCurrentBooking] = useState(0);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [current, setCurrent] = useState(0);
   const [visible, setVisible] = useState(false);
 
+  // Hämta riktiga bokningar först när cookiebannern är besvarad.
   useEffect(() => {
-    // Wait until the cookie banner has been answered so overlays never stack.
-    let initialTimer: ReturnType<typeof setTimeout>;
-    let intervalTimer: ReturnType<typeof setInterval>;
-
-    const start = () => {
-      initialTimer = setTimeout(() => setVisible(true), 8000);
-
-      // Cycle through bookings every 30 seconds
-      intervalTimer = setInterval(() => {
-        setVisible(false);
-        setTimeout(() => {
-          setCurrentBooking((prev) => (prev + 1) % bookings.length);
-          setVisible(true);
-        }, 1000); // 1 second gap between hide and show new
-      }, 30000);
-    };
-
-    let poll: ReturnType<typeof setInterval>;
-    if (localStorage.getItem('cookie-consent')) {
-      start();
-    } else {
-      poll = setInterval(() => {
-        if (localStorage.getItem('cookie-consent')) {
-          clearInterval(poll);
-          start();
-        }
-      }, 500);
-    }
-
+    let cancelled = false;
+    const stop = whenCookieBannerAnswered(() => {
+      fetch('/api/recent-bookings')
+        .then((res) => (res.ok ? res.json() : { bookings: [] }))
+        .then((data) => {
+          if (!cancelled && Array.isArray(data.bookings)) setBookings(data.bookings);
+        })
+        .catch(() => {
+          /* tyst – utan data visas ingen toast */
+        });
+    });
     return () => {
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
-      clearInterval(poll);
+      cancelled = true;
+      stop();
     };
   }, []);
 
-  // Auto-hide the toast after 6 seconds
+  // Visa en i taget, och bara när inget annat lager har platsen.
   useEffect(() => {
-    let hideTimer: NodeJS.Timeout;
-    if (visible) {
+    if (bookings.length === 0) return;
+
+    let hideTimer: ReturnType<typeof setTimeout>;
+    const show = () => {
+      if (!claimOverlay('booking-toast')) return; // rabattpopupen går före
+      setVisible(true);
       hideTimer = setTimeout(() => {
         setVisible(false);
+        releaseOverlay('booking-toast');
       }, 6000);
-    }
-    return () => clearTimeout(hideTimer);
-  }, [visible]);
+    };
+
+    const initialTimer = setTimeout(show, 12000);
+    const cycle = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % bookings.length);
+      show();
+    }, 45000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearTimeout(hideTimer);
+      clearInterval(cycle);
+      releaseOverlay('booking-toast');
+    };
+  }, [bookings.length]);
+
+  function dismiss() {
+    setVisible(false);
+    releaseOverlay('booking-toast');
+  }
+
+  const booking = bookings[current];
+  if (!booking) return null;
 
   return (
     <AnimatePresence>
@@ -78,14 +95,13 @@ export default function LiveBookingToast() {
             </div>
             <div className="flex-1 min-w-0 pr-4">
               <p className="text-text-light text-sm font-medium leading-tight">
-                <strong className="text-white">{bookings[currentBooking].name}</strong> i {bookings[currentBooking].area} bokade precis {bookings[currentBooking].service}.
+                <strong className="text-white">{booking.firstName}</strong> bokade {booking.service}.
               </p>
-              <p className="text-xs text-text-light/50 mt-1">
-                {bookings[currentBooking].time}
-              </p>
+              <p className="text-xs text-text-light/50 mt-1">{relativeTime(booking.ts)}</p>
             </div>
-            <button 
-              onClick={() => setVisible(false)}
+            <button
+              onClick={dismiss}
+              aria-label="Stäng"
               className="absolute top-2 right-2 p-1 text-white/30 hover:text-white transition-colors"
             >
               <X className="w-3 h-3" />

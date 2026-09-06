@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Phone, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
-import { track } from '../utils/analytics';
 import { bookingUrl } from "../utils/bookingUrl";
+import { useActiveOverlay } from '../utils/overlays';
 
 export default function StickyCTA() {
+  const activeOverlay = useActiveOverlay();
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,11 +17,13 @@ export default function StickyCTA() {
     if (!phone) return;
     setLoading(true);
     await submitLead({ email: '', phone, source: 'sticky_cta' });
-    track("lead_capture", { source: 'sticky_cta' });
     setLoading(false);
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
   }
+
+  // Ligg lågt medan rabattpopupen täcker skärmen.
+  if (activeOverlay === 'discount') return null;
 
   if (submitted) {
     return (

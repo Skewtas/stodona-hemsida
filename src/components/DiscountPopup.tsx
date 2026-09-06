@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Gift, Sparkles } from 'lucide-react';
 import { submitLead, hasSeenPopup, markPopupSeen } from '../utils/leadCapture';
-import { track } from '../utils/analytics';
 import { bookingUrl } from "../utils/bookingUrl";
+import { claimOverlay, releaseOverlay, whenCookieBannerAnswered } from '../utils/overlays';
 
 // Single discount popup (15% rabatt / VLKMN15). Fires on whichever trigger comes
 // first — a timed welcome or exit intent — and shows once per 7 days, so the two
@@ -39,6 +39,8 @@ export default function DiscountPopup() {
 
     const fire = (reason: Trigger) => {
       if (fired.current || hasSeenPopup('discount')) return;
+      // Ta platsen i överlagringskön – annars ligger vi kvar och försöker igen.
+      if (!claimOverlay('discount')) return;
       fired.current = true;
       setTrigger(reason);
       setVisible(true);
@@ -73,20 +75,11 @@ export default function DiscountPopup() {
       });
     };
 
-    let poll: ReturnType<typeof setInterval> | undefined;
-    if (localStorage.getItem('cookie-consent')) {
-      start();
-    } else {
-      poll = setInterval(() => {
-        if (localStorage.getItem('cookie-consent')) {
-          clearInterval(poll);
-          start();
-        }
-      }, 500);
-    }
+    const stopWaiting = whenCookieBannerAnswered(start);
 
     return () => {
-      if (poll) clearInterval(poll);
+      stopWaiting();
+      releaseOverlay('discount');
       cleanups.forEach((fn) => fn());
     };
   }, []);
@@ -94,6 +87,7 @@ export default function DiscountPopup() {
   function handleClose() {
     markPopupSeen('discount');
     setVisible(false);
+    releaseOverlay('discount');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -101,11 +95,13 @@ export default function DiscountPopup() {
     if (!email) return;
     setLoading(true);
     await submitLead({ email, phone, source: trigger === 'exit' ? 'exit_intent' : 'welcome_popup' });
-    track("lead_capture", { source: trigger === 'exit' ? 'exit_intent' : 'welcome_popup' });
     setLoading(false);
     setSubmitted(true);
     markPopupSeen('discount');
-    setTimeout(() => setVisible(false), 3000);
+    setTimeout(() => {
+      setVisible(false);
+      releaseOverlay('discount');
+    }, 3000);
   }
 
   const copy = COPY[trigger];

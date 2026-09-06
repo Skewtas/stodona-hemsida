@@ -47,7 +47,7 @@ export default function BarnvaktJobb() {
           content="Sök jobb som barnvakt hos Stodona i Stockholm. Flexibla tider, schysst betalt och ett meningsfullt jobb där du gör skillnad. Skicka din ansökan idag."
         />
         {/* Dold sida – ska inte indexeras eller länkas */}
-        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://stodona.se/barnvakt-jobb" />
       </Helmet>
 
       {/* Hero */}

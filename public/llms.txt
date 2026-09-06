@@ -1,6 +1,6 @@
 # Stodona
 
-> Stodona AB (org.nr 559201-1059) är ett professionellt städbolag i Stockholm. Vi erbjuder hemstädning, flyttstädning, storstädning, fönsterputsning, företagsstädning, byggstädning och trappstädning – med RUT-avdrag för privatpersoner, samma team varje gång, nöjd-kund-garanti och ingen bindningstid. Adress: Sommarvägen 5, 169 31 Solna. Bokning: https://boka.stodona.se
+> Stodona AB (org.nr 559201-1059) är ett professionellt städbolag i Stockholm. Vi erbjuder hemstädning, flyttstädning, storstädning, fönsterputsning, företagsstädning, byggstädning och trappstädning – samt barnpassning – med RUT-avdrag för privatpersoner, samma team varje gång och nöjd-kund-garanti. Du kan boka helt utan bindningstid, eller teckna städabonnemang med 3, 6 eller 12 månaders bindning för ett lägre pris. Adress: Sommarvägen 5, 169 31 Solna. Bokning: https://boka.stodona.se
 
 ## Tjänster
 
@@ -11,11 +11,14 @@
 - [Företagsstädning](https://stodona.se/foretagsstadning): Kontors- och lokalstädning efter era behov och tider (ingen RUT för företag).
 - [Byggstädning](https://stodona.se/byggstadning): Städning efter renovering och nybygge, tar bort byggdamm och rester.
 - [Trappstädning](https://stodona.se/trappstadning): Trapphusstädning för bostadsrättsföreningar och fastighetsägare.
+- [Barnpassning & nanny](https://stodona.se/barnpassning): Trygg barnpassning i Stockholm med referenstagna och HLR-utbildade barnvakter. RUT-avdrag gäller.
+- [Barnpassning för företag](https://stodona.se/barnpassning-foretag): Barnpassning som personalförmån för arbetsgivare.
 
 ## Priser & RUT
 
 - [Priser](https://stodona.se/priser): Prisinformation för Stodonas städtjänster.
 - [RUT-avdrag](https://stodona.se/rut-avdrag): Så fungerar RUT-avdrag för städning – du betalar 50 % av arbetskostnaden, Stodona sköter administrationen.
+- [Städabonnemang](https://stodona.se/stadabonnemang): Regelbunden hemstädning med 3, 6 eller 12 månaders bindningstid ger lägre pris per städning. Utan bindning tillkommer 10 %. 12 månader ger lägsta priset; efter bindningstiden 1 månads uppsägningstid.
 
 ## Trygghet & information
 

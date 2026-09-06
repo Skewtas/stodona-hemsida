@@ -110,8 +110,7 @@ export default function Barnpassning() {
           name="description"
           content="Trygg barnpassning och nannytjänster i Stockholm. Personligt utvalda, referenstagna och HLR-utbildade barnvakter. Lämna ditt barn i trygga händer."
         />
-        {/* Dold sida – ska inte indexeras eller länkas */}
-        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://stodona.se/barnpassning" />
       </Helmet>
 
       {/* Hero */}

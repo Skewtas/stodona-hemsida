@@ -6,6 +6,8 @@ import NannyTeam from "../components/NannyTeam";
 import NannyPricing from "../components/NannyPricing";
 import NannyTrial from "../components/NannyTrial";
 import NannyWizard from "../components/NannyWizard";
+import AnswerFirst from "../components/AnswerFirst";
+import { NANNY_PLANS, NANNY_TRIAL as NANNY_TRIAL_OFFER } from "../nannyData";
 import {
   Baby,
   Heart,
@@ -84,6 +86,18 @@ const promises = [
 
 const faqs = [
   {
+    q: "Vad kostar en barnvakt i Stockholm?",
+    a: "Hos Stodona kostar barnpassning från 199 kr i timmen efter RUT-avdrag. Flex utan fast månadsvolym ligger på 269 kr/tim, Mini (8 tim/mån) på 229 kr/tim, Familj (16 tim/mån) på 209 kr/tim och Familj Plus (från 32 tim/mån) på 199 kr/tim. Alla priser är vad du faktiskt betalar, med RUT-avdraget redan avdraget.",
+  },
+  {
+    q: "Gäller RUT-avdrag för barnpassning?",
+    a: "Ja. Barnpassning i hemmet och hämtning eller lämning på förskola och skola är RUT-berättigat, så du betalar 50 % av arbetskostnaden. Stodona drar av det direkt på fakturan och sköter administrationen mot Skatteverket. Läxhjälp och undervisning omfattas däremot inte av RUT.",
+  },
+  {
+    q: "Vad är skillnaden mellan barnvakt och nanny?",
+    a: "En barnvakt anlitas oftast vid enstaka tillfällen, till exempel en kväll. En nanny är en återkommande barnvakt med fast schema som blir en del av familjens vardag och ofta hjälper till med hämtning, mellanmål och rutiner. Hos Stodona får du båda delarna – du väljer själv om du vill boka vid behov eller ha ett fast upplägg.",
+  },
+  {
     q: "Hur vet jag att barnvakten är trygg?",
     a: "Alla våra barnvakter är personligt intervjuade, referenstagna och kontrollerade mot belastningsregistret. De är dessutom utbildade i HLR och första hjälpen för barn.",
   },
@@ -99,18 +113,131 @@ const faqs = [
     q: "Vilka åldrar passar ni?",
     a: "Vi hjälper familjer med barn i alla åldrar, från de allra minsta till skolbarn. Berätta om era behov så matchar vi rätt kompetens.",
   },
+  {
+    q: "Vilka områden i Stockholm arbetar ni i?",
+    a: "Vi erbjuder barnpassning i hela Stockholm med omnejd, bland annat Östermalm, Vasastan, Södermalm, Bromma, Solna, Sundbyberg, Lidingö, Nacka, Danderyd, Djursholm, Täby, Sollentuna, Ekerö och Järfälla.",
+  },
+  {
+    q: "Är det bindningstid på barnpassningen?",
+    a: "Nej. Barnpassningen har ingen bindningstid – du bestämmer takten och kan ändra eller avsluta upplägget när det passar er familj.",
+  },
+  {
+    q: "Kan vi prova innan vi bestämmer oss?",
+    a: "Ja. Nya familjer kan boka tre timmars barnpassning för 799 kr efter RUT-avdrag, en gång per familj. Då får ni träffa en barnvakt och se hur det fungerar innan ni väljer upplägg.",
+  },
+];
+
+// Områden vi tar uppdrag i. Används både i schemat och i den synliga listan,
+// så strukturerad data och sidinnehåll alltid säger samma sak.
+const AREAS = [
+  "Stockholm", "Östermalm", "Vasastan", "Södermalm", "Kungsholmen", "Bromma",
+  "Solna", "Sundbyberg", "Lidingö", "Nacka", "Danderyd", "Djursholm",
+  "Täby", "Sollentuna", "Ekerö", "Järfälla", "Huddinge", "Upplands Väsby",
+];
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "https://stodona.se/barnpassning#service",
+  name: "Barnpassning och barnvakt i Stockholm",
+  alternateName: ["Barnvakt", "Nanny", "Barnpassning"],
+  serviceType: "Barnpassning",
+  description:
+    "Barnpassning och fast barnvakt (nanny) i Stockholm med referenstagna och HLR-utbildade barnvakter, kontrollerade mot belastningsregistret. RUT-avdrag gäller för barnpassning i hemmet samt hämtning och lämning.",
+  url: "https://stodona.se/barnpassning",
+  provider: { "@id": "https://stodona.se/#business" },
+  areaServed: AREAS.map((name) => ({ "@type": "City", name })),
+  audience: { "@type": "Audience", audienceType: "Barnfamiljer" },
+  offers: [
+    {
+      "@type": "Offer",
+      name: `Prova på barnpassning – ${NANNY_TRIAL_OFFER.hours} timmar`,
+      description: "Prova-på-pass för nya familjer, en gång per familj. Pris efter RUT-avdrag.",
+      price: NANNY_TRIAL_OFFER.price,
+      priceCurrency: "SEK",
+      availability: "https://schema.org/InStock",
+      url: "https://stodona.se/ny-kund",
+    },
+    ...NANNY_PLANS.map((plan) => ({
+      "@type": "Offer",
+      name: `Barnpassning ${plan.name}`,
+      description: plan.tagline,
+      priceCurrency: "SEK",
+      availability: "https://schema.org/InStock",
+      url: "https://stodona.se/ny-kund",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: plan.hourly,
+        priceCurrency: "SEK",
+        unitCode: "HUR",
+        unitText: "timme",
+        valueAddedTaxIncluded: true,
+        description: "Pris per timme efter RUT-avdrag",
+      },
+    })),
+  ],
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Hem", item: "https://stodona.se/" },
+    { "@type": "ListItem", position: 2, name: "Barnpassning", item: "https://stodona.se/barnpassning" },
+  ],
+};
+
+const GUIDES = [
+  {
+    to: "/blogg/vad-kostar-barnvakt-stockholm",
+    title: "Vad kostar en barnvakt i Stockholm?",
+    text: "Timpriser, månadskostnad och vad RUT-avdraget faktiskt drar av.",
+  },
+  {
+    to: "/blogg/barnvakt-rut-avdrag",
+    title: "Barnvakt och RUT-avdrag",
+    text: "Vad som omfattas av RUT vid barnpassning – och vad som inte gör det.",
+  },
+  {
+    to: "/blogg/barnvakt-nanny-au-pair-skillnad",
+    title: "Barnvakt, nanny eller au pair?",
+    text: "Skillnaden i upplägg, kostnad och vem som bär arbetsgivaransvaret.",
+  },
+  {
+    to: "/blogg/hitta-trygg-barnvakt-checklista",
+    title: "Så hittar du en trygg barnvakt",
+    text: "Sju frågor att ställa innan någon får komma hem till barnen.",
+  },
 ];
 
 export default function Barnpassning() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Barnpassning & Nanny i Stockholm | Stodona</title>
+        <title>Barnvakt & barnpassning i Stockholm – nanny från 199 kr/tim | Stodona</title>
         <meta
           name="description"
-          content="Trygg barnpassning och nannytjänster i Stockholm. Personligt utvalda, referenstagna och HLR-utbildade barnvakter. Lämna ditt barn i trygga händer."
+          content="Trygg barnvakt och barnpassning i Stockholm. Referenstagna, HLR-utbildade nannys kontrollerade mot belastningsregistret. Från 199 kr/tim efter RUT-avdrag. Prova 3 timmar för 799 kr."
         />
         <link rel="canonical" href="https://stodona.se/barnpassning" />
+        <meta property="og:title" content="Barnvakt & barnpassning i Stockholm | Stodona" />
+        <meta property="og:description" content="Trygg barnvakt och nanny i Stockholm. Från 199 kr/tim efter RUT-avdrag. Prova 3 timmar för 799 kr." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://stodona.se/barnpassning" />
+        <meta property="og:image" content="https://stodona.se/familj-stodona.jpg" />
+        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
       {/* Hero */}
@@ -138,11 +265,16 @@ export default function Barnpassning() {
             className="max-w-3xl"
           >
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">
-              Behöver du också hjälp att få ihop vardagen med barnen?
+              Barnvakt och barnpassning i Stockholm
             </h1>
-            <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
-              Noggrant utvalda nannys med erfarenhet av householding och barnpassning
-              i alla åldrar
+            <p className="text-lg sm:text-xl text-text-light/90 max-w-2xl leading-relaxed mb-4 drop-shadow-md">
+              Behöver du också hjälp att få ihop vardagen med barnen? Noggrant utvalda
+              nannys med erfarenhet av barn i alla åldrar – från 199 kr i timmen efter
+              RUT-avdrag.
+            </p>
+            <p className="text-base text-text-light/75 max-w-2xl leading-relaxed mb-10 drop-shadow-md">
+              Referenstagna, HLR-utbildade och kontrollerade mot belastningsregistret.
+              Ingen bindningstid.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/ny-kund" className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
@@ -155,6 +287,28 @@ export default function Barnpassning() {
           </motion.div>
         </div>
       </section>
+
+      {/* Svar först (GEO) – kort, direkt och citerbart svar högst upp. */}
+      <AnswerFirst
+        heading="Kort om barnpassning hos Stodona"
+        answer={
+          <>
+            Stodona erbjuder <strong className="text-text-primary">barnvakt och barnpassning i Stockholm</strong>{" "}
+            – både enstaka kvällar och fast nanny med återkommande schema. Alla barnvakter är personligt
+            intervjuade, referenstagna, kontrollerade mot belastningsregistret och utbildade i HLR och första
+            hjälpen för barn. Priset börjar på{" "}
+            <strong className="text-text-primary">199 kr i timmen efter RUT-avdrag</strong>, och nya familjer kan
+            prova tre timmar för 799 kr. RUT-avdraget gäller barnpassning i hemmet samt hämtning och lämning på
+            förskola och skola – vi drar av det direkt på fakturan. Ingen bindningstid.
+          </>
+        }
+        facts={[
+          { label: "Pris", value: "Från 199 kr/tim efter RUT" },
+          { label: "Prova på", value: "3 timmar för 799 kr" },
+          { label: "Trygghet", value: "Referenstagna & HLR-utbildade" },
+          { label: "Område", value: "Stockholm med omnejd" },
+        ]}
+      />
 
       {/* Trust chips */}
       <section className="bg-bg-dark text-text-light py-6 border-t border-white/5">
@@ -445,6 +599,29 @@ export default function Barnpassning() {
         </div>
       </section>
 
+      {/* Områden – lokal relevans på hubben i stället för tunna undersidor. */}
+      <section className="py-16 bg-bg-primary border-t border-text-primary/5">
+        <div className="container-custom max-w-4xl text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Barnpassning i hela Stockholm
+          </h2>
+          <p className="text-text-secondary mb-8 max-w-2xl mx-auto">
+            Vi tar uppdrag i Stockholms innerstad och kranskommunerna. Bor ni utanför listan
+            – hör av er ändå, vi löser det oftast.
+          </p>
+          <ul className="flex flex-wrap justify-center gap-2">
+            {AREAS.map((area) => (
+              <li
+                key={area}
+                className="px-4 py-2 rounded-full bg-white border border-text-primary/5 text-sm font-medium text-text-secondary"
+              >
+                {area}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="section-spacing bg-white">
         <div className="container-custom max-w-3xl mx-auto">
@@ -458,6 +635,29 @@ export default function Barnpassning() {
                 </h3>
                 <p className="text-text-secondary leading-relaxed pl-7">{f.a}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Guider – knyter ihop klustret och ger vägar in från söktrafik. */}
+      <section className="py-16 bg-bg-primary border-t border-text-primary/5">
+        <div className="container-custom max-w-4xl">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            Läs mer innan ni bestämmer er
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {GUIDES.map((g) => (
+              <Link
+                key={g.to}
+                to={g.to}
+                className="group bg-white rounded-2xl p-6 border border-text-primary/5 hover:shadow-lg transition-shadow"
+              >
+                <h3 className="font-bold mb-1.5 group-hover:text-cta-hover transition-colors">
+                  {g.title}
+                </h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{g.text}</p>
+              </Link>
             ))}
           </div>
         </div>

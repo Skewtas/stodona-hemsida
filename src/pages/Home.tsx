@@ -215,6 +215,50 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 5b. Barnpassning – egen tjänstegren, länkad från startsidan så att både
+           besökare och sökrobotar hittar dit. */}
+      <section className="bg-bg-dark text-text-light py-14 sm:py-20">
+        <div className="container-custom grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-text-light/80 text-xs font-bold tracking-widest uppercase mb-5">
+              Även barnpassning
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+              Barnvakt och barnpassning i Stockholm
+            </h2>
+            <p className="text-text-light/80 leading-relaxed mb-6 max-w-xl">
+              Enstaka kvällar eller fast nanny varje vecka. Alla barnvakter är
+              referenstagna, HLR-utbildade och kontrollerade mot belastningsregistret –
+              och anställda hos oss. Från 199 kr i timmen efter RUT-avdrag.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/barnpassning"
+                className="btn-primary bg-cta-hover text-text-primary hover:bg-white px-7 py-3 inline-flex items-center gap-2"
+              >
+                Läs om barnpassning <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/blogg/vad-kostar-barnvakt-stockholm"
+                className="btn-secondary border-text-light/40 text-text-light hover:bg-text-light hover:text-text-primary px-7 py-3"
+              >
+                Vad kostar en barnvakt?
+              </Link>
+            </div>
+          </div>
+          <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
+            <img
+              src="/barnpassning-narhet.jpg"
+              alt="Barnvakt som läser tillsammans med ett barn hemma"
+              loading="lazy"
+              width="1024"
+              height="768"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 4. Boka Section */}
       <section className="pt-8 pb-4 bg-white relative overflow-hidden">
         {/* Subtle background glow */}

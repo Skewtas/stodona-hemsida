@@ -41,12 +41,11 @@ export default function BarnvaktJobb() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Jobba som barnvakt i Stockholm | Stodona</title>
+        <title>Jobb som barnvakt i Stockholm – sök till Stodona | Stodona</title>
         <meta
           name="description"
           content="Sök jobb som barnvakt hos Stodona i Stockholm. Flexibla tider, schysst betalt och ett meningsfullt jobb där du gör skillnad. Skicka din ansökan idag."
         />
-        {/* Dold sida – ska inte indexeras eller länkas */}
         <link rel="canonical" href="https://stodona.se/barnvakt-jobb" />
       </Helmet>
 

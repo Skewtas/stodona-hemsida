@@ -99,12 +99,11 @@ export default function BarnpassningForetag() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Barnpassning som personalförmån för företag | Stodona</title>
+        <title>Barnpassning som personalförmån – barnvakt för företag i Stockholm | Stodona</title>
         <meta
           name="description"
           content="Erbjud barnpassning som personalförmån. Behåll talanger, minska frånvaro och stärk er employer branding. Flexibel timpott och trygga, utvalda barnvakter i Stockholm."
         />
-        {/* Dold sida – ska inte indexeras eller länkas */}
         <link rel="canonical" href="https://stodona.se/barnpassning-foretag" />
       </Helmet>
 

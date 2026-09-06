@@ -687,4 +687,200 @@ Alla priser ovan är redan efter [RUT-avdrag](https://stodona.se/rut-avdrag) –
 Läs mer om [städabonnemang](https://stodona.se/stadabonnemang) och vad som ingår, jämför med våra [priser](https://stodona.se/priser) för enstaka städning, eller [räkna ut ditt pris direkt](https://boka.stodona.se) – du ser vad varje bindningstid kostar innan du bekräftar.`,
   },
 
+  {
+    slug: 'vad-kostar-barnvakt-stockholm',
+    title: 'Vad kostar en barnvakt i Stockholm 2026?',
+    metaDescription: 'Vad kostar en barnvakt i Stockholm 2026? Timpriser, månadskostnad för fast nanny, vad RUT-avdraget drar av och vad som påverkar priset. Prisguide från Stodona.',
+    excerpt: 'Timpris, månadskostnad och vad RUT faktiskt drar av. En rak prisguide för dig som funderar på barnvakt eller fast nanny i Stockholm.',
+    date: '2026-09-07',
+    category: 'Priser',
+    readTime: '4 min',
+    heroImage: '/barnpassning-narhet.jpg',
+    content: `## Vad kostar en barnvakt i Stockholm 2026?
+
+Kort svar: **från cirka 199 till 269 kr i timmen efter RUT-avdrag**, beroende på hur många timmar du bokar per månad. Ju mer regelbundet du behöver hjälp, desto lägre timpris.
+
+Här är hela bilden.
+
+### Timpris hos Stodona
+
+Alla priser nedan är vad du faktiskt betalar – RUT-avdraget på 50 % är redan avdraget:
+
+*   **Flex** – ingen fast månadsvolym: **269 kr/tim**
+*   **Mini** – 8 timmar/månad (ca 2 tim/vecka): **229 kr/tim**, cirka 1 832 kr/mån
+*   **Familj** – 16 timmar/månad (ca 4 tim/vecka): **209 kr/tim**, cirka 3 344 kr/mån
+*   **Familj Plus** – från 32 timmar/månad: **199 kr/tim**, cirka 6 368 kr/mån
+
+Vill du bara testa först kostar ett prova-på-pass på **3 timmar 799 kr** efter RUT, en gång per familj.
+
+### Vad påverkar priset?
+
+*   **Hur ofta du bokar.** Det här är den stora faktorn. Ett fast schema är billigare per timme än enstaka kvällar, eftersom barnvakten kan planera sin vecka.
+*   **Om du använder RUT.** Utan RUT-avdrag blir kostnaden dubbelt så hög. Se nästa avsnitt.
+*   **Uppdragets innehåll.** Ren barnpassning, hämtning från förskola och enklare måltider ingår. Läxhjälp och undervisning är en annan sak – de omfattas inte av RUT.
+
+### Vad drar RUT av?
+
+RUT-avdraget halverar arbetskostnaden. Barnpassning i hemmet samt hämtning och lämning på förskola, skola och fritids är RUT-berättigat för privatpersoner. Du får dra av 50 % upp till 75 000 kr per person och år.
+
+Hos oss dras avdraget direkt på fakturan, så priserna ovan är vad som landar på ditt kort. Läs mer i vår guide om [barnvakt och RUT-avdrag](https://stodona.se/blogg/barnvakt-rut-avdrag).
+
+### Vad kostar det jämfört med att inte ha hjälp?
+
+Det är den räkningen de flesta faktiskt gör. Fyra timmar i veckan – två eftermiddagar med hämtning, mellanmål och lek – landar på runt 3 300 kr i månaden. Om det är skillnaden mellan att hinna jobba klart och att ständigt ligga efter är det en annan kalkyl än ren timkostnad.
+
+### Så kommer du igång
+
+Berätta hur er vecka ser ut så föreslår vi ett upplägg och ett pris. Ingen bindningstid.
+
+Läs mer om [barnpassning och barnvakt i Stockholm](https://stodona.se/barnpassning), eller [bli kund](https://stodona.se/ny-kund) så hör vi av oss.`,
+  },
+  {
+    slug: 'barnvakt-rut-avdrag',
+    title: 'Barnvakt och RUT-avdrag – så fungerar det',
+    metaDescription: 'Gäller RUT-avdrag för barnvakt och barnpassning? Ja – för barnpassning i hemmet samt hämtning och lämning. Så mycket drar du av, och vad som INTE omfattas.',
+    excerpt: 'Barnpassning ger RUT-avdrag – men inte allt en barnvakt gör. Här är exakt vad som omfattas, vad som inte gör det, och hur avdraget sköts.',
+    date: '2026-09-07',
+    category: 'Guide',
+    readTime: '3 min',
+    heroImage: '/barnpassning-lasstund.jpg',
+    content: `## Gäller RUT-avdrag för barnvakt?
+
+**Ja.** Barnpassning är en RUT-berättigad tjänst för privatpersoner. Du betalar 50 % av arbetskostnaden och Skatteverket står för resten, upp till 75 000 kr per person och år.
+
+Men allt en barnvakt gör omfattas inte. Här är gränsdragningen.
+
+### Det här ger RUT-avdrag
+
+*   **Barnpassning i hemmet** – den vanliga barnvaktstimmen, oavsett om det är en kväll eller ett fast eftermiddagsschema.
+*   **Hämtning och lämning** på förskola, skola och fritids.
+*   **Enklare måltider och mellanmål** som lagas åt barnen som en del av passningen.
+*   **Städning och tvätt** kopplat till hushållet – det är RUT i egen rätt.
+
+### Det här ger inte RUT-avdrag
+
+*   **Läxhjälp och undervisning.** Hjälp med läxor togs bort ur RUT 2015 och räknas som undervisning, inte hushållsarbete.
+*   **Ren transport** där barnpassning inte ingår.
+
+Det betyder inte att en barnvakt inte får sitta med vid köksbordet när läxan ska göras. Men den delen kan inte faktureras med RUT-avdrag, och ett städbolag som påstår något annat gör dig en otjänst – det är du som kund som blir ansvarig om Skatteverket underkänner avdraget.
+
+### Så mycket sparar du
+
+Taket ligger på 75 000 kr skattereduktion per person och år. Bor ni två vuxna i hushållet kan ni dela på tjänsterna och därmed utnyttja två tak.
+
+Ett exempel: fyra timmars barnpassning i veckan hos oss kostar cirka 3 344 kr i månaden efter avdrag. Utan RUT hade samma hjälp kostat ungefär det dubbla.
+
+### Vem kan använda avdraget?
+
+Du behöver vara över 18 år, folkbokförd i Sverige, betala tillräckligt med skatt och själv stå för kostnaden. Tjänsten ska utföras i din bostad eller i anslutning till den. Kom också ihåg att RUT för städning och RUT för barnpassning delar på samma tak.
+
+### Du behöver inte göra något
+
+Hos Stodona dras avdraget direkt på fakturan och vi sköter ansökan mot Skatteverket. Priserna vi visar är redan efter avdrag. Har du nått ditt tak för året hör vi av oss innan vi fakturerar mellanskillnaden.
+
+Läs mer om [RUT-avdrag generellt](https://stodona.se/rut-avdrag), om [barnpassning i Stockholm](https://stodona.se/barnpassning), eller se [vad en barnvakt kostar](https://stodona.se/blogg/vad-kostar-barnvakt-stockholm).`,
+  },
+  {
+    slug: 'barnvakt-nanny-au-pair-skillnad',
+    title: 'Barnvakt, nanny eller au pair – vad är skillnaden?',
+    metaDescription: 'Barnvakt, nanny eller au pair? Så skiljer de sig i upplägg, kostnad, arbetsgivaransvar och RUT-avdrag – och vilken som passar din familj.',
+    excerpt: 'Orden används om vartannat, men skillnaden spelar roll för både plånboken och arbetsgivaransvaret. Här är en rak jämförelse.',
+    date: '2026-09-07',
+    category: 'Guide',
+    readTime: '4 min',
+    heroImage: '/barnpassning-lek.jpg',
+    content: `## Barnvakt, nanny eller au pair – vad är skillnaden?
+
+De tre orden används om vartannat, men de betyder olika saker – och skillnaden påverkar både kostnaden och vilket ansvar du som förälder tar på dig.
+
+### Barnvakt
+
+En **barnvakt** anlitas vid behov, ofta enstaka kvällar eller helger. Ingen fast volym, inget schema. Du bokar när du behöver.
+
+*   **Passar:** middagar, kvällar ute, tillfälliga luckor i pusslet
+*   **Kostnad:** högst timpris, eftersom det inte går att planera in
+*   **RUT:** ja, barnpassning i hemmet är RUT-berättigat
+
+### Nanny
+
+En **nanny** är en återkommande barnvakt med fast schema som blir en del av familjens vardag. Samma person varje vecka, som lär känna barnen, rutinerna och var extrakläderna ligger. Ofta ingår hämtning från förskola eller skola, mellanmål och kvällsrutiner.
+
+*   **Passar:** familjer med ett återkommande behov, till exempel två eftermiddagar i veckan
+*   **Kostnad:** lägre timpris än enstaka barnvakt, eftersom volymen är förutsägbar
+*   **RUT:** ja, samma regler som för barnvakt
+
+Går du via ett företag är nannyn anställd där. Det betyder att arbetsgivaransvar, försäkring, skatter och ersättare vid sjukdom ligger hos företaget, inte hos dig.
+
+### Au pair
+
+En **au pair** är något helt annat. Det är en ung person från ett annat land som bor hemma hos familjen, får kost, logi och fickpengar i utbyte mot hjälp i hushållet, och samtidigt studerar svenska. Upplägget är kulturutbyte, inte en tjänst du köper.
+
+*   **Passar:** familjer med eget rum över och ett behov som sträcker sig över minst ett år
+*   **Kostnad:** låg kontant kostnad, men du blir **arbetsgivare** med allt vad det innebär – anställningsavtal, arbetsgivaravgifter, skatt, arbetstidsregler och ansvar för uppehållstillstånd
+*   **RUT:** nej, RUT gäller inte för au pair som du själv anställer
+
+Många underskattar administrationen här. Är du inte beredd att vara arbetsgivare är au pair sällan rätt väg.
+
+### Vilket passar er?
+
+*   Behöver ni hjälp **någon gång ibland** – barnvakt.
+*   Behöver ni hjälp **varje vecka, samma tider** – nanny.
+*   Vill ni ha någon **boende i hemmet över lång tid** och är beredda att vara arbetsgivare – au pair.
+
+Hos Stodona får du både barnvakt och nanny i samma upplägg: du väljer om du vill boka vid behov eller ha ett fast schema, och vi sköter anställning, försäkring och ersättare.
+
+Läs mer om [barnpassning i Stockholm](https://stodona.se/barnpassning) eller om [vad en barnvakt kostar](https://stodona.se/blogg/vad-kostar-barnvakt-stockholm).`,
+  },
+  {
+    slug: 'hitta-trygg-barnvakt-checklista',
+    title: 'Så hittar du en trygg barnvakt – 7 frågor att ställa',
+    metaDescription: 'Hur hittar man en trygg barnvakt? Sju frågor du bör ställa innan någon får komma hem till dina barn – om belastningsregister, referenser, HLR och försäkring.',
+    excerpt: 'Att släppa in någon i hemmet med sina barn kräver mer än en bra magkänsla. Sju frågor som skiljer en seriös förmedling från en osäker.',
+    date: '2026-09-07',
+    category: 'Guide',
+    readTime: '4 min',
+    heroImage: '/familj-stodona.jpg',
+    content: `## Så hittar du en trygg barnvakt
+
+Att välja barnvakt är inte som att välja någon annan tjänst. Det handlar om vem som får vara ensam hemma med dina barn. Här är frågorna som faktiskt skiljer en seriös aktör från en app som matchar vem som helst.
+
+### 1. Har ni sett utdrag ur belastningsregistret?
+
+Grundfrågan. Svaret ska vara ja, för varje barnvakt, före första uppdraget – inte "på begäran" eller "för de flesta". Be att få veta att det är kontrollerat för just den person som kommer hem till er.
+
+### 2. Har ni ringt referenser?
+
+Ett CV är påståenden. En referens är någon som faktiskt har låtit personen passa sina barn. Fråga om förmedlingen ringer själva, eller om de bara vidarebefordrar det som står i profilen.
+
+### 3. Kan barnvakten HLR och första hjälpen för barn?
+
+Barn-HLR skiljer sig från vuxen-HLR. Fråga om utbildningen är ett krav eller en merit. Det borde vara ett krav.
+
+### 4. Vem är arbetsgivare?
+
+Det här missas ofta. Är barnvakten **anställd** av företaget, eller förmedlas bara en kontakt som du sedan betalar direkt? I det senare fallet kan du bli arbetsgivare utan att veta om det, med ansvar för skatt, arbetsgivaravgifter och försäkring.
+
+### 5. Vad händer om barnvakten blir sjuk?
+
+Fråga rakt ut. Finns det en ersättare som redan känner familjen, eller står ni utan hjälp den dagen? Ett upplägg utan svar på den frågan håller inte över tid.
+
+### 6. Vilken försäkring gäller om något går sönder – eller händer?
+
+Ett seriöst företag har ansvarsförsäkring och kan beskriva vad den täcker. Kan de inte det, är det ett svar i sig.
+
+### 7. Får vi träffa barnvakten först?
+
+Ni ska aldrig behöva lämna över barnen till någon ni inte har träffat. Ett introduktionsmöte eller ett prova-på-pass innan ni bestämmer er borde vara självklart.
+
+### Och en sak till: lita på magkänslan
+
+Alla kontroller i världen ersätter inte att det ska kännas rätt. Gör det inte det, ska ni kunna byta barnvakt utan att det blir jobbigt. Fråga hur en omvärdering går till innan ni skriver på något.
+
+### Så gör vi
+
+Alla barnvakter hos Stodona är personligt intervjuade, referenstagna, kontrollerade mot belastningsregistret och utbildade i HLR och första hjälpen för barn. De är anställda hos oss, så arbetsgivaransvar och försäkring ligger på oss. Känns matchningen inte rätt gör vi om den kostnadsfritt.
+
+Läs mer om [barnpassning och barnvakt i Stockholm](https://stodona.se/barnpassning), jämför [barnvakt, nanny och au pair](https://stodona.se/blogg/barnvakt-nanny-au-pair-skillnad), eller [bli kund](https://stodona.se/ny-kund) så hör vi av oss.`,
+  },
+
 ];

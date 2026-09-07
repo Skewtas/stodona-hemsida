@@ -78,9 +78,14 @@ export default function Home() {
             src="/stodona-hero.mp4"
             poster="/hero-poster.jpg"
             alt="Nystädat sovrum med uppbäddad säng"
+            style={{ filter: "brightness(1.06) saturate(1.08) contrast(1.03)" }}
           />
-          {/* Lättare gradient-overlay – mörkast nedåt vänster där texten ligger, ljusare uppåt höger så videon syns */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/30 to-black/10"></div>
+          {/* Scrim bara där texten faktiskt ligger. Den tidigare heltäckande
+              black/60-gradienten drog ned en ljus, luftig bild (luminans 200)
+              till 80 och gjorde heron grå – nu behåller höger och topp sin
+              ljushet medan vänsterkanten får precis den kontrast texten kräver. */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
         </div>
 
         <div className="container-custom relative z-20">
@@ -281,7 +286,7 @@ export default function Home() {
       </section>
 
       {/* 1.5. Insight Section - Apple Style */}
-      <section className="py-16 sm:py-24 md:py-32 bg-white overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 bg-bg-primary overflow-hidden">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             {/* Left: Image */}

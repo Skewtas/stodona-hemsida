@@ -82,10 +82,11 @@ export default function Home() {
           />
           {/* Scrim bara där texten faktiskt ligger. Den tidigare heltäckande
               black/60-gradienten drog ned en ljus, luftig bild (luminans 200)
-              till 80 och gjorde heron grå – nu behåller höger och topp sin
-              ljushet medan vänsterkanten får precis den kontrast texten kräver. */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+              till 80 och gjorde heron grå. På mobil ligger texten över hela
+              bilden och behöver mer täckning; på desktop kan höger sida vara
+              ljus eftersom texten bara upptar vänsterhalvan. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55 sm:from-black/20 sm:via-transparent sm:to-black/35"></div>
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-transparent"></div>
         </div>
 
         <div className="container-custom relative z-20">
@@ -95,7 +96,7 @@ export default function Home() {
             >
               {t('home.hero.title1', lang)}
               <br />
-              <span className="italic font-normal text-cta-hover">
+              <span className="italic font-normal text-bg-primary">
                 {t('home.hero.title2', lang)}
               </span>
             </h1>

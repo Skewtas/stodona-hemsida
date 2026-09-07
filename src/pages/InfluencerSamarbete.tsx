@@ -95,9 +95,19 @@ const SERVICES = [
 ];
 
 const STEG = [
-  { n: "1", icon: CalendarClock, title: "Välj och boka", text: "Ange rabattkoden INFL50ST vid bokning. Allt är helt obundet – du kan när som helst avsluta eller pausa." },
-  { n: "2", icon: Sparkles, title: "Vi tar hand om städningen", text: "Vi sköter allt medan du fokuserar på annat." },
-  { n: "3", icon: Share2, title: "Dela och få 50 %", text: "Publicera minst en story samma kalendervecka och få 50 % rabatt på tillfället." },
+  { n: "1", icon: CalendarClock, title: "Boka med din kod", text: "Boka som vanligt och ange INFL50ST under \u201dHar du en rabattkod?\u201d. Viktigt: använd samma e-post som du är registrerad med hos oss – annars godkänns inte koden." },
+  { n: "2", icon: Sparkles, title: "Vi tar hand om städningen", text: "Vi sköter allt medan du fokuserar på annat. Allt är obundet – du kan när som helst pausa eller avsluta." },
+  { n: "3", icon: Share2, title: "Publicera samma vecka", text: "Publicera minst en story under samma kalendervecka som städningen utförs. Då står rabatten kvar. Uteblir publiceringen kan resterande belopp faktureras." },
+];
+
+// Bokningsflödet steg för steg, i samma ordning som fälten dyker upp i bokningen.
+const BOKNING = [
+  "Gå till boka.stodona.se och välj tjänst, frekvens och bostadens storlek.",
+  "Fyll i adress och välj en tid som passar.",
+  "Under \u201dHar du en rabattkod?\u201d väljer du JA och skriver INFL50ST.",
+  "Ange e-postadressen du är registrerad med hos Stodona – koden är knuten till den och godkänns inte med en annan adress.",
+  "Kryssa i att du godkänner villkoren för influencerrabatten.",
+  "Bekräfta bokningen. Rabatten syns direkt i priset.",
 ];
 
 const PHONES = [
@@ -319,9 +329,13 @@ function PersonalCode() {
     <section id="minkod" className="section-spacing bg-white scroll-mt-24">
       <div className="container-custom max-w-2xl">
         <Reveal className="text-center mb-8">
-          <span className="text-xs font-bold uppercase tracking-widest text-cta-hover">Endast för dig</span>
-          <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-3">Din personliga rabattkod</h2>
-          <p className="text-text-secondary text-lg">Ger dina följare <strong>15 % rabatt</strong>. Ange e-posten du registrerats med hos Stodona.</p>
+          <span className="text-xs font-bold uppercase tracking-widest text-cta-hover">Koden du delar</span>
+          <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-3">Din följarkod</h2>
+          <p className="text-text-secondary text-lg">
+            Det här är koden <strong>dina följare</strong> använder – den ger dem <strong>15 % rabatt</strong>.
+            Din egen bokningskod är {CONFIG.masterCode} och ska aldrig delas.
+          </p>
+          <p className="text-text-secondary mt-3">Ange e-posten du är registrerad med hos Stodona.</p>
         </Reveal>
 
         {state !== "done" && (
@@ -397,12 +411,16 @@ function PersonalCode() {
           </div>
         )}
 
-        {/* Intern bokningskod – endast på denna lösenordslåsta sida, aldrig till följare */}
+        {/* Påminnelse om skillnaden, just där förväxlingen skulle kunna ske. */}
         <div className="mt-8 rounded-2xl border border-text-primary/10 bg-bg-primary/60 p-5 flex items-start gap-3">
           <ShieldCheck className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="text-text-primary font-medium mb-1">Så bokar du med 50 % (din interna kod)</p>
-            <p className="text-text-secondary">Ange koden <CopyChip value={CONFIG.masterCode} /> vid bokning på {CONFIG.webb}. <strong>Detta är din egen kod – dela den aldrig med dina följare.</strong> Följarna använder din personliga 15 %-kod ovan.</p>
+            <p className="text-text-primary font-medium mb-1">Blanda inte ihop koderna</p>
+            <p className="text-text-secondary">
+              Följarkoden ovan delar du fritt – den ger <strong>15 %</strong> till den som bokar.
+              Din egen kod <CopyChip value={CONFIG.masterCode} /> ger <strong>50 %</strong> på dina egna
+              bokningar och ska aldrig delas vidare. Den fungerar bara med din registrerade e-post.
+            </p>
           </div>
         </div>
       </div>
@@ -500,8 +518,62 @@ export default function InfluencerSamarbete() {
             <p className="text-text-secondary text-lg mt-3">Boka, låt Stodona ta hand om jobbet och dela resultatet med dina följare.</p>
           </Reveal>
           <StepsProcess />
+
+          {/* Två koder som lätt förväxlas – de ställs bredvid varandra så det
+              inte går att missa vilken som är vilken. */}
+          <div className="mt-14 grid md:grid-cols-2 gap-5">
+            <div className="rounded-3xl bg-white p-7 border-2 border-cta-hover">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-widest text-cta-hover mb-3">Till dig själv</span>
+              <p className="font-display text-3xl font-bold mb-1">{CONFIG.masterCode}</p>
+              <p className="text-sm font-semibold text-text-primary mb-3">50 % rabatt på din egen bokning</p>
+              <p className="text-text-secondary text-sm leading-relaxed mb-4">
+                Den här koden använder <strong>bara du</strong>, när du bokar din egen städning.
+                Dela den aldrig med följare – den är knuten till din e-post och fungerar inte för andra.
+              </p>
+              <CopyChip value={CONFIG.masterCode} big />
+            </div>
+            <div className="rounded-3xl bg-white p-7 border border-text-primary/10">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-widest text-text-secondary mb-3">Till dina följare</span>
+              <p className="font-display text-3xl font-bold mb-1 text-text-secondary">Din följarkod</p>
+              <p className="text-sm font-semibold text-text-primary mb-3">15 % rabatt åt dem som bokar via dig</p>
+              <p className="text-text-secondary text-sm leading-relaxed mb-4">
+                En egen kod med ditt namn, som du delar i dina inlägg. Den skapas vid din första
+                bokning med influencerrabatten och hämtas längre ned på sidan.
+              </p>
+              <button onClick={() => scrollTo("minkod")} className="text-cta-hover font-medium text-sm hover:underline">
+                Hämta min följarkod ↓
+              </button>
+            </div>
+          </div>
+
+          {/* Bokningsflödet, steg för steg i samma ordning som fälten kommer. */}
+          <div className="mt-8 rounded-3xl bg-white p-7 sm:p-9 border border-text-primary/10">
+            <h3 className="text-xl font-bold mb-2">Så bokar du, steg för steg</h3>
+            <p className="text-text-secondary text-sm mb-6">
+              Hela bokningen tar ungefär en minut. Rabatten räknas av direkt, du ser priset innan du bekräftar.
+            </p>
+            <ol className="space-y-3">
+              {BOKNING.map((steg, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-cta-hover/15 text-cta-hover text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="text-text-secondary leading-relaxed">{steg}</span>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-6 rounded-2xl bg-bg-primary p-5 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-sm text-text-secondary leading-relaxed">
+                <strong className="text-text-primary">Rabatten är villkorad.</strong> Publiceras ingen godkänd
+                story under samma kalendervecka som städningen utförs kan resterande belopp faktureras i
+                efterhand. Det är därför bokningen kräver att du kryssar i villkoren.
+              </p>
+            </div>
+          </div>
+
           <div className="text-center mt-12">
-            <Cta href={CONFIG.bokaUrl}>Påbörja samarbetet <ArrowRight className="w-5 h-5" /></Cta>
+            <Cta href={CONFIG.bokaUrl}>Boka med {CONFIG.masterCode} <ArrowRight className="w-5 h-5" /></Cta>
             <div className="mt-4"><button onClick={() => scrollTo("villkor")} className="text-sm text-cta-hover font-medium hover:underline">Läs publiceringsvillkoren</button></div>
           </div>
         </div>

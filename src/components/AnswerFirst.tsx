@@ -27,7 +27,7 @@ export default function AnswerFirst({
           <dl className="mt-7 grid grid-cols-2 md:grid-cols-4 gap-3">
             {facts.map((f) => (
               <div key={f.label} className="rounded-2xl bg-white p-4 border border-text-primary/5">
-                <dt className="text-[11px] font-bold uppercase tracking-widest text-cta-hover">{f.label}</dt>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-accent-deep">{f.label}</dt>
                 <dd className="text-sm font-medium text-text-primary mt-1.5 leading-snug">{f.value}</dd>
               </div>
             ))}

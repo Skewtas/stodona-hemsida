@@ -7,6 +7,12 @@
   --color-bg-dark: #1a1a1a;
   --color-text-light: #f4f1eb;
   --color-cta-hover: #c8b6a6;
+  /* Terrakottan ur logotypen. Fanns bara i loggan – resten av sajten använde
+     den dova beigen, som ger 1,74:1 mot krämbakgrunden och alltså är oläslig
+     som text. Accent används på ljus botten (5,06:1 mot mörk, 3,05:1 mot kräm
+     – räcker för stora element), accent-deep för liten text (4,61:1 mot kräm). */
+  --color-accent: #e26346;
+  --color-accent-deep: #b24e37;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", ui-serif, Georgia, serif;

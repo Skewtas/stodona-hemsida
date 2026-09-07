@@ -129,19 +129,19 @@ export default function Home() {
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-text-light/90 drop-shadow-md"
             >
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <CheckCircle2 className="w-4 h-4 text-accent" />
                 <span>{t('home.hero.bullet1', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <CheckCircle2 className="w-4 h-4 text-accent" />
                 <span>{t('home.hero.bullet2', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <CheckCircle2 className="w-4 h-4 text-accent" />
                 <span>{t('home.hero.bullet3', lang)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <CheckCircle2 className="w-4 h-4 text-accent" />
                 <span>{t('home.hero.bullet4', lang)}</span>
               </div>
             </div>
@@ -156,10 +156,10 @@ export default function Home() {
       <section className="relative bg-white py-16 sm:py-24">
         <div className="container-custom mb-10 sm:mb-14">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.45 }}
             className="flex flex-col md:flex-row md:items-end justify-between gap-6"
           >
             <div className="max-w-2xl">
@@ -180,14 +180,14 @@ export default function Home() {
           {SERVICE_CARDS.map((service, index) => (
             <motion.div
               key={service.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
             >
               <Link
                 to={service.link}
-                className="group relative block overflow-hidden h-[440px] lg:h-[520px]"
+                className="group relative block overflow-hidden h-[400px] lg:h-[460px]"
               >
                 <img
                   src={service.image}
@@ -266,7 +266,7 @@ export default function Home() {
 
         <div className="container-custom relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto mb-10"
@@ -276,7 +276,7 @@ export default function Home() {
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 tracking-tight">
               {t('home.book.title1', lang)} <br />
-              <span className="text-cta-hover italic font-normal">{t('home.book.title2', lang)}</span>
+              <span className="text-accent-deep italic font-normal">{t('home.book.title2', lang)}</span>
             </h2>
             <div className="mt-8 text-left">
               <QuickBookingWidget />
@@ -286,7 +286,7 @@ export default function Home() {
       </section>
 
       {/* 1.5. Insight Section - Apple Style */}
-      <section className="py-16 sm:py-24 md:py-32 bg-bg-primary overflow-hidden">
+      <section className="py-14 sm:py-20 md:py-24 bg-bg-primary overflow-hidden">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             {/* Left: Image */}
@@ -446,10 +446,10 @@ export default function Home() {
 
         <div className="container-custom relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.45 }}
             className="text-center max-w-2xl mx-auto mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -463,7 +463,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {/* Boxes */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: 0.1 }}
@@ -472,10 +472,10 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-cta-hover/5 rounded-bl-full z-0 group-hover:bg-cta-hover/10 transition-colors duration-500"></div>
               <div className="flex flex-col gap-6 items-start relative z-10">
                 <div className="w-14 h-14 bg-bg-primary group-hover:bg-cta-hover/20 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-300 transform group-hover:scale-110 group-hover:rotate-3">
-                  <ShieldCheck className="w-7 h-7 text-text-primary group-hover:text-cta-hover transition-colors duration-300" />
+                  <ShieldCheck className="w-7 h-7 text-text-primary group-hover:text-accent-deep transition-colors duration-300" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-cta-hover transition-colors duration-300">{t('home.why.q1.title', lang)}</h3>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-accent-deep transition-colors duration-300">{t('home.why.q1.title', lang)}</h3>
                   <p className="text-text-secondary text-sm leading-relaxed">
                     {t('home.why.q1.text', lang)}
                   </p>
@@ -484,7 +484,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -493,10 +493,10 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-cta-hover/5 rounded-bl-full z-0 group-hover:bg-cta-hover/10 transition-colors duration-500"></div>
               <div className="flex flex-col gap-6 items-start relative z-10">
                 <div className="w-14 h-14 bg-bg-primary group-hover:bg-cta-hover/20 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-300 transform group-hover:scale-110 group-hover:-rotate-3">
-                  <Sparkles className="w-7 h-7 text-text-primary group-hover:text-cta-hover transition-colors duration-300" />
+                  <Sparkles className="w-7 h-7 text-text-primary group-hover:text-accent-deep transition-colors duration-300" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-cta-hover transition-colors duration-300">{t('home.why.q2.title', lang)}</h3>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-accent-deep transition-colors duration-300">{t('home.why.q2.title', lang)}</h3>
                   <p className="text-text-secondary text-sm leading-relaxed">
                     {t('home.why.q2.text', lang)}
                   </p>
@@ -505,7 +505,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -514,10 +514,10 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-cta-hover/5 rounded-bl-full z-0 group-hover:bg-cta-hover/10 transition-colors duration-500"></div>
               <div className="flex flex-col gap-6 items-start relative z-10">
                 <div className="w-14 h-14 bg-bg-primary group-hover:bg-cta-hover/20 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-300 transform group-hover:scale-110 group-hover:rotate-3">
-                  <Star className="w-7 h-7 text-text-primary group-hover:text-cta-hover transition-colors duration-300" />
+                  <Star className="w-7 h-7 text-text-primary group-hover:text-accent-deep transition-colors duration-300" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-cta-hover transition-colors duration-300">{t('home.why.q3.title', lang)}</h3>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-accent-deep transition-colors duration-300">{t('home.why.q3.title', lang)}</h3>
                   <p className="text-text-secondary text-sm leading-relaxed">
                     {t('home.why.q3.text', lang)}
                   </p>
@@ -599,10 +599,10 @@ export default function Home() {
       <section className="section-spacing bg-white relative overflow-hidden">
         <div className="container-custom relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.45 }}
             className="text-center max-w-3xl mx-auto mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -648,8 +648,8 @@ export default function Home() {
                   to={area.link}
                   className="flex items-center justify-center gap-2 p-2.5 bg-bg-primary rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
                 >
-                  <MapPin className="w-4 h-4 text-text-secondary group-hover:text-cta-hover transition-colors" />
-                  <span className="text-sm font-medium text-text-primary group-hover:text-cta-hover transition-colors">
+                  <MapPin className="w-4 h-4 text-text-secondary group-hover:text-accent-deep transition-colors" />
+                  <span className="text-sm font-medium text-text-primary group-hover:text-accent-deep transition-colors">
                     {area.name}
                   </span>
                 </Link>

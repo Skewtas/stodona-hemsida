@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ShieldCheck,
   Loader2,
-  Send,
   BadgeCheck,
   Info,
   Handshake,
@@ -131,8 +130,6 @@ const RULE_POINTS = [
   <>Storyn måste innehålla både <strong>{CONFIG.handle}</strong> och <strong>{CONFIG.webb}</strong>.</>,
   "Stodona ska få en skärmbild eller länk efter publiceringen.",
 ];
-
-const SERVICE_OPTIONS = ["Vet ej ännu / vill diskutera", "Hemstädning", "Storstädning", "Flyttstädning", "Fönsterputsning", "Företagsstädning", "Byggstädning"];
 
 const DEFAULT_COPY = "Reklam i samarbete med @stodona.se ✨ Så härligt att komma hem till ett nystädat hem! Läs mer på www.stodona.se";
 const STORY_TEMPLATES = [
@@ -323,6 +320,9 @@ function PersonalCode() {
 
   const code = res?.followerCode ?? null;
   const status = res?.followerCodeStatus ?? null;
+  // Ingen manuell godkännandeprocess – koden är delbar direkt när den finns.
+  // Bara ett uttryckligt stopp från Stodona (pausad/avslutad) gör den oanvändbar.
+  const usable = !!code && status !== "paused" && status !== "cancelled";
   const storyText = code ? `Reklam i samarbete med ${CONFIG.handle} ✨ Boka din städning på ${CONFIG.webb} och använd min kod ${code} för 15 % rabatt.` : "";
 
   return (
@@ -371,22 +371,17 @@ function PersonalCode() {
                     <p className="text-xs text-text-secondary mb-1">Din kod {res.displayName ? `(${res.displayName})` : ""}</p>
                     <p className="font-display text-4xl font-bold tracking-tight">{code}</p>
                   </div>
-                  {status === "active"
+                  {usable
                     ? <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-full"><Check className="w-4 h-4" /> Aktiv</span>
-                    : status === "pending_publication"
-                    ? <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-full"><AlertTriangle className="w-4 h-4" /> Väntar på godkännande</span>
                     : status === "paused"
                     ? <span className="text-sm font-semibold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-full">Pausad</span>
                     : <span className="text-sm font-semibold text-text-secondary bg-stone-100 px-3 py-1.5 rounded-full">Avslutad</span>}
                 </div>
 
-                {status === "pending_publication" && (
-                  <p className="text-sm text-text-secondary mb-4">Din personliga kod är skapad och <strong>aktiveras när Stodona har godkänt din publicering</strong>.</p>
+                {usable && (
+                  <p className="text-sm text-green-700 mb-4">Din kod är aktiv och redo att delas direkt. {typeof res.uses === "number" ? `Använd ${res.uses} gånger.` : ""}</p>
                 )}
-                {status === "active" && (
-                  <p className="text-sm text-green-700 mb-4">Din kod är aktiv och redo att delas. {typeof res.uses === "number" ? `Använd ${res.uses} gånger.` : ""}</p>
-                )}
-                {(status === "paused" || status === "cancelled") && (
+                {!usable && (
                   <p className="text-sm text-text-secondary mb-4">Kontakta din kontaktperson på Stodona om du vill aktivera koden igen.</p>
                 )}
 
@@ -395,7 +390,7 @@ function PersonalCode() {
                   <CopyChip value={CONFIG.webb} big />
                 </div>
 
-                {status === "active" && (
+                {usable && (
                   <div>
                     <p className="text-sm font-semibold mb-2">Färdig text att kopiera</p>
                     <div className="rounded-2xl bg-white p-4 text-sm text-text-secondary border border-text-primary/5">{storyText}</div>
@@ -430,30 +425,6 @@ function PersonalCode() {
 
 /* —————— sidan —————— */
 export default function InfluencerSamarbete() {
-  const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-  const today = (() => { try { return new Date().toISOString().slice(0, 10); } catch { return ""; } })();
-  const [form, setForm] = useState({ name: "", social: "", channel: "Instagram", email: "", phone: "", service: SERVICE_OPTIONS[0], date: today, idea: "", accept: false });
-
-  function update(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const target = e.target as HTMLInputElement;
-    const { name, value, type } = target;
-    setForm((p) => ({ ...p, [name]: type === "checkbox" ? target.checked : value }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.accept) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch("https://formspree.io/f/xojkdewo", {
-        method: "POST", headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ _subject: "Influencer – vill påbörja samarbete", Namn: form.name, "Användarnamn (sociala medier)": form.social, "Social kanal": form.channel, "E-post": form.email, Telefon: form.phone, "Intresserad av tjänst": form.service, "Önskat datum": form.date, "Idé / önskemål": form.idea, "Godkänner villkoren": form.accept ? "Ja" : "Nej" }),
-      });
-      if (res.ok) setDone(true); else throw new Error("fel");
-    } catch { alert(`Något gick fel. Försök igen eller mejla oss på ${CONFIG.kontaktEpost}.`); } finally { setSubmitting(false); }
-  }
-
   return (
     <div className="flex flex-col bg-bg-primary pb-16 md:pb-0 overflow-x-hidden">
       <Helmet>
@@ -667,49 +638,58 @@ export default function InfluencerSamarbete() {
         </div>
       </section>
 
-      {/* 9. Formulär */}
+      {/* 9. Avslut – influencern är redan godkänd och har sin kod, så sista
+             steget ska vara att boka, inte att fylla i ännu ett formulär. */}
       <section id="ansok" className="section-spacing bg-bg-dark text-text-light scroll-mt-24">
-        <div className="container-custom max-w-2xl">
-          <Reveal className="text-center mb-10">
+        <div className="container-custom max-w-2xl text-center">
+          <Reveal>
             <span className="text-xs font-bold uppercase tracking-widest text-cta-hover">Sista steget</span>
-            <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4">Redo att påbörja samarbetet?</h2>
-            <p className="text-text-light/80 text-lg">Har du en idé eller vill stämma av ditt innehåll? Fyll i nedan så hör {CONFIG.kontaktNamn} av sig – eller mejla <a href={`mailto:${CONFIG.kontaktEpost}`} className="text-cta-hover hover:underline">{CONFIG.kontaktEpost}</a>.</p>
-          </Reveal>
-          {done ? (
-            <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl bg-white/5 border border-white/10 p-10 text-center">
-              <div className="w-16 h-16 bg-cta-hover/25 text-cta-hover rounded-2xl flex items-center justify-center mx-auto mb-5"><CheckCircle2 className="w-8 h-8" /></div>
-              <h3 className="text-2xl font-bold mb-2">Tack – vi har tagit emot din intresseanmälan! 💛</h3>
-              <p className="text-text-light/80 max-w-md mx-auto">Din kontaktperson hör av sig så snart som möjligt för att stämma av upplägg och tjänst.</p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="bg-white text-text-primary rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div><label className={labelClass}>Namn *</label><input name="name" required value={form.name} onChange={update} className={inputClass} /></div>
-                <div><label className={labelClass}>E-post *</label><input type="email" name="email" required value={form.email} onChange={update} className={inputClass} /></div>
-                <div><label className={labelClass}>Användarnamn (sociala medier) *</label><input name="social" required value={form.social} onChange={update} placeholder="Ex: @dittnamn" className={inputClass} /></div>
-                <div><label className={labelClass}>Social kanal *</label><select name="channel" value={form.channel} onChange={update} className={`${inputClass} cursor-pointer`}>{["Instagram", "TikTok", "YouTube", "Facebook", "Blogg", "Annan"].map((c) => <option key={c}>{c}</option>)}</select></div>
-                <div><label className={labelClass}>Telefon *</label><input type="tel" name="phone" required value={form.phone} onChange={update} className={inputClass} /></div>
-                <div><label className={labelClass}>Önskat datum</label><input type="date" name="date" value={form.date} onChange={update} className={`${inputClass} cursor-pointer`} /></div>
-                <div className="sm:col-span-2"><label className={labelClass}>Vilken tjänst är du intresserad av?</label><select name="service" value={form.service} onChange={update} className={`${inputClass} cursor-pointer`}>{SERVICE_OPTIONS.map((s) => <option key={s}>{s}</option>)}</select></div>
-                <div className="sm:col-span-2"><label className={labelClass}>Idé eller önskemål</label><textarea name="idea" rows={3} value={form.idea} onChange={update} className={`${inputClass} resize-none`} placeholder="Berätta gärna hur du tänkt dig innehållet." /></div>
+            <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4">Boka din städning</h2>
+            <p className="text-text-light/80 text-lg mb-8">
+              Du har allt du behöver. Ange <strong className="text-text-light">{CONFIG.masterCode}</strong> under
+              ”Har du en rabattkod?” och använd e-posten du är registrerad med hos oss, så dras 50 % direkt.
+            </p>
+
+            <div className="rounded-3xl bg-white/5 border border-white/10 p-6 sm:p-8 text-left mb-8">
+              <ol className="space-y-3">
+                {BOKNING.map((steg, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-cta-hover/20 text-cta-hover text-xs font-bold flex items-center justify-center mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-text-light/85 leading-relaxed">{steg}</span>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <span className="text-sm text-text-light/60">Din kod:</span>
+                <CopyChip value={CONFIG.masterCode} big />
               </div>
-              <label className="flex items-start gap-3 rounded-2xl bg-bg-primary p-4 cursor-pointer">
-                <input type="checkbox" name="accept" checked={form.accept} onChange={update} required className="mt-1 w-5 h-5 accent-[color:var(--color-cta-hover,#c8b6a6)] shrink-0" />
-                <span className="text-text-primary text-sm font-medium">Jag har läst och godkänner villkoren. Jag förstår att storyn måste publiceras samma kalendervecka som tjänsten utförs och att den alltid ska innehålla {CONFIG.handle} samt länken {CONFIG.webb}.</span>
-              </label>
-              <button type="submit" disabled={submitting || !form.accept} className="w-full btn-primary bg-cta-hover text-text-primary hover:bg-text-primary hover:text-bg-primary py-4 flex items-center justify-center gap-2 disabled:opacity-50">{submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Påbörja samarbetet <Send className="w-5 h-5" /></>}</button>
-              <p className="text-xs text-center text-text-secondary flex items-center justify-center gap-1.5"><ShieldCheck className="w-4 h-4 text-cta-hover" /> Dina uppgifter hanteras tryggt enligt vår <a href="/integritetspolicy" className="text-cta-hover underline">integritetspolicy</a>.</p>
-            </form>
-          )}
+            </div>
+
+            <Cta href={CONFIG.bokaUrl} className="text-lg">
+              Boka med 50 % rabatt <ArrowRight className="w-5 h-5" />
+            </Cta>
+
+            <p className="text-sm text-text-light/60 mt-8">
+              Har du en idé du vill stämma av först, eller frågor om upplägget? Mejla{" "}
+              <a href={`mailto:${CONFIG.kontaktEpost}`} className="text-cta-hover hover:underline">
+                {CONFIG.kontaktEpost}
+              </a>{" "}
+              så hör {CONFIG.kontaktNamn} av sig.
+            </p>
+            <p className="text-xs text-text-light/50 mt-4">
+              Genom att boka med koden godkänner du publiceringsvillkoren: minst en story samma
+              kalendervecka som tjänsten utförs, med {CONFIG.handle} och {CONFIG.webb}.
+            </p>
+          </Reveal>
         </div>
       </section>
 
       {/* Fast mobil-CTA */}
-      {!done && (
-        <a href={CONFIG.bokaUrl} target="_blank" rel="noopener" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-cta-hover text-text-primary font-bold py-3.5 flex items-center justify-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
-          <Sparkles className="w-5 h-5" /> Få 50 % rabatt
-        </a>
-      )}
+      <a href={CONFIG.bokaUrl} target="_blank" rel="noopener" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-cta-hover text-text-primary font-bold py-3.5 flex items-center justify-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+        <Sparkles className="w-5 h-5" /> Få 50 % rabatt
+      </a>
     </div>
   );
 }

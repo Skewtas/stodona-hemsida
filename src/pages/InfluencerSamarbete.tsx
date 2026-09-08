@@ -436,27 +436,62 @@ export default function InfluencerSamarbete() {
       <ProgressBar />
 
       {/* 1. Hero */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden text-text-light">
+      <section className="relative min-h-[88vh] flex items-center overflow-hidden text-text-light">
         <HeroVideo
           src={CONFIG.heroVideo}
           poster={CONFIG.heroPoster}
           alt="Ljus lägenhet med soffa, matplats och utsikt över staden"
         />
-        {/* Overlayen låg på 70/45/85 och drog ned en ljus film (luminans 166)
-            till 50/91/25 – bilden blev nästan svart i underkanten. Nu räcker
-            skuggan till för texten men låter interiören synas. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/45 via-bg-dark/30 to-bg-dark/65" />
-        <motion.div aria-hidden animate={{ opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-20 -right-10 w-96 h-96 rounded-full bg-cta-hover/25 blur-3xl" />
-        <div className="container-custom relative z-10 text-center max-w-3xl">
-          <motion.span initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm text-xs font-bold tracking-widest uppercase mb-7"><Sparkles className="w-4 h-4 text-cta-hover" /> Endast för inbjudna</motion.span>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05] mb-6 drop-shadow-xl">Få <span className="italic font-normal text-cta-hover">50 % rabatt</span> på din städning</motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="text-lg sm:text-xl text-text-light/90 max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow">Boka någon av Stodonas tjänster, dela upplevelsen med dina följare och få 50 % rabatt på det aktuella tillfället.</motion.p>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="flex flex-wrap items-center justify-center gap-3">
-            <Cta href={CONFIG.bokaUrl} className="text-lg">Få 50 % rabatt <ArrowRight className="w-5 h-5" /></Cta>
-            <Cta href={CONFIG.bokaUrl} variant="secondary" className="!text-text-light !border-white/40 hover:!bg-white hover:!text-text-primary text-lg">Boka din städning</Cta>
+        {/* Texten sitter numera i en egen ljus ruta, så filmen behöver bara en
+            lätt tonad kant för djup – inte den heltäckande mörkläggning som
+            tidigare drog ned bilden från luminans 166 till 25 i underkanten. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-bg-dark/35 via-bg-dark/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/30 via-transparent to-bg-dark/15" />
+        {/* Innehållsruta ovanpå filmen – ljus panel till vänster i stället för
+            centrerad text över hela bilden, så interiören får synas. */}
+        <div className="container-custom relative z-10 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-2xl bg-bg-primary/92 backdrop-blur-sm p-8 sm:p-10 md:p-12 shadow-2xl"
+          >
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+              <Sparkles className="w-3.5 h-3.5" /> Endast för inbjudna
+            </span>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-4">
+              Få <span className="italic font-normal text-accent-deep">50 % rabatt</span> på din städning
+            </h1>
+
+            <p className="text-text-secondary text-base sm:text-lg leading-relaxed mb-7 max-w-lg">
+              Boka någon av Stodonas tjänster, dela upplevelsen med dina följare och få
+              50 % rabatt på det aktuella tillfället.
+            </p>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <a
+                href={CONFIG.bokaUrl}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+              >
+                Boka nu <ArrowRight className="w-4 h-4" />
+              </a>
+              <button
+                onClick={() => scrollTo("steg")}
+                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 sm:ml-2"
+              >
+                Så fungerar det
+              </button>
+            </div>
+
+            <p className="text-xs text-text-secondary/80 mt-6">
+              Gäller alla våra tjänster enligt överenskommelse.
+            </p>
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.7 }} className="text-sm text-text-light/70 mt-5">Gäller alla våra tjänster enligt överenskommelse.</motion.p>
         </div>
+
         <motion.button onClick={() => scrollTo("tjanster")} aria-label="Scrolla ner" animate={{ y: [0, 10, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 text-white/80 hover:text-white"><ChevronDown className="w-8 h-8" /></motion.button>
       </section>
 

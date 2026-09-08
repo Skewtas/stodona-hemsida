@@ -22,10 +22,22 @@ import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 import HeroVideo from "../components/HeroVideo";
 
+// Värdena måste stavas exakt som tjänsterna heter i bokningssystemet – de
+// skickas som ?service= och matchas mot SERVICES där. Etiketten översätts,
+// värdet gör det aldrig.
+const HERO_SERVICES = [
+  { value: "Hemstädning", key: "nav.hemstadning" },
+  { value: "Flyttstädning", key: "nav.flyttstadning" },
+  { value: "Storstädning", key: "nav.storstadning" },
+  { value: "Fönsterputsning", key: "nav.fonsterputsning" },
+  { value: "Företagsstädning", key: "nav.foretagsstadning" },
+] as const;
+
 export default function Home() {
   const { lang } = useLanguage();
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [heroSqm, setHeroSqm] = useState("");
+  const [heroService, setHeroService] = useState<string>(HERO_SERVICES[0].value);
   const [showToast, setShowToast] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -42,9 +54,9 @@ export default function Home() {
     e.preventDefault();
     const sqm = parseInt(heroSqm, 10);
     const giltig = Number.isFinite(sqm) && sqm >= 10 && sqm <= 500;
-    track("booking_start", { source: "hero_sqm", sqm: giltig ? sqm : undefined });
-    // Utan giltigt värde skickas ingen sqm – bokningen öppnas som vanligt.
-    window.location.href = bookingUrl(giltig ? { service: "Hemstädning", sqm } : {});
+    track("booking_start", { source: "hero_sqm", service: heroService, sqm: giltig ? sqm : undefined });
+    // Tjänsten följer alltid med; ytan bara när den är rimlig.
+    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}) });
   }
 
   return (
@@ -112,10 +124,36 @@ export default function Home() {
               </span>
             </h1>
 
-            {/* Bokningen påbörjas här: kvadratmetrarna följer med till
-                boka.stodona.se som ?sqm=, så besökaren slipper fylla i dem två
-                gånger. */}
+            {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
+                boka.stodona.se som ?service= och ?sqm=, så besökaren slipper
+                fylla i dem två gånger. Tjänstvalet ligger dessutom här för att
+                det ska synas på första skärmen att vi gör mer än hemstädning –
+                på mobil ligger menyn bakom hamburgaren och tjänstesektionen
+                först vid 964 px. */}
             <form onSubmit={startBooking} className="mb-7">
+              <span className="block text-text-secondary text-base sm:text-lg mb-3">
+                {t('home.hero.serviceLabel', lang)}
+              </span>
+              <div className="flex flex-wrap gap-2 mb-5" role="group" aria-label={t('home.hero.serviceLabel', lang)}>
+                {HERO_SERVICES.map((tjanst) => {
+                  const vald = tjanst.value === heroService;
+                  return (
+                    <button
+                      key={tjanst.value}
+                      type="button"
+                      onClick={() => setHeroService(tjanst.value)}
+                      aria-pressed={vald}
+                      className={`px-4 py-2 text-sm font-medium border transition-colors ${
+                        vald
+                          ? "bg-text-primary text-bg-primary border-text-primary"
+                          : "bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary"
+                      }`}
+                    >
+                      {t(tjanst.key, lang)}
+                    </button>
+                  );
+                })}
+              </div>
               <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
                 {t('home.hero.sqmLabel', lang)}
               </label>

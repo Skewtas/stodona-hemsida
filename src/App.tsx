@@ -52,6 +52,10 @@ const SaArbetarVi = React.lazy(() => import("./pages/SaArbetarVi"));
 const KvalitetTrygghet = React.lazy(() => import("./pages/KvalitetTrygghet"));
 const Avbokning = React.lazy(() => import("./pages/Avbokning"));
 const Stadabonnemang = React.lazy(() => import("./pages/Stadabonnemang"));
+// Veckans kampanj (ABO25). Stänger sig själv efter söndag 2026-09-13 –
+// noindex och medvetet utanför sitemap, så den varken förrenderas eller
+// hamnar i sökresultaten.
+const Kampanj = React.lazy(() => import("./pages/Kampanj"));
 // Publik tjänst – barnpassning/nanny (lanserad 2026-09-06).
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
 const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
@@ -121,6 +125,8 @@ export default function App() {
           <Route path="/kvalitet-och-trygghet" element={<KvalitetTrygghet />} />
           <Route path="/avbokning" element={<Avbokning />} />
           <Route path="/stadabonnemang" element={<Stadabonnemang />} />
+          <Route path="/kampanj" element={<Kampanj />} />
+          <Route path="/abo25" element={<Kampanj />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
           <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />

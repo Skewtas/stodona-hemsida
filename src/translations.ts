@@ -48,10 +48,10 @@ const translations: TranslationMap = {
     },
     'home.hero.cta1': { SV: 'Boka städning', EN: 'Book cleaning' },
     'home.hero.cta2': { SV: 'Få prisförslag och info', EN: 'Get a quote and info' },
-    'home.hero.bullet1': { SV: 'RUT direkt på fakturan', EN: 'RUT tax deduction applied' },
-    'home.hero.bullet2': { SV: 'Ingen bindningstid', EN: 'No commitment' },
-    'home.hero.bullet3': { SV: 'Samma team', EN: 'Same team' },
-    'home.hero.bullet4': { SV: 'Tider bokas snabbt', EN: 'Slots fill fast' },
+    'home.hero.bullet1': { SV: '100 % nöjdgaranti', EN: '100% satisfaction guarantee' },
+    'home.hero.bullet2': { SV: 'Abonnemang för bättre priser', EN: 'Subscriptions for better prices' },
+    'home.hero.bullet3': { SV: 'Samma team som lär känna ert hem', EN: 'The same team, who get to know your home' },
+    'home.hero.bullet4': { SV: 'Kundportal', EN: 'Customer portal' },
 
     // ─── HOME: Booking section ─────────────────────────────────────────
     'home.book.badge': { SV: 'Snabbt & Enkelt', EN: 'Fast & Easy' },

@@ -35,17 +35,32 @@ export default function HeroVideo({
     // Annars skulle mobiler börja hämta filmen redan innan React tagit över.
     if ((window as Window & { __PRERENDER__?: boolean }).__PRERENDER__) return;
 
-    const wideEnough = window.matchMedia("(min-width: 768px)").matches;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const wide = window.matchMedia("(min-width: 768px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const conn = (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }).connection;
-    const frugal =
-      conn?.saveData === true ||
-      (conn?.effectiveType ? /2g|3g/.test(conn.effectiveType) : false);
+    const evaluate = () => {
+      const conn = (navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }).connection;
+      const frugal =
+        conn?.saveData === true ||
+        (conn?.effectiveType ? /2g|3g/.test(conn.effectiveType) : false);
 
-    if (wideEnough && !reducedMotion && !frugal) setShowVideo(true);
+      // Uppgradera till video när villkoren uppfylls, men gå aldrig tillbaka
+      // till postern – att rycka bort en spelande video vid en resize skulle
+      // se ut som en bugg.
+      if (wide.matches && !reduced.matches && !frugal) setShowVideo(true);
+    };
+
+    evaluate();
+    // Villkoren kan ändras efter montering: skärmen roteras, fönstret dras ut,
+    // eller sidan monterades i en dold flik där bredden rapporterades som 0.
+    wide.addEventListener("change", evaluate);
+    reduced.addEventListener("change", evaluate);
+    return () => {
+      wide.removeEventListener("change", evaluate);
+      reduced.removeEventListener("change", evaluate);
+    };
   }, []);
 
   // Vissa webbläsare startar inte uppspelning när src sätts efter montering.

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Helmet } from "../seo";
 import { Link } from "react-router-dom";
 import { bookingUrl } from "../utils/bookingUrl";
+import HeroVideo from "../components/HeroVideo";
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from "motion/react";
 import {
   Sparkles,
@@ -38,8 +39,8 @@ const CONFIG = {
   get bokaUrl() { return bookingUrl(); },
   kontaktNamn: "din kontaktperson hos Stodona",
   kontaktEpost: "info@stodona.se",
-  heroVideo: "/stodona-hero.mp4",
-  heroPoster: "/hero-poster.jpg",
+  heroVideo: "/influencer-hero.mp4",
+  heroPoster: "/influencer-hero-poster.jpg",
 };
 
 const inputClass =
@@ -436,7 +437,11 @@ export default function InfluencerSamarbete() {
 
       {/* 1. Hero */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden text-text-light">
-        <video className="absolute inset-0 w-full h-full object-cover" autoPlay loop muted playsInline preload="metadata" poster={CONFIG.heroPoster}><source src={CONFIG.heroVideo} type="video/mp4" /></video>
+        <HeroVideo
+          src={CONFIG.heroVideo}
+          poster={CONFIG.heroPoster}
+          alt="Ljus lägenhet med soffa, matplats och utsikt över staden"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/70 via-bg-dark/45 to-bg-dark/85" />
         <motion.div aria-hidden animate={{ opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-20 -right-10 w-96 h-96 rounded-full bg-cta-hover/25 blur-3xl" />
         <div className="container-custom relative z-10 text-center max-w-3xl">

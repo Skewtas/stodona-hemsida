@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Helmet } from "../seo";
 import { CheckCircle2, ArrowRight, Sparkles, Clock } from "lucide-react";
@@ -10,11 +10,9 @@ import { track } from "../utils/analytics";
  * Kampanjsida för veckans erbjudande (ABO25).
  *
  * Sidan stänger sig själv – inget deploy behövs för att ta ned den. Efter
- * KAMPANJ_SLUT visas ett kort avslutsläge i stället för erbjudandet, så att
- * ingen som hittar länken senare möts av en rabatt som inte gäller.
- *
- * Medvetet noindex och utanför sitemap: trafiken kommer från nyhetsbrevet, och
- * en sida som är död efter en vecka ska inte ligga i sökresultaten.
+ * KAMPANJ_SLUT skickas besökaren vidare till /stadabonnemang, så att varken
+ * en indexerad URL eller en gammal nyhetsbrevslänk landar på ett erbjudande
+ * som inte längre gäller.
  */
 
 // Måndag 2026-09-14 00:00 svensk tid (CEST = UTC+2).
@@ -44,6 +42,42 @@ function dagarKvar(slut: Date): string {
   return `${dagar} dagar kvar`;
 }
 
+// Tidsbegränsat erbjudande. validThrough gör slutdatumet maskinläsbart, så att
+// sökmotorer och AI-motorer kan se att rabatten upphör.
+const KAMPANJ_SLUT_ISO = "2026-09-13T23:59:59+02:00";
+
+const erbjudandeSchema = {
+  "@context": "https://schema.org",
+  "@type": "Offer",
+  name: "25 % rabatt på städabonnemang",
+  description:
+    "25 % rabatt på första städningen vid tecknat städabonnemang, därefter 20 %. Fönsterputsning eller storstädning ingår. Gäller med rabattkoden ABO25.",
+  url: "https://stodona.se/kampanj",
+  priceCurrency: "SEK",
+  availability: "https://schema.org/InStock",
+  validThrough: KAMPANJ_SLUT_ISO,
+  eligibleCustomerType: "https://schema.org/Consumer",
+  areaServed: { "@type": "City", name: "Stockholm" },
+  offeredBy: { "@id": "https://stodona.se/#business" },
+  itemOffered: {
+    "@type": "Service",
+    name: "Städabonnemang",
+    serviceType: "Hemstädning",
+    url: "https://stodona.se/stadabonnemang",
+    provider: { "@id": "https://stodona.se/#business" },
+  },
+};
+
+const brodsmulaSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Hem", item: "https://stodona.se/" },
+    { "@type": "ListItem", position: 2, name: "Städabonnemang", item: "https://stodona.se/stadabonnemang" },
+    { "@type": "ListItem", position: 3, name: "Kampanj ABO25", item: "https://stodona.se/kampanj" },
+  ],
+};
+
 export default function Kampanj() {
   // Beräknas i state så att en sida som stått öppen över natten stänger sig.
   const [aktiv, setAktiv] = useState(() => Date.now() < KAMPANJ_SLUT.getTime());
@@ -58,49 +92,36 @@ export default function Kampanj() {
 
   const boka = bookingUrl({ discountCode: KOD });
 
+  // Efter kampanjen skickas besökaren till den bestående abonnemangssidan i
+  // stället för att mötas av en död sida. Gör att en indelänkad eller indexerad
+  // kampanj-URL alltid landar på något som fortfarande gäller.
   if (!aktiv) {
-    return (
-      <div className="flex flex-col">
-        <Helmet>
-          <title>Kampanjen har avslutats | Stodona</title>
-          <meta name="robots" content="noindex, nofollow" />
-        </Helmet>
-        <section className="min-h-[70vh] flex items-center bg-bg-primary">
-          <div className="container-custom max-w-xl text-center py-24">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Kampanjen har avslutats</h1>
-            <p className="text-text-secondary text-lg mb-8">
-              Erbjudandet med koden {KOD} gällde till och med söndag den 13 september.
-              Våra städabonnemang finns kvar – med lägre pris ju längre du binder.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link
-                to="/stadabonnemang"
-                className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
-              >
-                Se städabonnemang <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                to="/priser"
-                className="inline-flex items-center justify-center px-8 py-4 border border-text-primary/20 font-medium hover:bg-white transition-colors"
-              >
-                Alla priser
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
+    return <Navigate to="/stadabonnemang" replace />;
   }
 
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>25 % rabatt på städabonnemang + fri fönsterputs | Stodona</title>
+        <title>Städabonnemang 25 % rabatt – kod ABO25 | Stodona Stockholm</title>
         <meta
           name="description"
-          content="Veckans erbjudande: 25 % rabatt på första städningen med koden ABO25, därefter 20 %. Vi bjuder dessutom på fönsterputs. Gäller till och med söndag."
+          content="25 % rabatt på städabonnemang i Stockholm med koden ABO25, därefter 20 %. Fönsterputs eller storstädning på köpet. Samma team varje gång, 100 % nöjdgaranti. Gäller t.o.m. söndag 13 september."
         />
-        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://stodona.se/kampanj" />
+        <meta property="og:title" content="25 % rabatt på städabonnemang – kod ABO25" />
+        <meta
+          property="og:description"
+          content="Mindre tjat om städning, mer tid för livet. 25 % på första städningen, därefter 20 %, plus fönsterputs på köpet. Endast t.o.m. söndag."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://stodona.se/kampanj" />
+        <meta property="og:image" content="https://stodona.se/stodona-stad.jpg" />
+        <meta property="og:locale" content="sv_SE" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="25 % rabatt på städabonnemang – kod ABO25" />
+        <meta name="twitter:image" content="https://stodona.se/stodona-stad.jpg" />
+        <script type="application/ld+json">{JSON.stringify(erbjudandeSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(brodsmulaSchema)}</script>
       </Helmet>
 
       {/* Hero */}

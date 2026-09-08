@@ -1,4 +1,11 @@
+import { Link } from "react-router-dom";
 import ContentPage from "../components/ContentPage";
+
+// Veckans kampanj (ABO25). Ligger här också – och inte bara på /kampanj –
+// eftersom det är den här sidan som faktiskt rankar på "städabonnemang".
+// Försvinner av sig själv när erbjudandet gått ut.
+const KAMPANJ_SLUT = new Date("2026-09-13T22:00:00Z");
+const kampanjPagar = Date.now() < KAMPANJ_SLUT.getTime();
 
 // Priserna nedan är hämtade direkt ur bokningssystemets prismotor
 // (boka.stodona.se) för hemstädning i Stockholm, per städtillfälle, inkl. moms
@@ -73,6 +80,30 @@ export default function Stadabonnemang() {
         { label: "Uppsägning", value: "1 månad efter bindningstiden" },
       ]}
       sections={[
+        ...(kampanjPagar
+          ? [
+              {
+                heading: "Just nu: 25 % rabatt med koden ABO25",
+                body: (
+                  <>
+                    <p>
+                      Tecknar du ett städabonnemang den här veckan får du{" "}
+                      <strong>25 % rabatt på första städningen</strong> och 20 % på de som följer.
+                      Vi bjuder dessutom på fönsterputsning eller en storstädning. Ange koden{" "}
+                      <strong>ABO25</strong> i bokningen.
+                    </p>
+                    <p>
+                      Erbjudandet gäller till och med söndag den 13 september.{" "}
+                      <Link to="/kampanj" className="text-accent-deep underline underline-offset-2">
+                        Läs mer om kampanjen
+                      </Link>
+                      .
+                    </p>
+                  </>
+                ),
+              },
+            ]
+          : []),
         {
           heading: "Så fungerar det",
           body: (

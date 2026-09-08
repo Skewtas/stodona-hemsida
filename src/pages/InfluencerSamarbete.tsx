@@ -95,7 +95,7 @@ const SERVICES = [
 ];
 
 const STEG = [
-  { n: "1", icon: CalendarClock, title: "Boka med din kod", text: "Boka som vanligt och ange INFL50ST under \u201dHar du en rabattkod?\u201d. Viktigt: använd samma e-post som du är registrerad med hos oss – annars godkänns inte koden." },
+  { n: "1", icon: CalendarClock, title: "Boka med din kod", text: "Boka som vanligt och ange INFL50ST under \u201dHar du en rabattkod?\u201d. Använd den e-post du vill ha samarbetet kopplat till – din följarkod och din länk mejlas dit direkt efter bokningen." },
   { n: "2", icon: Sparkles, title: "Vi tar hand om städningen", text: "Vi sköter allt medan du fokuserar på annat. Allt är obundet – du kan när som helst pausa eller avsluta." },
   { n: "3", icon: Share2, title: "Publicera samma vecka", text: "Publicera minst en story under samma kalendervecka som städningen utförs. Då står rabatten kvar. Uteblir publiceringen kan resterande belopp faktureras." },
 ];
@@ -504,7 +504,11 @@ export default function InfluencerSamarbete() {
               <p className="text-sm font-semibold text-text-primary mb-3">50 % rabatt på din egen bokning</p>
               <p className="text-text-secondary text-sm leading-relaxed mb-4">
                 Den här koden använder <strong>bara du</strong>, när du bokar din egen städning.
-                Dela den aldrig med följare – den är knuten till din e-post och fungerar inte för andra.
+                Dela den aldrig med följare – den är till för samarbetet, inte för spridning.
+              </p>
+              <p className="text-[13px] leading-relaxed rounded-xl bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-2.5 mb-4">
+                Rabattkoden är endast till för influencers som Stodona har varit i kontakt med.
+                Stodona har rätt att makulera bokningar där koden använts av någon annan.
               </p>
               <CopyChip value={CONFIG.masterCode} big />
             </div>

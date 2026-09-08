@@ -116,3 +116,15 @@
 @media (prefers-reduced-motion: reduce) {
   .usp-track { animation: none; }
 }
+
+/* Sifferfältet i heron: dölj webbläsarens upp/ner-pilar så "kvm"-suffixet
+   inte krockar med dem. */
+#hero-sqm::-webkit-outer-spin-button,
+#hero-sqm::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#hero-sqm {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

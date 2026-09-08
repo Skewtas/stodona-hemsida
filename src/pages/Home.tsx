@@ -19,11 +19,13 @@ import ContactPopup from "../components/ContactPopup";
 import UspMarquee from "../components/UspMarquee";
 import { useSearchParams } from "react-router-dom";
 import { bookingUrl } from "../utils/bookingUrl";
+import { track } from "../utils/analytics";
 import HeroVideo from "../components/HeroVideo";
 
 export default function Home() {
   const { lang } = useLanguage();
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [heroSqm, setHeroSqm] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -35,6 +37,15 @@ export default function Home() {
       setSearchParams(searchParams);
     }
   }, [searchParams, setSearchParams]);
+
+  function startBooking(e: React.FormEvent) {
+    e.preventDefault();
+    const sqm = parseInt(heroSqm, 10);
+    const giltig = Number.isFinite(sqm) && sqm >= 10 && sqm <= 500;
+    track("booking_start", { source: "hero_sqm", sqm: giltig ? sqm : undefined });
+    // Utan giltigt värde skickas ingen sqm – bokningen öppnas som vanligt.
+    window.location.href = bookingUrl(giltig ? { service: "Hemstädning", sqm } : {});
+  }
 
   return (
     <div className="flex flex-col">
@@ -101,20 +112,43 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="text-text-secondary text-base sm:text-lg leading-relaxed mb-7 max-w-lg">
-              {t('home.hero.subtitle', lang)}
-            </p>
+            {/* Bokningen påbörjas här: kvadratmetrarna följer med till
+                boka.stodona.se som ?sqm=, så besökaren slipper fylla i dem två
+                gånger. */}
+            <form onSubmit={startBooking} className="mb-7">
+              <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
+                {t('home.hero.sqmLabel', lang)}
+              </label>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative sm:w-44">
+                  <input
+                    id="hero-sqm"
+                    type="number"
+                    inputMode="numeric"
+                    min={10}
+                    max={500}
+                    value={heroSqm}
+                    onChange={(e) => setHeroSqm(e.target.value)}
+                    placeholder="70"
+                    className="w-full bg-white border border-text-primary/15 pl-4 pr-12 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm font-medium pointer-events-none">
+                    kvm
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+                >
+                  {t('home.hero.sqmCta', lang)} <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
-              <a
-                href={bookingUrl()}
-                className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
-              >
-                {t('home.hero.cta1', lang)} <ArrowRight className="w-4 h-4" />
-              </a>
+            <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={() => setIsContactOpen(true)}
-                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 sm:ml-2"
+                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
               >
                 {t('home.hero.cta2', lang)}
               </button>

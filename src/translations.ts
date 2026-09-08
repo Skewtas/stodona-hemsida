@@ -47,6 +47,8 @@ const translations: TranslationMap = {
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',
     },
     'home.hero.cta1': { SV: 'Boka städning', EN: 'Book cleaning' },
+    'home.hero.sqmLabel': { SV: 'Hur många kvm bor du på?', EN: 'How many sqm is your home?' },
+    'home.hero.sqmCta': { SV: 'Se pris och boka', EN: 'See price and book' },
     'home.hero.cta2': { SV: 'Få prisförslag och info', EN: 'Get a quote and info' },
     'home.hero.bullet1': { SV: '100 % nöjdgaranti', EN: '100% satisfaction guarantee' },
     'home.hero.bullet2': { SV: 'Abonnemang för bättre priser', EN: 'Subscriptions for better prices' },

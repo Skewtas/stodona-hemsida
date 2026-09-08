@@ -20,15 +20,42 @@ export default function HeroVideo({
   alt,
   className = "absolute inset-0 w-full h-full object-cover",
   style,
+  lazy = false,
 }: {
   src: string;
   poster: string;
   alt: string;
   className?: string;
   style?: React.CSSProperties;
+  /** För videor under vecket: hämta filmen först när sektionen närmar sig. */
+  lazy?: boolean;
 }) {
   const [showVideo, setShowVideo] = useState(false);
+  const [iSikte, setISikte] = useState(!lazy);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const posterRef = useRef<HTMLImageElement>(null);
+
+  // Ligger videon under vecket är det slöseri att hämta megabyte som kanske
+  // aldrig syns. Vänta tills sektionen närmar sig skärmen.
+  useEffect(() => {
+    if (!lazy || iSikte) return;
+    const el = posterRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setISikte(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setISikte(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [lazy, iSikte]);
 
   useEffect(() => {
     // Under förrendering ska HTML:en alltid innehålla postern, aldrig videon.
@@ -39,6 +66,7 @@ export default function HeroVideo({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const evaluate = () => {
+      if (!iSikte) return;
       const conn = (navigator as Navigator & {
         connection?: { saveData?: boolean; effectiveType?: string };
       }).connection;
@@ -61,7 +89,7 @@ export default function HeroVideo({
       wide.removeEventListener("change", evaluate);
       reduced.removeEventListener("change", evaluate);
     };
-  }, []);
+  }, [iSikte]);
 
   // Vissa webbläsare startar inte uppspelning när src sätts efter montering.
   useEffect(() => {
@@ -71,12 +99,13 @@ export default function HeroVideo({
   if (!showVideo) {
     return (
       <img
+        ref={posterRef}
         src={poster}
         alt={alt}
         className={className}
         style={style}
-        loading="eager"
-        fetchPriority="high"
+        loading={lazy ? "lazy" : "eager"}
+        fetchPriority={lazy ? "auto" : "high"}
       />
     );
   }

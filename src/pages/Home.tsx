@@ -304,13 +304,11 @@ export default function Home() {
             </div>
           </div>
           <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
-            <img
-              src="/barnpassning-narhet.jpg"
-              alt="Barnvakt som läser tillsammans med ett barn hemma"
-              loading="lazy"
-              width="1024"
-              height="768"
-              className="w-full h-full object-cover"
+            <HeroVideo
+              src="/barnpassning-hero.mp4"
+              poster="/barnpassning-hero-poster.jpg"
+              alt="Två barn som hoppar i sängen hemma"
+              lazy
             />
           </div>
         </div>

@@ -80,45 +80,41 @@ export default function Home() {
             alt="Nystädat sovrum med uppbäddad säng"
             style={{ filter: "brightness(1.06) saturate(1.08) contrast(1.03)" }}
           />
-          {/* Scrim bara där texten faktiskt ligger. Den tidigare heltäckande
-              black/60-gradienten drog ned en ljus, luftig bild (luminans 200)
-              till 80 och gjorde heron grå. På mobil ligger texten över hela
-              bilden och behöver mer täckning; på desktop kan höger sida vara
-              ljus eftersom texten bara upptar vänsterhalvan. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55 sm:from-black/20 sm:via-transparent sm:to-black/35"></div>
-          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-transparent"></div>
+          {/* Texten sitter i en egen ljus ruta, så filmen behöver bara en lätt
+              tonad kant för djup – inte den heltäckande mörkläggning som
+              tidigare drog ned en ljus bild (luminans 200) till 80. */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/15"></div>
         </div>
 
-        <div className="container-custom relative z-20">
-          <div className="max-w-3xl mt-4 sm:mt-12 md:mt-24">
-            <h1
-              className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-4 sm:mb-6 drop-shadow-lg"
-            >
+        <div className="container-custom relative z-20 w-full">
+          <div className="max-w-2xl bg-bg-primary/92 backdrop-blur-sm p-8 sm:p-10 md:p-12 shadow-2xl">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+              <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
+            </span>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-4">
               {t('home.hero.title1', lang)}
               <br />
-              <span className="italic font-normal text-bg-primary">
+              <span className="italic font-normal text-accent-deep">
                 {t('home.hero.title2', lang)}
               </span>
             </h1>
 
-            <p
-              className="text-base sm:text-lg md:text-xl text-text-light/90 mb-6 sm:mb-10 max-w-2xl leading-relaxed drop-shadow-md"
-            >
+            <p className="text-text-secondary text-base sm:text-lg leading-relaxed mb-7 max-w-lg">
               {t('home.hero.subtitle', lang)}
             </p>
 
-            <div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
-            >
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
               <a
                 href={bookingUrl()}
-                className="btn-primary btn-attention bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
               >
-                {t('home.hero.cta1', lang)}
+                {t('home.hero.cta1', lang)} <ArrowRight className="w-4 h-4" />
               </a>
               <button
                 onClick={() => setIsContactOpen(true)}
-                className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-text-primary text-lg px-8 py-4 shadow-lg backdrop-blur-sm"
+                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 sm:ml-2"
               >
                 {t('home.hero.cta2', lang)}
               </button>
@@ -126,25 +122,13 @@ export default function Home() {
 
             <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
 
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-text-light/90 drop-shadow-md"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
-                <span>{t('home.hero.bullet1', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
-                <span>{t('home.hero.bullet2', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
-                <span>{t('home.hero.bullet3', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
-                <span>{t('home.hero.bullet4', lang)}</span>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-sm font-medium text-text-secondary border-t border-text-primary/10 pt-6">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                  <span>{t(`home.hero.bullet${n}`, lang)}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

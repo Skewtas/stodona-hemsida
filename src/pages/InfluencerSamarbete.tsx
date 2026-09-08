@@ -442,7 +442,10 @@ export default function InfluencerSamarbete() {
           poster={CONFIG.heroPoster}
           alt="Ljus lägenhet med soffa, matplats och utsikt över staden"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/70 via-bg-dark/45 to-bg-dark/85" />
+        {/* Overlayen låg på 70/45/85 och drog ned en ljus film (luminans 166)
+            till 50/91/25 – bilden blev nästan svart i underkanten. Nu räcker
+            skuggan till för texten men låter interiören synas. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-dark/45 via-bg-dark/30 to-bg-dark/65" />
         <motion.div aria-hidden animate={{ opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-20 -right-10 w-96 h-96 rounded-full bg-cta-hover/25 blur-3xl" />
         <div className="container-custom relative z-10 text-center max-w-3xl">
           <motion.span initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm text-xs font-bold tracking-widest uppercase mb-7"><Sparkles className="w-4 h-4 text-cta-hover" /> Endast för inbjudna</motion.span>

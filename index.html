@@ -16,6 +16,11 @@
     <meta property="og:locale" content="sv_SE" />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Domänverifiering för Meta (Facebook/Instagram). Måste ligga statiskt i
+         <head> – Meta underkänner taggar som injiceras av JavaScript, så den
+         får inte flyttas till seo.tsx/Helmet. -->
+    <meta name="facebook-domain-verification" content="l9xcn9s9tyq6jaf7xa3nkobacx8i1e" />
+
     <!-- Entitet: Organization/LocalBusiness (statiskt i källan så alla sökrobotar och AI-motorer kan läsa det utan JavaScript) -->
     <script type="application/ld+json">
     {

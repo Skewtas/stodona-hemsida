@@ -314,28 +314,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Boka Section */}
-      <section className="pt-8 pb-4 bg-white relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl aspect-square bg-cta-hover/5 blur-[120px] rounded-full -z-10"></div>
-
-        <div className="container-custom relative z-10">
+      {/* 4. Boka Section – rubriken bor numera i widgeten, som har samma
+             formspråk som hero-rutan. */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-3xl mx-auto mb-10"
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.45 }}
+            className="max-w-2xl mx-auto"
           >
-            <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-6">
-              {t('home.book.badge', lang)}
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 tracking-tight">
-              {t('home.book.title1', lang)} <br />
-              <span className="text-accent-deep italic font-normal">{t('home.book.title2', lang)}</span>
-            </h2>
-            <div className="mt-8 text-left">
-              <QuickBookingWidget />
-            </div>
+            <QuickBookingWidget />
           </motion.div>
         </div>
       </section>

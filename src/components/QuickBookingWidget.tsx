@@ -1,15 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowRight, MapPin, Maximize, Sparkles, Star, ShieldCheck, Home, Box, Wind } from 'lucide-react';
+import { ArrowRight, Star, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { track } from '../utils/analytics';
 import { submitLead } from '../utils/leadCapture';
 import { bookingUrl } from "../utils/bookingUrl";
 
+// `name` måste stavas exakt som tjänsten heter i bokningssystemets SERVICES –
+// det är värdet som skickas som ?service=. Tidigare skickades id:t
+// ("hemstadning"), som aldrig matchade och därför tappades bort.
 const servicesList = [
-  { id: 'hemstadning', sv: 'Hemstädning', en: 'Home Cleaning', icon: Home, base: 22, min: 600 },
-  { id: 'storstadning', sv: 'Storstädning', en: 'Deep Cleaning', icon: Sparkles, base: 35, min: 1200 },
-  { id: 'flyttstadning', sv: 'Flyttstädning', en: 'Move-Out', icon: Box, base: 40, min: 1500 },
-  { id: 'fonsterputsning', sv: 'Fönsterputs', en: 'Windows', icon: Wind, base: 15, min: 500 },
+  { id: 'hemstadning', name: 'Hemstädning', sv: 'Hemstädning', en: 'Home Cleaning', base: 22, min: 600 },
+  { id: 'storstadning', name: 'Storstädning', sv: 'Storstädning', en: 'Deep Cleaning', base: 35, min: 1200 },
+  { id: 'flyttstadning', name: 'Flyttstädning', sv: 'Flyttstädning', en: 'Move-Out', base: 40, min: 1500 },
+  { id: 'fonsterputsning', name: 'Fönsterputsning', sv: 'Fönsterputs', en: 'Windows', base: 15, min: 500 },
 ];
 
 export const QuickBookingWidget: React.FC = () => {
@@ -58,190 +61,179 @@ export const QuickBookingWidget: React.FC = () => {
       setZipError(lang === 'EN' ? 'Sorry, we only cover Stockholm manually yet' : 'Tyvärr täcker vi bara Stockholm just nu');
       return;
     }
+    const valdTjanst = servicesList.find(s => s.id === service);
     track("booking_widget_submit", { service, sqm, estimated_price: estimatedPrice ?? undefined });
     // bookingUrl lägger till influencerreferensen utan att röra service/zip/sqm.
-    window.location.href = bookingUrl({ service, zip: zipCode, sqm });
+    window.location.href = bookingUrl({ service: valdTjanst?.name, zip: zipCode, sqm });
   };
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl shadow-text-primary/10 border border-text-primary/5 max-w-lg mx-auto w-full relative overflow-hidden">
-      
-      {/* Subtle background flair */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-cta-hover/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+    // Samma formspråk som hero-rutan på startsidan: ljus panel med skarpa
+    // hörn, fyrkantiga tjänstknappar, fält med enhetssuffix och en mörk
+    // versalknapp.
+    <div className="bg-bg-primary p-8 sm:p-10 md:p-12 shadow-2xl w-full">
+      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+        <Star className="w-3.5 h-3.5 fill-current text-accent" />
+        {lang === 'EN' ? '4.9 out of 5 average rating' : '4,9 av 5 i snittbetyg'}
+      </span>
 
-      <div className="relative z-10">
-        <div className="flex items-center justify-center gap-2 mx-auto mb-5 bg-yellow-50 text-yellow-900 px-4 py-1.5 rounded-full w-max text-xs font-bold border border-yellow-200/50">
-          <div className="flex text-yellow-500">
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-          </div>
-          <span>{lang === 'EN' ? '4.9/5 Average Rating' : '4.9/5 i snittbetyg'}</span>
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-6">
+        {lang === 'EN' ? 'Book your cleaning' : 'Boka din städning'}
+        <br />
+        <span className="italic font-normal text-accent-deep">
+          {lang === 'EN' ? 'in 60 seconds' : 'på 60 sekunder'}
+        </span>
+      </h2>
+
+      <form onSubmit={handleSubmit}>
+        <span className="block text-text-secondary text-base sm:text-lg mb-3">
+          {lang === 'EN' ? 'What do you need help with?' : 'Vad behöver du hjälp med?'}
+        </span>
+        <div className="flex flex-wrap gap-2 mb-6" role="group">
+          {servicesList.map((s) => {
+            const vald = service === s.id;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setService(s.id)}
+                aria-pressed={vald}
+                className={`px-4 py-2 text-sm font-medium border transition-colors ${
+                  vald
+                    ? 'bg-text-primary text-bg-primary border-text-primary'
+                    : 'bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary'
+                }`}
+              >
+                {lang === 'EN' ? s.en : s.sv}
+              </button>
+            );
+          })}
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-5">
-          
-          {/* Service Väljare (Cards istället för Dropdown) */}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold text-text-primary mb-4 text-center">
-              {lang === 'EN' ? 'What type of cleaning do you need?' : 'Vad för typ av städning behöver du?'}
-            </h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {servicesList.map(s => {
-                const isSelected = service === s.id;
-                const Icon = s.icon;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setService(s.id)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 ${
-                      isSelected 
-                      ? 'border-cta-hover bg-cta-hover/5 text-cta-hover shadow-sm scale-[1.02]' 
-                      : 'border-text-primary/5 bg-bg-primary hover:border-text-primary/10 hover:bg-white text-text-secondary'
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 mb-1.5 transition-colors ${isSelected ? 'text-cta-hover' : 'text-text-primary/40'}`} />
-                    <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-cta-hover' : 'text-text-primary'}`}>
-                      {lang === 'EN' ? s.en : s.sv}
-                    </span>
-                  </button>
-                )
-              })}
+            <label htmlFor="widget-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
+              {lang === 'EN' ? 'How many sqm?' : 'Hur många kvm?'}
+            </label>
+            <div className="relative">
+              <input
+                id="widget-sqm"
+                type="number"
+                inputMode="numeric"
+                required
+                min="10"
+                max="1000"
+                placeholder="70"
+                value={sqm}
+                onChange={(e) => setSqm(e.target.value)}
+                className="w-full bg-white border border-text-primary/15 pl-4 pr-12 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm font-medium pointer-events-none">
+                kvm
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Square Meters */}
+          <div>
+            <label htmlFor="widget-zip" className="block text-text-secondary text-base sm:text-lg mb-3">
+              {lang === 'EN' ? 'Postal code' : 'Postnummer'}
+            </label>
+            <input
+              id="widget-zip"
+              type="text"
+              inputMode="numeric"
+              required
+              placeholder="112 34"
+              value={zipCode}
+              onChange={(e) => {
+                setZipCode(e.target.value.replace(/\D/g, '').substring(0, 5));
+                setZipError('');
+              }}
+              className={`w-full bg-white border px-4 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 transition-shadow ${
+                zipError
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                  : 'border-text-primary/15 focus:border-accent focus:ring-accent/25'
+              }`}
+            />
+            {zipError && <p className="text-red-600 text-sm mt-2 font-medium">{zipError}</p>}
+          </div>
+        </div>
+
+        {/* Prisuppskattning */}
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${estimatedPrice ? 'max-h-32 opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
+          <div className="border border-dashed border-accent/50 bg-accent/5 px-5 py-4 flex items-end justify-between">
             <div>
-              <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
-                {lang === 'EN' ? 'How many sqm is your home?' : 'Hur många kvm bor du på?'}
-              </label>
-              <div className="relative">
-                <Maximize className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="number"
-                  required
-                  min="10"
-                  max="1000"
-                  placeholder="Ex: 75"
-                  value={sqm}
-                  onChange={(e) => setSqm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-3 rounded-xl bg-bg-primary border border-transparent focus:border-cta-hover focus:bg-white focus:ring-2 focus:ring-cta-hover/10 outline-none transition-all text-text-primary text-base font-medium shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-              </div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-secondary mb-1">
+                {lang === 'EN' ? 'Estimated price' : 'Uppskattat pris'}
+              </p>
+              <span className="font-display text-3xl font-bold tracking-tight text-text-primary">
+                ~ {estimatedPrice} kr
+              </span>
             </div>
-
-            {/* Postal Code */}
-            <div>
-              <label className="block text-sm font-semibold text-text-primary mb-1.5 flex items-center gap-1.5">
-                {lang === 'EN' ? 'Postal Code' : 'Postnummer'}
-              </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-text-primary/40 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: 112 34"
-                  value={zipCode}
-                  onChange={(e) => {
-                    setZipCode(e.target.value.replace(/\D/g, '').substring(0, 5));
-                    setZipError('');
-                  }}
-                  className={`w-full pl-9 pr-3 py-3 rounded-xl bg-bg-primary border focus:bg-white focus:ring-2 outline-none transition-all text-text-primary text-base font-medium shadow-inner ${zipError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-transparent focus:border-cta-hover focus:ring-cta-hover/10'}`}
-                />
-              </div>
-              {zipError && (
-                <p className="text-red-500 text-xs mt-2 font-medium">{zipError}</p>
-              )}
-            </div>
+            <span className="text-sm text-text-secondary">
+              {lang === 'EN' ? 'after RUT' : 'efter RUT'}
+            </span>
           </div>
+        </div>
 
-          {/* Prisuppskattning (Live box) */}
-          <div className={`overflow-hidden transition-all duration-500 ease-in-out ${estimatedPrice ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="bg-cta-hover/10 rounded-2xl p-4 flex items-center justify-between border border-cta-hover/20">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-cta-hover mb-1">
-                  {lang === 'EN' ? 'Estimated Price' : 'Uppskattat pris'}
-                </p>
-                <div className="flex items-end gap-2">
-                  <span className="text-2xl font-extrabold text-text-primary">
-                    ~ {estimatedPrice} kr
-                  </span>
-                  <span className="text-sm font-medium text-text-secondary mb-1">
-                    {lang === 'EN' ? '(after RUT)' : '(efter RUT)'}
-                  </span>
-                </div>
-              </div>
-              <Sparkles className="w-8 h-8 text-cta-hover/40" />
-            </div>
-          </div>
+        <button
+          type="submit"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+        >
+          {lang === 'EN' ? 'See exact price and book' : 'Se exakt pris och boka'}
+          <ArrowRight className="w-4 h-4" />
+        </button>
 
-          <div className="pt-2 space-y-2.5">
+        {/* Fastpris – fånga leadet innan avhopp till det externa systemet */}
+        <div className="mt-8 border-t border-text-primary/10 pt-6">
+          {fpDone ? (
+            <p className="flex items-center gap-2 text-sm font-medium text-green-700">
+              <ShieldCheck className="w-4 h-4" />
+              {lang === 'EN' ? 'Thanks! We will call you with a fixed price.' : 'Tack! Vi ringer dig med ett fast pris.'}
+            </p>
+          ) : !showFastpris ? (
             <button
-              type="submit"
-              className="w-full btn-primary bg-text-primary text-bg-primary hover:bg-cta-hover py-3.5 text-base font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+              type="button"
+              onClick={() => setShowFastpris(true)}
+              className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
             >
-              {lang === 'EN' ? 'See exact price & book' : 'Få exakt pris & boka'}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {lang === 'EN' ? 'Prefer a fixed price? We’ll call you' : 'Vill du ha fast pris? Vi ringer dig'}
             </button>
-
-            {/* Fastpris – fånga leadet innan avhopp */}
-            {fpDone ? (
-              <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-50 text-green-700 text-sm font-medium">
-                <ShieldCheck className="w-4 h-4" />
-                {lang === 'EN' ? 'Thanks! We will call you with a fixed price.' : 'Tack! Vi ringer dig med ett fast pris.'}
-              </div>
-            ) : !showFastpris ? (
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                value={fpName}
+                onChange={(e) => setFpName(e.target.value)}
+                placeholder={lang === 'EN' ? 'Name' : 'Namn'}
+                className="flex-1 bg-white border border-text-primary/15 px-4 py-3 text-base focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow"
+              />
+              <input
+                type="tel"
+                value={fpPhone}
+                onChange={(e) => setFpPhone(e.target.value)}
+                placeholder={lang === 'EN' ? 'Phone *' : 'Telefon *'}
+                className="flex-1 bg-white border border-text-primary/15 px-4 py-3 text-base focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow"
+              />
               <button
                 type="button"
-                onClick={() => setShowFastpris(true)}
-                className="w-full py-3 rounded-xl border border-text-primary/15 font-semibold text-text-primary hover:border-cta-hover hover:text-cta-hover transition-colors text-sm"
+                onClick={handleFastpris}
+                disabled={fpLoading}
+                className="bg-text-primary text-bg-primary px-6 py-3 font-bold tracking-wide uppercase text-xs hover:bg-accent-deep transition-colors disabled:opacity-50 whitespace-nowrap"
               >
-                {lang === 'EN' ? 'Prefer a fixed price? We’ll call you' : 'Vill du ha fast pris? Vi ringer dig'}
+                {fpLoading ? (lang === 'EN' ? 'Sending…' : 'Skickar…') : (lang === 'EN' ? 'Call me' : 'Ring mig')}
               </button>
-            ) : (
-              <div className="space-y-2 bg-bg-primary rounded-xl p-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    value={fpName}
-                    onChange={(e) => setFpName(e.target.value)}
-                    placeholder={lang === 'EN' ? 'Name' : 'Namn'}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-transparent focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/10 outline-none text-sm"
-                  />
-                  <input
-                    type="tel"
-                    value={fpPhone}
-                    onChange={(e) => setFpPhone(e.target.value)}
-                    placeholder={lang === 'EN' ? 'Phone *' : 'Telefon *'}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-transparent focus:border-cta-hover focus:ring-2 focus:ring-cta-hover/10 outline-none text-sm"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleFastpris}
-                  disabled={fpLoading}
-                  className="w-full py-2.5 bg-cta-hover text-text-primary font-bold rounded-lg text-sm hover:brightness-105 transition disabled:opacity-50"
-                >
-                  {fpLoading ? (lang === 'EN' ? 'Sending…' : 'Skickar…') : (lang === 'EN' ? 'Call me about a fixed price' : 'Ring mig om fast pris')}
-                </button>
-              </div>
-            )}
-
-            <p className="text-center text-[11px] text-text-secondary/80">
-              {lang === 'EN' ? 'Standard rate 285 kr/h – or get a fixed price.' : 'Ordinarie timpris 285 kr/h – eller få ett fast pris.'}
-            </p>
-
-            <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-text-secondary">
-              <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
-              <span>{lang === 'EN' ? '100% Satisfaction Guarantee. No commitment.' : '100% Nöjd-Kund Garanti. Ingen bindningstid.'}</span>
             </div>
-          </div>
+          )}
 
-        </form>
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-6 text-sm text-text-secondary">
+            <span>{lang === 'EN' ? 'Standard rate 285 kr/h – or a fixed price.' : 'Ordinarie timpris 285 kr/h – eller fast pris.'}</span>
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-accent shrink-0" />
+              {lang === 'EN' ? '100 % satisfaction guarantee' : '100 % nöjdgaranti'}
+            </span>
+          </div>
+        </div>
+      </form>
     </div>
   );
 };

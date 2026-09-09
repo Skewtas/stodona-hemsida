@@ -263,15 +263,15 @@ export default function Samarbeta() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Samarbeta med Stodona – för kreatörer och influencers</title>
+        <title>Samarbeten och affiliate | Stodona</title>
         <meta
           name="description"
           content="Bli affiliate eller gör ett direktsamarbete med Stodona. Egen rabattkod till dina följare, provision på varje bokning och full kreativ frihet."
         />
         {/* ⚠️ UTKAST: ta bort raden nedan och lägg till sidan i sitemap när den ska ut. */}
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://stodona.se/samarbeta" />
-        <meta property="og:title" content="Samarbeta med Stodona" />
+        <link rel="canonical" href="https://stodona.se/samarbeten-och-affiliate" />
+        <meta property="og:title" content="Samarbeten och affiliate | Stodona" />
         <meta
           property="og:description"
           content="Egen rabattkod till dina följare, provision på varje bokning och full kreativ frihet."
@@ -300,9 +300,9 @@ export default function Samarbeta() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-sans font-extrabold uppercase text-white text-center leading-[0.92] tracking-[-0.02em] text-[clamp(2.4rem,8.5vw,7.5rem)] drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]"
+            className="font-sans font-extrabold uppercase text-white text-center leading-[0.92] tracking-[-0.02em] text-[clamp(2.1rem,7vw,6rem)] drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]"
           >
-            Samarbeta med oss
+            Samarbeten och affiliate
           </motion.h1>
         </div>
       </section>

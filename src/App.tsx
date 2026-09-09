@@ -147,6 +147,7 @@ export default function App() {
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
+          <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />
           <Route path="/samarbeta" element={<Samarbeta />} />
           <Route path="/samarbete" element={<Samarbeta />} />
           <Route path="/visselblasning" element={<Visselblasning />} />

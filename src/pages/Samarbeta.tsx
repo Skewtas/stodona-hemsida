@@ -712,7 +712,11 @@ export default function Samarbeta() {
                     </div>
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="link">Länk till kanal eller mediakit</label>
-                      <input id="link" name="link" type="url" value={form.link} onChange={update} className={inputClass} placeholder="https://" />
+                      {/* Medvetet type="text" och inte "url": webbläsaren underkände
+                          annars "www.stodona.se" och "instagram.com/namn", som är
+                          precis så folk skriver adresser. Hellre en länk vi får
+                          tolka själva än en ansökan som fastnar. */}
+                      <input id="link" name="link" type="text" inputMode="url" value={form.link} onChange={update} className={inputClass} placeholder="www.dinkanal.se eller instagram.com/dittnamn" />
                     </div>
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="audience">Vilka är dina följare?</label>

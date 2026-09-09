@@ -16,7 +16,6 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ContactPopup from "../components/ContactPopup";
-import UspMarquee from "../components/UspMarquee";
 import { useSearchParams } from "react-router-dom";
 import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
@@ -111,12 +110,16 @@ export default function Home() {
         </div>
 
         <div className="container-custom relative z-20 w-full">
-          <div className="max-w-2xl bg-bg-primary/92 backdrop-blur-sm p-8 sm:p-10 md:p-12 shadow-2xl">
+          {/* Rutan är bredare än 2xl för att rubrikens första rad och alla fem
+              tjänsteknappar ska rymmas på var sin rad på desktop. */}
+          <div className="max-w-3xl bg-bg-primary/92 backdrop-blur-sm p-8 sm:p-10 md:p-12 shadow-2xl">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
               <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
             </span>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-4">
+            {/* Graden är kapad från 48 px så att "Bäst hemstädning i Stockholm."
+                får plats på en rad i rutan. */}
+            <h1 className="text-3xl sm:text-4xl md:text-[2.6rem] lg:text-[2.75rem] font-bold leading-[1.1] text-text-primary mb-4">
               {t('home.hero.title1', lang)}
               <br />
               <span className="italic font-normal text-accent-deep">
@@ -143,7 +146,7 @@ export default function Home() {
                       type="button"
                       onClick={() => setHeroService(tjanst.value)}
                       aria-pressed={vald}
-                      className={`px-4 py-2 text-sm font-medium border transition-colors ${
+                      className={`px-3 py-2 text-sm font-medium border whitespace-nowrap transition-colors ${
                         vald
                           ? "bg-text-primary text-bg-primary border-text-primary"
                           : "bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary"
@@ -205,9 +208,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Snurrande USP-rad direkt under heron – bygger köplust */}
-      <UspMarquee />
 
       {/* 5. Tjänstekort – fullbredd, direkt under heron */}
       <section className="relative bg-white py-16 sm:py-24">

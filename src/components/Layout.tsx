@@ -8,6 +8,7 @@ import CookieConsent from "./CookieConsent";
 import DiscountPopup from "./DiscountPopup";
 import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
+import UspMarquee from "./UspMarquee";
 import LiveBookingToast from "./LiveBookingToast";
 import { capturePartnerRefOnLoad, migrateRefOnConsent } from "../utils/partnerRef";
 import { bookingUrl, installBookingLinkInterceptor } from "../utils/bookingUrl";
@@ -62,6 +63,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* USP-remsan ligger allra överst på startsidan – ovanför menyn. Den
+          ligger i flödet och rullar alltså bort med sidan, medan headern
+          fastnar i toppen som förut. */}
+      {pathname === "/" && <UspMarquee />}
       <header className="sticky top-0 z-50 bg-bg-primary/90 backdrop-blur-md border-b border-text-primary/10">
         <div className="container-custom py-5 md:py-6 flex items-center justify-between">
           <Link to="/" className="block">

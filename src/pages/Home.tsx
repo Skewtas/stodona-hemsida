@@ -112,14 +112,17 @@ export default function Home() {
         <div className="container-custom relative z-20 w-full">
           {/* Rutan är bredare än 2xl för att rubrikens första rad och alla fem
               tjänsteknappar ska rymmas på var sin rad på desktop. */}
-          <div className="max-w-3xl bg-bg-primary/92 backdrop-blur-sm p-8 sm:p-10 md:p-12 shadow-2xl">
+          <div className="max-w-3xl bg-bg-primary/92 backdrop-blur-sm p-6 sm:p-10 md:p-12 shadow-2xl">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
               <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
             </span>
 
-            {/* Graden är kapad från 48 px så att "Bäst hemstädning i Stockholm."
-                får plats på en rad i rutan. */}
-            <h1 className="text-3xl sm:text-4xl md:text-[2.6rem] lg:text-[2.75rem] font-bold leading-[1.1] text-text-primary mb-4">
+            {/* Flytande grad så att "Bäst hemstädning i Stockholm." aldrig bryts.
+                Uppmätt: raden är 14,11 gånger bredare än teckengraden, och
+                rutans innermått är viewporten minus 88 px. Smalaste fallet
+                (320 px) tål därför 5,14vw – vi tar 5,1vw. Taket 2,75rem gäller
+                från desktop och uppåt. */}
+            <h1 className="text-[clamp(1rem,5.1vw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-4">
               {t('home.hero.title1', lang)}
               <br />
               <span className="italic font-normal text-accent-deep">
@@ -137,7 +140,14 @@ export default function Home() {
               <span className="block text-text-secondary text-base sm:text-lg mb-3">
                 {t('home.hero.serviceLabel', lang)}
               </span>
-              <div className="flex flex-wrap gap-2 mb-5" role="group" aria-label={t('home.hero.serviceLabel', lang)}>
+              {/* Alla fem på EN rad. Fem knappar kräver 650 px och mobilen har
+                  drygt 300 – därför sidscroll i stället för radbrytning.
+                  På desktop ryms de och raden scrollar inte. */}
+              <div
+                className="flex gap-2 mb-5 overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                role="group"
+                aria-label={t('home.hero.serviceLabel', lang)}
+              >
                 {HERO_SERVICES.map((tjanst) => {
                   const vald = tjanst.value === heroService;
                   return (

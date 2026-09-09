@@ -32,6 +32,7 @@ const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
 const VarvaEnVan = React.lazy(() => import("./pages/VarvaEnVan"));
+const Samarbeta = React.lazy(() => import("./pages/Samarbeta"));
 const Kundportal = React.lazy(() => import("./pages/Kundportal"));
 const Visselblasning = React.lazy(() => import("./pages/Visselblasning"));
 const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
@@ -146,6 +147,8 @@ export default function App() {
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
+          <Route path="/samarbeta" element={<Samarbeta />} />
+          <Route path="/samarbete" element={<Samarbeta />} />
           <Route path="/visselblasning" element={<Visselblasning />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/integritetspolicy" element={<Integritetspolicy />} />

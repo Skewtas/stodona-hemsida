@@ -4,7 +4,7 @@
 
 ## Tjänster
 
-- [Hemstädning](https://stodona.se/hemstadning): Regelbunden eller enstaka hemstädning i Stockholm. Ordinarie timpris 285 kr/h, halva efter RUT-avdrag.
+- [Hemstädning](https://stodona.se/hemstadning): Regelbunden eller enstaka hemstädning i Stockholm. Priset baseras på bostadens storlek och städfrekvens; halva arbetskostnaden efter RUT-avdrag.
 - [Flyttstädning](https://stodona.se/flyttstadning): Noggrann flyttstädning enligt besiktningsstandard, med godkänt-garanti. RUT-avdrag gäller.
 - [Storstädning](https://stodona.se/storstadning): Djupare städning än vanlig hemstädning. RUT-avdrag för privatpersoner.
 - [Fönsterputsning](https://stodona.se/fonsterputsning): Strimfria fönster in- och utvändigt. RUT-avdrag för privatpersoner.

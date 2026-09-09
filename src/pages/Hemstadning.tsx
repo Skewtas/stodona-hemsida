@@ -164,9 +164,9 @@ export default function Hemstadning() {
 
       <AnswerFirst
         heading="Kort om hemstädning i Stockholm"
-        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Ordinarie timpris är <strong className="text-text-primary">285 kr/h</strong>, och med RUT-avdraget betalar du bara halva arbetskostnaden. Vill du hellre ha ett fast pris ordnar vi det.</>}
+        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Priset baseras på bostadens storlek och hur ofta du städar, och med RUT-avdraget betalar du bara halva arbetskostnaden. Du ser ditt pris direkt i bokningen, och vill du hellre ha ett fast pris ordnar vi det.</>}
         facts={[
-          { label: "Pris", value: "285 kr/h – halva efter RUT" },
+          { label: "Pris", value: "Efter storlek – halva efter RUT" },
           { label: "RUT-avdrag", value: "50 % dras direkt" },
           { label: "Områden", value: "Stockholm med omnejd" },
           { label: "Bindningstid", value: "Ingen" },

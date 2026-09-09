@@ -226,7 +226,7 @@ export const QuickBookingWidget: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-6 text-sm text-text-secondary">
-            <span>{lang === 'EN' ? 'Standard rate 285 kr/h – or a fixed price.' : 'Ordinarie timpris 285 kr/h – eller fast pris.'}</span>
+            <span>{lang === 'EN' ? 'Price based on size – or a fixed price.' : 'Priset baseras på bostadens storlek – eller fast pris.'}</span>
             <span className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-accent shrink-0" />
               {lang === 'EN' ? '100 % satisfaction guarantee' : '100 % nöjdgaranti'}

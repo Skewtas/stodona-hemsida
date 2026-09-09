@@ -55,8 +55,8 @@ const FAQS = [
     en: { q: "Do I need to be home during the cleaning?", a: "No. Most of our customers leave a key that we store securely, or a door code. We are fully insured." },
   },
   {
-    sv: { q: "Vad kostar det?", a: "Ordinarie timpris är 285 kr/h och med RUT-avdraget betalar du bara halva arbetskostnaden. Du ser ditt pris direkt i bokningen – och vi kan även ge fast pris per tillfälle." },
-    en: { q: "What does it cost?", a: "The standard rate is SEK 285/h and with the RUT deduction you pay only half the labour cost. You see your price directly when booking – we can also offer a fixed price per occasion." },
+    sv: { q: "Vad kostar det?", a: "Priset baseras på bostadens storlek och hur ofta du städar. Med RUT-avdraget betalar du bara halva arbetskostnaden, och du ser ditt pris direkt i bokningen – vi kan även ge fast pris per tillfälle." },
+    en: { q: "What does it cost?", a: "The price is based on the size of your home and how often you book. With the RUT deduction you pay only half the labour cost, and you see your price directly when booking – we can also offer a fixed price per occasion." },
   },
   {
     sv: { q: "Hur betalar jag?", a: "Vi skickar faktura efter utförd tjänst med 10 dagars betalningsvillkor. RUT-avdraget är redan avdraget på fakturan." },
@@ -280,13 +280,13 @@ export default function BokaStadning() {
             <p className="text-text-secondary leading-relaxed mb-4">
               {sv ? (
                 <>
-                  Ordinarie timpris är <strong className="text-text-primary">285 kr/h</strong>. Som privatperson betalar
+                  Priset baseras på <strong className="text-text-primary">bostadens storlek</strong>. Som privatperson betalar
                   du bara halva arbetskostnaden tack vare RUT-avdraget – vi drar av det direkt på fakturan och sköter all
                   administration med Skatteverket. Du ser ditt pris innan du bekräftar bokningen.
                 </>
               ) : (
                 <>
-                  The standard rate is <strong className="text-text-primary">SEK 285/h</strong>. As a private individual
+                  The price is based on <strong className="text-text-primary">the size of your home</strong>. As a private individual
                   you pay only half the labour cost thanks to the RUT deduction – we apply it directly on the invoice and
                   handle all administration with the Swedish Tax Agency. You see your price before confirming.
                 </>

@@ -10,38 +10,38 @@ import { bookingUrl } from "../utils/bookingUrl";
 /**
  * PRISSIDAN – enda stället där prisexemplen räknas ut.
  *
- * HOURLY är Stodonas ordinarie timpris (samma siffra som visas i
- * bokningswidgeten och på hemstädningssidan). Alla belopp i tabellen räknas
- * fram därifrån – ändrar du HOURLY uppdateras hela sidan.
+ * PRISER hämtade ur bokningssystemets prismotor (boka.stodona.se
+ * /api/calculate-price), hemstädning varannan vecka, per städtillfälle inkl.
+ * moms.
  *
- * `hours` i PRICE_EXAMPLES är RIKTVÄRDEN för återkommande hemstädning, inte
- * löften. Justera dem gärna efter hur lång tid uppdragen faktiskt tar.
+ * Sidan räknade tidigare fram alla belopp ur ett timpris, vilket gav priser
+ * långt under vad bokningen faktiskt tar betalt. Ändras priserna i
+ * prismotorn måste siffrorna nedan uppdateras – de hämtas inte automatiskt.
  */
-const HOURLY = 285;
-
 const kr = (n: number) => `${Math.round(n).toLocaleString("sv-SE")} kr`;
-const afterRut = (n: number) => n / 2;
 
+// Verifierade mot prismotorn 2026-09-09. `fritt` = utan bindningstid,
+// `bundet` = lägsta priset med 12 månaders abonnemang. Båda efter RUT.
 const PRICE_EXAMPLES = [
-  { home: "1 rum och kök", size: "Upp till 45 kvm", hours: 2 },
-  { home: "2 rum och kök", size: "45–65 kvm", hours: 2.5 },
-  { home: "3 rum och kök", size: "65–85 kvm", hours: 3 },
-  { home: "4 rum och kök", size: "85–110 kvm", hours: 3.5 },
-  { home: "Villa eller radhus", size: "110–150 kvm", hours: 4.5 },
+  { home: "1 rum och kök", size: "Upp till 45 kvm", fritt: 941, bundet: 855 },
+  { home: "2 rum och kök", size: "45–65 kvm", fritt: 1098, bundet: 998 },
+  { home: "3 rum och kök", size: "65–85 kvm", fritt: 1255, bundet: 1140 },
+  { home: "4 rum och kök", size: "85–110 kvm", fritt: 1569, bundet: 1425 },
+  { home: "Villa eller radhus", size: "110–150 kvm", fritt: 1726, bundet: 1568 },
 ];
 
 const SERVICE_PRICING = [
   {
     name: "Hemstädning",
     to: "/hemstadning",
-    price: `${HOURLY} kr/h`,
+    price: "Från 941 kr per tillfälle",
     note: "Halva arbetskostnaden efter RUT",
     drivers: "Yta, hur ofta du städar och hemmets skick. Regelbunden städning tar mindre tid per tillfälle än enstaka besök.",
   },
   {
     name: "Storstädning",
     to: "/storstadning",
-    price: `Från ${HOURLY} kr/h`,
+    price: "Pris efter yta och omfattning",
     note: "Fast pris på begäran",
     drivers: "Yta och hur djupgående rengöringen ska vara – ugn, kyl/frys, skåp invändigt och avkalkning tar tid.",
   },
@@ -106,15 +106,15 @@ const INCLUDED = [
 const FAQS = [
   {
     q: "Vad kostar hemstädning hos Stodona?",
-    a: `Ordinarie timpris är ${HOURLY} kr/h. Med RUT-avdraget betalar du bara halva arbetskostnaden, alltså cirka ${kr(afterRut(HOURLY))}/h. Vill du hellre ha ett fast pris per städtillfälle ordnar vi det – hör av dig så räknar vi fram det.`,
+    a: "Priset baseras på bostadens storlek och hur ofta du städar. En trea på 65–85 kvm som städas varannan vecka kostar 1 255 kr per tillfälle efter RUT-avdrag, eller 1 140 kr med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen.",
   },
   {
     q: "Hur mycket sparar jag på RUT-avdraget?",
     a: "RUT-avdraget ger 50 % rabatt på arbetskostnaden, upp till 75 000 kr per person och år. Vi drar av det direkt på fakturan och ansöker om resten hos Skatteverket – du behöver inte göra något själv.",
   },
   {
-    q: "Kan jag få fast pris i stället för timpris?",
-    a: "Ja. Många kunder vill veta exakt vad varje städtillfälle kostar. Kontakta oss så tar vi fram ett fast pris utifrån ditt hem och hur ofta du vill ha städat.",
+    q: "Kan jag få ett fast pris?",
+    a: "Ja. Priset du ser i bokningen är redan per städtillfälle, men vill du ha ett skriftligt fast pris för ett längre upplägg tar vi fram det – hör av dig.",
   },
   {
     q: "Hur betalar jag?",
@@ -157,11 +157,11 @@ export default function Priser() {
       priceCurrency: "SEK",
       priceSpecification: {
         "@type": "UnitPriceSpecification",
-        price: HOURLY,
+        price: 1255,
         priceCurrency: "SEK",
-        unitCode: "HUR",
         valueAddedTaxIncluded: true,
-        description: "Ordinarie timpris före RUT-avdrag. Med RUT betalar privatpersoner halva arbetskostnaden.",
+        description:
+          "Pris per städtillfälle efter RUT-avdrag för en bostad på 65–85 kvm som städas varannan vecka. Priset varierar med bostadens storlek och städfrekvens.",
       },
       availability: "https://schema.org/InStock",
       url: "https://stodona.se/boka-stadning",
@@ -181,9 +181,9 @@ export default function Priser() {
     <div className="flex flex-col min-h-screen">
       <Helmet>
         <title>Priser på städning i Stockholm 2026 | Stodona</title>
-        <meta name="description" content={`Vad kostar städning? Ordinarie timpris ${HOURLY} kr/h – halva arbetskostnaden efter RUT-avdrag. Se prisexempel per bostadsstorlek, vad som påverkar priset och boka online.`} />
+        <meta name="description" content="Vad kostar städning i Stockholm? Priset baseras på bostadens storlek – en trea kostar 1 255 kr per tillfälle efter RUT. Se prisexempel per bostadsstorlek och boka online." />
         <meta property="og:title" content="Priser på städning i Stockholm | Stodona" />
-        <meta property="og:description" content={`Ordinarie timpris ${HOURLY} kr/h – halva efter RUT. Prisexempel, vad som påverkar priset och fast pris på begäran.`} />
+        <meta property="og:description" content="Priser på städning i Stockholm – prisexempel per bostadsstorlek, efter RUT-avdrag." />
         <meta property="og:url" content="https://stodona.se/priser" />
         <link rel="canonical" href="https://stodona.se/priser" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
@@ -211,7 +211,7 @@ export default function Priser() {
             transition={{ delay: 0.1 }}
             className="text-lg md:text-xl text-text-light/80 mb-10"
           >
-            Ordinarie timpris {HOURLY} kr/h – med RUT-avdrag betalar du bara halva arbetskostnaden.
+            Priset baseras på bostadens storlek – med RUT-avdrag betalar du bara halva arbetskostnaden.
             Här ser du prisexempel per bostadsstorlek, vad som påverkar priset och hur du får ett exakt pris.
           </motion.p>
 
@@ -236,17 +236,17 @@ export default function Priser() {
         heading="Vad kostar städning hos Stodona?"
         answer={
           <>
-            Stodonas ordinarie timpris är <strong className="text-text-primary">{HOURLY} kr/h</strong>. Som privatperson
-            betalar du bara halva arbetskostnaden tack vare RUT-avdraget – cirka{" "}
-            <strong className="text-text-primary">{kr(afterRut(HOURLY))}/h</strong>. En vanlig trea på 65–85 kvm landar
-            därmed på ungefär <strong className="text-text-primary">{kr(afterRut(HOURLY * 3))} per städtillfälle</strong>{" "}
-            efter RUT. Vi erbjuder också fast pris per tillfälle om du hellre vill veta exakt vad varje städning kostar.
-            Inga dolda avgifter, ingen bindningstid.
+            Priset baseras på <strong className="text-text-primary">bostadens storlek och hur ofta du städar</strong>.
+            Som privatperson betalar du bara halva arbetskostnaden tack vare RUT-avdraget. En vanlig trea på 65–85 kvm
+            som städas varannan vecka landar på{" "}
+            <strong className="text-text-primary">1 255 kr per städtillfälle</strong> efter RUT – eller{" "}
+            <strong className="text-text-primary">1 140 kr</strong> med tolv månaders abonnemang. Du ser ditt exakta
+            pris direkt i bokningen. Inga dolda avgifter.
           </>
         }
         facts={[
-          { label: "Timpris", value: `${HOURLY} kr/h ordinarie` },
-          { label: "Efter RUT", value: `Cirka ${kr(afterRut(HOURLY))}/h` },
+          { label: "Trea, varannan vecka", value: "1 255 kr efter RUT" },
+          { label: "Med abonnemang", value: "Från 1 140 kr" },
           { label: "RUT-tak", value: "75 000 kr/person/år" },
           { label: "Betalning", value: "Faktura, 10 dagar" },
         ]}
@@ -274,9 +274,8 @@ export default function Priser() {
                   <tr className="bg-bg-primary text-sm uppercase tracking-widest">
                     <th scope="col" className="p-4 font-bold">Bostad</th>
                     <th scope="col" className="p-4 font-bold">Storlek</th>
-                    <th scope="col" className="p-4 font-bold">Uppskattad tid</th>
-                    <th scope="col" className="p-4 font-bold">Pris</th>
-                    <th scope="col" className="p-4 font-bold text-cta-hover">Efter RUT</th>
+                    <th scope="col" className="p-4 font-bold">Per tillfälle</th>
+                    <th scope="col" className="p-4 font-bold text-cta-hover">Med abonnemang</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -284,9 +283,8 @@ export default function Priser() {
                     <tr key={e.home} className="border-t border-text-primary/10">
                       <th scope="row" className="p-4 font-bold text-text-primary">{e.home}</th>
                       <td className="p-4 text-text-secondary">{e.size}</td>
-                      <td className="p-4 text-text-secondary">{String(e.hours).replace(".", ",")} tim</td>
-                      <td className="p-4 text-text-secondary">{kr(e.hours * HOURLY)}</td>
-                      <td className="p-4 font-bold text-text-primary">{kr(afterRut(e.hours * HOURLY))}</td>
+                      <td className="p-4 text-text-secondary">{kr(e.fritt)}</td>
+                      <td className="p-4 font-bold text-text-primary">{kr(e.bundet)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -296,8 +294,9 @@ export default function Priser() {
             <p className="flex gap-3 items-start text-sm text-text-secondary mt-5">
               <Info className="w-5 h-5 text-cta-hover shrink-0" />
               <span>
-                Priserna är beräknade på timpriset {HOURLY} kr/h och avser återkommande hemstädning. Enstaka städningar
-                och storstädning tar normalt längre tid. Alla belopp är inklusive moms.
+                Priserna avser hemstädning varannan vecka, per städtillfälle, inklusive moms och efter RUT-avdrag.
+                Kolumnen längst till höger visar priset med tolv månaders abonnemang. Enstaka städningar och
+                storstädning prissätts separat.
               </span>
             </p>
 

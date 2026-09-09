@@ -5,7 +5,6 @@ import Logo from "./Logo";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
-import DiscountPopup from "./DiscountPopup";
 import StickyCTA from "./StickyCTA";
 import FooterNewsletter from "./FooterNewsletter";
 import UspMarquee from "./UspMarquee";
@@ -440,7 +439,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <CookieConsent />
       {!isBabysittingPage && !isInfluencerPage && (
         <>
-          <DiscountPopup />
           <StickyCTA />
           <LiveBookingToast />
         </>

@@ -284,23 +284,25 @@ export default function Samarbeta() {
           bannern behöver ingen toppmarginal. */}
       <section className="relative overflow-hidden h-[58vh] min-h-[380px] max-h-[720px]">
         <img
-          src="/familj-stodona.jpg"
-          alt="Familj hemma i ett ljust vardagsrum"
-          className="absolute inset-0 w-full h-full object-cover grayscale brightness-[1.06]"
-          style={{ objectPosition: "center 16%" }}
-          width="1024"
-          height="1536"
+          src="/samarbete-hero.jpg"
+          alt="Tre kvinnor i ett möte vid ett bord med utsikt över Stockholm"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "center 42%" }}
+          width="1536"
+          height="1024"
           loading="eager"
           fetchPriority="high"
         />
-        {/* Mjuk slöja – bilden är väldigt ljus och den vita rubriken behöver kontrast. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/15" />
+        {/* Slöjan är koncentrerad till mittbandet där rubriken ligger – bilden
+            får vara ljus i kanterna, men fönstret och den ljusa väggen bakom
+            texten hamnar annars under 3:1 mot vitt. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/30 to-black/15" />
         <div className="absolute inset-0 flex items-center justify-center px-6">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-sans font-extrabold uppercase text-white text-center leading-[0.92] tracking-[-0.02em] text-[clamp(2.1rem,7vw,6rem)] drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]"
+            className="font-sans font-extrabold uppercase text-white text-center leading-[0.92] tracking-[-0.02em] text-[clamp(2.1rem,7vw,6rem)] [text-shadow:0_2px_10px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.5)]"
           >
             Samarbeten och affiliate
           </motion.h1>

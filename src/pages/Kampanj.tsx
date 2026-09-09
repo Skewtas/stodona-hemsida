@@ -176,10 +176,12 @@ export default function Kampanj() {
               därefter 20 %. Vi bjuder dessutom på fönsterputs eller storstädning.
             </p>
 
-            <div className="flex items-baseline gap-3 border border-dashed border-accent/50 bg-accent/5 px-5 py-4 mb-7">
-              <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">Kod</span>
-              <span className="font-display text-3xl font-bold tracking-tight text-text-primary">{KOD}</span>
-              <span className="text-sm text-text-secondary ml-auto">Gäller alla städabonnemang</span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-sm">
+              <span className="inline-flex items-center gap-2 border border-dashed border-accent/50 bg-accent/5 px-3 py-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-text-secondary">Kod</span>
+                <span className="font-bold tracking-wide text-text-primary">{KOD}</span>
+              </span>
+              <span className="text-text-secondary">Gäller alla städabonnemang</span>
             </div>
 
             {/* Bokningen påbörjas här, precis som på startsidan. Ytan följer med

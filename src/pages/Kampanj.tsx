@@ -79,6 +79,7 @@ const brodsmulaSchema = {
 };
 
 export default function Kampanj() {
+  const [sqm, setSqm] = useState("");
   // Beräknas i state så att en sida som stått öppen över natten stänger sig.
   const [aktiv, setAktiv] = useState(() => Date.now() < KAMPANJ_SLUT.getTime());
 
@@ -91,6 +92,19 @@ export default function Kampanj() {
   }, [aktiv]);
 
   const boka = bookingUrl({ discountCode: KOD });
+
+  function startaBokning(e: React.FormEvent) {
+    e.preventDefault();
+    const yta = parseInt(sqm, 10);
+    const giltig = Number.isFinite(yta) && yta >= 10 && yta <= 500;
+    track("booking_start", { source: "kampanj_abo25", sqm: giltig ? yta : undefined });
+    // Rabattkoden följer alltid med; ytan bara när den är rimlig.
+    window.location.href = bookingUrl({
+      service: "Hemstädning",
+      discountCode: KOD,
+      ...(giltig ? { sqm: yta } : {}),
+    });
+  }
 
   // Efter kampanjen skickas besökaren till den bestående abonnemangssidan i
   // stället för att mötas av en död sida. Gör att en indelänkad eller indexerad
@@ -168,21 +182,44 @@ export default function Kampanj() {
               <span className="text-sm text-text-secondary ml-auto">Gäller alla städabonnemang</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
-              <a
-                href={boka}
-                onClick={() => track("booking_click", { source: "kampanj_abo25" })}
-                className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
-              >
-                Boka nu <ArrowRight className="w-4 h-4" />
-              </a>
-              <Link
-                to="/priser"
-                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 sm:ml-2"
-              >
-                Se priser och lediga tider
-              </Link>
-            </div>
+            {/* Bokningen påbörjas här, precis som på startsidan. Ytan följer med
+                som ?sqm= tillsammans med rabattkoden, så kunden landar i
+                bokningen med både pris och rabatt på plats. */}
+            <form onSubmit={startaBokning} className="mb-8">
+              <label htmlFor="kampanj-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
+                Hur många kvm bor du på?
+              </label>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative sm:w-44">
+                  <input
+                    id="kampanj-sqm"
+                    type="number"
+                    inputMode="numeric"
+                    min={10}
+                    max={500}
+                    value={sqm}
+                    onChange={(e) => setSqm(e.target.value)}
+                    placeholder="70"
+                    className="w-full bg-white border border-text-primary/15 pl-4 pr-12 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm font-medium pointer-events-none">
+                    kvm
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+                >
+                  Se pris och boka <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-sm text-text-secondary mt-3">
+                Rabattkoden {KOD} följer med automatiskt.{" "}
+                <Link to="/priser" className="underline underline-offset-4 hover:text-text-primary">
+                  Se priser och lediga tider
+                </Link>
+              </p>
+            </form>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2.5 text-sm font-medium text-text-secondary border-t border-text-primary/10 pt-6">
               {TRYGGHET.map((punkt) => (

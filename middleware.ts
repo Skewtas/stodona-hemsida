@@ -2,8 +2,9 @@
 // influencer-sidan. Utan giltig cookie serveras en elegant inloggningssida i
 // stället för sidans innehåll (sidans SPA-HTML skickas aldrig till obehöriga).
 //
-// Lösenordet läses från miljövariabeln INFLUENCER_PW (sätts i Vercel) och finns
-// aldrig i klientkoden eller i detta repo. Cookie-token = sha256(INFLUENCER_PW).
+// Lösenordet läses från miljövariabeln INFLUENCER_PW (sätts i Vercel), med en
+// fallback i koden nedan. Fallbacken ligger alltså i klartext i detta repo,
+// som är publikt. Cookie-token = sha256(lösenordet).
 //
 // Byt URL: uppdatera PAGE_PATH här, matcher nedan, route i App.tsx samt
 // safeNext/PAGE_PATH i api/influencer-auth.ts.
@@ -91,7 +92,7 @@ export default async function middleware(request: Request) {
   const url = new URL(request.url);
   // Lösenordet är inte känsligt – fallback så sidan funkar direkt. Kan överridas
   // med miljövariabeln INFLUENCER_PW i Vercel om det ska bytas.
-  const PW = process.env.INFLUENCER_PW || "StodonaCreator50!";
+  const PW = process.env.INFLUENCER_PW || "samarbete";
 
   // Läs cookie
   const cookieHeader = request.headers.get("cookie") || "";

@@ -1,6 +1,7 @@
 // Edge-funktion: verifierar lösenord för den dolda influencer-sidan SERVER-SIDE.
-// Lösenordet läses från miljövariabeln INFLUENCER_PW (sätts i Vercel) och finns
-// aldrig i klientkoden. Vid rätt lösenord sätts en HttpOnly-cookie (12h) vars
+// Lösenordet läses från miljövariabeln INFLUENCER_PW (sätts i Vercel), med en
+// fallback i klartext nedan – repot är publikt, så fallbacken är läsbar för
+// vem som helst. Vid rätt lösenord sätts en HttpOnly-cookie (12h) vars
 // värde är sha256(lösenordet) – samma token som middleware:t kontrollerar.
 
 export const config = { runtime: "edge" };
@@ -26,7 +27,7 @@ export default async function handler(request: Request): Promise<Response> {
 
   // Fallback så sidan funkar direkt (lösenordet är inte känsligt); kan
   // överridas med miljövariabeln INFLUENCER_PW i Vercel.
-  const PW = process.env.INFLUENCER_PW || "StodonaCreator50!";
+  const PW = process.env.INFLUENCER_PW || "samarbete";
   let password = "";
   let next = PAGE_PATH;
 

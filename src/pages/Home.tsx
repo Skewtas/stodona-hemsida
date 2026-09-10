@@ -219,6 +219,7 @@ export default function Home() {
                   fanns för att lyfta filmen bakom en mörk tonad överlagring,
                   och den överlagringen finns inte kvar. */}
               <HeroVideo
+                srcAv1="/stodona-hero-av1.mp4"
                 src="/stodona-hero.mp4"
                 poster="/hero-poster.webp"
                 alt="Nystädat sovrum med uppbäddad säng"

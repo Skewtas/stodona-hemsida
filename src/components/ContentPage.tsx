@@ -88,8 +88,8 @@ export default function ContentPage(p: ContentPageProps) {
       {p.heroImage?.layout === "split" ? (
         /* Rutorna går kant i kant och sitter ihop – headern är sticky och tar
            redan sin plats i flödet, så heron behöver ingen toppmarginal. */
-        <section className="grid md:grid-cols-2">
-          <div className="aspect-square md:max-h-[88vh] overflow-hidden">
+        <section className="grid gap-0 md:grid-cols-2 bg-accent">
+          <div className="aspect-square overflow-hidden leading-[0]">
             <img
               src={p.heroImage.src}
               alt={p.heroImage.alt}
@@ -102,7 +102,7 @@ export default function ContentPage(p: ContentPageProps) {
             />
           </div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-            className={`flex flex-col justify-center px-8 py-12 md:px-14 lg:px-20 min-h-[100vw] md:min-h-0 md:aspect-square md:max-h-[88vh] ${p.heroImage.panelClass ?? "bg-accent text-text-primary"}`}>
+            className={`flex flex-col justify-center px-8 py-12 md:px-14 lg:px-20 min-h-[100vw] md:min-h-0 md:aspect-square ${p.heroImage.panelClass ?? "bg-accent text-text-primary"}`}>
             <nav className="text-sm text-text-primary/70 mb-5" aria-label="Brödsmulor">
               <Link to="/" className="hover:text-text-primary">Hem</Link> <span className="mx-1.5">/</span>
               <span className="text-text-primary">{p.breadcrumb}</span>

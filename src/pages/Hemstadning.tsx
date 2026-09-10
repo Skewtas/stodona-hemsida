@@ -11,6 +11,8 @@ import {
 import { motion } from "motion/react";
 
 import WhyStodona from "../components/WhyStodona";
+import HeroVideo from "../components/HeroVideo";
+import { QuickBookingWidget } from "../components/QuickBookingWidget";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
@@ -85,102 +87,43 @@ export default function Hemstadning() {
         url="/hemstadning"
         image="https://stodona.se/stodona_right_image.jpg"
       />
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/stodona_right_image.jpg"
-            alt="Hemstädning Stockholm"
-            className="w-full h-full object-cover opacity-40"
-            width="800"
-            height="1600"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </div>
-        <div className="container-custom relative z-10">
-          <div className="max-w-3xl">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
-            >
-              {t('hemstadning.hero.title', lang)}
-              <br />
-              <span className="italic font-normal text-cta-hover">
-                {t('hemstadning.hero.subtitle', lang)}
-              </span>
-            </motion.h1>
+      {/* Hero – samma två rutor som startsidan: bokningsrutan till vänster
+          och filmen till höger. Besökaren möter alltså formuläret först och
+          därefter direkt "Vad ingår i vår hemstädning?". Löftestexten som
+          tidigare låg här ligger kvar längre ned på sidan. */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            <QuickBookingWidget
+              className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]"
+              heading={
+                /* Samma flytande grad som startsidans hero: den följer rutans
+                   bredd (cqw) och inte fönstrets, eftersom rutan bara är en
+                   halv skärm bred på desktop. */
+                <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-6">
+                  {t('hemstadning.hero.title', lang)}
+                  <br />
+                  <span className="italic font-normal text-accent-deep">
+                    {t('hemstadning.hero.h1sub', lang)}
+                  </span>
+                </h1>
+              }
+            />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
-            >
-              {t('hemstadning.hero.desc', lang)}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4 mb-12"
-            >
-              <a
-                href={bookingUrl()}
-                className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
-              >
-                {t('hemstadning.hero.cta1', lang)}
-              </a>
-              <a
-                href={bookingUrl()}
-                className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
-              >
-                {t('hemstadning.hero.cta2', lang)}
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-text-light/80"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>{t('hemstadning.hero.b1', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>{t('hemstadning.hero.b2', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>{t('hemstadning.hero.b3', lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
-                <span>{t('hemstadning.hero.b4', lang)}</span>
-              </div>
-            </motion.div>
+            {/* Filmrutan. Fast bildförhållande på mobil så att den inte tar
+                över skärmen; från lg sträcker den sig till samma höjd som
+                bokningsrutan bredvid. */}
+            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              <HeroVideo
+                srcAv1="/hemstadning-hero-av1.mp4"
+                src="/hemstadning-hero.mp4"
+                poster="/hemstadning-hero-poster.webp"
+                alt="Nybäddad säng med vita kuddar"
+              />
+            </div>
           </div>
         </div>
       </section>
-
-      <AnswerFirst
-        heading="Kort om hemstädning i Stockholm"
-        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Priset baseras på bostadens storlek och hur ofta du städar: en trea på cirka 85 kvm som städas varannan vecka kostar <strong className="text-text-primary">{kr(TREA.utanBindning)} per städtillfälle</strong> efter RUT-avdrag, eller <strong className="text-text-primary">{kr(TREA.m12)}</strong> med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen, och vill du hellre ha ett fast pris ordnar vi det.</>}
-        facts={[
-          { label: "Pris", value: `Från ${kr(MINSTA.utanBindning)} per tillfälle` },
-          { label: "RUT-avdrag", value: "50 % dras direkt" },
-          { label: "Områden", value: "Stockholm med omnejd" },
-          { label: "Bindningstid", value: "Ingen" },
-        ]}
-      />
-
-
 
       {/* Content Section */}
       <section className="section-spacing">
@@ -340,6 +283,109 @@ export default function Hemstadning() {
                 <WhyStodona />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <AnswerFirst
+        heading="Kort om hemstädning i Stockholm"
+        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Priset baseras på bostadens storlek och hur ofta du städar: en trea på cirka 85 kvm som städas varannan vecka kostar <strong className="text-text-primary">{kr(TREA.utanBindning)} per städtillfälle</strong> efter RUT-avdrag, eller <strong className="text-text-primary">{kr(TREA.m12)}</strong> med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen, och vill du hellre ha ett fast pris ordnar vi det.</>}
+        facts={[
+          { label: "Pris", value: `Från ${kr(MINSTA.utanBindning)} per tillfälle` },
+          { label: "RUT-avdrag", value: "50 % dras direkt" },
+          { label: "Områden", value: "Stockholm med omnejd" },
+          { label: "Bindningstid", value: "Ingen" },
+        ]}
+      />
+
+
+
+      {/* Löftet – texten som tidigare inledde sidan. Den flyttades hit för
+          att heron ska vara film och bokning, och för att besökaren ska nå
+          "Vad ingår i vår hemstädning?" direkt. Argumenten gör lika stor
+          nytta som avstämning efter att man läst vad som ingår. */}
+      <section className="relative py-20 md:py-28 overflow-hidden bg-bg-dark text-text-light">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/stodona_right_image.jpg"
+            alt="Hemstädning Stockholm"
+            className="w-full h-full object-cover opacity-40"
+            width="800"
+            height="1600"
+            loading="lazy"
+          />
+        </div>
+        <div className="container-custom relative z-10">
+          <div className="max-w-3xl">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl md:text-6xl font-bold leading-[1.1] mb-6"
+            >
+              {/* Bara andra raden ur den gamla hero-rubriken. Första raden är
+                  sidans h1 uppe i bokningsrutan och ska inte upprepas. */}
+              <span className="italic font-normal text-cta-hover">
+                {t('hemstadning.hero.subtitle', lang)}
+              </span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
+            >
+              {t('hemstadning.hero.desc', lang)}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-4 mb-12"
+            >
+              <a
+                href={bookingUrl()}
+                className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
+              >
+                {t('hemstadning.hero.cta1', lang)}
+              </a>
+              <a
+                href={bookingUrl()}
+                className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
+              >
+                {t('hemstadning.hero.cta2', lang)}
+              </a>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-text-light/80"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <span>{t('hemstadning.hero.b1', lang)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <span>{t('hemstadning.hero.b2', lang)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <span>{t('hemstadning.hero.b3', lang)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-cta-hover" />
+                <span>{t('hemstadning.hero.b4', lang)}</span>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

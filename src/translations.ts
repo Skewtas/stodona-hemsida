@@ -189,6 +189,9 @@ const translations: TranslationMap = {
     // ─── HEMSTÄDNING ─────────────────────────────────────────────────────
     'hemstadning.hero.title': { SV: 'Hemstädning i Stockholm.', EN: 'Home Cleaning in Stockholm.' },
     'hemstadning.hero.subtitle': { SV: 'Hotellkänsla hemma.', EN: 'Hotel feeling at home.' },
+    // Andra raden i h1:an ovanför bokningsrutan i heron. "Hotellkänsla hemma."
+    // sitter kvar, men på löftessektionen längre ned.
+    'hemstadning.hero.h1sub': { SV: 'Bokad på 60 sekunder.', EN: 'Booked in 60 seconds.' },
     'hemstadning.hero.desc': { SV: 'Få mer tid över till det som betyder något. Vi erbjuder professionell hemstädning med kvalitetsgaranti och samma team varje gång.', EN: 'Get more time for what matters. We offer professional home cleaning with a quality guarantee and the same team every time.' },
     'hemstadning.hero.cta1': { SV: 'Boka hemstädning', EN: 'Book home cleaning' },
     'hemstadning.hero.cta2': { SV: 'Se våra priser', EN: 'See our prices' },

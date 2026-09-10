@@ -101,7 +101,7 @@ export default function Home() {
             en höjd som fyller viewporten ned till vecket: USP-remsan är 45 px
             och headern 141 px på desktop, alltså 186 px att räkna bort. Under
             lg ligger rutorna kvar i den vanliga spalten. */}
-        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-4 sm:pt-8 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
               <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
@@ -209,10 +209,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Filmrutan. På mobil får den ett fast bildförhållande så att den
-                inte tar över skärmen; från lg och uppåt sträcker den sig i
-                stället till samma höjd som kortet bredvid. */}
-            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+            {/* Filmrutan. På mobil ligger den ÖVERST – annars möts besökaren av
+                en vit ruta och inget annat, eftersom kortet ensamt fyller hela
+                första skärmen. 38vh räcker för att bilden ska sätta tonen utan
+                att trycka ned rubriken och tjänstevalet under vecket. Från lg
+                och uppåt flyttar den tillbaka till höger om kortet och sträcker
+                sig till samma höjd som det. */}
+            <div className="order-first lg:order-none relative overflow-hidden shadow-2xl lg:shadow-none h-[38vh] min-h-[230px] sm:h-[46vh] lg:h-full lg:min-h-0">
               {/* Inget CSS-filter längre. Klippet är nästan helvitt (medel-
                   luminans 222) – brightness(1.06) tryckte 32 % av bildrutan
                   över 250 och plattade ut all textur i sängkläderna. Filtret

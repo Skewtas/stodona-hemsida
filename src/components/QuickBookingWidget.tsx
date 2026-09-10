@@ -15,7 +15,15 @@ const servicesList = [
   { id: 'fonsterputsning', name: 'Fönsterputsning', sv: 'Fönsterputs', en: 'Windows' },
 ];
 
-export const QuickBookingWidget: React.FC = () => {
+export const QuickBookingWidget: React.FC<{
+  /** Ersätter rutans standardrubrik med en egen. Sidor som lägger widgeten
+      överst skickar in sin h1 här, så att sidans rubrik kommer först i
+      dokumentet trots att rutan är ett bokningsformulär. */
+  heading?: React.ReactNode;
+  /** Klasserna på ytterrutan. Standard är den fristående vita panelen; sidor
+      där rutan i stället ska fylla en hel hero-halva skickar in egna mått. */
+  className?: string;
+}> = ({ heading, className }) => {
   const { lang } = useLanguage();
 
   const [zipCode, setZipCode] = useState('');
@@ -104,19 +112,21 @@ export const QuickBookingWidget: React.FC = () => {
     // Samma formspråk som hero-rutan på startsidan: ljus panel med skarpa
     // hörn, fyrkantiga tjänstknappar, fält med enhetssuffix och en mörk
     // versalknapp.
-    <div className="bg-white p-8 sm:p-10 md:p-12 shadow-2xl w-full">
-      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+    <div className={className ?? 'bg-white p-8 sm:p-10 md:p-12 shadow-2xl w-full'}>
+      <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
         <Star className="w-3.5 h-3.5 fill-current text-accent" />
         {lang === 'EN' ? '4.9 out of 5 average rating' : '4,9 av 5 i snittbetyg'}
       </span>
 
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-6">
-        {lang === 'EN' ? 'Book your cleaning' : 'Boka din städning'}
-        <br />
-        <span className="italic font-normal text-accent-deep">
-          {lang === 'EN' ? 'in 60 seconds' : 'på 60 sekunder'}
-        </span>
-      </h2>
+      {heading ?? (
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] text-text-primary mb-6">
+          {lang === 'EN' ? 'Book your cleaning' : 'Boka din städning'}
+          <br />
+          <span className="italic font-normal text-accent-deep">
+            {lang === 'EN' ? 'in 60 seconds' : 'på 60 sekunder'}
+          </span>
+        </h2>
+      )}
 
       <form onSubmit={handleSubmit}>
         <span className="block text-text-secondary text-base sm:text-lg mb-3">

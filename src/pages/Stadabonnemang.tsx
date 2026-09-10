@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ContentPage from "../components/ContentPage";
+import { prisFor, PRISER_VARJE_VECKA } from "../data/prices.generated";
 
 // Veckans kampanj (ABO25). Ligger här också – och inte bara på /kampanj –
 // eftersom det är den här sidan som faktiskt rankar på "städabonnemang".
@@ -7,16 +8,27 @@ import ContentPage from "../components/ContentPage";
 const KAMPANJ_SLUT = new Date("2026-09-13T22:00:00Z");
 const kampanjPagar = Date.now() < KAMPANJ_SLUT.getTime();
 
-// Priserna nedan är hämtade direkt ur bokningssystemets prismotor
-// (boka.stodona.se) för hemstädning i Stockholm, per städtillfälle, inkl. moms
-// och efter RUT-avdrag. Bindningstiden styr priset: utan bindning tillkommer
-// 10 %, 3 månader 6 %, 6 månader 3 % och 12 månader är grundpriset.
-const PRICE_ROWS = [
-  { sqm: "45 kvm", none: "941 kr", m3: "906 kr", m6: "881 kr", m12: "855 kr", saving: "2 236 kr" },
-  { sqm: "70 kvm", none: "1 255 kr", m3: "1 208 kr", m6: "1 175 kr", m12: "1 140 kr", saving: "2 990 kr" },
-  { sqm: "100 kvm", none: "1 412 kr", m3: "1 358 kr", m6: "1 322 kr", m12: "1 283 kr", saving: "3 354 kr" },
-  { sqm: "140 kvm", none: "1 726 kr", m3: "1 660 kr", m6: "1 616 kr", m12: "1 568 kr", saving: "4 108 kr" },
-];
+// Priserna kommer från src/data/prices.generated.ts, som hämtas ur
+// bokningssystemets prismotor före varje bygge. Bindningstiden styr priset:
+// utan bindning tillkommer 10 %, 3 månader 6 %, 6 månader 3 % och 12 månader
+// är grundpriset. Ingen siffra skrivs för hand här.
+const kr = (n: number) => `${Math.round(n).toLocaleString("sv-SE")} kr`;
+
+const PRICE_ROWS = [45, 70, 100, 140].map((sqm) => {
+  const p = prisFor(sqm);
+  return {
+    sqm: `${sqm} kvm`,
+    none: kr(p.utanBindning),
+    m3: kr(p.m3),
+    m6: kr(p.m6),
+    m12: kr(p.m12),
+    saving: kr(p.arsbesparing),
+  };
+});
+
+// Referensbostaden i löptexten, och samma bostad städad varje vecka.
+const REF = prisFor(70);
+const REF_VARJE = prisFor(70, PRISER_VARJE_VECKA);
 
 function PriceTable() {
   return (
@@ -68,7 +80,8 @@ export default function Stadabonnemang() {
           <strong className="text-text-primary">3, 6 eller 12 månader</strong> – i utbyte mot ett lägre pris per
           städning. Utan bindning tillkommer 10 % på priset, 3 månader ger 6 % påslag, 6 månader 3 %, och{" "}
           <strong className="text-text-primary">12 månader ger vårt lägsta pris</strong>. För en 70 kvm bostad som
-          städas varannan vecka blir det 1 140 kr i stället för 1 255 kr per städning – 2 990 kr lägre över året.
+          städas varannan vecka blir det {kr(REF.m12)} i stället för {kr(REF.utanBindning)} per städning –{" "}
+          {kr(REF.arsbesparing)} lägre över året.
           Du väljer bindningstid direkt i bokningen, och abonnemanget löper vidare med en månads uppsägningstid
           när bindningstiden är slut.
         </>
@@ -126,9 +139,10 @@ export default function Stadabonnemang() {
               </p>
               <PriceTable />
               <p className="text-sm">
-                Städar du varje vecka blir besparingen större – för 70 kvm varje vecka kostar städningen 1 048 kr i
-                stället för 1 153 kr, vilket ger 5 460 kr lägre kostnad över ett år. Ditt exakta pris beror på
-                bostadens storlek och hur ofta du städar, och räknas fram direkt i bokningen.
+                Städar du varje vecka blir besparingen större – för 70 kvm varje vecka kostar städningen{" "}
+                {kr(REF_VARJE.m12)} i stället för {kr(REF_VARJE.utanBindning)}, vilket ger{" "}
+                {kr(REF_VARJE.arsbesparing)} lägre kostnad över ett år. Ditt exakta pris beror på bostadens storlek
+                och hur ofta du städar, och räknas fram direkt i bokningen.
               </p>
             </>
           ),
@@ -190,7 +204,7 @@ export default function Stadabonnemang() {
         },
         {
           q: "Hur mycket billigare blir det med abonnemang?",
-          a: "12 månaders bindning ger vårt lägsta pris – cirka 9 % lägre per städning än utan bindning. För 70 kvm varannan vecka betyder det 1 140 kr i stället för 1 255 kr per gång, alltså 2 990 kr lägre kostnad över ett år.",
+          a: `12 månaders bindning ger vårt lägsta pris – cirka 9 % lägre per städning än utan bindning. För 70 kvm varannan vecka betyder det ${kr(REF.m12)} i stället för ${kr(REF.utanBindning)} per gång, alltså ${kr(REF.arsbesparing)} lägre kostnad över ett år.`,
         },
         {
           q: "Måste jag binda mig för att boka städning?",

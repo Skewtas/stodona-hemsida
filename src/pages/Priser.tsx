@@ -6,35 +6,38 @@ import WhyStodona from "../components/WhyStodona";
 import AnswerFirst from "../components/AnswerFirst";
 import TrustBar from "../components/TrustBar";
 import { bookingUrl } from "../utils/bookingUrl";
+import { prisFor } from "../data/prices.generated";
 
 /**
- * PRISSIDAN – enda stället där prisexemplen räknas ut.
+ * PRISSIDAN.
  *
- * PRISER hämtade ur bokningssystemets prismotor (boka.stodona.se
- * /api/calculate-price), hemstädning varannan vecka, per städtillfälle inkl.
- * moms.
- *
- * Sidan räknade tidigare fram alla belopp ur ett timpris, vilket gav priser
- * långt under vad bokningen faktiskt tar betalt. Ändras priserna i
- * prismotorn måste siffrorna nedan uppdateras – de hämtas inte automatiskt.
+ * Beloppen kommer från src/data/prices.generated.ts, som scripts/fetch-prices.mjs
+ * hämtar ur bokningssystemets prismotor före varje bygge. Ingen siffra skrivs
+ * för hand här – sidan och bokningen kan därför inte glida isär.
  */
 const kr = (n: number) => `${Math.round(n).toLocaleString("sv-SE")} kr`;
 
-// Verifierade mot prismotorn 2026-09-09. `fritt` = utan bindningstid,
-// `bundet` = lägsta priset med 12 månaders abonnemang. Båda efter RUT.
+// Bostadstyperna mappas mot den yta prismotorn får representera dem.
 const PRICE_EXAMPLES = [
-  { home: "1 rum och kök", size: "Upp till 45 kvm", fritt: 941, bundet: 855 },
-  { home: "2 rum och kök", size: "45–65 kvm", fritt: 1098, bundet: 998 },
-  { home: "3 rum och kök", size: "65–85 kvm", fritt: 1255, bundet: 1140 },
-  { home: "4 rum och kök", size: "85–110 kvm", fritt: 1569, bundet: 1425 },
-  { home: "Villa eller radhus", size: "110–150 kvm", fritt: 1726, bundet: 1568 },
-];
+  { home: "1 rum och kök", size: "Upp till 45 kvm", sqm: 45 },
+  { home: "2 rum och kök", size: "45–65 kvm", sqm: 65 },
+  { home: "3 rum och kök", size: "65–85 kvm", sqm: 85 },
+  { home: "4 rum och kök", size: "85–110 kvm", sqm: 110 },
+  { home: "Villa eller radhus", size: "110–150 kvm", sqm: 150 },
+].map((e) => {
+  const p = prisFor(e.sqm);
+  return { ...e, fritt: p.utanBindning, bundet: p.m12 };
+});
+
+// Referensbostaden i löptexten: en trea, 85 kvm, städad varannan vecka.
+const TREA = prisFor(85);
+const MINSTA = prisFor(45);
 
 const SERVICE_PRICING = [
   {
     name: "Hemstädning",
     to: "/hemstadning",
-    price: "Från 941 kr per tillfälle",
+    price: `Från ${kr(MINSTA.utanBindning)} per tillfälle`,
     note: "Halva arbetskostnaden efter RUT",
     drivers: "Yta, hur ofta du städar och hemmets skick. Regelbunden städning tar mindre tid per tillfälle än enstaka besök.",
   },
@@ -106,7 +109,7 @@ const INCLUDED = [
 const FAQS = [
   {
     q: "Vad kostar hemstädning hos Stodona?",
-    a: "Priset baseras på bostadens storlek och hur ofta du städar. En trea på 65–85 kvm som städas varannan vecka kostar 1 255 kr per tillfälle efter RUT-avdrag, eller 1 140 kr med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen.",
+    a: `Priset baseras på bostadens storlek och hur ofta du städar. En trea på 65–85 kvm som städas varannan vecka kostar ${kr(TREA.utanBindning)} per tillfälle efter RUT-avdrag, eller ${kr(TREA.m12)} med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen.`,
   },
   {
     q: "Hur mycket sparar jag på RUT-avdraget?",
@@ -157,7 +160,7 @@ export default function Priser() {
       priceCurrency: "SEK",
       priceSpecification: {
         "@type": "UnitPriceSpecification",
-        price: 1255,
+        price: TREA.utanBindning,
         priceCurrency: "SEK",
         valueAddedTaxIncluded: true,
         description:
@@ -181,7 +184,7 @@ export default function Priser() {
     <div className="flex flex-col min-h-screen">
       <Helmet>
         <title>Priser på städning i Stockholm 2026 | Stodona</title>
-        <meta name="description" content="Vad kostar städning i Stockholm? Priset baseras på bostadens storlek – en trea kostar 1 255 kr per tillfälle efter RUT. Se prisexempel per bostadsstorlek och boka online." />
+        <meta name="description" content={`Vad kostar städning i Stockholm? Priset baseras på bostadens storlek – en trea kostar ${kr(TREA.utanBindning)} per tillfälle efter RUT. Se prisexempel per bostadsstorlek och boka online.`} />
         <meta property="og:title" content="Priser på städning i Stockholm | Stodona" />
         <meta property="og:description" content="Priser på städning i Stockholm – prisexempel per bostadsstorlek, efter RUT-avdrag." />
         <meta property="og:url" content="https://stodona.se/priser" />
@@ -239,14 +242,14 @@ export default function Priser() {
             Priset baseras på <strong className="text-text-primary">bostadens storlek och hur ofta du städar</strong>.
             Som privatperson betalar du bara halva arbetskostnaden tack vare RUT-avdraget. En vanlig trea på 65–85 kvm
             som städas varannan vecka landar på{" "}
-            <strong className="text-text-primary">1 255 kr per städtillfälle</strong> efter RUT – eller{" "}
-            <strong className="text-text-primary">1 140 kr</strong> med tolv månaders abonnemang. Du ser ditt exakta
+            <strong className="text-text-primary">{kr(TREA.utanBindning)} per städtillfälle</strong> efter RUT – eller{" "}
+            <strong className="text-text-primary">{kr(TREA.m12)}</strong> med tolv månaders abonnemang. Du ser ditt exakta
             pris direkt i bokningen. Inga dolda avgifter.
           </>
         }
         facts={[
-          { label: "Trea, varannan vecka", value: "1 255 kr efter RUT" },
-          { label: "Med abonnemang", value: "Från 1 140 kr" },
+          { label: "Trea, varannan vecka", value: `${kr(TREA.utanBindning)} efter RUT` },
+          { label: "Med abonnemang", value: `Från ${kr(TREA.m12)}` },
           { label: "RUT-tak", value: "75 000 kr/person/år" },
           { label: "Betalning", value: "Faktura, 10 dagar" },
         ]}

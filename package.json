@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
+    "prebuild": "bun scripts/fetch-prices.mjs || true",
     "build": "vite build",
     "postbuild": "bun scripts/indexnow.mjs --if-vercel",
-    "prerender": "vite build && node scripts/prerender.mjs",
-    "build:ssg": "vite build && (node scripts/prerender.mjs || echo prerender_skipped) && bun scripts/indexnow.mjs --if-vercel",
+    "prerender": "bun scripts/fetch-prices.mjs || true; vite build && node scripts/prerender.mjs",
+    "build:ssg": "bun scripts/fetch-prices.mjs || true; vite build && (node scripts/prerender.mjs || echo prerender_skipped) && bun scripts/indexnow.mjs --if-vercel",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"

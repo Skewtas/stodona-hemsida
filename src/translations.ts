@@ -88,6 +88,22 @@ const translations: TranslationMap = {
     },
     'home.insight.cta': { SV: 'Boka städning', EN: 'Book cleaning' },
 
+    // ─── HOME: Kundlöftet ──────────────────────────────────────────────
+    'home.promise.badge': { SV: 'Vårt kundlöfte', EN: 'Our promise' },
+    'home.promise.title1': { SV: 'Vårt löfte', EN: 'Our promise' },
+    'home.promise.title2': { SV: 'till dig som kund', EN: 'to you as a customer' },
+    'home.promise.bullet1': { SV: '100 % kundnöjdhet', EN: '100 % customer satisfaction' },
+    'home.promise.bullet2': { SV: 'Personlig kontakt', EN: 'A personal contact' },
+    'home.promise.bullet3': {
+        SV: 'Behovsanpassar uppdrag så det passar dig/er',
+        EN: 'We adapt every assignment to suit you',
+    },
+    'home.promise.cta': { SV: 'Boka städning', EN: 'Book cleaning' },
+    'home.promise.imageAlt': {
+        SV: 'Städhandskar på en marmorbänk',
+        EN: 'Cleaning gloves on a marble counter',
+    },
+
     // ─── HOME: Reviews ─────────────────────────────────────────────────
     'home.reviews.title': { SV: 'Vad våra kunder säger', EN: 'What our customers say' },
     'home.reviews.r1.text': {

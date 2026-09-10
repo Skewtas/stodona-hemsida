@@ -229,6 +229,59 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 2. Kundlöftet – samma två rutor som heron, fast spegelvända: bilden
+             till vänster och löftet till höger. Måtten är hämtade rakt av från
+             heron så att de två sektionerna läser som ett par. */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pb-0">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              <img
+                src="/stodona-stad.jpg"
+                alt={t('home.promise.imageAlt', lang)}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+                width={1366}
+                height={768}
+              />
+            </div>
+
+            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
+              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+                <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+                {t('home.promise.badge', lang)}
+              </span>
+
+              {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
+                  inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
+              <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
+                {t('home.promise.title1', lang)}
+                <br />
+                <span className="italic font-normal text-accent-deep">
+                  {t('home.promise.title2', lang)}
+                </span>
+              </h2>
+
+              <ul className="flex flex-col gap-4 mb-10 border-t border-text-primary/10 pt-8">
+                {[1, 2, 3].map((n) => (
+                  <li key={n} className="flex items-start gap-3 text-base sm:text-lg text-text-secondary">
+                    <CheckCircle2 className="w-5 h-5 text-accent shrink-0 mt-1" />
+                    <span>{t(`home.promise.bullet${n}`, lang)}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={bookingUrl()}
+                className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+              >
+                {t('home.promise.cta', lang)} <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 5. Tjänstekort – fullbredd, direkt under heron */}
       <section className="relative bg-white py-16 sm:py-24">
         <div className="container-custom mb-10 sm:mb-14">

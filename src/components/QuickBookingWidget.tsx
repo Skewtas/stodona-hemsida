@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Star, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { track } from '../utils/analytics';
@@ -9,10 +9,10 @@ import { bookingUrl } from "../utils/bookingUrl";
 // det är värdet som skickas som ?service=. Tidigare skickades id:t
 // ("hemstadning"), som aldrig matchade och därför tappades bort.
 const servicesList = [
-  { id: 'hemstadning', name: 'Hemstädning', sv: 'Hemstädning', en: 'Home Cleaning', base: 22, min: 600 },
-  { id: 'storstadning', name: 'Storstädning', sv: 'Storstädning', en: 'Deep Cleaning', base: 35, min: 1200 },
-  { id: 'flyttstadning', name: 'Flyttstädning', sv: 'Flyttstädning', en: 'Move-Out', base: 40, min: 1500 },
-  { id: 'fonsterputsning', name: 'Fönsterputsning', sv: 'Fönsterputs', en: 'Windows', base: 15, min: 500 },
+  { id: 'hemstadning', name: 'Hemstädning', sv: 'Hemstädning', en: 'Home Cleaning' },
+  { id: 'storstadning', name: 'Storstädning', sv: 'Storstädning', en: 'Deep Cleaning' },
+  { id: 'flyttstadning', name: 'Flyttstädning', sv: 'Flyttstädning', en: 'Move-Out' },
+  { id: 'fonsterputsning', name: 'Fönsterputsning', sv: 'Fönsterputs', en: 'Windows' },
 ];
 
 export const QuickBookingWidget: React.FC = () => {
@@ -44,16 +44,49 @@ export const QuickBookingWidget: React.FC = () => {
     setFpDone(true);
   }
 
-  // Prisuppskattning
-  const estimatedPrice = useMemo(() => {
-    const sqmNum = parseInt(sqm);
-    if (!sqmNum || isNaN(sqmNum) || sqmNum < 10) return null;
-    
-    const activeService = servicesList.find(s => s.id === service);
-    if (!activeService) return null;
+  // Priset hämtas från bokningssystemets prismotor via /api/calculate-price.
+  // Widgeten räknade tidigare med egna kvadratmeterpriser, som drev iväg från
+  // vad kunden faktiskt debiterades i nästa steg. Hellre inget pris alls än
+  // ett som inte stämmer – därför visas rutan bara när svaret kommit.
+  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
+  const [prisLaddar, setPrisLaddar] = useState(false);
+  const avbrytRef = useRef<AbortController | null>(null);
 
-    return Math.max(sqmNum * activeService.base, activeService.min);
-  }, [sqm, service]);
+  useEffect(() => {
+    const sqmNum = parseInt(sqm, 10);
+    const valdTjanst = servicesList.find((s) => s.id === service);
+    if (!Number.isFinite(sqmNum) || sqmNum < 10 || sqmNum > 1000 || !valdTjanst) {
+      setEstimatedPrice(null);
+      setPrisLaddar(false);
+      return;
+    }
+
+    setPrisLaddar(true);
+    const timer = setTimeout(() => {
+      avbrytRef.current?.abort();
+      const ctrl = new AbortController();
+      avbrytRef.current = ctrl;
+      fetch('/api/calculate-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          service: valdTjanst.name,
+          sqm: sqmNum,
+          // Bokningen startar på ett enstaka tillfälle, så widgeten visar
+          // samma sak – annars möts kunden av ett högre pris vid ankomst.
+          frequency: 'Engång',
+          postalCode: zipCode,
+        }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => setEstimatedPrice(typeof d?.price === 'number' ? d.price : null))
+        .catch(() => { /* tyst – rutan förblir dold */ })
+        .finally(() => setPrisLaddar(false));
+    }, 400); // debounce så att inte varje tangenttryck ger ett anrop
+
+    return () => clearTimeout(timer);
+  }, [sqm, service, zipCode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,10 +197,12 @@ export const QuickBookingWidget: React.FC = () => {
           <div className="border border-dashed border-accent/50 bg-accent/5 px-5 py-4 flex items-end justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-secondary mb-1">
-                {lang === 'EN' ? 'Estimated price' : 'Uppskattat pris'}
+                {prisLaddar
+                  ? (lang === 'EN' ? 'Calculating…' : 'Räknar ut…')
+                  : (lang === 'EN' ? 'Your price' : 'Ditt pris')}
               </p>
               <span className="font-display text-3xl font-bold tracking-tight text-text-primary">
-                ~ {estimatedPrice} kr
+                {estimatedPrice?.toLocaleString('sv-SE')} kr
               </span>
             </div>
             <span className="text-sm text-text-secondary">

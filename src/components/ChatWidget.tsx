@@ -11,6 +11,11 @@ interface Meddelande {
 
 const LAGRINGSNYCKEL = "stodona-chat";
 
+// Chatten är avstängd tills VITE_CHAT_ENABLED=true är satt i Vercel. Utan
+// ANTHROPIC_API_KEY på servern kan boten ändå inte svara, och en bubbla som
+// bara säger "jag når inte assistenten" är sämre än ingen bubbla alls.
+const PASLAGEN = import.meta.env.VITE_CHAT_ENABLED === "true";
+
 const TEXT = {
   SV: {
     oppna: "Öppna chatten",
@@ -68,11 +73,27 @@ export default function ChatWidget() {
   const { lang } = useLanguage();
   const s = TEXT[lang === "EN" ? "EN" : "SV"];
   const [oppen, setOppen] = useState(false);
+  // Cookiebannern ligger över allt annat på mobil. Vänta med chattbubblan tills
+  // besökaren svarat på den, annars krockar de på första besöket.
+  const [cookiesBesvarade, setCookiesBesvarade] = useState(false);
   const [meddelanden, setMeddelanden] = useState<Meddelande[]>([]);
   const [utkast, setUtkast] = useState("");
   const [svarar, setSvarar] = useState(false);
   const listaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const kolla = () => {
+      try {
+        setCookiesBesvarade(!!localStorage.getItem("cookie-consent"));
+      } catch {
+        setCookiesBesvarade(true);
+      }
+    };
+    kolla();
+    const id = window.setInterval(kolla, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Samtalet överlever en omladdning, men bara i den här fliken.
   useEffect(() => {
@@ -134,6 +155,8 @@ export default function ChatWidget() {
       setSvarar(false);
     }
   }
+
+  if (!PASLAGEN || !cookiesBesvarade) return null;
 
   return (
     <>

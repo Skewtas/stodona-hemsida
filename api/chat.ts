@@ -1,10 +1,24 @@
 // Vercel Edge Function: chattboten på sajten.
 //
-// Boten svarar bara utifrån fakta som ligger i den här filen plus priserna
-// från prismotorn. Den har inga verktyg och kan inte boka, ändra eller slå upp
-// något om en enskild kund – den vägen går alltid till kundtjänst eller
-// bokningen. Systemprompten är cachad, så varje ny fråga i samma samtal kostar
-// bara det nya som skrivits.
+// Boten svarar utifrån sajtens egna sidor plus priserna ur prismotorn. Den kan
+// inte slå upp, boka eller ändra något om en enskild kund – den vägen går
+// alltid till kundservice. Systemprompten är cachad, så bara det nya i ett
+// samtal kostar full peng.
+//
+// SÄKERHET – så här är det byggt, och varför:
+//  * Samtalet bor på servern i KV, inte hos klienten. Klienten skickar bara
+//    ett samtals-id och en ny fråga. Annars kan vem som helst förfalska vad
+//    boten "redan sagt" och få den att stå för det.
+//  * Anropet måste komma från sajtens eget ursprung. Det stoppar inte en
+//    beslutsam angripare som sätter egna headers, men tar bort den enkla vägen
+//    att elda vår API-budget från ett skript.
+//  * Tre lager spärrband: per samtal och minut, per IP och timme, och ett tak
+//    för hela dygnet så att ett fel aldrig kan tömma kontot.
+//  * Verktygen kan bara skicka ett lead till kundservice, aldrig läsa eller
+//    ändra något. Uppgifterna valideras och antalet lead per samtal är
+//    begränsat, så inkorgen inte går att översvämma.
+//  * Ingen input från besökaren tar sig in i en systemprompt eller ett
+//    verktygsnamn – den ligger alltid som user-innehåll.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { RIKTLINJER, priserSomText, sidinnehallSomText } from '../src/data/chatKunskap';
@@ -12,13 +26,24 @@ import { RIKTLINJER, priserSomText, sidinnehallSomText } from '../src/data/chatK
 export const config = { runtime: 'edge' };
 
 const MODEL = 'claude-opus-5';
-const MAX_MEDDELANDEN = 24;
-const MAX_TECKEN = 1500;
 
-/** Spärrband per IP så att ingen enskild besökare kan dra iväg med kostnaden.
- *  Tilltaget så att flera personer bakom samma kontors- eller mobil-IP ryms:
- *  ett vanligt samtal är fem till tio frågor. */
-const TAK_PER_TIMME = 80;
+/** Hur mycket av ett samtal som sparas och skickas med. */
+const MAX_TURER = 20;
+const MAX_TECKEN_PER_FRAGA = 1200;
+const MAX_TECKEN_HISTORIK = 16000;
+/** Samtalet glöms av sig självt. */
+const SAMTAL_TTL_SEKUNDER = 2 * 3600;
+
+/** Spärrband. Per IP och timme rymmer flera personer bakom samma kontors-
+ *  eller mobil-IP; per samtal och minut stoppar ett skript som spammar med
+ *  samma id; dygnstaket skyddar budgeten om något går fel. */
+const TAK_PER_IP_TIMME = 80;
+const TAK_PER_SAMTAL_MINUT = 8;
+const TAK_PER_DYGN = 3000;
+/** Hur många lead ett och samma samtal får skicka till kundservice. */
+const TAK_LEAD_PER_SAMTAL = 3;
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const SYSTEM = `Du är Stodonas digitala assistent på stodona.se. Stodona AB (org.nr 559201-1059) är ett städbolag i Stockholm.
 
@@ -94,36 +119,105 @@ const VERKTYG: Anthropic.Tool[] = [
   },
 ];
 
+// ─── KV ──────────────────────────────────────────────────────────────────────
+
+function kvUppgifter() {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+async function kv(kommando: string[]): Promise<unknown> {
+  const uppg = kvUppgifter();
+  if (!uppg) return null;
+  const res = await fetch(uppg.url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${uppg.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(kommando),
+  });
+  if (!res.ok) throw new Error(`KV svarade ${res.status}`);
+  return (await res.json()).result;
+}
+
+/** Räknare som nollställs av sig själv. Returnerar true om taket är nått. */
+async function overTaket(nyckel: string, tak: number, ttl: number): Promise<boolean> {
+  if (!kvUppgifter()) return false; // utan KV finns ingen räknare att luta sig mot
+  try {
+    const n = Number(await kv(['INCR', nyckel]));
+    if (n === 1) await kv(['EXPIRE', nyckel, String(ttl)]);
+    return n > tak;
+  } catch (fel) {
+    console.error('chat: räknaren gick inte att läsa:', fel);
+    return false;
+  }
+}
+
+// ─── Sanering ────────────────────────────────────────────────────────────────
+
+/** Tar bort styrtecken och kapar längden. Allt som kommer utifrån går igenom den här. */
+function rent(v: unknown, maxlangd: number): string {
+  if (typeof v !== 'string') return '';
+  // eslint-disable-next-line no-control-regex
+  return v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim().slice(0, maxlangd);
+}
+
+const EPOST = /^[^\s@<>"';]+@[^\s@<>"';]+\.[a-zA-Z]{2,}$/;
+
+function giltigEpost(v: string): string {
+  const e = v.toLowerCase();
+  return e.length <= 254 && EPOST.test(e) ? e : '';
+}
+
+function giltigTelefon(v: string): string {
+  const t = v.replace(/[\s\-().]/g, '');
+  return /^\+?[0-9]{7,15}$/.test(t) ? v.slice(0, 30) : '';
+}
+
+// ─── Verktyg ─────────────────────────────────────────────────────────────────
+
 /** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
-async function koraVerktyg(namn: string, indata: Record<string, unknown>, request: Request): Promise<string> {
-  const strang = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
-  const telefon = strang(indata.telefon);
-  const epost = strang(indata.epost);
+async function koraVerktyg(
+  namn: string,
+  indata: Record<string, unknown>,
+  request: Request,
+  samtalsId: string
+): Promise<string> {
+  if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
+    return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';
+  }
+
+  const telefon = giltigTelefon(rent(indata.telefon, 30));
+  const epost = giltigEpost(rent(indata.epost, 254));
 
   if (!telefon && !epost) {
-    return 'Kunde inte skickas: kundservice behöver ett telefonnummer eller en e-postadress för att kunna höra av sig. Be besökaren om det och försök igen.';
+    return 'Kunde inte skickas: kundservice behöver ett giltigt telefonnummer eller en giltig e-postadress för att kunna höra av sig. Be besökaren om det och försök igen.';
+  }
+
+  // Ett samtal får inte användas för att bomba kundservice inkorg.
+  if (await overTaket(`chat:lead:${samtalsId}`, TAK_LEAD_PER_SAMTAL, SAMTAL_TTL_SEKUNDER)) {
+    return 'Redan skickat till kundservice i det här samtalet. Be besökaren ringa 010-178 01 50 om något mer behöver läggas till.';
   }
 
   const rader =
     namn === 'skicka_lead'
       ? [
-          strang(indata.tjanst) && `Tjänst: ${strang(indata.tjanst)}`,
-          strang(indata.behov) && `Behov: ${strang(indata.behov)}`,
-          strang(indata.onskad_tid) && `Önskad tid: ${strang(indata.onskad_tid)}`,
-          strang(indata.omrade) && `Område: ${strang(indata.omrade)}`,
+          rent(indata.tjanst, 100) && `Tjänst: ${rent(indata.tjanst, 100)}`,
+          rent(indata.behov, 800) && `Behov: ${rent(indata.behov, 800)}`,
+          rent(indata.onskad_tid, 100) && `Önskad tid: ${rent(indata.onskad_tid, 100)}`,
+          rent(indata.omrade, 100) && `Område: ${rent(indata.omrade, 100)}`,
         ]
       : [
-          strang(indata.arende) && `Ärende: ${strang(indata.arende)}`,
+          rent(indata.arende, 100) && `Ärende: ${rent(indata.arende, 100)}`,
           indata.bradskande === true && 'BRÅDSKANDE – gäller säkerhet, nycklar, larm eller ett pågående besök.',
-          strang(indata.sammanfattning) && `Sammanfattning: ${strang(indata.sammanfattning)}`,
+          rent(indata.sammanfattning, 1500) && `Sammanfattning: ${rent(indata.sammanfattning, 1500)}`,
         ];
 
   const kropp = {
-    name: strang(indata.fornamn),
+    name: rent(indata.fornamn, 80),
     phone: telefon,
     email: epost,
     source: namn === 'skicka_lead' ? 'chat_lead' : 'chat_eskalering',
-    page: request.headers.get('referer') || 'chatten',
+    page: 'chatten',
     notes: rader.filter(Boolean).join('\n'),
     timestamp: new Date().toISOString(),
   };
@@ -147,155 +241,122 @@ async function koraVerktyg(namn: string, indata: Record<string, unknown>, reques
   }
 }
 
-async function kvKommando(url: string, token: string, kommando: string[]) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(kommando),
-  });
-  return res.json();
-}
+// ─── Samtalet ────────────────────────────────────────────────────────────────
 
-/** Returnerar true om besökaren får skicka. Utan KV är spärren avstängd. */
-async function inomTaket(ip: string): Promise<boolean> {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return true;
+/** Samtalet ligger på servern. Klienten kan alltså inte förfalska vad boten sagt. */
+async function hamtaSamtal(samtalsId: string): Promise<Anthropic.MessageParam[]> {
+  if (!kvUppgifter()) return [];
   try {
-    const nyckel = `chat:${ip}:${Math.floor(Date.now() / 3600000)}`;
-    const { result } = await kvKommando(url, token, ['INCR', nyckel]);
-    if (result === 1) await kvKommando(url, token, ['EXPIRE', nyckel, '3600']);
-    return Number(result) <= TAK_PER_TIMME;
-  } catch {
-    return true;
+    const rad = await kv(['GET', `chat:samtal:${samtalsId}`]);
+    if (typeof rad !== 'string') return [];
+    const tolkat = JSON.parse(rad);
+    return Array.isArray(tolkat) ? (tolkat as Anthropic.MessageParam[]) : [];
+  } catch (fel) {
+    console.error('chat: kunde inte läsa samtalet:', fel);
+    return [];
   }
 }
+
+async function sparaSamtal(samtalsId: string, historik: Anthropic.MessageParam[]): Promise<void> {
+  if (!kvUppgifter()) return;
+  try {
+    let kvar = historik.slice(-MAX_TURER);
+    while (JSON.stringify(kvar).length > MAX_TECKEN_HISTORIK && kvar.length > 2) kvar = kvar.slice(2);
+    // Historiken måste börja på en user-tur för att kunna skickas tillbaka.
+    while (kvar.length && kvar[0].role !== 'user') kvar = kvar.slice(1);
+    await kv(['SET', `chat:samtal:${samtalsId}`, JSON.stringify(kvar), 'EX', String(SAMTAL_TTL_SEKUNDER)]);
+  } catch (fel) {
+    console.error('chat: kunde inte spara samtalet:', fel);
+  }
+}
+
+// ─── Ursprung ────────────────────────────────────────────────────────────────
+
+/** Anropet ska komma från sajten själv. En speed bump, inte ett lås. */
+function franSajten(request: Request): boolean {
+  const egen = new URL(request.url).host;
+  const kolla = (v: string | null) => {
+    if (!v) return null;
+    try {
+      return new URL(v).host === egen;
+    } catch {
+      return false;
+    }
+  };
+  const origin = kolla(request.headers.get('origin'));
+  if (origin !== null) return origin;
+  const referer = kolla(request.headers.get('referer'));
+  if (referer !== null) return referer;
+  return false;
+}
+
+const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+};
+
+const fel = (status: number, meddelande: string, extra: Record<string, string> = {}) =>
+  new Response(JSON.stringify({ error: meddelande }), { status, headers: { ...JSON_HEADERS, ...extra } });
 
 /** Kort sha på den deploy som svarar – gör det möjligt att se vad som faktiskt kör. */
 const BYGGE = (process.env.VERCEL_GIT_COMMIT_SHA || 'lokal').slice(0, 7);
 
 export default async function handler(request: Request) {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  if (request.method !== 'POST') return fel(405, 'Method not allowed');
+  if (!franSajten(request)) return fel(403, 'Chatten kan bara användas från stodona.se.');
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY saknas i miljön' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-    });
-  }
+  if (!apiKey) return fel(503, 'ANTHROPIC_API_KEY saknas i miljön');
 
-  let body: { messages?: { role?: string; content?: string }[] };
+  let body: { sessionId?: unknown; message?: unknown };
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Ogiltig JSON' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return fel(400, 'Ogiltig JSON');
   }
 
-  const inkomna = Array.isArray(body.messages) ? body.messages : [];
-  const meddelanden: Anthropic.MessageParam[] = inkomna
-    .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
-    .slice(-MAX_MEDDELANDEN)
-    .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content!.slice(0, MAX_TECKEN) }));
+  const samtalsId = typeof body.sessionId === 'string' && UUID.test(body.sessionId) ? body.sessionId : '';
+  if (!samtalsId) return fel(400, 'Saknar giltigt samtals-id.');
 
-  if (!meddelanden.length || meddelanden[meddelanden.length - 1].role !== 'user') {
-    return new Response(JSON.stringify({ error: 'Sista meddelandet måste komma från besökaren' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const fraga = rent(body.message, MAX_TECKEN_PER_FRAGA);
+  if (!fraga) return fel(400, 'Tom fråga.');
+
+  const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
+  const timme = Math.floor(Date.now() / 3600000);
+  const minut = Math.floor(Date.now() / 60000);
+  const dygn = Math.floor(Date.now() / 86400000);
+
+  const spärrad =
+    (await overTaket(`chat:samtal:${samtalsId}:${minut}`, TAK_PER_SAMTAL_MINUT, 120)) ||
+    (await overTaket(`chat:ip:${ip}:${timme}`, TAK_PER_IP_TIMME, 3600));
+  if (spärrad) {
+    return fel(429, 'För många frågor just nu. Ring 010-178 01 50 så hjälper vi dig direkt.');
+  }
+  if (await overTaket(`chat:dygn:${dygn}`, TAK_PER_DYGN, 86400)) {
+    console.error('chat: dygnstaket nått');
+    return fel(429, 'Chatten är hårt belastad just nu. Ring 010-178 01 50 så hjälper vi dig direkt.');
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'okand';
-  if (!(await inomTaket(ip))) {
-    return new Response(
-      JSON.stringify({ error: 'För många frågor just nu. Ring 010-178 01 50 så hjälper vi dig direkt.' }),
-      { status: 429, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
-    );
-  }
+  const historik = await hamtaSamtal(samtalsId);
+  historik.push({ role: 'user', content: fraga });
 
   const client = new Anthropic({ apiKey });
 
-  const skickaLoop = async (
-    controller: ReadableStreamDefaultController,
-    kodare: TextEncoder,
-    forstaStrom: ReturnType<typeof client.messages.stream>,
-    forstaHandelse: IteratorResult<Anthropic.MessageStreamEvent>,
-    forstaIterator: AsyncIterator<Anthropic.MessageStreamEvent>
-  ) => {
-    // Ett svar kan bestå av flera textblock. Utan blankrad emellan klistras de
-    // ihop mitt i meningen, som "din bokning.För att kundservice ska ...".
-    let harSkrivit = false;
-    const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
-      if (handelse.type === 'content_block_start' && handelse.content_block.type === 'text' && harSkrivit) {
-        controller.enqueue(kodare.encode('\n\n'));
-      }
-      if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
-        controller.enqueue(kodare.encode(handelse.delta.text));
-        harSkrivit = true;
-      }
-    };
+  const skapaStrom = (meddelanden: Anthropic.MessageParam[]) =>
+    client.messages.stream({
+      model: MODEL,
+      max_tokens: MAX_SVARSTOKENS,
+      // Låg effort håller svaren snabba; systemprompten cachas så att bara det
+      // nya i samtalet betalas full peng.
+      output_config: { effort: 'low' },
+      system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+      tools: VERKTYG,
+      messages: meddelanden,
+    });
 
-    const historik: Anthropic.MessageParam[] = [...meddelanden];
-    let strom = forstaStrom;
-    let iterator: AsyncIterator<Anthropic.MessageStreamEvent> | null = forstaIterator;
-    let forsta: IteratorResult<Anthropic.MessageStreamEvent> | null = forstaHandelse;
-
-    // Två varv räcker: ett svar, ett verktygsanrop, ett svar till.
-    for (let varv = 0; varv < 3; varv++) {
-      if (!iterator) iterator = strom[Symbol.asyncIterator]();
-      if (forsta && !forsta.done) skrivDelta(forsta.value);
-      for (let steg = await iterator.next(); !steg.done; steg = await iterator.next()) {
-        skrivDelta(steg.value);
-      }
-      forsta = null;
-      iterator = null;
-
-      const slutgiltigt = await strom.finalMessage();
-
-      if (slutgiltigt.stop_reason === 'refusal') {
-        controller.enqueue(kodare.encode('\n\nDen frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.'));
-        return;
-      }
-      if (slutgiltigt.stop_reason !== 'tool_use') return;
-
-      historik.push({ role: 'assistant', content: slutgiltigt.content });
-      const resultat: Anthropic.ToolResultBlockParam[] = [];
-      for (const block of slutgiltigt.content) {
-        if (block.type !== 'tool_use') continue;
-        const svar = await koraVerktyg(block.name, block.input as Record<string, unknown>, request);
-        resultat.push({ type: 'tool_result', tool_use_id: block.id, content: svar });
-      }
-      historik.push({ role: 'user', content: resultat });
-
-      strom = client.messages.stream({
-        model: MODEL,
-        max_tokens: MAX_SVARSTOKENS,
-        output_config: { effort: 'low' },
-        system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-        tools: VERKTYG,
-        messages: historik,
-      });
-    }
-  };
-
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: MAX_SVARSTOKENS,
-    // Låg effort håller svaren snabba; systemprompten cachas så att bara det
-    // nya i samtalet betalas full peng.
-    output_config: { effort: 'low' },
-    system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-    tools: VERKTYG,
-    messages: meddelanden,
-  });
+  const stream = skapaStrom(historik);
 
   // Vi väntar in första händelsen innan svaret börjar skickas. Då hinner ett
   // trasigt anrop – fel nyckel, slut på kredit, spärr – bli en riktig
@@ -304,33 +365,64 @@ export default async function handler(request: Request) {
   let forsta: IteratorResult<Anthropic.MessageStreamEvent>;
   try {
     forsta = await iterator.next();
-  } catch (fel) {
-    const slag = fel instanceof Anthropic.APIError ? (fel.error as { error?: { type?: string } })?.error?.type ?? String(fel.status) : 'okant_fel';
-    console.error('chat: anropet mot Claude misslyckades:', fel);
-    return new Response(
-      JSON.stringify({ error: 'Kunde inte nå assistenten just nu.' }),
-      {
-        status: 502,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-          // Bara felslaget, aldrig nyckel eller meddelande – så går det att se
-          // utifrån om det är fel nyckel eller slut på kredit.
-          'X-Chat-Error': slag,
-        },
-      }
-    );
+  } catch (f) {
+    const slag = f instanceof Anthropic.APIError ? (f.error as { error?: { type?: string } })?.error?.type ?? String(f.status) : 'okant_fel';
+    console.error('chat: anropet mot Claude misslyckades:', f);
+    return fel(502, 'Kunde inte nå assistenten just nu.', { 'X-Chat-Error': slag });
   }
 
   const kodare = new TextEncoder();
   const utstrom = new ReadableStream({
     async start(controller) {
+      // Ett svar kan bestå av flera textblock. Utan blankrad emellan klistras de
+      // ihop mitt i meningen, som "din bokning.För att kundservice ska ...".
+      let harSkrivit = false;
+      const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
+        if (handelse.type === 'content_block_start' && handelse.content_block.type === 'text' && harSkrivit) {
+          controller.enqueue(kodare.encode('\n\n'));
+        }
+        if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
+          controller.enqueue(kodare.encode(handelse.delta.text));
+          harSkrivit = true;
+        }
+      };
+
       try {
-        await skickaLoop(controller, kodare, stream, forsta, iterator);
-      } catch (fel) {
-        console.error('chat stream error:', fel);
+        let strom = stream;
+        let iter: AsyncIterator<Anthropic.MessageStreamEvent> | null = iterator;
+        let start: IteratorResult<Anthropic.MessageStreamEvent> | null = forsta;
+
+        // Två varv räcker: ett svar, ett verktygsanrop, ett svar till.
+        for (let varv = 0; varv < 3; varv++) {
+          if (!iter) iter = strom[Symbol.asyncIterator]();
+          if (start && !start.done) skrivDelta(start.value);
+          for (let steg = await iter.next(); !steg.done; steg = await iter.next()) skrivDelta(steg.value);
+          start = null;
+          iter = null;
+
+          const slutgiltigt = await strom.finalMessage();
+          historik.push({ role: 'assistant', content: slutgiltigt.content });
+
+          if (slutgiltigt.stop_reason === 'refusal') {
+            controller.enqueue(kodare.encode('\n\nDen frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.'));
+            break;
+          }
+          if (slutgiltigt.stop_reason !== 'tool_use') break;
+
+          const resultat: Anthropic.ToolResultBlockParam[] = [];
+          for (const block of slutgiltigt.content) {
+            if (block.type !== 'tool_use') continue;
+            const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId);
+            resultat.push({ type: 'tool_result', tool_use_id: block.id, content: svar });
+          }
+          historik.push({ role: 'user', content: resultat });
+          strom = skapaStrom(historik);
+        }
+      } catch (f) {
+        console.error('chat stream error:', f);
         controller.enqueue(kodare.encode('\n\nJag tappade tråden där. Försök igen, eller ring 010-178 01 50.'));
       } finally {
+        await sparaSamtal(samtalsId, historik);
         controller.close();
       }
     },
@@ -340,6 +432,8 @@ export default async function handler(request: Request) {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
       'X-Accel-Buffering': 'no',
       'X-Chat-Build': BYGGE,
     },

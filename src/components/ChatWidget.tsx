@@ -10,6 +10,33 @@ interface Meddelande {
 }
 
 const LAGRINGSNYCKEL = "stodona-chat";
+const IDNYCKEL = "stodona-chat-id";
+
+// Bara länkar till våra egna adresser görs klickbara. Skulle boten någon gång
+// förmås att skriva ut en främmande länk blir den vanlig text i stället.
+const TILLATNA_VARDAR = ["stodona.se", "www.stodona.se", "boka.stodona.se", "stodona.twportal.se"];
+
+function egenLank(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && TILLATNA_VARDAR.includes(u.host);
+  } catch {
+    return false;
+  }
+}
+
+/** Samtalet identifieras med ett id; själva historiken bor på servern. */
+function samtalsId(): string {
+  try {
+    const sparat = sessionStorage.getItem(IDNYCKEL);
+    if (sparat) return sparat;
+    const nytt = crypto.randomUUID();
+    sessionStorage.setItem(IDNYCKEL, nytt);
+    return nytt;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
 
 // Chatten är avstängd tills VITE_CHAT_ENABLED=true är satt i Vercel. Utan
 // ANTHROPIC_API_KEY på servern kan boten ändå inte svara, och en bubbla som
@@ -59,7 +86,7 @@ const TEXT = {
 function medLankar(text: string) {
   const bitar = text.split(/(https?:\/\/[^\s<>()]+[^\s<>().,!?])/g);
   return bitar.map((bit, i) =>
-    /^https?:\/\//.test(bit) ? (
+    /^https?:\/\//.test(bit) && egenLank(bit) ? (
       <a key={i} href={bit} target="_blank" rel="noopener noreferrer" className="underline break-words hover:text-cta-hover">
         {bit.replace(/^https?:\/\//, "")}
       </a>
@@ -129,15 +156,25 @@ export default function ChatWidget() {
     track("chat_message", { length: rensad.length });
 
     try {
+      // Bara frågan och samtals-id:t skickas. Servern håller historiken, så
+      // ingen kan förfalska vad boten redan sagt.
       const svar = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: historik.map((m) => ({ role: m.roll, content: m.text })),
-        }),
+        body: JSON.stringify({ sessionId: samtalsId(), message: rensad }),
       });
 
-      if (!svar.ok || !svar.body) throw new Error("chat misslyckades");
+      if (!svar.ok) {
+        const text = await svar.text();
+        let meddelande = s.fel;
+        try {
+          const tolkat = JSON.parse(text);
+          if (typeof tolkat?.error === "string") meddelande = tolkat.error;
+        } catch { /* behåll standardtexten */ }
+        setMeddelanden([...historik, { roll: "assistant", text: meddelande }]);
+        return;
+      }
+      if (!svar.body) throw new Error("chat saknar svar");
 
       const lasare = svar.body.getReader();
       const avkodare = new TextDecoder();

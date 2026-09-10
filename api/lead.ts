@@ -18,6 +18,19 @@ async function kvRequest(url: string, token: string, command: string[]) {
   return res.json();
 }
 
+/** Allt som kommer utifrån och hamnar i notismejlet måste escapas – annars kan
+ *  ett lead injicera markup i vår egen inkorg. */
+function esc(v: unknown): string {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const EPOSTMONSTER = /^[^\s@<>"';]+@[^\s@<>"';]+\.[a-zA-Z]{2,}$/;
+
 // Jämförelse i konstant tid så att svarstiden inte avslöjar hur många tecken
 // av lösenordet som stämmer.
 function safeEqual(a: string, b: string): boolean {
@@ -85,7 +98,16 @@ export default async function handler(request: Request) {
 
   try {
     const data = await request.json();
-    const { email, phone, name, source, timestamp, page, notes } = data;
+    const { email: raEpost, phone: raTelefon, name, source, timestamp, page, notes } = data;
+
+    // Ogiltig adress används inte alls – varken som mottagare, reply-to eller i
+    // mejltexten.
+    const email = typeof raEpost === 'string' && EPOSTMONSTER.test(raEpost.trim().toLowerCase())
+      ? raEpost.trim().toLowerCase().slice(0, 254)
+      : '';
+    const phone = typeof raTelefon === 'string' && /^\+?[0-9\s\-().]{7,30}$/.test(raTelefon.trim())
+      ? raTelefon.trim()
+      : '';
 
     if (!email && !phone) {
       return new Response(JSON.stringify({ error: 'E-post eller telefon krävs' }), {
@@ -110,9 +132,10 @@ export default async function handler(request: Request) {
       id: crypto.randomUUID(),
       email: email || '',
       phone: phone || '',
-      name: name || '',
+      name: typeof name === 'string' ? name.slice(0, 80) : '',
       source: source || 'unknown',
-      sourceLabel: sourceLabels[source] || source,
+      // Okänd källa får aldrig gå rakt in i ämnesraden – styrtecken bort, längd kapad.
+      sourceLabel: sourceLabels[source] || String(source ?? 'okand').replace(/[^\p{L}\p{N} _-]/gu, '').slice(0, 40),
       page: page || '',
       // Fritext från chatten: vad kunden behöver hjälp med, sammanfattat.
       notes: typeof notes === 'string' ? notes.slice(0, 2000) : '',
@@ -168,14 +191,14 @@ export default async function handler(request: Request) {
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
           <div style="background: #1a1a2e; color: white; padding: 20px; border-radius: 12px 12px 0 0;">
             <h2 style="margin: 0;">🎯 Nytt lead</h2>
-            <p style="margin: 4px 0 0; opacity: 0.8; font-size: 13px;">${lead.sourceLabel}</p>
+            <p style="margin: 4px 0 0; opacity: 0.8; font-size: 13px;">${esc(lead.sourceLabel)}</p>
           </div>
           <div style="background: #f8f8f8; padding: 20px; border: 1px solid #eee; border-radius: 0 0 12px 12px;">
-            ${email ? `<p><strong>📧</strong> <a href="mailto:${email}">${email}</a></p>` : ''}
-            ${phone ? `<p><strong>📱</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
-            ${lead.name ? `<p><strong>🙋</strong> ${lead.name}</p>` : ''}
-            ${lead.notes ? `<div style="margin-top:12px;padding:12px;background:#fff;border-radius:8px;white-space:pre-wrap;">${lead.notes.replace(/</g, '&lt;')}</div>` : ''}
-            <p style="font-size: 12px; color: #666;">Sida: ${lead.page} | ${new Date(lead.timestamp).toLocaleString('sv-SE')}</p>
+            ${email ? `<p><strong>📧</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></p>` : ''}
+            ${phone ? `<p><strong>📱</strong> <a href="tel:${esc(phone)}">${esc(phone)}</a></p>` : ''}
+            ${lead.name ? `<p><strong>🙋</strong> ${esc(lead.name)}</p>` : ''}
+            ${lead.notes ? `<div style="margin-top:12px;padding:12px;background:#fff;border-radius:8px;white-space:pre-wrap;">${esc(lead.notes)}</div>` : ''}
+            <p style="font-size: 12px; color: #666;">Sida: ${esc(lead.page)} | ${esc(new Date(lead.timestamp).toLocaleString('sv-SE'))}</p>
           </div>
         </div>
       `;

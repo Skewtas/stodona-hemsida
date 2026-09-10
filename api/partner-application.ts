@@ -88,7 +88,9 @@ export default async function handler(request: Request): Promise<Response> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Stodona Samarbeten <onboarding@resend.dev>',
+        // Egen, verifierad domän – testdomänen onboarding@resend.dev är
+        // osignerad för stodona.se och landar lätt i skräpposten.
+        from: 'Stodona Samarbeten <info@stodona.se>',
         to: MOTTAGARE,
         // Svara-till sätts till den sökande, så du kan svara direkt ur mejlet.
         reply_to: epost,

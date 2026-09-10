@@ -188,6 +188,10 @@ export default async function handler(request: Request) {
             // Resend, så avsändaren nedan är signerad på riktigt.
             from: 'Stodona Leads <info@stodona.se>',
             to: 'info@stodona.se',
+            // Svara-till sätts till kunden, så ett svar ur inkorgen går direkt
+            // till hen. Vid "Ring mig" finns bara ett telefonnummer – då
+            // utelämnas fältet hellre än att peka tillbaka på oss själva.
+            ...(email ? { reply_to: email } : {}),
             subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone}`,
             html: emailHtml,
           }),

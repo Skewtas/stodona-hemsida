@@ -70,6 +70,9 @@ async function inomTaket(ip: string): Promise<boolean> {
   }
 }
 
+/** Kort sha på den deploy som svarar – gör det möjligt att se vad som faktiskt kör. */
+const BYGGE = (process.env.VERCEL_GIT_COMMIT_SHA || 'lokal').slice(0, 7);
+
 export default async function handler(request: Request) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -118,6 +121,29 @@ export default async function handler(request: Request) {
   }
 
   const client = new Anthropic({ apiKey });
+
+  if (new URL(request.url).searchParams.get('diag') === '1') {
+    try {
+      const svar = await client.messages.create({
+        model: MODEL,
+        max_tokens: 300,
+        output_config: { effort: 'low' },
+        system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+        messages: meddelanden,
+      });
+      const text = svar.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
+      return new Response(JSON.stringify({ ok: true, bygge: BYGGE, stop_reason: svar.stop_reason, text }), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      });
+    } catch (fel) {
+      const status = fel instanceof Anthropic.APIError ? fel.status : 0;
+      const slag = fel instanceof Anthropic.APIError ? (fel.error as { error?: { type?: string } })?.error?.type : undefined;
+      return new Response(
+        JSON.stringify({ ok: false, bygge: BYGGE, status, slag, meddelande: fel instanceof Error ? fel.message.slice(0, 300) : 'okänt' }),
+        { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
+      );
+    }
+  }
 
   const stream = client.messages.stream({
     model: MODEL,
@@ -186,6 +212,7 @@ export default async function handler(request: Request) {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-store',
         'X-Accel-Buffering': 'no',
+        'X-Chat-Build': BYGGE,
       },
     });
   } catch (fel) {

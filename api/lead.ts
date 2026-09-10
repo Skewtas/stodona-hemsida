@@ -85,7 +85,7 @@ export default async function handler(request: Request) {
 
   try {
     const data = await request.json();
-    const { email, phone, name, source, timestamp, page } = data;
+    const { email, phone, name, source, timestamp, page, notes } = data;
 
     if (!email && !phone) {
       return new Response(JSON.stringify({ error: 'E-post eller telefon krävs' }), {
@@ -102,6 +102,8 @@ export default async function handler(request: Request) {
       sticky_cta: '📱 Ring mig',
       fastpris: '💰 Fast pris-förfrågan',
       byta_stadbolag: '🔄 Byta städbolag',
+      chat_lead: '💬 Chatten – vill bli kontaktad',
+      chat_eskalering: '🆘 Chatten – behöver kundservice',
     };
 
     const lead = {
@@ -112,6 +114,8 @@ export default async function handler(request: Request) {
       source: source || 'unknown',
       sourceLabel: sourceLabels[source] || source,
       page: page || '',
+      // Fritext från chatten: vad kunden behöver hjälp med, sammanfattat.
+      notes: typeof notes === 'string' ? notes.slice(0, 2000) : '',
       timestamp: timestamp || new Date().toISOString(),
       status: 'new',
     };
@@ -169,6 +173,8 @@ export default async function handler(request: Request) {
           <div style="background: #f8f8f8; padding: 20px; border: 1px solid #eee; border-radius: 0 0 12px 12px;">
             ${email ? `<p><strong>📧</strong> <a href="mailto:${email}">${email}</a></p>` : ''}
             ${phone ? `<p><strong>📱</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
+            ${lead.name ? `<p><strong>🙋</strong> ${lead.name}</p>` : ''}
+            ${lead.notes ? `<div style="margin-top:12px;padding:12px;background:#fff;border-radius:8px;white-space:pre-wrap;">${lead.notes.replace(/</g, '&lt;')}</div>` : ''}
             <p style="font-size: 12px; color: #666;">Sida: ${lead.page} | ${new Date(lead.timestamp).toLocaleString('sv-SE')}</p>
           </div>
         </div>

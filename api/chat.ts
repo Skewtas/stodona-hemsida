@@ -46,6 +46,105 @@ Det här är texten från sajtens egna sidor. Den är underlag för dina svar.
 
 ${sidinnehallSomText()}`;
 
+const MAX_SVARSTOKENS = 1024;
+
+const VERKTYG: Anthropic.Tool[] = [
+  {
+    name: 'skicka_lead',
+    description:
+      'Skickar besökarens kontaktuppgifter till Stodonas kundservice för uppföljning. Använd när besökaren vill bli kontaktad, vill ha en offert, inte hittar en tid som passar eller behöver hjälp innan bokning. Kräver telefonnummer eller e-postadress – be om det först om det saknas. Bekräfta för besökaren att kundservice hör av sig, aldrig när eller med vilket besked.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        fornamn: { type: 'string', description: 'Besökarens förnamn.' },
+        telefon: { type: 'string', description: 'Telefonnummer, om besökaren lämnat det.' },
+        epost: { type: 'string', description: 'E-postadress, om besökaren lämnat den.' },
+        tjanst: { type: 'string', description: 'Vilken tjänst det gäller, t.ex. hemstädning eller flyttstädning.' },
+        behov: { type: 'string', description: 'Kort beskrivning av vad besökaren behöver hjälp med.' },
+        onskad_tid: { type: 'string', description: 'Önskad dag eller tid, om det nämnts.' },
+        omrade: { type: 'string', description: 'Område eller postnummer, om det är relevant.' },
+      },
+      required: ['behov'],
+    },
+  },
+  {
+    name: 'eskalera_till_kundservice',
+    description:
+      'Lämnar över ärendet till en människa på Stodonas kundservice. Använd vid befintliga bokningar, ombokning, avbokning, paus, uppsägning, fakturor, reklamationer, skador, nycklar, larm, personuppgifter och allt annat som kräver systemåtkomst eller ett beslut. Skicka med en sammanfattning så att kunden slipper börja om. Ta inte med personnummer, koder eller andra känsliga uppgifter.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        fornamn: { type: 'string', description: 'Besökarens förnamn.' },
+        telefon: { type: 'string', description: 'Telefonnummer, om besökaren lämnat det.' },
+        epost: { type: 'string', description: 'E-postadress, om besökaren lämnat den.' },
+        arende: {
+          type: 'string',
+          description: 'Ärendetyp, t.ex. reklamation, skada, faktura, ombokning, avbokning, paus, uppsägning, nycklar, personuppgifter.',
+        },
+        sammanfattning: {
+          type: 'string',
+          description: 'Vad kunden behöver hjälp med, relevanta bokningsuppgifter, vad du redan sagt och vad kundservice behöver göra.',
+        },
+        bradskande: { type: 'boolean', description: 'Sant vid säkerhet, nycklar, larm eller ett pågående besök där något gått fel.' },
+      },
+      required: ['arende', 'sammanfattning'],
+    },
+  },
+];
+
+/** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
+async function koraVerktyg(namn: string, indata: Record<string, unknown>, request: Request): Promise<string> {
+  const strang = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  const telefon = strang(indata.telefon);
+  const epost = strang(indata.epost);
+
+  if (!telefon && !epost) {
+    return 'Kunde inte skickas: kundservice behöver ett telefonnummer eller en e-postadress för att kunna höra av sig. Be besökaren om det och försök igen.';
+  }
+
+  const rader =
+    namn === 'skicka_lead'
+      ? [
+          strang(indata.tjanst) && `Tjänst: ${strang(indata.tjanst)}`,
+          strang(indata.behov) && `Behov: ${strang(indata.behov)}`,
+          strang(indata.onskad_tid) && `Önskad tid: ${strang(indata.onskad_tid)}`,
+          strang(indata.omrade) && `Område: ${strang(indata.omrade)}`,
+        ]
+      : [
+          strang(indata.arende) && `Ärende: ${strang(indata.arende)}`,
+          indata.bradskande === true && 'BRÅDSKANDE – gäller säkerhet, nycklar, larm eller ett pågående besök.',
+          strang(indata.sammanfattning) && `Sammanfattning: ${strang(indata.sammanfattning)}`,
+        ];
+
+  const kropp = {
+    name: strang(indata.fornamn),
+    phone: telefon,
+    email: epost,
+    source: namn === 'skicka_lead' ? 'chat_lead' : 'chat_eskalering',
+    page: request.headers.get('referer') || 'chatten',
+    notes: rader.filter(Boolean).join('\n'),
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    const svar = await fetch(new URL('/api/lead', request.url).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(kropp),
+    });
+    if (!svar.ok) {
+      console.error('chat: /api/lead svarade', svar.status);
+      return 'Kunde inte skickas just nu. Be besökaren höra av sig på 010-178 01 50 eller info@stodona.se.';
+    }
+    return namn === 'skicka_lead'
+      ? 'Skickat till kundservice. Bekräfta för besökaren att någon hör av sig, utan att lova en tidpunkt.'
+      : 'Överlämnat till kundservice. Bekräfta för besökaren att ärendet är vidarelämnat, utan att lova en tidpunkt eller ett besked.';
+  } catch (fel) {
+    console.error('chat: kunde inte nå /api/lead:', fel);
+    return 'Kunde inte skickas just nu. Be besökaren höra av sig på 010-178 01 50 eller info@stodona.se.';
+  }
+}
+
 async function kvKommando(url: string, token: string, kommando: string[]) {
   const res = await fetch(url, {
     method: 'POST',
@@ -145,13 +244,70 @@ export default async function handler(request: Request) {
     }
   }
 
+  const skickaLoop = async (
+    controller: ReadableStreamDefaultController,
+    kodare: TextEncoder,
+    forstaStrom: ReturnType<typeof client.messages.stream>,
+    forstaHandelse: IteratorResult<Anthropic.MessageStreamEvent>,
+    forstaIterator: AsyncIterator<Anthropic.MessageStreamEvent>
+  ) => {
+    const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
+      if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
+        controller.enqueue(kodare.encode(handelse.delta.text));
+      }
+    };
+
+    const historik: Anthropic.MessageParam[] = [...meddelanden];
+    let strom = forstaStrom;
+    let iterator: AsyncIterator<Anthropic.MessageStreamEvent> | null = forstaIterator;
+    let forsta: IteratorResult<Anthropic.MessageStreamEvent> | null = forstaHandelse;
+
+    // Två varv räcker: ett svar, ett verktygsanrop, ett svar till.
+    for (let varv = 0; varv < 3; varv++) {
+      if (!iterator) iterator = strom[Symbol.asyncIterator]();
+      if (forsta && !forsta.done) skrivDelta(forsta.value);
+      for (let steg = await iterator.next(); !steg.done; steg = await iterator.next()) {
+        skrivDelta(steg.value);
+      }
+      forsta = null;
+      iterator = null;
+
+      const slutgiltigt = await strom.finalMessage();
+
+      if (slutgiltigt.stop_reason === 'refusal') {
+        controller.enqueue(kodare.encode('\n\nDen frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.'));
+        return;
+      }
+      if (slutgiltigt.stop_reason !== 'tool_use') return;
+
+      historik.push({ role: 'assistant', content: slutgiltigt.content });
+      const resultat: Anthropic.ToolResultBlockParam[] = [];
+      for (const block of slutgiltigt.content) {
+        if (block.type !== 'tool_use') continue;
+        const svar = await koraVerktyg(block.name, block.input as Record<string, unknown>, request);
+        resultat.push({ type: 'tool_result', tool_use_id: block.id, content: svar });
+      }
+      historik.push({ role: 'user', content: resultat });
+
+      strom = client.messages.stream({
+        model: MODEL,
+        max_tokens: MAX_SVARSTOKENS,
+        output_config: { effort: 'low' },
+        system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+        tools: VERKTYG,
+        messages: historik,
+      });
+    }
+  };
+
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: MAX_SVARSTOKENS,
     // Låg effort håller svaren snabba; systemprompten cachas så att bara det
     // nya i samtalet betalas full peng.
     output_config: { effort: 'low' },
     system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+    tools: VERKTYG,
     messages: meddelanden,
   });
 
@@ -180,46 +336,26 @@ export default async function handler(request: Request) {
     );
   }
 
-  try {
-    const kodare = new TextEncoder();
-    const utstrom = new ReadableStream({
-      async start(controller) {
-        const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
-          if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
-            controller.enqueue(kodare.encode(handelse.delta.text));
-          }
-        };
-        try {
-          if (!forsta.done) skrivDelta(forsta.value);
-          for (let steg = await iterator.next(); !steg.done; steg = await iterator.next()) {
-            skrivDelta(steg.value);
-          }
-          const slutgiltigt = await stream.finalMessage();
-          if (slutgiltigt.stop_reason === 'refusal') {
-            controller.enqueue(kodare.encode('\n\nDen frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.'));
-          }
-        } catch (fel) {
-          console.error('chat stream error:', fel);
-          controller.enqueue(kodare.encode('\n\nJag tappade tråden där. Försök igen, eller ring 010-178 01 50.'));
-        } finally {
-          controller.close();
-        }
-      },
-    });
+  const kodare = new TextEncoder();
+  const utstrom = new ReadableStream({
+    async start(controller) {
+      try {
+        await skickaLoop(controller, kodare, stream, forsta, iterator);
+      } catch (fel) {
+        console.error('chat stream error:', fel);
+        controller.enqueue(kodare.encode('\n\nJag tappade tråden där. Försök igen, eller ring 010-178 01 50.'));
+      } finally {
+        controller.close();
+      }
+    },
+  });
 
-    return new Response(utstrom, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-store',
-        'X-Accel-Buffering': 'no',
-        'X-Chat-Build': BYGGE,
-      },
-    });
-  } catch (fel) {
-    console.error('chat error:', fel);
-    return new Response(JSON.stringify({ error: 'Kunde inte nå assistenten just nu.' }), {
-      status: 502,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-    });
-  }
+  return new Response(utstrom, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Accel-Buffering': 'no',
+      'X-Chat-Build': BYGGE,
+    },
+  });
 }

@@ -67,25 +67,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           fastnar i toppen som förut. */}
       {pathname === "/" && <UspMarquee />}
       <header className="sticky top-0 z-50 bg-bg-primary/90 backdrop-blur-md border-b border-text-primary/10">
-        <div className="container-custom py-5 md:py-6 flex items-center justify-between">
-          <Link to="/" className="block">
-            <Logo />
-          </Link>
+        {/* Loggan står centrerad överst och menyn på egen rad under den, med
+            bokningsknappen i samma rad som menylänkarna. Kontaktikonerna och
+            språkvalet ligger i högerkanten av logotypraden så att menyraden
+            kan hållas centrerad. */}
+        <div className="container-custom py-4 md:py-5">
+          <div className="relative flex items-center justify-center">
+            <Link to="/" className="block">
+              <Logo />
+            </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className="text-sm font-medium hover:text-cta-hover transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-4 mr-2 border-r border-text-primary/10 pr-6">
+            <div className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 items-center gap-4">
               <a
                 href="tel:0101780150"
                 className="text-text-secondary hover:text-cta-hover transition-colors flex items-center gap-2"
@@ -109,7 +101,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <User className="w-4 h-4" />
               </a>
+              <div className="flex items-center gap-1 text-xs font-semibold pl-4 border-l border-text-primary/10">
+                <button
+                  onClick={() => setLang('SV')}
+                  className={`transition-colors ${lang === 'SV' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
+                >
+                  SV
+                </button>
+                <span className="text-text-primary/30">/</span>
+                <button
+                  onClick={() => setLang('EN')}
+                  className={`transition-colors ${lang === 'EN' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
+                >
+                  EN
+                </button>
+              </div>
             </div>
+
+            <button
+              className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+
+          <nav className="hidden md:flex items-center justify-center gap-7 mt-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-sm font-medium hover:text-cta-hover transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
             {isBabysittingPage ? (
               <Link to="/ny-kund" className="btn-primary py-2 px-5 text-sm">
                 Boka/Se upplägg
@@ -119,29 +145,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {t('nav.boka', lang)}
               </a>
             )}
-            <div className="flex items-center gap-1 text-xs font-semibold ml-2">
-              <button
-                onClick={() => setLang('SV')}
-                className={`transition-colors ${lang === 'SV' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
-              >
-                SV
-              </button>
-              <span className="text-text-primary/30">/</span>
-              <button
-                onClick={() => setLang('EN')}
-                className={`transition-colors ${lang === 'EN' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
-              >
-                EN
-              </button>
-            </div>
-          </div>
-
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X /> : <Menu />}
-          </button>
+          </nav>
         </div>
 
         {/* Mobile Menu */}

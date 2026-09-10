@@ -92,128 +92,128 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* 1. Hero Section */}
-      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden text-text-light">
-        {/* Video Background */}
-        <div className="absolute inset-0 w-full h-full z-0">
-          <HeroVideo
-            src="/stodona-hero.mp4"
-            poster="/hero-poster.jpg"
-            alt="Nystädat sovrum med uppbäddad säng"
-            style={{ filter: "brightness(1.06) saturate(1.08) contrast(1.03)" }}
-          />
-          {/* Texten sitter i en egen ljus ruta, så filmen behöver bara en lätt
-              tonad kant för djup – inte den heltäckande mörkläggning som
-              tidigare drog ned en ljus bild (luminans 200) till 80. */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/15"></div>
-        </div>
-
+      {/* 1. Hero Section – två rutor bredvid varandra: bokningskortet till
+          vänster och filmen till höger. Filmen ligger alltså inte längre som
+          bakgrund bakom texten, utan i en egen ruta. På mobil staplas de med
+          kortet överst så att bokningsformuläret möter besökaren först. */}
+      <section className="relative pt-8 sm:pt-12 pb-16 sm:pb-20 overflow-hidden">
         <div className="container-custom relative z-20 w-full">
-          {/* Rutan är bredare än 2xl för att rubrikens första rad och alla fem
-              tjänsteknappar ska rymmas på var sin rad på desktop. */}
-          <div className="max-w-3xl bg-bg-primary/92 backdrop-blur-sm -mx-2 sm:mx-0 p-5 sm:p-10 md:p-12 shadow-2xl">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
-              <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
-            </span>
-
-            {/* Flytande grad så att "Bäst hemstädning i Stockholm." aldrig bryts.
-                Uppmätt: raden är 14,11 gånger bredare än teckengraden, och
-                rutans innermått är viewporten minus 88 px. Smalaste fallet
-                (320 px) tål 5,66vw när kortet går närmare skärmkanten. Taket
-                2,75rem gäller från desktop och uppåt. */}
-            <h1 className="text-[clamp(1rem,5.66vw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-4">
-              {t('home.hero.title1', lang)}
-              <br />
-              <span className="italic font-normal text-accent-deep">
-                {t('home.hero.title2', lang)}
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-8 items-stretch">
+            <div className="bg-white p-5 sm:p-10 md:p-12 shadow-2xl [container-type:inline-size]">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+                <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
               </span>
-            </h1>
 
-            {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
-                boka.stodona.se som ?service= och ?sqm=, så besökaren slipper
-                fylla i dem två gånger. Tjänstvalet ligger dessutom här för att
-                det ska synas på första skärmen att vi gör mer än hemstädning –
-                på mobil ligger menyn bakom hamburgaren och tjänstesektionen
-                först vid 964 px. */}
-            <form onSubmit={startBooking} className="mb-7">
-              <span className="block text-text-secondary text-base sm:text-lg mb-3">
-                {t('home.hero.serviceLabel', lang)}
-              </span>
-              {/* Alla fem på EN rad. Fem knappar kräver 650 px och mobilen har
-                  drygt 300 – därför sidscroll i stället för radbrytning.
-                  På desktop ryms de och raden scrollar inte. */}
-              <div
-                className="flex gap-2 mb-5 overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,black_calc(100%-2.5rem),transparent)] sm:[mask-image:none]"
-                role="group"
-                aria-label={t('home.hero.serviceLabel', lang)}
-              >
-                {HERO_SERVICES.map((tjanst) => {
-                  const vald = tjanst.value === heroService;
-                  return (
-                    <button
-                      key={tjanst.value}
-                      type="button"
-                      onClick={() => setHeroService(tjanst.value)}
-                      aria-pressed={vald}
-                      className={`px-3 py-2 text-sm font-medium border whitespace-nowrap transition-colors ${
-                        vald
-                          ? "bg-text-primary text-bg-primary border-text-primary"
-                          : "bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary"
-                      }`}
-                    >
-                      {t(tjanst.key, lang)}
-                    </button>
-                  );
-                })}
-              </div>
-              <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
-                {t('home.hero.sqmLabel', lang)}
-              </label>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative sm:w-44">
-                  <input
-                    id="hero-sqm"
-                    type="number"
-                    inputMode="numeric"
-                    min={10}
-                    max={500}
-                    value={heroSqm}
-                    onChange={(e) => setHeroSqm(e.target.value)}
-                    placeholder="70"
-                    className="w-full bg-white border border-text-primary/15 pl-4 pr-12 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm font-medium pointer-events-none">
-                    kvm
-                  </span>
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+                {/* Flytande grad så att "Bäst hemstädning i Stockholm." aldrig
+                  bryts. Raden är 14,11 gånger bredare än teckengraden, och
+                  kortet är numera en halv spalt brett på desktop – graden måste
+                  därför följa KORTETS bredd (cqw) och inte fönstrets, annars
+                  bryts raden i tvåspaltsläget. 100/14,11 ≈ 7cqw, taket 2rem. */}
+              <h1 className="text-[clamp(1rem,7cqw,2rem)] font-bold leading-[1.15] text-text-primary mb-4">
+                {t('home.hero.title1', lang)}
+                <br />
+                <span className="italic font-normal text-accent-deep">
+                  {t('home.hero.title2', lang)}
+                </span>
+              </h1>
+
+              {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
+                  boka.stodona.se som ?service= och ?sqm=, så besökaren slipper
+                  fylla i dem två gånger. Tjänstvalet ligger dessutom här för att
+                  det ska synas på första skärmen att vi gör mer än hemstädning –
+                  på mobil ligger menyn bakom hamburgaren och tjänstesektionen
+                  först vid 964 px. */}
+              <form onSubmit={startBooking} className="mb-7">
+                <span className="block text-text-secondary text-base sm:text-lg mb-3">
+                  {t('home.hero.serviceLabel', lang)}
+                </span>
+                  {/* Fem knappar kräver ca 650 px och ryms inte på en rad nu när
+                    kortet delar heron med filmrutan – de radbryter i stället,
+                    så att alla tjänster syns utan sidscroll. */}
+                <div
+                  className="flex flex-wrap gap-2 mb-5"
+                  role="group"
+                  aria-label={t('home.hero.serviceLabel', lang)}
                 >
-                  {t('home.hero.sqmCta', lang)} <ArrowRight className="w-4 h-4" />
+                  {HERO_SERVICES.map((tjanst) => {
+                    const vald = tjanst.value === heroService;
+                    return (
+                      <button
+                        key={tjanst.value}
+                        type="button"
+                        onClick={() => setHeroService(tjanst.value)}
+                        aria-pressed={vald}
+                        className={`px-3 py-2 text-sm font-medium border whitespace-nowrap transition-colors ${
+                          vald
+                            ? "bg-text-primary text-bg-primary border-text-primary"
+                            : "bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary"
+                        }`}
+                      >
+                        {t(tjanst.key, lang)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
+                  {t('home.hero.sqmLabel', lang)}
+                </label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative sm:w-44">
+                    <input
+                      id="hero-sqm"
+                      type="number"
+                      inputMode="numeric"
+                      min={10}
+                      max={500}
+                      value={heroSqm}
+                      onChange={(e) => setHeroSqm(e.target.value)}
+                      placeholder="70"
+                      className="w-full bg-white border border-text-primary/15 pl-4 pr-12 py-4 text-lg font-medium text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-shadow"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm font-medium pointer-events-none">
+                      kvm
+                    </span>
+                  </div>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+                  >
+                    {t('home.hero.sqmCta', lang)} <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </form>
+
+              <div className="flex items-center gap-4 mb-8">
+                <button
+                  onClick={() => setIsContactOpen(true)}
+                  className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
+                >
+                  {t('home.hero.cta2', lang)}
                 </button>
               </div>
-            </form>
 
-            <div className="flex items-center gap-4 mb-8">
-              <button
-                onClick={() => setIsContactOpen(true)}
-                className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
-              >
-                {t('home.hero.cta2', lang)}
-              </button>
+              <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-sm font-medium text-text-secondary border-t border-text-primary/10 pt-6">
+                {[1, 2, 3, 4].map((n) => (
+                  <div key={n} className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                    <span>{t(`home.hero.bullet${n}`, lang)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-sm font-medium text-text-secondary border-t border-text-primary/10 pt-6">
-              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
-                  <span>{t(`home.hero.bullet${n}`, lang)}</span>
-                </div>
-              ))}
+            {/* Filmrutan. På mobil får den ett fast bildförhållande så att den
+                inte tar över skärmen; från lg och uppåt sträcker den sig i
+                stället till samma höjd som kortet bredvid. */}
+            <div className="relative overflow-hidden shadow-2xl aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[520px]">
+              <HeroVideo
+                src="/stodona-hero.mp4"
+                poster="/hero-poster.jpg"
+                alt="Nystädat sovrum med uppbäddad säng"
+                style={{ filter: "brightness(1.06) saturate(1.08) contrast(1.03)" }}
+              />
             </div>
           </div>
         </div>

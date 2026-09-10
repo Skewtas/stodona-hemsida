@@ -213,11 +213,15 @@ export default function Home() {
                 inte tar över skärmen; från lg och uppåt sträcker den sig i
                 stället till samma höjd som kortet bredvid. */}
             <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              {/* Inget CSS-filter längre. Klippet är nästan helvitt (medel-
+                  luminans 222) – brightness(1.06) tryckte 32 % av bildrutan
+                  över 250 och plattade ut all textur i sängkläderna. Filtret
+                  fanns för att lyfta filmen bakom en mörk tonad överlagring,
+                  och den överlagringen finns inte kvar. */}
               <HeroVideo
                 src="/stodona-hero.mp4"
-                poster="/hero-poster.jpg"
+                poster="/hero-poster.webp"
                 alt="Nystädat sovrum med uppbäddad säng"
-                style={{ filter: "brightness(1.06) saturate(1.08) contrast(1.03)" }}
               />
             </div>
           </div>

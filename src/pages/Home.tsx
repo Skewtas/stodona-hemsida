@@ -96,20 +96,25 @@ export default function Home() {
           vänster och filmen till höger. Filmen ligger alltså inte längre som
           bakgrund bakom texten, utan i en egen ruta. På mobil staplas de med
           kortet överst så att bokningsformuläret möter besökaren först. */}
-      <section className="relative pt-8 sm:pt-12 pb-16 sm:pb-20 overflow-hidden">
-        <div className="container-custom relative z-20 w-full">
-          <div className="grid lg:grid-cols-2 gap-5 lg:gap-8 items-stretch">
-            <div className="bg-white p-5 sm:p-10 md:p-12 shadow-2xl [container-type:inline-size]">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
+      <section className="relative overflow-hidden">
+        {/* Från lg går rutorna ut i skärmkanterna, utan lucka emellan och med
+            en höjd som fyller viewporten ned till vecket: USP-remsan är 45 px
+            och headern 141 px på desktop, alltså 186 px att räkna bort. Under
+            lg ligger rutorna kvar i den vanliga spalten. */}
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
+              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
                 <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
               </span>
 
                 {/* Flytande grad så att "Bäst hemstädning i Stockholm." aldrig
                   bryts. Raden är 14,11 gånger bredare än teckengraden, och
-                  kortet är numera en halv spalt brett på desktop – graden måste
-                  därför följa KORTETS bredd (cqw) och inte fönstrets, annars
-                  bryts raden i tvåspaltsläget. 100/14,11 ≈ 7cqw, taket 2rem. */}
-              <h1 className="text-[clamp(1rem,7cqw,2rem)] font-bold leading-[1.15] text-text-primary mb-4">
+                  kortet är numera en halv skärm brett – graden måste därför
+                  följa KORTETS bredd (cqw) och inte fönstrets, annars bryts
+                  raden i tvåspaltsläget. Brytgränsen går vid 7,08cqw, så 7cqw
+                  är alltid säkert oavsett hur högt taket sätts. */}
+              <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-4">
                 {t('home.hero.title1', lang)}
                 <br />
                 <span className="italic font-normal text-accent-deep">
@@ -207,7 +212,7 @@ export default function Home() {
             {/* Filmrutan. På mobil får den ett fast bildförhållande så att den
                 inte tar över skärmen; från lg och uppåt sträcker den sig i
                 stället till samma höjd som kortet bredvid. */}
-            <div className="relative overflow-hidden shadow-2xl aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[520px]">
+            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
               <HeroVideo
                 src="/stodona-hero.mp4"
                 poster="/hero-poster.jpg"
@@ -324,27 +329,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Boka Section – rubriken bor numera i widgeten, som har samma
-             formspråk som hero-rutan. */}
-      <section className="py-16 sm:py-24 bg-white">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.45 }}
-            className="max-w-2xl mx-auto"
-          >
-            <QuickBookingWidget />
-          </motion.div>
-        </div>
-      </section>
-
       {/* 1.5. Insight Section - Apple Style */}
       <section className="py-14 sm:py-20 md:py-24 bg-bg-primary overflow-hidden">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-            {/* Left: Image */}
+            {/* Vänster: bokningsrutan. Den låg tidigare i en egen sektion
+                ovanför – här står den i stället bredvid texten om varför
+                städningen ställer till det, så argumentet och handlingen
+                möts på samma skärm. */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -352,17 +344,7 @@ export default function Home() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative"
             >
-              <div className="relative rounded-[40px] overflow-hidden shadow-2xl shadow-black/5">
-                <img
-                  src="/familj-stodona.jpg"
-                  alt="Glad familj hemma med Stodona"
-                  className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  width="1024"
-                  height="1536"
-                />
-              </div>
+              <QuickBookingWidget />
             </motion.div>
 
             {/* Right: Text Content */}

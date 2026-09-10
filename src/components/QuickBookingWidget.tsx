@@ -71,7 +71,7 @@ export const QuickBookingWidget: React.FC = () => {
     // Samma formspråk som hero-rutan på startsidan: ljus panel med skarpa
     // hörn, fyrkantiga tjänstknappar, fält med enhetssuffix och en mörk
     // versalknapp.
-    <div className="bg-bg-primary p-8 sm:p-10 md:p-12 shadow-2xl w-full">
+    <div className="bg-white p-8 sm:p-10 md:p-12 shadow-2xl w-full">
       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
         <Star className="w-3.5 h-3.5 fill-current text-accent" />
         {lang === 'EN' ? '4.9 out of 5 average rating' : '4,9 av 5 i snittbetyg'}
@@ -101,7 +101,7 @@ export const QuickBookingWidget: React.FC = () => {
                 className={`px-4 py-2 text-sm font-medium border transition-colors ${
                   vald
                     ? 'bg-text-primary text-bg-primary border-text-primary'
-                    : 'bg-white/70 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary'
+                    : 'bg-bg-primary/60 text-text-secondary border-text-primary/15 hover:border-accent hover:text-text-primary'
                 }`}
               >
                 {lang === 'EN' ? s.en : s.sv}

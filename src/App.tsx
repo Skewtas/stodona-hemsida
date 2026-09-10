@@ -132,6 +132,9 @@ export default function App() {
           <Route path="/kampanj" element={<Kampanj />} />
           <Route path="/abo25" element={<Kampanj />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
+          {/* Min partnersida – grindad i middleware.ts. Lägg ALDRIG till en ny
+              adress här utan att också lägga den i matcher där. */}
+          <Route path="/min-partnersida" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />
 
@@ -153,6 +156,8 @@ export default function App() {
           <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />
           <Route path="/samarbeta" element={<Samarbeta />} />
           <Route path="/samarbete" element={<Samarbeta />} />
+          <Route path="/affiliate" element={<Samarbeta />} />
+          <Route path="/influencer" element={<Samarbeta />} />
           <Route path="/visselblasning" element={<Visselblasning />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/integritetspolicy" element={<Integritetspolicy />} />

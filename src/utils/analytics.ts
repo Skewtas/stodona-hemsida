@@ -1,4 +1,4 @@
-// Enkel GA4-händelselogg. gtag är laddat i index.html (G-FHQH6WENP9) och
+// Enkel GA4-händelselogg. gtag är laddat i index.html (G-437MFSS44K) och
 // respekterar cookie-samtycke via Consent Mode. Anropen är no-ops om gtag saknas.
 type GtagParams = Record<string, unknown>;
 

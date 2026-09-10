@@ -35,7 +35,7 @@ export interface ContentPageProps {
   /** Foto i heron. "split" ger två rutor bredvid varandra: foto till vänster,
       rubriken i en mörk ruta till höger. Annars ligger fotot bakom texten,
       med slöja så att kontrasten håller. */
-  heroImage?: { src: string; alt: string; position?: string; layout?: "backdrop" | "split" };
+  heroImage?: { src: string; alt: string; position?: string; layout?: "backdrop" | "split"; panelClass?: string };
 }
 
 export default function ContentPage(p: ContentPageProps) {
@@ -86,31 +86,32 @@ export default function ContentPage(p: ContentPageProps) {
 
       {/* Hero */}
       {p.heroImage?.layout === "split" ? (
-        <section className="bg-bg-primary pt-28 pb-10 md:pt-36 md:pb-14">
-          <div className="container-custom max-w-5xl">
-            <nav className="text-sm text-text-secondary mb-5" aria-label="Brödsmulor">
+        <section className="bg-bg-primary pt-24 md:pt-28">
+          <div className="container-custom">
+            <nav className="text-sm text-text-secondary mb-4" aria-label="Brödsmulor">
               <Link to="/" className="hover:text-text-primary">Hem</Link> <span className="mx-1.5">/</span>
               <span className="text-text-primary">{p.breadcrumb}</span>
             </nav>
-            <div className="grid gap-4 md:gap-6 md:grid-cols-2">
-              <div className="rounded-3xl overflow-hidden aspect-[4/3] md:aspect-square">
-                <img
-                  src={p.heroImage.src}
-                  alt={p.heroImage.alt}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: p.heroImage.position ?? "center" }}
-                  width="1536"
-                  height="1024"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              </div>
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-                className="rounded-3xl bg-bg-dark text-text-light p-8 md:p-12 flex flex-col justify-center min-h-[16rem] md:aspect-square">
-                <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.1] mb-4">{p.title}</h1>
-                <p className="text-text-light/80 leading-relaxed">{p.intro}</p>
-              </motion.div>
+          </div>
+          {/* Rutorna går kant i kant över hela skärmen – ingen container. */}
+          <div className="grid md:grid-cols-2">
+            <div className="aspect-square md:max-h-[88vh] overflow-hidden">
+              <img
+                src={p.heroImage.src}
+                alt={p.heroImage.alt}
+                className="w-full h-full object-cover"
+                style={{ objectPosition: p.heroImage.position ?? "center" }}
+                width="1536"
+                height="1024"
+                loading="eager"
+                fetchPriority="high"
+              />
             </div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+              className={`flex flex-col justify-center px-8 py-12 md:px-14 lg:px-20 min-h-[100vw] md:min-h-0 md:aspect-square md:max-h-[88vh] ${p.heroImage.panelClass ?? "bg-accent text-text-primary"}`}>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] mb-5">{p.title}</h1>
+              <p className="text-lg md:text-xl leading-relaxed">{p.intro}</p>
+            </motion.div>
           </div>
         </section>
       ) : (

@@ -15,7 +15,7 @@ export default function ScrollToTop() {
 
     // Track page view in Google Analytics
     if (typeof window.gtag === 'function') {
-      window.gtag('config', 'G-FHQH6WENP9', {
+      window.gtag('config', 'G-437MFSS44K', {
         page_path: location.pathname + location.search,
       });
     }

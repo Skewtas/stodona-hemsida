@@ -21,21 +21,23 @@ import {
 } from "lucide-react";
 
 /**
- * PUBLIK samarbetssida ("work with us") – för kreatörer som VILL börja
- * samarbeta med Stodona. Inte att förväxla med /influencersamarbete, som är den
- * lösenordsskyddade briefsidan för dem som redan har ett samarbete.
+ * PUBLIK samarbetssida – steg 1 i tratten. Här ansöker kreatörer om att bli
+ * partner. Steg 2 är /min-partnersida, den lösenordsskyddade sidan där en
+ * godkänd partner hämtar sin följarkod och sitt material.
  *
- * ⚠️ UTKAST: sidan ligger på noindex och är inte länkad från menyn ännu.
- * Innan den görs publik – se CONFIG nedan och ta bort robots-taggen.
+ * Sidan är indexerad och ligger i sitemap.xml.
  */
 
 /* ————————————————————————————————————————————————————————————
-   ⚠️ PLATSHÅLLARE – bekräfta varje siffra innan sidan publiceras.
-   Inget här är hämtat från verkliga villkor; det är förslag att fylla i.
+   ⚠️ Kvar att bekräfta: utbetalningsintervall och svarstid nedan är
+   antaganden, inte beslutade villkor. Provisionens storlek nämns med-
+   vetet inte alls – den sätts individuellt.
    ———————————————————————————————————————————————————————————— */
 const CONFIG = {
-  provision: "10 %",          // ⚠️ provision per genomförd bokning
-  provisionPeriod: "3 månader", // ⚠️ hur länge provisionen löper per värvad kund
+  // Medvetet INGEN procentsats på sidan – provisionen sätts individuellt och
+  // ska förhandlas, inte läsas av. Det vi lovar publikt är långsiktigheten:
+  // provision för samma kund varje månad i tre månader.
+  provisionPeriod: "tre månader",
   foljarrabatt: "15 %",       // ⚠️ rabatten följarna får med koden
   utbetalning: "månadsvis",   // ⚠️ utbetalningsintervall
   handle: "@stodona.se",
@@ -73,7 +75,7 @@ const steps = [
   {
     icon: Wallet,
     title: "Få betalt",
-    text: `${CONFIG.provision} provision på varje bokning som går igenom din kod – ${CONFIG.utbetalning}, mot faktura eller som tjänstekredit hos oss.`,
+    text: `Provision på varje bokning din kod ger – och för samma kund varje månad i ${CONFIG.provisionPeriod}. Utbetalning ${CONFIG.utbetalning}, mot faktura eller som tjänstekredit hos oss.`,
   },
 ];
 
@@ -81,7 +83,7 @@ const perks = [
   {
     icon: Wallet,
     title: "Provision som fortsätter ticka",
-    text: `${CONFIG.provision} på varje bokning din kod ger, i ${CONFIG.provisionPeriod}. Städabonnemang är återkommande – det märks i din utbetalning.`,
+    text: `Du får provision för samma kund varje månad i ${CONFIG.provisionPeriod} – inte bara på första bokningen. Städning är något man gör om och om igen, och det bygger upp sig.`,
   },
   {
     icon: Tag,
@@ -231,30 +233,62 @@ export default function Samarbeta() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+
+    const ansokan = {
+      namn: form.name,
+      epost: form.email,
+      telefon: form.phone,
+      ort: form.city,
+      kanaler: channels.join(", "),
+      handle: form.handle,
+      foljare: form.followers,
+      publik: form.audience,
+      typ: form.type,
+      tidigare: form.previous,
+      ide: form.idea,
+      lank: form.link,
+    };
+
     try {
-      const p = new FormData();
-      p.append("subject", "Samarbetsansökan – kreatör");
-      p.append("Namn", form.name);
-      p.append("E-post", form.email);
-      p.append("Telefon", form.phone);
-      p.append("Ort", form.city);
-      p.append("Kanaler", channels.join(", "));
-      p.append("Användarnamn/handle", form.handle);
-      p.append("Följare totalt", form.followers);
-      p.append("Om publiken", form.audience);
-      p.append("Typ av samarbete", form.type);
-      p.append("Tidigare samarbeten", form.previous);
-      p.append("Idé", form.idea);
-      p.append("Länk till kanal eller mediakit", form.link);
-      const res = await fetch("https://formspree.io/f/xojkdewo", {
+      // Förstahandsval: egen endpoint som mejlar ansökan till Mikaela.
+      const res = await fetch("/api/partner-application", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: p,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ansokan),
       });
-      if (res.ok) setDone(true);
-      else throw new Error("fel");
+      if (res.ok) {
+        setDone(true);
+        return;
+      }
+      // 501 = Resend inte konfigurerat. Allt annat är också värt en andra chans
+      // via Formspree – en ansökan ska aldrig försvinna för att en tjänst strular.
+      throw new Error("faller tillbaka");
     } catch {
-      alert(`Något gick fel. Försök igen eller mejla oss på ${CONFIG.epost}.`);
+      try {
+        const p = new FormData();
+        p.append("subject", "Samarbetsansökan – kreatör");
+        p.append("Namn", ansokan.namn);
+        p.append("E-post", ansokan.epost);
+        p.append("Telefon", ansokan.telefon);
+        p.append("Ort", ansokan.ort);
+        p.append("Kanaler", ansokan.kanaler);
+        p.append("Användarnamn/handle", ansokan.handle);
+        p.append("Följare totalt", ansokan.foljare);
+        p.append("Om publiken", ansokan.publik);
+        p.append("Typ av samarbete", ansokan.typ);
+        p.append("Tidigare samarbeten", ansokan.tidigare);
+        p.append("Idé", ansokan.ide);
+        p.append("Länk till kanal eller mediakit", ansokan.lank);
+        const res = await fetch("https://formspree.io/f/xojkdewo", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: p,
+        });
+        if (res.ok) setDone(true);
+        else throw new Error("fel");
+      } catch {
+        alert(`Något gick fel. Försök igen eller mejla oss på ${CONFIG.epost}.`);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -263,19 +297,60 @@ export default function Samarbeta() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Samarbeten och affiliate | Stodona</title>
+        <title>Samarbeten och affiliate – bli influencerpartner | Stodona</title>
         <meta
           name="description"
-          content="Bli affiliate eller gör ett direktsamarbete med Stodona. Egen rabattkod till dina följare, provision på varje bokning och full kreativ frihet."
+          content="Bli affiliate eller influencerpartner till Stodona i Stockholm. Egen rabattkod till dina följare, provision för samma kund i tre månader och full kreativ frihet. Ansök här."
         />
-        {/* ⚠️ UTKAST: ta bort raden nedan och lägg till sidan i sitemap när den ska ut. */}
-        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://stodona.se/samarbeten-och-affiliate" />
-        <meta property="og:title" content="Samarbeten och affiliate | Stodona" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://stodona.se/samarbeten-och-affiliate" />
+        <meta property="og:title" content="Samarbeten och affiliate – bli influencerpartner | Stodona" />
         <meta
           property="og:description"
-          content="Egen rabattkod till dina följare, provision på varje bokning och full kreativ frihet."
+          content="Egen rabattkod till dina följare, provision för samma kund i tre månader och full kreativ frihet."
         />
+        <meta property="og:image" content="https://stodona.se/samarbete-hero.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Samarbeten och affiliate | Stodona" />
+        <meta name="twitter:image" content="https://stodona.se/samarbete-hero.jpg" />
+        {/* FAQ-schema: frågorna på sidan är exakt de som söks på ("hur fungerar
+            affiliate", "måste jag märka inlägg som reklam"), så de har god chans
+            att plockas upp som rich results och av AI-svar. */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faq.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Samarbeten och affiliate",
+            url: "https://stodona.se/samarbeten-och-affiliate",
+            description:
+              "Affiliateprogram och influencersamarbeten med städfirman Stodona i Stockholm.",
+            inLanguage: "sv-SE",
+            isPartOf: { "@type": "WebSite", name: "Stodona", url: "https://stodona.se" },
+            about: [
+              { "@type": "Thing", name: "Affiliatemarknadsföring" },
+              { "@type": "Thing", name: "Influencersamarbete" },
+              { "@type": "Thing", name: "Hemstädning Stockholm" },
+            ],
+            provider: {
+              "@type": "LocalBusiness",
+              name: "Stodona",
+              url: "https://stodona.se",
+              areaServed: { "@type": "City", name: "Stockholm" },
+            },
+          })}
+        </script>
       </Helmet>
 
       {/* ——— Banner ——— */}
@@ -384,13 +459,13 @@ export default function Samarbeta() {
               <h3 className="text-2xl md:text-3xl font-bold mb-4">Affiliate</h3>
               <p className="text-text-secondary leading-relaxed mb-6">
                 Löpande och helt på dina villkor. Du får en egen rabattkod och en spårbar
-                länk, delar när du vill, och får {CONFIG.provision} provision på varje
-                bokning som går igenom. Inget krav på antal inlägg, ingen bindningstid.
+                länk, delar när du vill, och får provision på varje bokning som går
+                igenom. Inget krav på antal inlägg, ingen bindningstid.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
                   "Egen kod som ger följarna " + CONFIG.foljarrabatt,
-                  "Provision i " + CONFIG.provisionPeriod + " per värvad kund",
+                  "Provision för samma kund i " + CONFIG.provisionPeriod,
                   "Öppet för alla kontostorlekar",
                 ].map((t) => (
                   <li key={t} className="flex gap-3 text-text-secondary">

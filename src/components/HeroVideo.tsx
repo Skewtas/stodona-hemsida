@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
  */
 export default function HeroVideo({
   src,
+  srcAv1,
   poster,
   alt,
   className = "absolute inset-0 w-full h-full object-cover",
@@ -23,6 +24,10 @@ export default function HeroVideo({
   lazy = false,
 }: {
   src: string;
+  /** AV1-variant i MP4. Väger ungefär en tredjedel av H.264-filen vid samma
+      upplevda kvalitet. Webbläsare som inte klarar codecen hoppar över den
+      och hämtar `src` i stället – därför måste den ligga först. */
+  srcAv1?: string;
   poster: string;
   alt: string;
   className?: string;
@@ -123,6 +128,7 @@ export default function HeroVideo({
       className={className}
       style={style}
     >
+      {srcAv1 && <source src={srcAv1} type='video/mp4; codecs="av01.0.08M.08"' />}
       <source src={src} type="video/mp4" />
     </video>
   );

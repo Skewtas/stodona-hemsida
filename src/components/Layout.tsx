@@ -364,6 +364,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
+                <Link to="/samarbeten-och-affiliate" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Samarbeten och affiliate' : 'Partnerships & affiliate'}
+                </Link>
+              </li>
+              <li>
                 <Link to="/visselblasning" className="hover:text-cta-hover transition-colors">
                   {t('footer.visselblasning', lang)}
                 </Link>

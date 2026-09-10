@@ -97,6 +97,7 @@ export function priserSomText(): string {
     "Varje vecka:",
     prisrader(PRISER_VARJE_VECKA),
     "Längre bindningstid ger lägre pris per tillfälle. Exakt pris får kunden i bokningen på https://boka.stodona.se.",
+    "Använd priset för den yta som står i tabellen. Slå aldrig ihop flera ytor till ett spann – 65 kvm och 85 kvm har olika pris. Finns inte kundens yta eller frekvens i tabellen: säg det och hänvisa till bokningen i stället för att räkna ut ett eget pris.",
   ].join("\n");
 }
 

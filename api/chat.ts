@@ -253,9 +253,16 @@ export default async function handler(request: Request) {
     forstaHandelse: IteratorResult<Anthropic.MessageStreamEvent>,
     forstaIterator: AsyncIterator<Anthropic.MessageStreamEvent>
   ) => {
+    // Ett svar kan bestå av flera textblock. Utan blankrad emellan klistras de
+    // ihop mitt i meningen, som "din bokning.För att kundservice ska ...".
+    let harSkrivit = false;
     const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
+      if (handelse.type === 'content_block_start' && handelse.content_block.type === 'text' && harSkrivit) {
+        controller.enqueue(kodare.encode('\n\n'));
+      }
       if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
         controller.enqueue(kodare.encode(handelse.delta.text));
+        harSkrivit = true;
       }
     };
 

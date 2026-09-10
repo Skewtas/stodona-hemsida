@@ -6,6 +6,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
 import StickyCTA from "./StickyCTA";
+import ChatWidget from "./ChatWidget";
 import FooterNewsletter from "./FooterNewsletter";
 import UspMarquee from "./UspMarquee";
 import LiveBookingToast from "./LiveBookingToast";
@@ -470,6 +471,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
+      {!isInfluencerPage && <ChatWidget />}
       {!isBabysittingPage && !isInfluencerPage && (
         <>
           <StickyCTA />

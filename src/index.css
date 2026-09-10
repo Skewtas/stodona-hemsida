@@ -88,6 +88,124 @@
   }
 }
 
+/* ── Logotypen ────────────────────────────────────────────────────────────
+   Loggan studsar till när man för muspekaren över den, och en glans sveper
+   över bokstäverna. Bladet är urklippt ur samma bild som ordmärket, så att
+   det kan studsa högre och luta lite extra – ordmärket klipps av vid 82 %
+   och bladet börjar där, tillsammans blir de hela logotypen.
+
+   Glansen ligger i en egen ruta som maskas med logotypen, så ljuset syns
+   bara på formerna och inte som en rektangel över bakgrunden. */
+.stodona-logga__yta {
+  position: relative;
+  display: inline-block;
+}
+
+.stodona-logga__ordmarke,
+.stodona-logga__blad {
+  display: block;
+  transform-origin: bottom center;
+  will-change: transform;
+}
+
+.stodona-logga__blad {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: fill;
+}
+
+.stodona-logga__glans {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  /* Bara ordmärket, samma skarv vid 82 % som urklippen ovan. Bladet får ingen
+     glans – det rör sig i en egen bana och ljuset skulle hamna bredvid det. */
+  clip-path: inset(0 18% 0 0);
+  transform-origin: bottom center;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%);
+  background-size: 260% 100%;
+  background-position: -60% 0;
+  -webkit-mask-image: url("/logotyp.png?v=2");
+  mask-image: url("/logotyp.png?v=2");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.stodona-logga:hover .stodona-logga__ordmarke {
+  animation: logga-studs 700ms cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+.stodona-logga:hover .stodona-logga__blad {
+  animation: logga-blad 750ms cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+/* Glansen måste studsa i takt med ordmärket, annars glider masken ifrån
+   bokstäverna och ljuset lyser bredvid dem mitt i hoppet. */
+.stodona-logga:hover .stodona-logga__glans {
+  animation:
+    logga-glans 900ms ease-out,
+    logga-studs 700ms cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+/* Mobilen har ingen muspekare – där får loggan i stället hälsa en gång när
+   sidan laddats. Egen animation trots identiska steg: byter man bara fördröjning
+   på ett namn som redan spelat startar webbläsaren inte alltid om det. */
+.stodona-logga__blad {
+  animation: logga-halsning 750ms cubic-bezier(0.28, 0.84, 0.42, 1) 900ms both;
+}
+
+@keyframes logga-studs {
+  0%   { transform: translateY(0) scale(1, 1); }
+  18%  { transform: translateY(0) scale(1.06, 0.88); }
+  45%  { transform: translateY(-18%) scale(0.97, 1.05); }
+  70%  { transform: translateY(0) scale(1.03, 0.96); }
+  85%  { transform: translateY(-4%) scale(0.99, 1.01); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes logga-blad {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  20%  { transform: translateY(-10%) rotate(-6deg) scale(1.04); }
+  45%  { transform: translateY(-42%) rotate(-14deg) scale(1.08); }
+  70%  { transform: translateY(-6%) rotate(7deg) scale(1.02); }
+  85%  { transform: translateY(-14%) rotate(-3deg) scale(1); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+@keyframes logga-halsning {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  20%  { transform: translateY(-10%) rotate(-6deg) scale(1.04); }
+  45%  { transform: translateY(-42%) rotate(-14deg) scale(1.08); }
+  70%  { transform: translateY(-6%) rotate(7deg) scale(1.02); }
+  85%  { transform: translateY(-14%) rotate(-3deg) scale(1); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+@keyframes logga-glans {
+  0%   { opacity: 0; background-position: -60% 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { opacity: 0; background-position: 170% 0; }
+}
+
+/* Rör sig inget för den som bett om mindre rörelse. */
+@media (prefers-reduced-motion: reduce) {
+  .stodona-logga__ordmarke,
+  .stodona-logga__blad,
+  .stodona-logga:hover .stodona-logga__ordmarke,
+  .stodona-logga:hover .stodona-logga__blad,
+  .stodona-logga:hover .stodona-logga__glans {
+    animation: none;
+  }
+}
+
 @keyframes btn-shimmer {
   0% { left: -100%; }
   15% { left: 200%; }

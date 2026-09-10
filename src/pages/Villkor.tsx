@@ -127,7 +127,8 @@ export default function Villkor() {
 
             <h2 className="text-3xl font-bold mb-6">7. Betalning</h2>
             <p className="text-text-secondary mb-4">
-              Betalning sker mot faktura som skickas via e-post eller som e-faktura.
+              Betalning sker mot faktura som skickas via e-post eller som e-faktura.{" "}
+              <Link to="/e-faktura" className="underline hover:text-cta-hover">Så kopplar du på e-faktura</Link>.
             </p>
             <ul className="list-disc pl-6 space-y-2 mb-8 text-text-secondary">
               <li>För privatpersoner gäller 10 dagars betalningstid.</li>

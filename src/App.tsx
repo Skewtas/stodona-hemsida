@@ -52,6 +52,7 @@ const RutAvdrag = React.lazy(() => import("./pages/RutAvdrag"));
 const SaArbetarVi = React.lazy(() => import("./pages/SaArbetarVi"));
 const KvalitetTrygghet = React.lazy(() => import("./pages/KvalitetTrygghet"));
 const Avbokning = React.lazy(() => import("./pages/Avbokning"));
+const EFaktura = React.lazy(() => import("./pages/EFaktura"));
 const Stadabonnemang = React.lazy(() => import("./pages/Stadabonnemang"));
 // Veckans kampanj (ABO25). Stänger sig själv efter söndag 2026-09-13 –
 // noindex och medvetet utanför sitemap, så den varken förrenderas eller
@@ -125,6 +126,8 @@ export default function App() {
           <Route path="/sa-arbetar-vi" element={<SaArbetarVi />} />
           <Route path="/kvalitet-och-trygghet" element={<KvalitetTrygghet />} />
           <Route path="/avbokning" element={<Avbokning />} />
+          <Route path="/e-faktura" element={<EFaktura />} />
+          <Route path="/efaktura" element={<EFaktura />} />
           <Route path="/stadabonnemang" element={<Stadabonnemang />} />
           <Route path="/kampanj" element={<Kampanj />} />
           <Route path="/abo25" element={<Kampanj />} />

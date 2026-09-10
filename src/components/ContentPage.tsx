@@ -28,6 +28,10 @@ export interface ContentPageProps {
   related?: { label: string; to: string }[];
   /** Ersätter standardtexten under "Redo att boka?" (t.ex. på abonnemangssidan). */
   ctaText?: string;
+  /** Ersätter rubriken i CTA-blocket, för sidor som inte handlar om att boka. */
+  ctaHeading?: string;
+  /** Ersätter boka-knappen, t.ex. med en mejllänk. */
+  ctaPrimary?: { label: string; href: string };
 }
 
 export default function ContentPage(p: ContentPageProps) {
@@ -127,13 +131,13 @@ export default function ContentPage(p: ContentPageProps) {
       {/* Relaterat + CTA */}
       <section className="py-16 bg-bg-dark text-text-light">
         <div className="container-custom max-w-3xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Redo att boka?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{p.ctaHeading ?? "Redo att boka?"}</h2>
           <p className="text-text-light/80 mb-8">
             {p.ctaText ?? "Boka på 60 sekunder – RUT-avdraget dras direkt, ingen bindningstid."}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 inline-flex items-center gap-2">
-              Boka städning <ArrowRight className="w-5 h-5" />
+            <a href={p.ctaPrimary?.href ?? bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 inline-flex items-center gap-2">
+              {p.ctaPrimary?.label ?? "Boka städning"} <ArrowRight className="w-5 h-5" />
             </a>
             <Link to="/kontakt" className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark px-8 py-4">
               Kontakta oss

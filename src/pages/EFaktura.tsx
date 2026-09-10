@@ -8,7 +8,8 @@ const CONFIRM_MAIL =
   "&body=" + encodeURIComponent(
     "Hej!\n\nJag har nu anmält Stodona som e-fakturautställare i min internetbank. " +
     "Ni får gärna byta över mig till e-faktura.\n\n" +
-    "Namn:\nAdress för städningen:\nBank:\nDatum för anmälan:\n\nVänliga hälsningar\n"
+    "Kundnummer:\nMejladress som fakturan skickas till i dag:\nNamn:\nAdress för städningen:\n\n" +
+    "Vänliga hälsningar\n"
   );
 
 export default function EFaktura() {
@@ -21,10 +22,10 @@ export default function EFaktura() {
       title="Så kopplar du på e-faktura"
       intro="Med e-faktura kommer fakturan färdigifylld direkt till din internetbank – inget papper, inga OCR-nummer att knappa in. Du gör anmälan i banken, vi gör resten."
       answerHeading="Kort om hur det går till"
-      answer={<>E-faktura startas alltid <strong className="text-text-primary">i din internetbank</strong> – vi kan inte göra det åt dig. Logga in i banken, anmäl <strong className="text-text-primary">Stodona AB</strong> som e-fakturautställare och <strong className="text-text-primary">mejla oss när det är klart</strong>. Då ändrar vi i vårt faktureringssystem, och från nästa faktura hittar du den i internetbanken i stället för i mejlkorgen.</>}
+      answer={<>E-faktura startas alltid <strong className="text-text-primary">i din internetbank</strong> – vi kan inte göra det åt dig. Logga in i banken, anmäl <strong className="text-text-primary">Stodona AB</strong> som e-fakturautställare och ange ditt <strong className="text-text-primary">kundnummer</strong> och den <strong className="text-text-primary">mejladress fakturan går till i dag</strong>. Mejla oss sedan att det är klart, så ändrar vi i vårt faktureringssystem – och från nästa faktura hittar du fakturan i internetbanken i stället för i mejlkorgen.</>}
       facts={[
         { label: "Var anmäler du?", value: "I din internetbank" },
-        { label: "Du behöver", value: "BankID och ditt personnummer" },
+        { label: "Ha framme", value: "Kundnummer och fakturamejladress" },
         { label: "Tar ungefär", value: "5 minuter" },
         { label: "Gäller från", value: "Nästa faktura efter bekräftelsen" },
       ]}
@@ -39,7 +40,8 @@ export default function EFaktura() {
                   <li><strong className="text-text-primary">1.</strong> Gå till <strong>Betala &amp; överföra</strong> (kan heta <em>Betalningar</em> eller <em>Räkningar</em>).</li>
                   <li><strong className="text-text-primary">2.</strong> Välj <strong>E-faktura</strong> och sedan <strong>Anmäl ny e-faktura</strong> eller <strong>Sök e-fakturaföretag</strong>.</li>
                   <li><strong className="text-text-primary">3.</strong> Sök på <strong>Stodona</strong> och välj <strong>Stodona AB</strong> (org.nr 559201-1059).</li>
-                  <li><strong className="text-text-primary">4.</strong> Godkänn anmälan med BankID.</li>
+                  <li><strong className="text-text-primary">4.</strong> Fyll i ditt <strong>kundnummer</strong> hos oss och den <strong>mejladress fakturan skickas till i dag</strong>.</li>
+                  <li><strong className="text-text-primary">5.</strong> Godkänn anmälan med BankID.</li>
                 </ol>
               </div>
               <p className="text-base">Har du Swedbank, Sparbankerna eller Nordea kan du i stället se valet <strong>”Ja till e-faktura”</strong>. Slår du på det får du automatiskt e-faktura från alla anslutna företag – inklusive oss – utan att söka upp oss separat.</p>
@@ -47,11 +49,23 @@ export default function EFaktura() {
           ),
         },
         {
-          heading: "Steg 2 – Uppgifterna banken frågar efter",
+          heading: "Steg 2 – De två uppgifterna du behöver ha framme",
           body: (
             <>
-              <p>Banken använder ditt <strong>personnummer</strong> för att adressera fakturan till rätt person, så anmälan behöver göras av den som fakturan står på i dag. Utöver det brukar banken fråga efter namn, adress och e-postadress.</p>
-              <p>Frågar banken efter ett <strong>kundnummer eller referens</strong> hittar du det längst upp på din senaste faktura från oss. Är du osäker – hör av dig, så letar vi upp det åt dig.</p>
+              <p>För att anmälan ska kunna kopplas ihop med rätt kund hos oss behöver du ange två saker:</p>
+              <div className="bg-bg-primary rounded-3xl p-6 md:p-8 border border-text-primary/5 not-prose">
+                <dl className="space-y-5 text-base">
+                  <div>
+                    <dt className="font-bold text-text-primary">Ditt kundnummer</dt>
+                    <dd className="text-text-secondary mt-1">Står längst upp på din senaste faktura från oss, vid namn och adress. Hittar du det inte – mejla oss, så letar vi upp det åt dig.</dd>
+                  </div>
+                  <div>
+                    <dt className="font-bold text-text-primary">Mejladressen fakturan skickas till i dag</dt>
+                    <dd className="text-text-secondary mt-1">Alltså den adress du får dagens faktura på från oss. Det är den vi söker upp dig med i faktureringssystemet, så skriv den precis som den ser ut.</dd>
+                  </div>
+                </dl>
+              </div>
+              <p>Utöver det använder banken ditt <strong>personnummer</strong> för att adressera fakturan till rätt person, så anmälan behöver göras av den som fakturan står på i dag.</p>
               <p className="text-base">Vi ber dig <strong>aldrig</strong> om ditt personnummer, BankID eller bankuppgifter via mejl eller telefon. Får du ett sådant meddelande som ser ut att komma från oss: hör av dig innan du svarar.</p>
             </>
           ),
@@ -62,7 +76,7 @@ export default function EFaktura() {
             <>
               <p>Det här steget är viktigt: <strong>anmälan i banken räcker inte</strong> för att vi ska börja skicka e-faktura. Vi behöver ändra betalsättet på dig manuellt i vårt faktureringssystem, och det gör vi när du hört av dig.</p>
               <div className="bg-bg-dark text-text-light rounded-3xl p-6 md:p-8 not-prose">
-                <p className="text-text-light/80 mb-5 text-base">Skicka ett kort mejl när anmälan är gjord – klicka på knappen så är det mesta redan ifyllt.</p>
+                <p className="text-text-light/80 mb-5 text-base">Skicka ett kort mejl när anmälan är gjord, med ditt <strong className="text-text-light">kundnummer</strong> och den <strong className="text-text-light">mejladress fakturan går till i dag</strong>. Klicka på knappen så ligger fälten redan i mejlet.</p>
                 <a href={CONFIRM_MAIL} className="btn-primary bg-cta-hover text-text-primary hover:bg-white px-7 py-3.5 inline-flex items-center gap-2">
                   Bekräfta att jag anmält e-faktura
                 </a>
@@ -101,6 +115,8 @@ export default function EFaktura() {
         },
       ]}
       faq={[
+        { q: "Var hittar jag mitt kundnummer?", a: "Längst upp på din senaste faktura från oss, i samma ruta som namn och adress. Hittar du inte fakturan – mejla info@stodona.se så letar vi upp numret åt dig." },
+        { q: "Vilken mejladress ska jag ange?", a: "Den adress du får dina fakturor på från oss i dag. Det är den vi använder för att hitta rätt kund i faktureringssystemet när vi ska byta betalsätt." },
         { q: "Kostar e-faktura något?", a: "Nej. E-faktura är kostnadsfritt för dig, både hos oss och i din internetbank." },
         { q: "Är e-faktura samma sak som autogiro?", a: "Nej. Med e-faktura godkänner du varje faktura själv i internetbanken innan pengarna dras. Med autogiro dras beloppet automatiskt. E-faktura ger dig alltså kvar kontrollen över varje betalning." },
         { q: "Är e-faktura samma sak som faktura via e-post?", a: "Nej. En faktura via e-post är en PDF som du själv måste betala manuellt. En e-faktura kommer färdigifylld i din internetbank – du behöver bara godkänna den." },
@@ -114,6 +130,11 @@ export default function EFaktura() {
         { label: "RUT-avdrag", to: "/rut-avdrag" },
         { label: "Kontakt", to: "/kontakt" },
       ]}
+      heroImage={{
+        src: "/samarbete-hero.jpg",
+        alt: "Tre kvinnor i ett möte vid ett bord med utsikt över Stockholm",
+        position: "center 42%",
+      }}
       ctaHeading="Har du anmält e-faktura?"
       ctaText="Mejla oss en rad så byter vi över dig – sedan kommer fakturan direkt till din internetbank."
       ctaPrimary={{ label: "Bekräfta till oss", href: CONFIRM_MAIL }}

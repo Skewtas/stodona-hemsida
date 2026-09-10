@@ -32,6 +32,8 @@ export interface ContentPageProps {
   ctaHeading?: string;
   /** Ersätter boka-knappen, t.ex. med en mejllänk. */
   ctaPrimary?: { label: string; href: string };
+  /** Foto bakom heron. Slöjan läggs på automatiskt så texten håller kontrast. */
+  heroImage?: { src: string; alt: string; position?: string };
 }
 
 export default function ContentPage(p: ContentPageProps) {
@@ -81,7 +83,25 @@ export default function ContentPage(p: ContentPageProps) {
       </Helmet>
 
       {/* Hero */}
-      <section className="bg-bg-dark text-text-light pt-32 pb-16 md:pt-40 md:pb-20">
+      <section className="relative isolate overflow-hidden bg-bg-dark text-text-light pt-32 pb-16 md:pt-40 md:pb-24">
+        {p.heroImage && (
+          <>
+            <img
+              src={p.heroImage.src}
+              alt={p.heroImage.alt}
+              className="absolute inset-0 -z-10 w-full h-full object-cover"
+              style={{ objectPosition: p.heroImage.position ?? "center 45%" }}
+              width="1536"
+              height="1024"
+              loading="eager"
+              fetchPriority="high"
+            />
+            {/* Två slöjor: en jämn som dämpar hela fotot, och en från vänster
+                som gör bandet bakom rubrik och ingress mörkt nog för AA. */}
+            <div className="absolute inset-0 -z-10 bg-bg-dark/70 md:bg-bg-dark/50" />
+            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-bg-dark via-bg-dark/70 to-transparent" />
+          </>
+        )}
         <div className="container-custom max-w-3xl">
           <nav className="text-sm text-text-light/60 mb-5" aria-label="Brödsmulor">
             <Link to="/" className="hover:text-cta-hover">Hem</Link> <span className="mx-1.5">/</span>

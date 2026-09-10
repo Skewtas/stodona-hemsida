@@ -15,8 +15,10 @@ const MODEL = 'claude-opus-5';
 const MAX_MEDDELANDEN = 24;
 const MAX_TECKEN = 1500;
 
-/** Enkelt spärrband per IP så att en enskild besökare inte kan dra iväg med kostnaden. */
-const TAK_PER_TIMME = 40;
+/** Spärrband per IP så att ingen enskild besökare kan dra iväg med kostnaden.
+ *  Tilltaget så att flera personer bakom samma kontors- eller mobil-IP ryms:
+ *  ett vanligt samtal är fem till tio frågor. */
+const TAK_PER_TIMME = 80;
 
 const SYSTEM = `Du är Stodonas digitala assistent på stodona.se. Stodona AB (org.nr 559201-1059) är ett städbolag i Stockholm.
 

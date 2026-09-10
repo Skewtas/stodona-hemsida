@@ -182,7 +182,11 @@ export default async function handler(request: Request) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'Stodona Leads <onboarding@resend.dev>',
+            // Egen, verifierad domän. onboarding@resend.dev är Resends delade
+            // testdomän och landar ofta i skräpposten – DKIM ligger på
+            // resend._domainkey.stodona.se och send.stodona.se pekar mot
+            // Resend, så avsändaren nedan är signerad på riktigt.
+            from: 'Stodona Leads <info@stodona.se>',
             to: 'info@stodona.se',
             subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone}`,
             html: emailHtml,

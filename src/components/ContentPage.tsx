@@ -32,8 +32,10 @@ export interface ContentPageProps {
   ctaHeading?: string;
   /** Ersätter boka-knappen, t.ex. med en mejllänk. */
   ctaPrimary?: { label: string; href: string };
-  /** Foto bakom heron. Slöjan läggs på automatiskt så texten håller kontrast. */
-  heroImage?: { src: string; alt: string; position?: string };
+  /** Foto i heron. "split" ger två rutor bredvid varandra: foto till vänster,
+      rubriken i en mörk ruta till höger. Annars ligger fotot bakom texten,
+      med slöja så att kontrasten håller. */
+  heroImage?: { src: string; alt: string; position?: string; layout?: "backdrop" | "split" };
 }
 
 export default function ContentPage(p: ContentPageProps) {
@@ -83,35 +85,65 @@ export default function ContentPage(p: ContentPageProps) {
       </Helmet>
 
       {/* Hero */}
-      <section className="relative isolate overflow-hidden bg-bg-dark text-text-light pt-32 pb-16 md:pt-40 md:pb-24">
-        {p.heroImage && (
-          <>
-            <img
-              src={p.heroImage.src}
-              alt={p.heroImage.alt}
-              className="absolute inset-0 -z-10 w-full h-full object-cover"
-              style={{ objectPosition: p.heroImage.position ?? "center 45%" }}
-              width="1536"
-              height="1024"
-              loading="eager"
-              fetchPriority="high"
-            />
-            {/* Två slöjor: en jämn som dämpar hela fotot, och en från vänster
-                som gör bandet bakom rubrik och ingress mörkt nog för AA. */}
-            <div className="absolute inset-0 -z-10 bg-bg-dark/70 md:bg-bg-dark/50" />
-            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-bg-dark via-bg-dark/70 to-transparent" />
-          </>
-        )}
-        <div className="container-custom max-w-3xl">
-          <nav className="text-sm text-text-light/60 mb-5" aria-label="Brödsmulor">
-            <Link to="/" className="hover:text-cta-hover">Hem</Link> <span className="mx-1.5">/</span>
-            <span className="text-text-light/80">{p.breadcrumb}</span>
-          </nav>
-          <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="text-4xl md:text-6xl font-bold leading-tight mb-5">{p.title}</motion.h1>
-          <p className="text-lg text-text-light/80 leading-relaxed max-w-2xl">{p.intro}</p>
-        </div>
-      </section>
+      {p.heroImage?.layout === "split" ? (
+        <section className="bg-bg-primary pt-28 pb-10 md:pt-36 md:pb-14">
+          <div className="container-custom max-w-5xl">
+            <nav className="text-sm text-text-secondary mb-5" aria-label="Brödsmulor">
+              <Link to="/" className="hover:text-text-primary">Hem</Link> <span className="mx-1.5">/</span>
+              <span className="text-text-primary">{p.breadcrumb}</span>
+            </nav>
+            <div className="grid gap-4 md:gap-6 md:grid-cols-2">
+              <div className="rounded-3xl overflow-hidden aspect-[4/3] md:aspect-square">
+                <img
+                  src={p.heroImage.src}
+                  alt={p.heroImage.alt}
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: p.heroImage.position ?? "center" }}
+                  width="1536"
+                  height="1024"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              </div>
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+                className="rounded-3xl bg-bg-dark text-text-light p-8 md:p-12 flex flex-col justify-center min-h-[16rem] md:aspect-square">
+                <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.1] mb-4">{p.title}</h1>
+                <p className="text-text-light/80 leading-relaxed">{p.intro}</p>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="relative isolate overflow-hidden bg-bg-dark text-text-light pt-32 pb-16 md:pt-40 md:pb-24">
+          {p.heroImage && (
+            <>
+              <img
+                src={p.heroImage.src}
+                alt={p.heroImage.alt}
+                className="absolute inset-0 -z-10 w-full h-full object-cover"
+                style={{ objectPosition: p.heroImage.position ?? "center 45%" }}
+                width="1536"
+                height="1024"
+                loading="eager"
+                fetchPriority="high"
+              />
+              {/* Två slöjor: en jämn som dämpar hela fotot, och en från vänster
+                  som gör bandet bakom rubrik och ingress mörkt nog för AA. */}
+              <div className="absolute inset-0 -z-10 bg-bg-dark/70 md:bg-bg-dark/50" />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-bg-dark via-bg-dark/70 to-transparent" />
+            </>
+          )}
+          <div className="container-custom max-w-3xl">
+            <nav className="text-sm text-text-light/60 mb-5" aria-label="Brödsmulor">
+              <Link to="/" className="hover:text-cta-hover">Hem</Link> <span className="mx-1.5">/</span>
+              <span className="text-text-light/80">{p.breadcrumb}</span>
+            </nav>
+            <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+              className="text-4xl md:text-6xl font-bold leading-tight mb-5">{p.title}</motion.h1>
+            <p className="text-lg text-text-light/80 leading-relaxed max-w-2xl">{p.intro}</p>
+          </div>
+        </section>
+      )}
 
       {/* Svar först */}
       <AnswerFirst heading={p.answerHeading} answer={p.answer} facts={p.facts} />

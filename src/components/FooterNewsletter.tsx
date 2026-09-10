@@ -34,19 +34,23 @@ export default function FooterNewsletter() {
       <p className="text-xs text-text-light/60 mb-3">
         Få städtips, guider och exklusiva erbjudanden direkt i din inbox.
       </p>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      {/* min-w-0 krävs: ett flex-barn har min-width:auto, och input:ens
+          inbyggda bredd (size=20) hindrar annars flex-1 från att krympa, så
+          knappen trycks ut ur footerns smala mobilkolumn. flex-wrap låter
+          knappen hoppa ner på egen rad när kolumnen blir för trång. */}
+      <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Din e-postadress"
           required
-          className="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-text-light placeholder:text-text-light/40 focus:outline-none focus:ring-2 focus:ring-cta-hover/50 text-xs"
+          className="flex-1 basis-36 min-w-0 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-text-light placeholder:text-text-light/40 focus:outline-none focus:ring-2 focus:ring-cta-hover/50 text-xs"
         />
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-cta-hover text-text-primary font-bold rounded-lg hover:brightness-110 transition-all text-xs whitespace-nowrap disabled:opacity-50"
+          className="shrink-0 px-4 py-2 bg-cta-hover text-text-primary font-bold rounded-lg hover:brightness-110 transition-all text-xs whitespace-nowrap disabled:opacity-50"
         >
           {loading ? '...' : 'Prenumerera'}
         </button>

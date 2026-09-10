@@ -227,7 +227,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-grow">{children}</main>
 
       <footer className="bg-bg-dark text-text-light py-12 sm:py-20">
-        <div className="container-custom grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
+        <div className="container-custom grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-12">
           <div className="col-span-2 md:col-span-1">
             <Logo dark={true} className="mb-4 sm:mb-6" />
             <p className="text-text-light/70 text-sm leading-relaxed">
@@ -303,6 +303,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               )}
             </ul>
           </div>
+          {/* Företagslänkarna delade i två spalter – listan blev annars
+              dubbelt så lång som de andra och drog ut hela footern. */}
           <div>
             <h4 className="font-bold mb-6 uppercase text-xs tracking-wider text-text-light/50">
               {t('footer.company', lang)}
@@ -314,13 +316,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <Link to="/byta-stadbolag" className="hover:text-cta-hover transition-colors">
-                  Byta städbolag
+                <Link to="/sa-arbetar-vi" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Så arbetar vi' : 'How we work'}
                 </Link>
               </li>
               <li>
-                <Link to="/presentkort" className="hover:text-cta-hover transition-colors">
-                  Presentkort
+                <Link to="/kvalitet-och-trygghet" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Kvalitet & trygghet' : 'Quality & security'}
                 </Link>
               </li>
               <li>
@@ -329,48 +331,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <a href={bookingUrl()} className="hover:text-cta-hover transition-colors">
-                  {t('footer.priser', lang)}
-                </a>
-              </li>
-              <li>
-                <Link to="/kontakt" className="hover:text-cta-hover transition-colors">
-                  {t('footer.kontakt', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/stadabonnemang" className="hover:text-cta-hover transition-colors">Städabonnemang</Link>
-              </li>
-              <li>
-                <Link to="/rut-avdrag" className="hover:text-cta-hover transition-colors">RUT-avdrag</Link>
-              </li>
-              <li>
-                <Link to="/sa-arbetar-vi" className="hover:text-cta-hover transition-colors">Så arbetar vi</Link>
-              </li>
-              <li>
-                <Link to="/kvalitet-och-trygghet" className="hover:text-cta-hover transition-colors">Kvalitet &amp; trygghet</Link>
-              </li>
-              <li>
-                <Link to="/avbokning" className="hover:text-cta-hover transition-colors">Avbokning</Link>
-              </li>
-              <li>
-                <Link to="/kundportalen" className="hover:text-cta-hover transition-colors">
-                  {t('footer.kundportalen', lang)}
-                </Link>
-              </li>
-              <li>
-                <Link to="/varva-en-van" className="hover:text-cta-hover transition-colors">
-                  {t('footer.varvaenvan', lang)}
-                </Link>
-              </li>
-              <li>
                 <Link to="/samarbeten-och-affiliate" className="hover:text-cta-hover transition-colors">
                   {lang === 'SV' ? 'Samarbeten och affiliate' : 'Partnerships & affiliate'}
-                </Link>
-              </li>
-              <li>
-                <Link to="/visselblasning" className="hover:text-cta-hover transition-colors">
-                  {t('footer.visselblasning', lang)}
                 </Link>
               </li>
               <li>
@@ -379,13 +341,75 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-cta-hover transition-colors">
-                  FAQ
+                <Link to="/recensioner" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Recensioner' : 'Reviews'}
                 </Link>
               </li>
               <li>
-                <Link to="/recensioner" className="hover:text-cta-hover transition-colors">
-                  Recensioner
+                <Link to="/kontakt" className="hover:text-cta-hover transition-colors">
+                  {t('footer.kontakt', lang)}
+                </Link>
+              </li>
+              <li>
+                <Link to="/visselblasning" className="hover:text-cta-hover transition-colors">
+                  {t('footer.visselblasning', lang)}
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-6 uppercase text-xs tracking-wider text-text-light/50">
+              {lang === 'SV' ? 'För dig som kund' : 'For customers'}
+            </h4>
+            <ul className="flex flex-col gap-3 text-sm">
+              <li>
+                <a href={bookingUrl()} className="hover:text-cta-hover transition-colors">
+                  {t('footer.priser', lang)}
+                </a>
+              </li>
+              <li>
+                <Link to="/stadabonnemang" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Städabonnemang' : 'Cleaning subscription'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/rut-avdrag" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'RUT-avdrag' : 'RUT deduction'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/kundportalen" className="hover:text-cta-hover transition-colors">
+                  {t('footer.kundportalen', lang)}
+                </Link>
+              </li>
+              <li>
+                <Link to="/e-faktura" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'E-faktura' : 'E-invoice'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/avbokning" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Avbokning' : 'Cancellation'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/byta-stadbolag" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Byta städbolag' : 'Switch cleaning company'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/presentkort" className="hover:text-cta-hover transition-colors">
+                  {lang === 'SV' ? 'Presentkort' : 'Gift cards'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/varva-en-van" className="hover:text-cta-hover transition-colors">
+                  {t('footer.varvaenvan', lang)}
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="hover:text-cta-hover transition-colors">
+                  FAQ
                 </Link>
               </li>
             </ul>

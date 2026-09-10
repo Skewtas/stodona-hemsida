@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { HelpCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Helmet } from "../seo";
 import AnswerFirst from "./AnswerFirst";
+import SplitHero from "./SplitHero";
 import { bookingUrl } from "../utils/bookingUrl";
 
 export interface ContentSection {
@@ -86,31 +87,15 @@ export default function ContentPage(p: ContentPageProps) {
 
       {/* Hero */}
       {p.heroImage?.layout === "split" ? (
-        /* Rutorna går kant i kant och sitter ihop – headern är sticky och tar
-           redan sin plats i flödet, så heron behöver ingen toppmarginal. */
-        <section className="grid gap-0 md:grid-cols-2 bg-accent">
-          <div className="aspect-square overflow-hidden leading-[0]">
-            <img
-              src={p.heroImage.src}
-              alt={p.heroImage.alt}
-              className="w-full h-full object-cover"
-              style={{ objectPosition: p.heroImage.position ?? "center" }}
-              width="1536"
-              height="1024"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-            className={`flex flex-col justify-center px-8 py-12 md:px-14 lg:px-20 min-h-[100vw] md:min-h-0 md:aspect-square ${p.heroImage.panelClass ?? "bg-accent text-text-primary"}`}>
-            <nav className="text-sm text-text-primary/70 mb-5" aria-label="Brödsmulor">
-              <Link to="/" className="hover:text-text-primary">Hem</Link> <span className="mx-1.5">/</span>
-              <span className="text-text-primary">{p.breadcrumb}</span>
-            </nav>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] mb-5">{p.title}</h1>
-            <p className="text-lg md:text-xl leading-relaxed">{p.intro}</p>
-          </motion.div>
-        </section>
+        <SplitHero
+          src={p.heroImage.src}
+          alt={p.heroImage.alt}
+          position={p.heroImage.position}
+          panelClass={p.heroImage.panelClass}
+          breadcrumb={p.breadcrumb}
+          title={p.title}
+          intro={p.intro}
+        />
       ) : (
         <section className="relative isolate overflow-hidden bg-bg-dark text-text-light pt-32 pb-16 md:pt-40 md:pb-24">
           {p.heroImage && (

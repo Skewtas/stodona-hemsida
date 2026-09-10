@@ -1,8 +1,8 @@
 import { Helmet } from "../seo";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
 import { ShieldCheck, Star, Sparkles, Heart } from "lucide-react";
 import WhyStodona from "../components/WhyStodona";
+import SplitHero from "../components/SplitHero";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 
@@ -17,45 +17,22 @@ export default function OmOss() {
         <meta property="og:description" content="Stodona grundades 2019 med visionen att leverera wow-upplevelser inom städning. Lär känna oss!" />
         <link rel="canonical" href="https://stodona.se/om-oss" />
       </Helmet>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-bg-dark text-text-light">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/familj-stodona.jpg"
-            alt="Om Stodona Stockholm"
-            className="w-full h-full object-cover opacity-40"
-            width="1024"
-            height="1536"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </div>
-        <div className="container-custom relative z-10">
-          <div className="max-w-3xl">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6"
-            >
-              {lang === 'SV' ? 'Om Stodona.' : 'About Stodona.'}
-              <br />
-              <span className="italic font-normal text-cta-hover">
-                {lang === 'SV' ? 'Det lilla extra.' : 'The little extra.'}
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-lg md:text-xl text-text-light/80 mb-10 max-w-2xl leading-relaxed"
-            >
-              {lang === 'SV' ? 'Vilka är vi? Stodona är städbolaget som gör det lilla extra för sina kunder. Vi strävar efter att vara en partner som levererar en wow-upplevelse i varje steg.' : 'Who are we? Stodona is the cleaning company that goes the extra mile for its customers. We strive to be a partner that delivers a wow experience at every step.'}
-            </motion.p>
-          </div>
-        </div>
-      </section>
+      {/* Hero – samma tvådelade ruta som på e-fakturasidan */}
+      <SplitHero
+        src="/samarbete-hero.jpg"
+        alt={lang === 'SV' ? 'Tre kvinnor i ett möte vid ett bord med utsikt över Stockholm' : 'Three women in a meeting at a table overlooking Stockholm'}
+        breadcrumb={lang === 'SV' ? 'Om oss' : 'About us'}
+        title={<>
+          {lang === 'SV' ? 'Om Stodona.' : 'About Stodona.'}
+          <br />
+          <span className="italic font-normal">
+            {lang === 'SV' ? 'Det lilla extra.' : 'The little extra.'}
+          </span>
+        </>}
+        intro={lang === 'SV'
+          ? 'Vilka är vi? Stodona är städbolaget som gör det lilla extra för sina kunder. Vi strävar efter att vara en partner som levererar en wow-upplevelse i varje steg.'
+          : 'Who are we? Stodona is the cleaning company that goes the extra mile for its customers. We strive to be a partner that delivers a wow experience at every step.'}
+      />
 
       {/* Content Section */}
       <section className="section-spacing">

@@ -12,14 +12,18 @@
     "build:ssg": "bun scripts/fetch-prices.mjs || true; vite build && (node scripts/prerender.mjs || echo prerender_skipped) && bun scripts/indexnow.mjs --if-vercel",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "chat:kb": "node scripts/build-chat-kb.mjs"
   },
   "reactSnap": {
     "source": "dist",
     "minifyHtml": {
       "collapseWhitespace": false
     },
-    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ],
     "inlineCss": false,
     "include": [
       "/",

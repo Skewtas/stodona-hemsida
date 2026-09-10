@@ -32,15 +32,12 @@ export default function EFaktura() {
         {
           heading: "1. Anmäl i din internetbank",
           body: (
-            <>
-              <ol className="list-decimal pl-6 space-y-2 marker:font-bold marker:text-text-primary">
-                <li>Gå till <strong>Betala &amp; överföra</strong> → <strong>E-faktura</strong> → <strong>Anmäl ny</strong>.</li>
-                <li>Sök på <strong>Stodona</strong> och välj <strong>Stodona AB</strong> (org.nr 559201-1059).</li>
-                <li>Ange ditt <strong>kundnummer</strong> och din <strong>fakturamejladress</strong>.</li>
-                <li>Signera med BankID.</li>
-              </ol>
-              <p className="text-base">Har du Swedbank, Sparbankerna eller Nordea kan du i stället slå på <strong>”Ja till e-faktura”</strong> – då kommer våra fakturor med automatiskt.</p>
-            </>
+            <ol className="list-decimal pl-6 space-y-2 marker:font-bold marker:text-text-primary">
+              <li>Gå till <strong>Betala &amp; överföra</strong> → <strong>E-faktura</strong> → <strong>Anmäl ny</strong>.</li>
+              <li>Sök på <strong>Stodona</strong> och välj <strong>Stodona AB</strong> (org.nr 559201-1059).</li>
+              <li>Ange ditt <strong>kundnummer</strong> och din <strong>fakturamejladress</strong>.</li>
+              <li>Signera med BankID.</li>
+            </ol>
           ),
         },
         {

@@ -6,7 +6,6 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
 import StickyCTA from "./StickyCTA";
-import ChatWidget from "./ChatWidget";
 import FooterNewsletter from "./FooterNewsletter";
 import UspMarquee from "./UspMarquee";
 import LiveBookingToast from "./LiveBookingToast";
@@ -471,7 +470,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
-      {!isInfluencerPage && <ChatWidget />}
+      {/* Chatten är avstängd tills den är helt färdig. Koden ligger kvar i
+          src/components/ChatWidget.tsx och api/chat.ts – sätt tillbaka den här
+          raden plus CHAT_ENABLED och VITE_CHAT_ENABLED i Vercel för att slå på
+          den igen. */}
       {!isBabysittingPage && !isInfluencerPage && (
         <>
           <StickyCTA />

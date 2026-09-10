@@ -305,6 +305,11 @@ const BYGGE = (process.env.VERCEL_GIT_COMMIT_SHA || 'lokal').slice(0, 7);
 
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return fel(405, 'Method not allowed');
+
+  // Avstängd som standard. Endpointen svarar först när CHAT_ENABLED=true är
+  // satt i miljön, så den kan inte kosta något medan chatten byggs klart.
+  if (process.env.CHAT_ENABLED !== 'true') return fel(503, 'Chatten är avstängd.');
+
   if (!franSajten(request)) return fel(403, 'Chatten kan bara användas från stodona.se.');
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

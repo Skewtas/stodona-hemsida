@@ -100,8 +100,8 @@ const translations: TranslationMap = {
     },
     'home.promise.cta': { SV: 'Boka städning', EN: 'Book cleaning' },
     'home.promise.imageAlt': {
-        SV: 'Städhandskar på en marmorbänk',
-        EN: 'Cleaning gloves on a marble counter',
+        SV: 'Tre kvinnor i ett möte vid ett bord med utsikt över Stockholm',
+        EN: 'Three women in a meeting at a table overlooking Stockholm',
     },
 
     // ─── HOME: Reviews ─────────────────────────────────────────────────

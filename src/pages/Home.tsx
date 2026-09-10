@@ -236,13 +236,17 @@ export default function Home() {
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
             <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              {/* Samma mötesbild som ligger på e-fakturasidan, men som WebP:
+                  174 kB i stället för 263 kB. Rutan är kvadratisk på desktop,
+                  så bilden beskärs av CSS – object-position styr vilken del av
+                  det liggande fotot som får synas. */}
               <img
-                src="/stodona-stad.jpg"
+                src="/kundlofte-mote.webp"
                 alt={t('home.promise.imageAlt', lang)}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover object-center"
                 loading="lazy"
-                width={1366}
-                height={768}
+                width={1536}
+                height={1024}
               />
             </div>
 

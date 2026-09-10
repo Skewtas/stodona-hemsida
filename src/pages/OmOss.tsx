@@ -1,8 +1,9 @@
 import { Helmet } from "../seo";
 import { Link } from "react-router-dom";
-import { ShieldCheck, Star, Sparkles, Heart } from "lucide-react";
+import { ShieldCheck, Star, Sparkles, Heart, ArrowRight } from "lucide-react";
 import WhyStodona from "../components/WhyStodona";
 import SplitHero from "../components/SplitHero";
+import { bookingUrl } from "../utils/bookingUrl";
 import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 
@@ -32,6 +33,11 @@ export default function OmOss() {
         intro={lang === 'SV'
           ? 'Vilka är vi? Stodona är städbolaget som gör det lilla extra för sina kunder. Vi strävar efter att vara en partner som levererar en wow-upplevelse i varje steg.'
           : 'Who are we? Stodona is the cleaning company that goes the extra mile for its customers. We strive to be a partner that delivers a wow experience at every step.'}
+        cta={
+          <a href={bookingUrl()} className="btn-primary px-7 py-3.5 inline-flex items-center gap-2">
+            {t('home.hero.cta1', lang)} <ArrowRight className="w-5 h-5" />
+          </a>
+        }
       />
 
       {/* Content Section */}

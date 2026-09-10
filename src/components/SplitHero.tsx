@@ -12,6 +12,8 @@ export interface SplitHeroProps {
   breadcrumb?: string;
   title: React.ReactNode;
   intro: React.ReactNode;
+  /** Knapp(ar) under ingressen, t.ex. en bokningsknapp. */
+  cta?: React.ReactNode;
 }
 
 /**
@@ -20,7 +22,7 @@ export interface SplitHeroProps {
  * flödet, så heron behöver ingen toppmarginal. Rutnätet har gap-0 och
  * sektionen samma botten som rutan, så ingen ljus söm kan glida fram.
  */
-export default function SplitHero({ src, alt, position, panelClass, breadcrumb, title, intro }: SplitHeroProps) {
+export default function SplitHero({ src, alt, position, panelClass, breadcrumb, title, intro, cta }: SplitHeroProps) {
   return (
     <section className="grid gap-0 md:grid-cols-2 bg-accent">
       <div className="aspect-square overflow-hidden leading-[0]">
@@ -45,6 +47,7 @@ export default function SplitHero({ src, alt, position, panelClass, breadcrumb, 
         )}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] mb-5">{title}</h1>
         <p className="text-lg md:text-xl leading-relaxed">{intro}</p>
+        {cta && <div className="mt-8 flex flex-wrap gap-3">{cta}</div>}
       </motion.div>
     </section>
   );

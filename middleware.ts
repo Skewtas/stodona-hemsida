@@ -6,12 +6,19 @@
 // fallback i koden nedan. Fallbacken ligger alltså i klartext i detta repo,
 // som är publikt. Cookie-token = sha256(lösenordet).
 //
-// Byt URL: uppdatera PAGE_PATH här, matcher nedan, route i App.tsx samt
-// safeNext/PAGE_PATH i api/influencer-auth.ts.
+// Byt URL: uppdatera matcher nedan, route i App.tsx samt GATED_PATHS/PAGE_PATH
+// i api/influencer-auth.ts.
 import { next } from "@vercel/edge";
 
+// Måste hållas i synk med GATED_PATHS i api/influencer-auth.ts och med
+// routerna i App.tsx. Läggs en ny adress till i App.tsx utan att den står här
+// blir sidan publik.
 export const config = {
-  matcher: ["/influencersamarbete", "/influencersamarbete-9f3c7a2b"],
+  matcher: [
+    "/min-partnersida",
+    "/influencersamarbete",
+    "/influencersamarbete-9f3c7a2b",
+  ],
 };
 
 async function sha256hex(s: string): Promise<string> {
@@ -30,7 +37,7 @@ function loginPage(showError: boolean, path: string): string {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Stodonas influencersamarbete</title>
+<title>Min partnersida | Stodona</title>
 <style>
   :root { --bg:#f4f1eb; --ink:#151515; --muted:#6f6a63; --accent:#c8b6a6; }
   * { box-sizing:border-box; }
@@ -74,14 +81,14 @@ function loginPage(showError: boolean, path: string): string {
   <div class="card">
     <img class="logo" src="/logotyp.png?v=2" alt="Stodona" />
     <span class="badge">✦ Endast för inbjudna</span>
-    <h1>Välkommen till Stodonas influencersamarbete</h1>
+    <h1>Välkommen till din partnersida</h1>
     <p>Ange lösenordet du har fått av din kontaktperson på Stodona.</p>
     ${error}
     <form method="POST" action="/api/influencer-auth">
       <input type="hidden" name="next" value="${path}" />
       <label for="pw">Lösenord</label>
       <input id="pw" name="password" type="password" autocomplete="current-password" autofocus required />
-      <button type="submit">Öppna samarbetssidan</button>
+      <button type="submit">Öppna min partnersida</button>
     </form>
     <p class="foot">Har du inte fått något lösenord? Kontakta din kontaktperson på Stodona.</p>
   </div>

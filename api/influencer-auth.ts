@@ -6,7 +6,15 @@
 
 export const config = { runtime: "edge" };
 
-const PAGE_PATH = "/influencersamarbete";
+// Sidan heter numera Min partnersida. De gamla adresserna ligger kvar som
+// alias – gamla mejl och DM ska inte sluta fungera – och grindas likadant.
+// Måste hållas i synk med matcher i middleware.ts.
+const PAGE_PATH = "/min-partnersida";
+const GATED_PATHS = [
+  "/min-partnersida",
+  "/influencersamarbete",
+  "/influencersamarbete-9f3c7a2b",
+];
 const MAX_AGE = 60 * 60 * 12; // 12 timmar
 
 async function sha256hex(s: string): Promise<string> {
@@ -17,7 +25,9 @@ async function sha256hex(s: string): Promise<string> {
 }
 
 function safeNext(next: string | null): string {
-  return next && next.startsWith("/influencersamarbete") ? next : PAGE_PATH;
+  // Exakt matchning, inte startsWith: annars duger "/min-partnersida.evil.com"
+  // som öppen vidarebefordran efter inloggning.
+  return next && GATED_PATHS.includes(next) ? next : PAGE_PATH;
 }
 
 export default async function handler(request: Request): Promise<Response> {

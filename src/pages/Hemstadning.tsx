@@ -18,6 +18,13 @@ import ServiceSchema from "../components/ServiceSchema";
 import { Helmet } from "../seo";
 import AnswerFirst from "../components/AnswerFirst";
 import { bookingUrl } from "../utils/bookingUrl";
+import { prisFor } from "../data/prices.generated";
+
+// Priserna kommer från prismotorn via scripts/fetch-prices.mjs – aldrig
+// handskrivna, så sidan kan inte glida isär från bokningen.
+const kr = (n: number) => `${Math.round(n).toLocaleString("sv-SE")} kr`;
+const TREA = prisFor(85);
+const MINSTA = prisFor(45);
 
 export default function Hemstadning() {
   const hemstadningFaq = [
@@ -164,9 +171,9 @@ export default function Hemstadning() {
 
       <AnswerFirst
         heading="Kort om hemstädning i Stockholm"
-        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Priset baseras på bostadens storlek och hur ofta du städar, och med RUT-avdraget betalar du bara halva arbetskostnaden. Du ser ditt pris direkt i bokningen, och vill du hellre ha ett fast pris ordnar vi det.</>}
+        answer={<>Hemstädning är regelbunden eller enstaka städning av hemmet – kök, badrum, ytor, golv och damning. Hos Stodona får du <strong className="text-text-primary">samma team varje gång</strong>, miljövänliga produkter och nöjd-kund-garanti. Priset baseras på bostadens storlek och hur ofta du städar: en trea på cirka 85 kvm som städas varannan vecka kostar <strong className="text-text-primary">{kr(TREA.utanBindning)} per städtillfälle</strong> efter RUT-avdrag, eller <strong className="text-text-primary">{kr(TREA.m12)}</strong> med tolv månaders abonnemang. Du ser ditt exakta pris direkt i bokningen, och vill du hellre ha ett fast pris ordnar vi det.</>}
         facts={[
-          { label: "Pris", value: "Efter storlek – halva efter RUT" },
+          { label: "Pris", value: `Från ${kr(MINSTA.utanBindning)} per tillfälle` },
           { label: "RUT-avdrag", value: "50 % dras direkt" },
           { label: "Områden", value: "Stockholm med omnejd" },
           { label: "Bindningstid", value: "Ingen" },

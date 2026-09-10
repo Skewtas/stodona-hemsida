@@ -6,6 +6,11 @@ import TrustBar from "../components/TrustBar";
 import { CheckCircle2, ShieldCheck, Clock, Star, HelpCircle, ArrowRight } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { bookingUrl } from "../utils/bookingUrl";
+import { prisFor } from "../data/prices.generated";
+
+// Priserna kommer från prismotorn via scripts/fetch-prices.mjs.
+const kr = (n: number) => `${Math.round(n).toLocaleString("sv-SE")} kr`;
+const TREA = prisFor(85);
 
 /** Stegen i bokningen – samma flöde oavsett vilken tjänst du bokar. */
 const STEPS = [
@@ -55,8 +60,8 @@ const FAQS = [
     en: { q: "Do I need to be home during the cleaning?", a: "No. Most of our customers leave a key that we store securely, or a door code. We are fully insured." },
   },
   {
-    sv: { q: "Vad kostar det?", a: "Priset baseras på bostadens storlek och hur ofta du städar. Med RUT-avdraget betalar du bara halva arbetskostnaden, och du ser ditt pris direkt i bokningen – vi kan även ge fast pris per tillfälle." },
-    en: { q: "What does it cost?", a: "The price is based on the size of your home and how often you book. With the RUT deduction you pay only half the labour cost, and you see your price directly when booking – we can also offer a fixed price per occasion." },
+    sv: { q: "Vad kostar det?", a: `Priset baseras på bostadens storlek och hur ofta du städar. En trea på cirka 85 kvm varannan vecka kostar ${kr(TREA.utanBindning)} per tillfälle efter RUT, eller ${kr(TREA.m12)} med tolv månaders abonnemang. Du ser ditt pris direkt i bokningen – vi kan även ge fast pris per tillfälle.` },
+    en: { q: "What does it cost?", a: `The price is based on the size of your home and how often you book. A three-room flat of about 85 sqm cleaned every other week costs ${TREA.utanBindning} SEK per visit after the RUT deduction, or ${TREA.m12} SEK with a twelve-month subscription. You see your price directly when booking – we can also offer a fixed price per occasion.` },
   },
   {
     sv: { q: "Hur betalar jag?", a: "Vi skickar faktura efter utförd tjänst med 10 dagars betalningsvillkor. RUT-avdraget är redan avdraget på fakturan." },
@@ -280,13 +285,17 @@ export default function BokaStadning() {
             <p className="text-text-secondary leading-relaxed mb-4">
               {sv ? (
                 <>
-                  Priset baseras på <strong className="text-text-primary">bostadens storlek</strong>. Som privatperson betalar
+                  Priset baseras på <strong className="text-text-primary">bostadens storlek</strong> – en trea på cirka
+                  85 kvm varannan vecka kostar <strong className="text-text-primary">{kr(TREA.utanBindning)}</strong> per
+                  tillfälle efter RUT. Som privatperson betalar
                   du bara halva arbetskostnaden tack vare RUT-avdraget – vi drar av det direkt på fakturan och sköter all
                   administration med Skatteverket. Du ser ditt pris innan du bekräftar bokningen.
                 </>
               ) : (
                 <>
-                  The price is based on <strong className="text-text-primary">the size of your home</strong>. As a private individual
+                  The price is based on <strong className="text-text-primary">the size of your home</strong> – a
+                  three-room flat of about 85 sqm cleaned every other week costs{" "}
+                  <strong className="text-text-primary">{TREA.utanBindning} SEK</strong> per visit after RUT. As a private individual
                   you pay only half the labour cost thanks to the RUT deduction – we apply it directly on the invoice and
                   handle all administration with the Swedish Tax Agency. You see your price before confirming.
                 </>

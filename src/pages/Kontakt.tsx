@@ -40,7 +40,7 @@ const ERRANDS: Errand[] = [
     to: "/avbokning",
   },
   {
-    sv: { title: "Pris- eller offertförfrågan", text: "Se prisexempel och timpris på prissidan, eller be oss räkna fram ett fast pris för ditt hem.", action: "Se priser" },
+    sv: { title: "Pris- eller offertförfrågan", text: "Se prisexempel per bostadsstorlek på prissidan, eller be oss räkna fram ett fast pris för ditt hem.", action: "Se priser" },
     en: { title: "Price or quote request", text: "See price examples and the hourly rate on our pricing page, or ask us for a fixed price for your home.", action: "See prices" },
     to: "/priser",
   },

@@ -119,25 +119,54 @@ export default async function handler(request: Request) {
 
   const client = new Anthropic({ apiKey });
 
-  try {
-    const stream = client.messages.stream({
-      model: MODEL,
-      max_tokens: 1024,
-      // Låg effort håller svaren snabba; systemprompten cachas så att bara det
-      // nya i samtalet betalas full peng.
-      output_config: { effort: 'low' },
-      system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-      messages: meddelanden,
-    });
+  const stream = client.messages.stream({
+    model: MODEL,
+    max_tokens: 1024,
+    // Låg effort håller svaren snabba; systemprompten cachas så att bara det
+    // nya i samtalet betalas full peng.
+    output_config: { effort: 'low' },
+    system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+    messages: meddelanden,
+  });
 
+  // Vi väntar in första händelsen innan svaret börjar skickas. Då hinner ett
+  // trasigt anrop – fel nyckel, slut på kredit, spärr – bli en riktig
+  // felstatus i stället för en 200 med en ursäkt i texten.
+  const iterator = stream[Symbol.asyncIterator]();
+  let forsta: IteratorResult<Anthropic.MessageStreamEvent>;
+  try {
+    forsta = await iterator.next();
+  } catch (fel) {
+    const slag = fel instanceof Anthropic.APIError ? (fel.error as { error?: { type?: string } })?.error?.type ?? String(fel.status) : 'okant_fel';
+    console.error('chat: anropet mot Claude misslyckades:', fel);
+    return new Response(
+      JSON.stringify({ error: 'Kunde inte nå assistenten just nu.' }),
+      {
+        status: 502,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store',
+          // Bara felslaget, aldrig nyckel eller meddelande – så går det att se
+          // utifrån om det är fel nyckel eller slut på kredit.
+          'X-Chat-Error': slag,
+        },
+      }
+    );
+  }
+
+  try {
     const kodare = new TextEncoder();
     const utstrom = new ReadableStream({
       async start(controller) {
+        const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
+          if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
+            controller.enqueue(kodare.encode(handelse.delta.text));
+          }
+        };
         try {
-          for await (const handelse of stream) {
-            if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
-              controller.enqueue(kodare.encode(handelse.delta.text));
-            }
+          if (!forsta.done) skrivDelta(forsta.value);
+          for (let steg = await iterator.next(); !steg.done; steg = await iterator.next()) {
+            skrivDelta(steg.value);
           }
           const slutgiltigt = await stream.finalMessage();
           if (slutgiltigt.stop_reason === 'refusal') {

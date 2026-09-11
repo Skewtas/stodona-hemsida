@@ -1,13 +1,75 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig, loadEnv, type Plugin, type ViteDevServer} from 'vite';
+
+/**
+ * Lokal testmiljö för chatten. Vite kör inte Vercels funktioner, så i dev
+ * kopplar den här pluginen /api/chat direkt till api/chat.ts. Den gäller bara
+ * `vite` (dev) – aldrig `vite build` – och påverkar alltså inte produktion.
+ *
+ * STODONA_LOKAL=true får api/chat.ts att hålla samtalet i minnet och att
+ * logga lead i terminalen i stället för att mejla kundservice.
+ */
+function lokalChatApi(env: Record<string, string>): Plugin {
+  return {
+    name: 'stodona-lokal-chat-api',
+    apply: 'serve',
+    configureServer(server: ViteDevServer) {
+      for (const [nyckel, varde] of Object.entries(env)) {
+        if (!(nyckel in process.env)) process.env[nyckel] = varde;
+      }
+      process.env.STODONA_LOKAL = 'true';
+      process.env.CHAT_ENABLED = 'true';
+
+      server.middlewares.use('/api/chat', async (req, res) => {
+        try {
+          const modul = await server.ssrLoadModule('/api/chat.ts');
+
+          const bitar: Buffer[] = [];
+          for await (const bit of req) bitar.push(bit as Buffer);
+
+          const headers = new Headers();
+          for (const [k, v] of Object.entries(req.headers)) {
+            if (typeof v === 'string') headers.set(k, v);
+            else if (Array.isArray(v)) headers.set(k, v.join(', '));
+          }
+
+          const url = `http://${req.headers.host}${req.originalUrl ?? req.url ?? '/api/chat'}`;
+          const request = new Request(url, {
+            method: req.method,
+            headers,
+            body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(bitar),
+          });
+
+          const svar: Response = await modul.default(request);
+          res.statusCode = svar.status;
+          svar.headers.forEach((v, k) => res.setHeader(k, v));
+          if (svar.body) {
+            const lasare = svar.body.getReader();
+            for (;;) {
+              const {done, value} = await lasare.read();
+              if (done) break;
+              res.write(value);
+            }
+          }
+          res.end();
+        } catch (fel) {
+          server.config.logger.error(`[lokal chat] ${fel instanceof Error ? fel.stack : String(fel)}`);
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({error: 'Lokalt fel i /api/chat – se terminalen.'}));
+        }
+      });
+    },
+  };
+}
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), lokalChatApi(env)],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },

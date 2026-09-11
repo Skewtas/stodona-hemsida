@@ -38,10 +38,10 @@ function samtalsId(): string {
   }
 }
 
-// Chatten är avstängd tills VITE_CHAT_ENABLED=true är satt i Vercel. Utan
-// ANTHROPIC_API_KEY på servern kan boten ändå inte svara, och en bubbla som
-// bara säger "jag når inte assistenten" är sämre än ingen bubbla alls.
-const PASLAGEN = import.meta.env.VITE_CHAT_ENABLED === "true";
+// Alltid på i den lokala testmiljön. I ett produktionsbygge krävs
+// VITE_CHAT_ENABLED=true – men Layout monterar ändå bara widgeten i dev tills
+// chatten är färdig.
+const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "true";
 
 const TEXT = {
   SV: {
@@ -82,18 +82,25 @@ const TEXT = {
   },
 };
 
-/** Gör råa länkar i botens svar klickbara. */
+// Allt som ser ut som en adress plockas ut som en enhet och blir bara en länk
+// om HELA adressens värd är vår egen. "stodona.se.evil.example",
+// "evil.example/stodona.se" och "info@stodona.se" förblir alltså vanlig text.
+// Boten skriver korta länkar som "boka.stodona.se", med eller utan https.
+const ADRESS = /((?<![\w@.-])(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/[^\s<>()]*[^\s<>().,!?])?)/gi;
+
+/** Gör länkar till våra egna adresser i botens svar klickbara. */
 function medLankar(text: string) {
-  const bitar = text.split(/(https?:\/\/[^\s<>()]+[^\s<>().,!?])/g);
-  return bitar.map((bit, i) =>
-    /^https?:\/\//.test(bit) && egenLank(bit) ? (
-      <a key={i} href={bit} target="_blank" rel="noopener noreferrer" className="underline break-words hover:text-cta-hover">
+  // split med en fångstgrupp lägger varje träff på udda index.
+  return text.split(ADRESS).map((bit, i) => {
+    const url = /^https?:\/\//i.test(bit) ? bit : `https://${bit}`;
+    return i % 2 === 1 && egenLank(url) ? (
+      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="underline break-words hover:text-cta-hover">
         {bit.replace(/^https?:\/\//, "")}
       </a>
     ) : (
       <span key={i}>{bit}</span>
-    )
-  );
+    );
+  });
 }
 
 export default function ChatWidget() {

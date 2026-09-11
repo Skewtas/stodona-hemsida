@@ -6,6 +6,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { t } from "../translations";
 import CookieConsent from "./CookieConsent";
 import StickyCTA from "./StickyCTA";
+import ChatWidget from "./ChatWidget";
 import FooterNewsletter from "./FooterNewsletter";
 import UspMarquee from "./UspMarquee";
 import LiveBookingToast from "./LiveBookingToast";
@@ -470,10 +471,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <CookieConsent />
-      {/* Chatten är avstängd tills den är helt färdig. Koden ligger kvar i
-          src/components/ChatWidget.tsx och api/chat.ts – sätt tillbaka den här
-          raden plus CHAT_ENABLED och VITE_CHAT_ENABLED i Vercel för att slå på
-          den igen. */}
+      {/* Chatten finns bara i den lokala testmiljön (`vite`, dev) tills den är
+          helt färdig. import.meta.env.DEV är false i `vite build`, så widgeten
+          tas bort helt ur produktionsbygget. */}
+      {import.meta.env.DEV && !isInfluencerPage && <ChatWidget />}
       {!isBabysittingPage && !isInfluencerPage && (
         <>
           <StickyCTA />

@@ -264,7 +264,7 @@ Privatpersoner betalar 50 % av arbetskostnaden. Stodona drar av det direkt på f
 
 BETALNING OCH FAKTURA
 Privatpersoner 10 dagars betalningsvillkor, företag 30 dagar. RUT-avdraget är redan avdraget på fakturan.
-E-faktura: kunden anmäler Stodona AB i sin internetbank med sitt kundnummer och den mejladress fakturan går till, och mejlar oss att det är gjort. Kundnumret står överst på fakturan eller i kundportalen. Guide: stodona.se/e-faktura
+E-faktura: kunden anmäler Stodona AB som e-fakturaUTSTÄLLARE (Stodona skickar fakturan – kunden är mottagaren) i sin internetbank, med sitt kundnummer och den mejladress fakturan går till i dag, och mejlar sedan info@stodona.se att det är gjort. Kundnumret står överst på fakturan eller i kundportalen. Guide: stodona.se/e-faktura
 
 NÖJD KUND
 Anmärkningar ska komma inom 24 timmar efter avslutad städning, gärna med bilder. Vad som händer sedan bestämmer kundservice – lova inget själv.

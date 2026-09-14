@@ -51,18 +51,18 @@ const TAK_LEAD_PER_SAMTAL = 3;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
-const SYSTEM = `Du är Stodonas kundservice i chatten på stodona.se. Stodona är ett städbolag i Stockholm.
+const SYSTEM = `Du är Stodonas digitala kundservice i chatten på stodona.se. Stodona är ett städbolag i Stockholm.
 
-HUR DU SKRIVER – DET HÄR ÄR VIKTIGAST
-- Det är en chatt. Ett till tre korta meningar per meddelande, normalt under 40 ord. Längre bara när kunden uttryckligen ber om detaljer, till exempel vad som ingår i en tjänst.
-- Inga punktlistor, rubriker, tabeller eller fetstil. Skriv som en människa skriver i en chatt.
-- En fråga per meddelande.
-- Skriv vanliga länkar kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
-- UNDANTAG: en länk som ett verktyg gett dig skriver du av EXAKT, tecken för tecken, hela adressen. Korta den aldrig och hitta aldrig på ett eget id – då slutar den fungera för kunden.
-- Svara på samma språk som kunden skriver på.
-- Säg inte att du är en AI, bot eller assistent. Frågar kunden rakt ut: du är Stodonas digitala kundservice.
+Stodonas regler nedan styr allt du skriver: ton, längd, vad du får lova, vilka frågor du ställer och när du lämnar över. Följ dem noga. Exempelformuleringarna i reglerna är Stodonas egna – använd dem och variera dem.
 
 ${RIKTLINJER}
+
+TEKNISKT FÖR CHATTEN
+- Skriv som i en chatt: inga punktlistor, rubriker, tabeller eller fetstil.
+- En länk som ett verktyg gett dig skriver du av EXAKT, tecken för tecken, hela adressen. Korta den aldrig och hitta aldrig på ett eget id.
+- Andra länkar skriver du kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
+- Svara på samma språk som kunden skriver på.
+- Säg inte att du är en AI eller bot. Frågar kunden rakt ut: du är Stodonas digitala kundservice.
 
 SÅ HÄR LÅTER ETT BRA SAMTAL
 Exemplen visar ton och längd. Kopiera dem inte ordagrant – anpassa efter vad kunden faktiskt skriver.
@@ -173,7 +173,7 @@ const VERKTYG: Anthropic.Tool[] = [
   {
     name: 'eskalera_till_kundservice',
     description:
-      'Lämnar över ärendet till en människa på Stodonas kundservice. Använd vid befintliga bokningar, ombokning, avbokning, paus, uppsägning, fakturor, reklamationer, skador, nycklar, larm, personuppgifter och allt annat som kräver systemåtkomst eller ett beslut. Skicka med en sammanfattning så att kunden slipper börja om. Ta inte med personnummer, koder eller andra känsliga uppgifter.',
+      'Lämnar över ärendet till en människa på Stodonas kundservice. Innan du använder verktyget: ta reda på kundens namn, en kontaktuppgift och vilken bokning det gäller (dag, adress eller tjänst) – en fråga i taget. Det ska med i sammanfattningen enligt regel 22. Använd vid befintliga bokningar, ombokning, avbokning, paus, uppsägning, fakturor, reklamationer, skador, nycklar, larm, personuppgifter och allt annat som kräver systemåtkomst eller ett beslut. Skicka med en sammanfattning så att kunden slipper börja om. Ta inte med personnummer, koder eller andra känsliga uppgifter.',
     input_schema: {
       type: 'object',
       properties: {
@@ -475,7 +475,7 @@ async function koraVerktyg(
   const bekraftelse =
     namn === 'skicka_lead'
       ? 'Skickat till kundservice. Bekräfta för besökaren att någon hör av sig, utan att lova en tidpunkt och utan att upprepa kontaktuppgifterna.'
-      : 'Överlämnat till kundservice. Bekräfta för besökaren att ärendet är vidarelämnat, utan att lova en tidpunkt eller ett besked och utan att upprepa kontaktuppgifterna.';
+      : 'Överlämnat till kundservice. Säg till kunden med Stodonas formulering från regel 21: "Jag skickar detta vidare till kundservice för kontroll." Lova inte att det går att ordna, inte när de hör av sig och inte vad beskedet blir. Upprepa inte kontaktuppgifterna.';
 
   // Testmiljön mejlar aldrig kundservice – leadet skrivs ut i terminalen.
   if (LOKAL) {

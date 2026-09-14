@@ -19,6 +19,11 @@ const TILLATNA_VARDAR = ["stodona.se", "www.stodona.se", "boka.stodona.se", "sto
 function egenLank(url: string): boolean {
   try {
     const u = new URL(url);
+    // I den lokala testmiljön pekar bokningslänken på bokningsmodulens
+    // dev-server. De adresserna tillåts bara i dev, aldrig i produktionsbygget.
+    if (import.meta.env.DEV && u.protocol === "http:" && (u.hostname === "127.0.0.1" || u.hostname === "localhost")) {
+      return true;
+    }
     return u.protocol === "https:" && TILLATNA_VARDAR.includes(u.host);
   } catch {
     return false;
@@ -86,7 +91,7 @@ const TEXT = {
 // om HELA adressens värd är vår egen. "stodona.se.evil.example",
 // "evil.example/stodona.se" och "info@stodona.se" förblir alltså vanlig text.
 // Boten skriver korta länkar som "boka.stodona.se", med eller utan https.
-const ADRESS = /((?<![\w@.-])(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}(?:\/[^\s<>()]*[^\s<>().,!?])?)/gi;
+const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})(?:\/[^\s<>()]*[^\s<>().,!?])?)/gi;
 
 /** Gör länkar till våra egna adresser i botens svar klickbara. */
 function medLankar(text: string) {

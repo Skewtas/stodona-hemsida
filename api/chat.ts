@@ -57,7 +57,8 @@ HUR DU SKRIVER – DET HÄR ÄR VIKTIGAST
 - Det är en chatt. Ett till tre korta meningar per meddelande, normalt under 40 ord. Längre bara när kunden uttryckligen ber om detaljer, till exempel vad som ingår i en tjänst.
 - Inga punktlistor, rubriker, tabeller eller fetstil. Skriv som en människa skriver i en chatt.
 - En fråga per meddelande.
-- Skriv länkar kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
+- Skriv vanliga länkar kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
+- UNDANTAG: en länk som ett verktyg gett dig skriver du av EXAKT, tecken för tecken, hela adressen. Korta den aldrig och hitta aldrig på ett eget id – då slutar den fungera för kunden.
 - Svara på samma språk som kunden skriver på.
 - Säg inte att du är en AI, bot eller assistent. Frågar kunden rakt ut: du är Stodonas digitala kundservice.
 
@@ -84,6 +85,12 @@ const MAX_SVARSTOKENS = 1024;
 
 const TJANSTER = ['Hemstädning', 'Storstädning', 'Flyttstädning', 'Fönsterputsning', 'Företagsstädning', 'Byggstädning'];
 const FREKVENSER = ['Engång', 'Varje vecka', 'Varannan vecka', 'Var tredje vecka', 'Var fjärde vecka'];
+const NYCKELHANTERING = [
+  'Jag är hemma och öppnar',
+  'Jag lämnar nyckel på kontoret i Sundbyberg',
+  'Annat sätt (beskriv i rutan ovan)',
+];
+const BOKNING_BAS = process.env.BOKNING_BAS || 'https://boka.stodona.se';
 
 const VERKTYG: Anthropic.Tool[] = [
   {
@@ -117,6 +124,32 @@ const VERKTYG: Anthropic.Tool[] = [
         ort: { type: 'string', description: 'Postort, t.ex. Stockholm.' },
       },
       required: ['tjanst', 'kvm', 'datum', 'gatuadress', 'postnummer', 'ort'],
+    },
+  },
+  {
+    name: 'forbered_bokning',
+    description:
+      'Förbereder kundens bokning i bokningssystemet och returnerar en länk där allt är ifyllt. Använd när kunden vill boka och du har samlat in allt: tjänst, storlek, hur ofta, datum och tid från visa_lediga_tider, för- och efternamn, e-post, telefon, gatuadress, postnummer, ort och hur vi kommer in. Fråga en sak i taget. Kunden fyller själv i personnummer för RUT och godkänner villkoren i sista steget – fråga ALDRIG efter personnummer.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tjanst: { type: 'string', enum: TJANSTER },
+        kvm: { type: 'number', description: 'Bostadens storlek i kvadratmeter.' },
+        frekvens: { type: 'string', enum: FREKVENSER },
+        datum: { type: 'string', description: 'ÅÅÅÅ-MM-DD, en tid som visa_lediga_tider bekräftat.' },
+        tid: { type: 'string', description: 'HH:MM, en av de lediga tiderna.' },
+        fornamn: { type: 'string' },
+        efternamn: { type: 'string' },
+        epost: { type: 'string' },
+        telefon: { type: 'string' },
+        gatuadress: { type: 'string' },
+        postnummer: { type: 'string' },
+        ort: { type: 'string' },
+        nyckelhantering: { type: 'string', enum: NYCKELHANTERING, description: 'Hur vi kommer in.' },
+        husdjur: { type: 'boolean', description: 'Sant om det finns husdjur i hemmet.' },
+        meddelande: { type: 'string', description: 'Övrigt kunden vill att städaren vet.' },
+      },
+      required: ['tjanst', 'kvm', 'fornamn', 'efternamn', 'epost', 'telefon', 'gatuadress', 'postnummer', 'ort'],
     },
   },
   {
@@ -325,6 +358,69 @@ async function ledigaTider(indata: Record<string, unknown>): Promise<string> {
   }
 }
 
+/** Sparar kundens uppgifter som ett bokningsutkast och ger tillbaka länken där
+ *  bara personnummer och godkännande av villkoren återstår. */
+async function forberedBokning(indata: Record<string, unknown>): Promise<string> {
+  const hemlighet = process.env.CHAT_DRAFT_SECRET;
+  if (!hemlighet) {
+    console.error('chat: CHAT_DRAFT_SECRET saknas – kan inte förbereda bokningar');
+    return 'Bokningen kunde inte förberedas. Erbjud kunden att boka på boka.stodona.se eller att kundservice hör av sig.';
+  }
+
+  const tjanst = TJANSTER.find((t) => t.toLowerCase() === rent(indata.tjanst, 40).toLowerCase());
+  if (!tjanst) return `Okänd tjänst. Välj en av: ${TJANSTER.join(', ')}.`;
+
+  const nyckel = NYCKELHANTERING.find((k) => k.toLowerCase() === rent(indata.nyckelhantering, 80).toLowerCase());
+  const onskad = rent(indata.frekvens, 30);
+
+  const kropp = {
+    service: tjanst,
+    sqm: Math.round(Number(indata.kvm)),
+    frequency: FREKVENSER.find((f) => f.toLowerCase() === onskad.toLowerCase()) ?? 'Engång',
+    date: rent(indata.datum, 10),
+    time: rent(indata.tid, 5),
+    firstName: rent(indata.fornamn, 60),
+    lastName: rent(indata.efternamn, 60),
+    email: giltigEpost(rent(indata.epost, 254)),
+    phone: giltigTelefon(rent(indata.telefon, 30)),
+    streetAddress: rent(indata.gatuadress, 120),
+    postalCode: rent(indata.postnummer, 10).replace(/\D/g, ''),
+    city: rent(indata.ort, 60),
+    keyHandling: nyckel,
+    hasPets: indata.husdjur === true,
+    message: rent(indata.meddelande, 800),
+  };
+
+  if (!kropp.email) return 'E-postadressen ser inte giltig ut. Be kunden om den igen.';
+  if (!kropp.phone) return 'Telefonnumret ser inte giltigt ut. Be kunden om det igen.';
+  if (!kropp.firstName || !kropp.lastName) return 'Både för- och efternamn behövs. Fråga efter det som saknas.';
+  if (!kropp.streetAddress || kropp.postalCode.length !== 5 || !kropp.city) {
+    return 'Adressen är ofullständig. Be om gatuadress, postnummer och ort – en sak i taget.';
+  }
+
+  try {
+    const svar = await fetch(`${BOKNING_BAS}/api/chat-draft`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-chat-secret': hemlighet },
+      body: JSON.stringify(kropp),
+      signal: AbortSignal.timeout(12000),
+    });
+    const data = (await svar.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!svar.ok || !data.url) {
+      console.error('chat: chat-draft svarade', svar.status, data.error);
+      return 'Bokningen kunde inte förberedas just nu. Erbjud kunden att boka på boka.stodona.se eller att kundservice hör av sig.';
+    }
+    return [
+      `Bokningen är förberedd. Ge kunden exakt den här länken, tecken för tecken: ${data.url}`,
+      'Säg att allt är ifyllt och att det bara är personnummer för RUT-avdraget och godkännande av villkoren kvar – det gör kunden själv i sista steget.',
+      'Bokningen är INTE klar förrän kunden bekräftat där. Säg aldrig att den är bokad.',
+    ].join(' ');
+  } catch (fel) {
+    console.error('chat: kunde inte nå chat-draft:', fel);
+    return 'Bokningen kunde inte förberedas just nu. Erbjud kunden att boka på boka.stodona.se.';
+  }
+}
+
 /** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
 async function koraVerktyg(
   namn: string,
@@ -334,6 +430,7 @@ async function koraVerktyg(
 ): Promise<string> {
   if (namn === 'berakna_pris') return beraknaPris(indata, request);
   if (namn === 'visa_lediga_tider') return ledigaTider(indata);
+  if (namn === 'forbered_bokning') return forberedBokning(indata);
 
   if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
     return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';

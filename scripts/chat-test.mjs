@@ -23,6 +23,16 @@ const SCENARIER = {
   pris_detalj: ["Vi bor i en trea på 70 kvm, vad kostar det varannan vecka?"],
   pris_flytt: ["Vad kostar en flyttstädning på 62 kvm?"],
   pris_udda: ["Vad kostar det att städa 118 kvm varje vecka?"],
+  bokning: [
+    "Jag vill boka hemstädning varannan vecka, 72 kvm",
+    "Storgatan 5, 111 51 Stockholm",
+    "22 september",
+    "09:00",
+    "Anna Lind",
+    "anna@exempel.se",
+    "070-123 45 67",
+    "Jag är hemma och öppnar",
+  ],
   tider: [
     "Jag vill ha hemstädning varannan vecka, 72 kvm. När kan ni komma?",
     "Storgatan 5, 111 51 Stockholm",

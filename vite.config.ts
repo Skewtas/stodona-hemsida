@@ -22,6 +22,12 @@ function lokalChatApi(env: Record<string, string>): Plugin {
       process.env.STODONA_LOKAL = 'true';
       process.env.CHAT_ENABLED = 'true';
 
+      server.config.logger.info(
+        `[lokal chat] ${Object.keys(env).length} env-variabler lästa · ` +
+          `ANTHROPIC_API_KEY i .env: ${Boolean(env.ANTHROPIC_API_KEY)} · ` +
+          `i process.env: ${Boolean(process.env.ANTHROPIC_API_KEY)}`,
+      );
+
       server.middlewares.use('/api/chat', async (req, res) => {
         try {
           const modul = await server.ssrLoadModule('/api/chat.ts');

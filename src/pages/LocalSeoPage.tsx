@@ -89,7 +89,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       { q: 'Har ni med er eget städmaterial?', a: 'Ja, vi tar med oss allt städmaterial och alla rengöringsprodukter som behövs. Vi använder miljövänliga och professionella produkter för bästa resultat. Det enda du behöver tillhandahålla är en fungerande dammsugare.' },
       { q: 'Är det samma person som städar varje gång?', a: 'Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.' },
       { q: 'Har ni någon bindningstid?', a: 'Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.' },
-      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.' },
+      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen hör du av dig till kundservice, som tar hand om ärendet och gör en bedömning tillsammans med försäkringen.' },
       { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.' },
       { q: 'Måste jag vara hemma när ni städar?', a: 'Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.' },
     ],
@@ -104,7 +104,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       { q: 'Vad är skillnaden mellan hemstädning och storstädning?', a: 'Storstädning är en djupare rengöring som når ställen som inte ingår i vanlig hemstädning – som insidan av ugn, kylskåp, skåp, fönsterputsning och avkalkning.' },
       { q: 'Hur lång tid tar en storstädning?', a: 'Det beror på bostadens storlek och skick, men räkna med 4-8 timmar för en normalbostad. Vi ger dig en tidsuppskattning vid bokning.' },
       { q: 'Hur ofta bör man storstäda?', a: 'Vi rekommenderar storstädning 1-2 gånger per år, gärna vår och höst, som komplement till regelbunden hemstädning.' },
-      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.' },
+      { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen hör du av dig till kundservice, som tar hand om ärendet och gör en bedömning tillsammans med försäkringen.' },
       { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura.' },
     ],
     stadfirma: [

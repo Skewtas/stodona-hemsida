@@ -44,7 +44,7 @@ export default function Hemstadning() {
     },
     {
       q: "Vad händer om något går sönder?",
-      a: "Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen ersätter vi det givetvis.",
+      a: "Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen hör du av dig till kundservice, som tar hand om ärendet och gör en bedömning tillsammans med försäkringen.",
     },
     {
       q: "Hur fungerar RUT-avdraget?",

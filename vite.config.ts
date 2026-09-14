@@ -28,9 +28,13 @@ function lokalChatApi(env: Record<string, string>): Plugin {
           `i process.env: ${Boolean(process.env.ANTHROPIC_API_KEY)}`,
       );
 
-      server.middlewares.use('/api/chat', async (req, res) => {
+      server.middlewares.use('/api/', async (req, res, next) => {
+        // /api/chat → api/chat.ts. Chatten anropar även /api/calculate-price,
+        // så alla endpoints behöver finnas i testmiljön.
+        const rutt = (req.url ?? '').split('?')[0].replace(/^\/+|\/+$/g, '');
+        if (!/^[a-z0-9-]+$/i.test(rutt)) return next();
         try {
-          const modul = await server.ssrLoadModule('/api/chat.ts');
+          const modul = await server.ssrLoadModule(`/api/${rutt}.ts`);
 
           const bitar: Buffer[] = [];
           for await (const bit of req) bitar.push(bit as Buffer);

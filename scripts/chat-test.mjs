@@ -19,8 +19,10 @@ if (!BAS) {
 }
 
 const SCENARIER = {
-  pris: ["Vad kostar hemstädning?"],
+  pris: ["Vad kostar hemstädning?", "72 kvm", "Varannan vecka"],
   pris_detalj: ["Vi bor i en trea på 70 kvm, vad kostar det varannan vecka?"],
+  pris_flytt: ["Vad kostar en flyttstädning på 62 kvm?"],
+  pris_udda: ["Vad kostar det att städa 118 kvm varje vecka?"],
   flytt: ["Jag ska flytta i oktober, vad behöver jag?"],
   lead: ["Kan ni ringa mig om en storstädning?", "Anna", "070-123 45 67"],
   avbokning: ["Jag måste avboka städningen imorgon"],

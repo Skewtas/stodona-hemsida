@@ -95,6 +95,11 @@ export default async function handler(request: Request): Promise<Response> {
         price: pris.price ?? null,
         priceBeforeRut: pris.priceBeforeRut ?? null,
         lowestWithBinding: bindning?.price ?? null,
+        // Alla bindningsalternativ, så att chatten kan svara på "vad kostar det
+        // med 6 månader?" utan ett nytt anrop.
+        bindingOptions: (pris.bindingOptions || []).map(
+          (o: { months: number; price: number }) => ({ months: o.months, price: o.price }),
+        ),
       },
       200,
       // Priset ändras sällan; en kort cache räcker för att slippa ett anrop

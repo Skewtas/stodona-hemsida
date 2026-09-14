@@ -82,7 +82,25 @@ SÄKERHET
 
 const MAX_SVARSTOKENS = 1024;
 
+const TJANSTER = ['Hemstädning', 'Storstädning', 'Flyttstädning', 'Fönsterputsning', 'Företagsstädning', 'Byggstädning'];
+const FREKVENSER = ['Engång', 'Varje vecka', 'Varannan vecka', 'Var tredje vecka', 'Var fjärde vecka'];
+
 const VERKTYG: Anthropic.Tool[] = [
+  {
+    name: 'berakna_pris',
+    description:
+      'Hämtar exakt pris ur Stodonas prismotor – samma motor som räknar fram priset på boka.stodona.se. Använd så snart du vet tjänst och bostadens storlek i kvadratmeter. Saknas storleken: fråga efter den först. Verktyget svarar med priset efter RUT-avdrag, priset med bindningstid och en förifylld bokningslänk som du ger kunden.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tjanst: { type: 'string', enum: TJANSTER, description: 'Vilken tjänst det gäller.' },
+        kvm: { type: 'number', description: 'Bostadens storlek i kvadratmeter, 10–1000.' },
+        frekvens: { type: 'string', enum: FREKVENSER, description: 'Hur ofta städningen ska ske. Engång för flyttstädning och storstädning.' },
+        postnummer: { type: 'string', description: 'Kundens postnummer, om det nämnts.' },
+      },
+      required: ['tjanst', 'kvm'],
+    },
+  },
   {
     name: 'skicka_lead',
     description:
@@ -184,6 +202,63 @@ function giltigTelefon(v: string): string {
 
 // ─── Verktyg ─────────────────────────────────────────────────────────────────
 
+/** Frågar prismotorn via vår egen proxy och formulerar underlaget till boten. */
+async function beraknaPris(indata: Record<string, unknown>, request: Request): Promise<string> {
+  const tjanst = TJANSTER.find((t) => t.toLowerCase() === rent(indata.tjanst, 40).toLowerCase());
+  if (!tjanst) return `Okänd tjänst. Prismotorn kan bara räkna på: ${TJANSTER.join(', ')}.`;
+
+  const kvm = Math.round(Number(indata.kvm));
+  if (!Number.isFinite(kvm) || kvm < 10 || kvm > 1000) {
+    return 'Ingen giltig yta angavs. Fråga kunden hur många kvadratmeter bostaden är och försök igen.';
+  }
+
+  const onskad = rent(indata.frekvens, 30);
+  const frekvens = FREKVENSER.find((f) => f.toLowerCase() === onskad.toLowerCase()) ?? 'Engång';
+  const postnummer = rent(indata.postnummer, 10).replace(/\D/g, '');
+
+  try {
+    const svar = await fetch(new URL('/api/calculate-price', request.url).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service: tjanst, sqm: kvm, frequency: frekvens, postalCode: postnummer }),
+    });
+    if (!svar.ok) {
+      console.error('chat: prismotorn svarade', svar.status);
+      return 'Prismotorn svarar inte just nu. Be kunden se priset på boka.stodona.se, eller erbjud att kundservice räknar fram det.';
+    }
+    const d = (await svar.json()) as {
+      price: number | null;
+      lowestWithBinding: number | null;
+      bindingOptions?: { months: number; price: number }[];
+    };
+    if (!d.price) {
+      return 'Prismotorn gav inget pris för den kombinationen. Be kunden se priset på boka.stodona.se.';
+    }
+
+    const lank = new URL('https://boka.stodona.se/');
+    lank.searchParams.set('service', tjanst);
+    lank.searchParams.set('sqm', String(kvm));
+    if (postnummer.length === 5) lank.searchParams.set('zip', postnummer);
+
+    const bindning = (d.bindingOptions ?? [])
+      .filter((o) => o.months > 0)
+      .map((o) => `${o.months} mån ${o.price} kr`)
+      .join(', ');
+
+    return [
+      `Pris ur prismotorn: ${tjanst.toLowerCase()} ${kvm} kvm, ${frekvens.toLowerCase()} – ${d.price} kr per tillfälle efter RUT-avdrag.`,
+      bindning && `Med bindningstid: ${bindning}.`,
+      `Förifylld bokningslänk: ${lank.toString()}`,
+      'Ge kunden priset i en mening, nämn det lägsta bindningspriset om det är relevant, och ge länken så kunden bara behöver välja tid. Skriv inte ut listan med alla bindningstider om kunden inte frågar.',
+    ]
+      .filter(Boolean)
+      .join(' ');
+  } catch (fel) {
+    console.error('chat: kunde inte nå prismotorn:', fel);
+    return 'Prismotorn gick inte att nå. Be kunden se priset på boka.stodona.se.';
+  }
+}
+
 /** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
 async function koraVerktyg(
   namn: string,
@@ -191,6 +266,8 @@ async function koraVerktyg(
   request: Request,
   samtalsId: string
 ): Promise<string> {
+  if (namn === 'berakna_pris') return beraknaPris(indata, request);
+
   if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
     return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';
   }

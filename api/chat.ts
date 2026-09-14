@@ -102,6 +102,24 @@ const VERKTYG: Anthropic.Tool[] = [
     },
   },
   {
+    name: 'visa_lediga_tider',
+    description:
+      'Hämtar riktiga lediga tider ur Stodonas schema för ett visst datum. Kräver tjänst, storlek, datum och kundens adress. Använd när kunden vill veta när vi kan komma. Presentera tiderna för kunden – men lova aldrig att en tid är bokad, för du kan inte boka.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tjanst: { type: 'string', enum: TJANSTER, description: 'Vilken tjänst det gäller.' },
+        kvm: { type: 'number', description: 'Bostadens storlek i kvadratmeter.' },
+        frekvens: { type: 'string', enum: FREKVENSER, description: 'Hur ofta städningen ska ske.' },
+        datum: { type: 'string', description: 'Datum i formatet ÅÅÅÅ-MM-DD.' },
+        gatuadress: { type: 'string', description: 'Gatuadress, t.ex. Storgatan 5.' },
+        postnummer: { type: 'string', description: 'Fem siffror.' },
+        ort: { type: 'string', description: 'Postort, t.ex. Stockholm.' },
+      },
+      required: ['tjanst', 'kvm', 'datum', 'gatuadress', 'postnummer', 'ort'],
+    },
+  },
+  {
     name: 'skicka_lead',
     description:
       'Skickar besökarens kontaktuppgifter till Stodonas kundservice för uppföljning. Använd när besökaren vill bli kontaktad, vill ha en offert, inte hittar en tid som passar eller behöver hjälp innan bokning. Kräver telefonnummer eller e-postadress – be om det först om det saknas. Bekräfta för besökaren att kundservice hör av sig, aldrig när eller med vilket besked, och upprepa inte numret eller mejlen.',
@@ -259,6 +277,54 @@ async function beraknaPris(indata: Record<string, unknown>, request: Request): P
   }
 }
 
+/** Hämtar lediga tider ur bokningssystemet. Städarnas namn följer med i svaret
+ *  därifrån men får aldrig nå kunden, så bara klockslagen skickas vidare. */
+async function ledigaTider(indata: Record<string, unknown>): Promise<string> {
+  const tjanst = TJANSTER.find((t) => t.toLowerCase() === rent(indata.tjanst, 40).toLowerCase());
+  if (!tjanst) return `Okänd tjänst. Välj en av: ${TJANSTER.join(', ')}.`;
+
+  const kvm = Math.round(Number(indata.kvm));
+  if (!Number.isFinite(kvm) || kvm < 10 || kvm > 1000) return 'Fråga kunden hur många kvadratmeter bostaden är.';
+
+  const datum = rent(indata.datum, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return 'Datumet måste vara ÅÅÅÅ-MM-DD. Fråga kunden vilken dag det gäller.';
+  const idag = new Date().toISOString().slice(0, 10);
+  if (datum < idag) return 'Datumet har redan passerat. Fråga kunden om en dag framåt i tiden.';
+
+  const gatuadress = rent(indata.gatuadress, 120);
+  const postnummer = rent(indata.postnummer, 10).replace(/\D/g, '');
+  const ort = rent(indata.ort, 60);
+  if (!gatuadress || postnummer.length !== 5 || !ort) {
+    return 'Adressen är ofullständig. Be om gatuadress, postnummer och ort – en sak i taget.';
+  }
+
+  const onskad = rent(indata.frekvens, 30);
+  const frekvens = FREKVENSER.find((f) => f.toLowerCase() === onskad.toLowerCase()) ?? 'Engång';
+
+  try {
+    const svar = await fetch('https://boka.stodona.se/api/available-slots', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service: tjanst, frequency: frekvens, sqm: kvm, date: datum, streetAddress: gatuadress, postalCode: postnummer, city: ort }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!svar.ok) {
+      console.error('chat: available-slots svarade', svar.status);
+      return 'Schemat gick inte att läsa just nu. Be kunden välja tid på boka.stodona.se, eller erbjud att kundservice hör av sig.';
+    }
+    const d = (await svar.json()) as { slots?: { time?: string }[]; fallback?: boolean };
+    const tider = (d.slots ?? []).map((s) => s.time).filter((t): t is string => typeof t === 'string');
+
+    if (!tider.length || d.fallback) {
+      return `Inga bekräftade tider den ${datum}. Föreslå en annan dag, eller erbjud att kundservice hittar en tid.`;
+    }
+    return `Lediga tider den ${datum} för ${tjanst.toLowerCase()} ${kvm} kvm: ${tider.join(', ')}. Erbjud kunden tiderna. Nämn aldrig vilken städare det är – den uppgiften ska inte lämnas ut. Kom ihåg att du inte kan boka tiden själv.`;
+  } catch (fel) {
+    console.error('chat: kunde inte nå schemat:', fel);
+    return 'Schemat gick inte att nå. Be kunden välja tid på boka.stodona.se.';
+  }
+}
+
 /** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
 async function koraVerktyg(
   namn: string,
@@ -267,6 +333,7 @@ async function koraVerktyg(
   samtalsId: string
 ): Promise<string> {
   if (namn === 'berakna_pris') return beraknaPris(indata, request);
+  if (namn === 'visa_lediga_tider') return ledigaTider(indata);
 
   if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
     return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';
@@ -342,7 +409,8 @@ async function koraVerktyg(
 const lokalaSamtal = new Map<string, Anthropic.MessageParam[]>();
 
 function trimma(historik: Anthropic.MessageParam[]): Anthropic.MessageParam[] {
-  let kvar = historik.slice(-MAX_TURER);
+  // Tidsstämpeln sätts färskt vid varje anrop och ska aldrig ligga kvar gammal.
+  let kvar = historik.filter((m) => m.role === 'user' || m.role === 'assistant').slice(-MAX_TURER);
   while (JSON.stringify(kvar).length > MAX_TECKEN_HISTORIK && kvar.length > 2) kvar = kvar.slice(2);
   // Historiken måste börja på en user-tur med vanlig text för att kunna skickas tillbaka.
   while (kvar.length && (kvar[0].role !== 'user' || typeof kvar[0].content !== 'string')) kvar = kvar.slice(1);
@@ -457,6 +525,22 @@ export default async function handler(request: Request) {
 
   const client = new Anthropic({ apiKey });
 
+  // Boten måste veta vilken dag det är för att kunna tolka "22 september" och
+  // för att veta om kundservice har öppet. Den läggs som en egen systemtur
+  // sist i messages i stället för i systemprompten – annars skulle den cachade
+  // prompten bli ogiltig vid varje nytt anrop.
+  const nu = new Date();
+  const sv = (opt: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', ...opt }).format(nu);
+  const tidsstampel: Anthropic.MessageParam = {
+    role: 'system' as unknown as 'user',
+    content:
+      `Just nu är det ${sv({ weekday: 'long' })} den ${sv({ year: 'numeric', month: '2-digit', day: '2-digit' })} ` +
+      `klockan ${sv({ hour: '2-digit', minute: '2-digit' })} i Stockholm. ` +
+      'Använd det när kunden säger "på tisdag" eller "22 september" – datum du skickar till verktygen ska vara ÅÅÅÅ-MM-DD. ' +
+      'Kundservice svarar i telefon vardagar 10–16. Är det stängt just nu, säg när vi öppnar igen i stället för att be kunden ringa direkt.',
+  };
+
   const skapaStrom = (meddelanden: Anthropic.MessageParam[]) =>
     client.messages.stream({
       model: MODEL,
@@ -466,7 +550,7 @@ export default async function handler(request: Request) {
       output_config: { effort: 'medium' },
       system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
       tools: VERKTYG,
-      messages: meddelanden,
+      messages: [...meddelanden, tidsstampel],
     });
 
   const stream = skapaStrom(historik);

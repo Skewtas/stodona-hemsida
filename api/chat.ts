@@ -66,6 +66,12 @@ TEKNISKT FÖR CHATTEN
 - En länk som ett verktyg gett dig skriver du av EXAKT, tecken för tecken, hela adressen. Korta den aldrig och hitta aldrig på ett eget id.
 - Andra länkar skriver du kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
 - Svara på samma språk som kunden skriver på.
+- Ska du använda ett verktyg gör du det direkt, utan att skriva något först. Svaret skriver du när du har resultatet.
+- Emojis (regel 3) i praktiken: ingen emoji alls i ett meddelande som rör personnummer eller andra personuppgifter, reklamation, skada, pengar tillbaka, sen avbokning, sjukdom, något som gått fel just nu eller en kund som är upprörd.
+- Regel 21 i praktiken: säg bara att du gjort något när ett verktyg faktiskt gjort det. Skriv alltså aldrig "jag ser till att berömmet kommer fram", "jag har noterat det" eller "jag skickar det vidare" som om det redan var gjort. Innan du har lämnat över säger du vad du behöver för att kunna skicka det vidare.
+- Det Stodona strävar efter eller som beror på omständigheter är inga löften. Samma städare: "vi strävar efter samma städare", aldrig "du får samma städare". Paus: "det brukar gå om du hör av dig i god tid", aldrig "självklart går det". Lägg aldrig till detaljer som inte står i FAKTA.
+- Antyd aldrig att en avgift kan strykas eller att kunden kan få ett undantag, till exempel vid sjukdom. Visa förståelse och säg att kundservice kontrollerar ärendet.
+- Fråga en sak åt gången (regel 24): först namnet, sedan telefon eller mejl. I en bokning först adressen, sedan datumet. Svarar kunden inte på din fråga, bemöt först det kunden skrev och fråga sedan igen med andra ord – upprepa aldrig samma mening.
 - Du heter Camilla. Du behöver inte påpeka att du är digital i varje svar. Men frågar kunden om du är en människa, en robot eller en AI svarar du alltid ärligt: att du är Stodonas digitala assistent, och att en kollega på kundservice gärna tar över om kunden hellre vill det. Påstå aldrig att du är en människa. Bilden i chatten föreställer Camilla på Stodonas kundservice. Frågar kunden om det är hon som skriver, svarar du ärligt att du är den digitala assistenten och att Camilla och hennes kollegor på kundservice tar över när det behövs. Låtsas aldrig vara den riktiga Camilla.
 - KNAPPAR: när kunden ska välja mellan två till åtta fasta alternativ – tjänst, hur ofta, lediga tider, hur vi kommer in, ja eller nej – ställer du frågan i texten och avslutar meddelandet med en egen rad i exakt det här formatet:
   [[val: Alternativ ett | Alternativ två | Alternativ tre]]
@@ -683,17 +689,26 @@ export default async function handler(request: Request) {
   const kodare = new TextEncoder();
   const utstrom = new ReadableStream({
     async start(controller) {
-      // Ett svar kan bestå av flera textblock. Utan blankrad emellan klistras de
-      // ihop mitt i meningen, som "din bokning.För att kundservice ska ...".
+      // Texten i ett varv hålls kvar tills vi vet hur varvet slutar. Slutar det
+      // med ett verktygsanrop kastas texten: annars ser kunden inledningar som
+      // "Först priset: det räknar jag fram åt dig nu." före det riktiga svaret.
+      // Widgeten skriver ändå ut svaret i egen takt, så väntan märks knappt.
+      // Flera textblock i samma svar får en blankrad emellan, annars klistras
+      // de ihop mitt i meningen.
       let harSkrivit = false;
-      const skrivDelta = (handelse: Anthropic.MessageStreamEvent) => {
-        if (handelse.type === 'content_block_start' && handelse.content_block.type === 'text' && harSkrivit) {
-          controller.enqueue(kodare.encode('\n\n'));
+      let varvText = '';
+      const samlaDelta = (handelse: Anthropic.MessageStreamEvent) => {
+        if (handelse.type === 'content_block_start' && handelse.content_block.type === 'text' && varvText) {
+          varvText += '\n\n';
         }
         if (handelse.type === 'content_block_delta' && handelse.delta.type === 'text_delta') {
-          controller.enqueue(kodare.encode(handelse.delta.text));
-          harSkrivit = true;
+          varvText += handelse.delta.text;
         }
+      };
+      const skicka = (text: string) => {
+        if (!text.trim()) return;
+        controller.enqueue(kodare.encode((harSkrivit ? '\n\n' : '') + text));
+        harSkrivit = true;
       };
 
       try {
@@ -704,8 +719,9 @@ export default async function handler(request: Request) {
         // Två varv räcker: ett svar, ett verktygsanrop, ett svar till.
         for (let varv = 0; varv < 3; varv++) {
           if (!iter) iter = strom[Symbol.asyncIterator]();
-          if (start && !start.done) skrivDelta(start.value);
-          for (let steg = await iter.next(); !steg.done; steg = await iter.next()) skrivDelta(steg.value);
+          varvText = '';
+          if (start && !start.done) samlaDelta(start.value);
+          for (let steg = await iter.next(); !steg.done; steg = await iter.next()) samlaDelta(steg.value);
           start = null;
           iter = null;
 
@@ -713,10 +729,13 @@ export default async function handler(request: Request) {
           historik.push({ role: 'assistant', content: slutgiltigt.content });
 
           if (slutgiltigt.stop_reason === 'refusal') {
-            controller.enqueue(kodare.encode('\n\nDen frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.'));
+            skicka('Den frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.');
             break;
           }
-          if (slutgiltigt.stop_reason !== 'tool_use') break;
+          if (slutgiltigt.stop_reason !== 'tool_use') {
+            skicka(varvText);
+            break;
+          }
 
           const resultat: Anthropic.ToolResultBlockParam[] = [];
           for (const block of slutgiltigt.content) {
@@ -732,9 +751,11 @@ export default async function handler(request: Request) {
           historik.push({ role: 'user', content: resultat });
           strom = skapaStrom(historik);
         }
+        // Tog varven slut mitt i ett verktygsanrop får kunden ändå ett svar.
+        if (!harSkrivit) skicka('Jag behöver kontrollera det här innan jag svarar. Ring 010-178 01 50, eller skriv ditt nummer så hör vi av oss.');
       } catch (f) {
         console.error('chat stream error:', f);
-        controller.enqueue(kodare.encode('\n\nJag tappade tråden där. Försök igen, eller ring 010-178 01 50.'));
+        skicka('Jag tappade tråden där. Försök igen, eller ring 010-178 01 50.');
       } finally {
         await sparaSamtal(samtalsId, historik);
         controller.close();

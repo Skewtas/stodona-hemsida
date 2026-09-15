@@ -93,6 +93,28 @@ const TEXT = {
 // Boten skriver korta länkar som "boka.stodona.se", med eller utan https.
 const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})(?:\/[^\s<>()]*[^\s<>().,!?])?)/gi;
 
+/**
+ * Boten avslutar ett meddelande med [[val: A | B | C]] när kunden ska välja
+ * mellan fasta alternativ. Raden tas bort ur texten och blir knappar.
+ * Medan svaret strömmar in döljs en halvfärdig "[[" så att markeringen aldrig
+ * syns. Etiketterna renderas som vanlig text och kan inte innehålla markup.
+ */
+function delaUppVal(text: string): { text: string; val: string[] } {
+  let val: string[] = [];
+  const hittade = [...text.matchAll(/\[\[\s*val\s*:\s*([^\]]*)\]\]/gi)];
+  if (hittade.length) {
+    val = hittade[hittade.length - 1][1]
+      .split("|")
+      .map((v) => v.trim().slice(0, 48))
+      .filter((v, i, alla) => v && alla.indexOf(v) === i)
+      .slice(0, 8);
+  }
+  let ren = text.replace(/\[\[\s*val\s*:[^\]]*\]\]/gi, "").replace(/[ \t]{2,}/g, " ");
+  const halvfardig = ren.lastIndexOf("[[");
+  if (halvfardig !== -1 && !ren.includes("]]", halvfardig)) ren = ren.slice(0, halvfardig);
+  return { text: ren.trimEnd(), val };
+}
+
 /** Gör länkar till våra egna adresser i botens svar klickbara. */
 function medLankar(text: string) {
   // split med en fångstgrupp lägger varje träff på udda index.
@@ -260,7 +282,7 @@ export default function ChatWidget() {
                       : "bg-bg-primary text-text-primary rounded-2xl rounded-tl-sm px-4 py-3 text-sm max-w-[85%] whitespace-pre-wrap"
                   }
                 >
-                  {m.roll === "assistant" ? medLankar(m.text) : m.text}
+                  {m.roll === "assistant" ? medLankar(delaUppVal(m.text).text) : m.text}
                   {m.roll === "assistant" && !m.text && svarar && (
                     <span className="inline-flex gap-1 py-1" aria-label="Skriver">
                       <span className="w-1.5 h-1.5 rounded-full bg-text-secondary/60 animate-bounce" />
@@ -270,6 +292,26 @@ export default function ChatWidget() {
                   )}
                 </div>
               ))}
+
+              {(() => {
+                const sista = meddelanden[meddelanden.length - 1];
+                if (!sista || sista.roll !== "assistant" || svarar) return null;
+                const { val } = delaUppVal(sista.text);
+                if (!val.length) return null;
+                return (
+                  <div className="flex flex-wrap gap-2 pt-1" role="group" aria-label="Välj ett alternativ">
+                    {val.map((v) => (
+                      <button
+                        key={v}
+                        onClick={() => skicka(v)}
+                        className="text-sm px-4 py-2 rounded-full border border-text-primary/25 text-text-primary bg-white hover:bg-bg-dark hover:text-text-light hover:border-bg-dark transition-colors"
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {meddelanden.length === 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">

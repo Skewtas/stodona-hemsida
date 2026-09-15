@@ -32,5 +32,8 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/app.html" }
+  ],
+  "crons": [
+    { "path": "/api/chat-bilagor-rensa", "schedule": "15 3 * * *" }
   ]
 }

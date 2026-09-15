@@ -61,10 +61,13 @@ export default function Integritetspolicy() {
             </p>
             <ul className="list-disc pl-6 space-y-2 mb-4 text-text-secondary">
               <li>
-                <strong>Vad som behandlas:</strong> det du skriver i chatten, och de uppgifter du själv väljer att lämna, till exempel namn, e-post, telefon eller adress när du vill boka eller bli kontaktad. Skriv aldrig personnummer, portkoder eller kortuppgifter i chatten – de fyller du i på bokningssidan.
+                <strong>Vad som behandlas:</strong> det du skriver i chatten, och de uppgifter du själv väljer att lämna, till exempel namn, e-post, telefon eller adress när du vill boka eller bli kontaktad. Skriv aldrig personnummer, portkoder eller kortuppgifter i chatten, och skicka inte bilder på sådant – de uppgifterna fyller du i på bokningssidan.
               </li>
               <li>
                 <strong>Vem som behandlar det:</strong> meddelandena skickas till vår AI-leverantör Anthropic för att ta fram svaren. Anthropic använder dem inte för att träna sina AI-modeller.
+              </li>
+              <li>
+                <strong>Bilder och videor:</strong> du kan bifoga bilder och videor i chatten, till exempel när något inte blev bra. De sparas hos vår driftleverantör och följer med ditt ärende till kundservice. Bilder förminskas i regel innan de skickas, vilket också tar bort platsinformation från mobilbilder. Bilderna visas för AI-assistenten så att den kan förstå ärendet, videor ser bara kundservice. Allt raderas efter 90 dagar.
               </li>
               <li>
                 <strong>Om du vill boka eller bli kontaktad:</strong> uppgifterna du lämnar går vidare till vårt bokningssystem eller till vår kundservice, och behandlas då som vid en vanlig bokning eller kontakt.
@@ -92,7 +95,7 @@ export default function Integritetspolicy() {
               Vi sparar dina uppgifter så länge det är nödvändigt för de ändamål de samlades in för, eller så länge det krävs enligt lag.
             </p>
             <p className="text-text-secondary mb-8">
-              Chattsamtal sparas i högst två timmar. Anonymiserade frågor från chatten raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
+              Chattsamtal sparas i högst två timmar. Bilder och videor som bifogats i chatten, liksom anonymiserade frågor från chatten, raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
             </p>
 
             <h2 className="text-3xl font-bold mb-6">Dina rättigheter</h2>

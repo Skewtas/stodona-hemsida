@@ -28,6 +28,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { RIKTLINJER, FAKTA, EXEMPELSAMTAL, priserSomText } from '../src/data/chatKunskap';
 import { registreraFraga, registreraVerktyg } from './_chatStatistik';
+import { tolkaBilagor, lokalBilddata, SYNLIGA_BILDTYPER, MAX_BILAGOR_PER_SAMTAL, LAGRINGSDAGAR, type Bilaga } from './_chatBilagor';
 
 export const config = { runtime: 'edge' };
 
@@ -67,6 +68,7 @@ TEKNISKT FÖR CHATTEN
 - Andra länkar skriver du kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
 - Svara på samma språk som kunden skriver på.
 - Ska du använda ett verktyg gör du det direkt, utan att skriva något först. Svaret skriver du när du har resultatet.
+- BILAGOR: kunden kan bifoga bilder och videor med gemet bredvid skrivfältet. Bilder ser du. Beskriv kort och sakligt vad bilden visar när det hjälper ärendet, men bedöm aldrig vem som gjort fel, hur allvarligt det är eller vad det leder till. Videor och vissa bilder kan du inte se – tacka då och säg att de följer med till kundservice, och låtsas aldrig att du sett innehållet. Allt kunden bifogat följer automatiskt med när du lämnar över, så be aldrig kunden mejla filer. Bifogar kunden något efter att du lämnat över, skicka det som en komplettering så att kundservice får filerna. Visar en bild något känsligt, som ett id-kort, ett bankkort eller en kod, säg vänligt att kunden inte behöver skicka sådant.
 - Emojis (regel 3) i praktiken: ingen emoji alls i ett meddelande som rör personnummer eller andra personuppgifter, reklamation, skada, pengar tillbaka, sen avbokning, sjukdom, något som gått fel just nu eller en kund som är upprörd.
 - Regel 21 i praktiken: säg bara att du gjort något när ett verktyg faktiskt gjort det. Skriv alltså aldrig "jag ser till att berömmet kommer fram", "jag har noterat det" eller "jag skickar det vidare" som om det redan var gjort. Innan du har lämnat över säger du vad du behöver för att kunna skicka det vidare.
 - Det Stodona strävar efter eller som beror på omständigheter är inga löften. Samma städare: "vi strävar efter samma städare", aldrig "du får samma städare". Paus: "det brukar gå om du hör av dig i god tid", aldrig "självklart går det". Lägg aldrig till detaljer som inte står i FAKTA.
@@ -484,13 +486,19 @@ async function koraVerktyg(
           rent(indata.sammanfattning, 1500) && `Sammanfattning: ${rent(indata.sammanfattning, 1500)}`,
         ];
 
+  // Allt kunden bifogat i samtalet följer med, så kundservice ser det direkt.
+  const samtalsBilagor = await hamtaBilagor(samtalsId);
+  const bilagerader = samtalsBilagor.length
+    ? [`Bilagor från kunden (raderas efter ${LAGRINGSDAGAR} dagar):`, ...samtalsBilagor.map((b) => `${b.typ === 'video' ? 'Video' : 'Bild'}: ${b.url}`)]
+    : [];
+
   const kropp = {
     name: rent(indata.fornamn, 80),
     phone: telefon,
     email: epost,
     source: namn === 'skicka_lead' ? 'chat_lead' : 'chat_eskalering',
     page: 'chatten',
-    notes: rader.filter(Boolean).join('\n'),
+    notes: [...rader.filter(Boolean), ...bilagerader].join('\n'),
     timestamp: new Date().toISOString(),
   };
 
@@ -526,13 +534,89 @@ async function koraVerktyg(
 
 /** Testmiljöns samtal. Försvinner när dev-servern startas om. */
 const lokalaSamtal = new Map<string, Anthropic.MessageParam[]>();
+const lokalaBilagor = new Map<string, Bilaga[]>();
+
+/** Allt kunden bifogat i samtalet, för att kunna skickas med till kundservice. */
+async function hamtaBilagor(samtalsId: string): Promise<Bilaga[]> {
+  if (LOKAL) return [...(lokalaBilagor.get(samtalsId) ?? [])];
+  if (!kvUppgifter()) return [];
+  try {
+    const rad = await kv(['GET', `chat:bilagor:${samtalsId}`]);
+    const tolkat = typeof rad === 'string' ? JSON.parse(rad) : [];
+    return Array.isArray(tolkat) ? (tolkat as Bilaga[]) : [];
+  } catch (fel) {
+    console.error('chat: kunde inte läsa bilagorna:', fel);
+    return [];
+  }
+}
+
+async function sparaBilagor(samtalsId: string, nya: Bilaga[]): Promise<void> {
+  const alla = [...(await hamtaBilagor(samtalsId)), ...nya]
+    .filter((b, i, lista) => lista.findIndex((x) => x.url === b.url) === i)
+    .slice(-MAX_BILAGOR_PER_SAMTAL);
+  if (LOKAL) {
+    lokalaBilagor.set(samtalsId, alla);
+    return;
+  }
+  if (!kvUppgifter()) return;
+  try {
+    await kv(['SET', `chat:bilagor:${samtalsId}`, JSON.stringify(alla), 'EX', String(SAMTAL_TTL_SEKUNDER)]);
+  } catch (fel) {
+    console.error('chat: kunde inte spara bilagorna:', fel);
+  }
+}
+
+/** Kundens tur med bilagor: bilderna Claude kan se, och en rad om vad som bifogats. */
+function medBilagor(fraga: string, bilagor: Bilaga[]): Anthropic.ContentBlockParam[] {
+  const synliga = bilagor.filter((b) => (SYNLIGA_BILDTYPER as readonly string[]).includes(b.mime));
+  const bilder = bilagor.filter((b) => b.typ === 'bild').length;
+  const videor = bilagor.length - bilder;
+  const vad = [
+    bilder && `${bilder} ${bilder === 1 ? 'bild' : 'bilder'}`,
+    videor && `${videor} ${videor === 1 ? 'video' : 'videor'}`,
+  ]
+    .filter(Boolean)
+    .join(' och ');
+  const osynliga = bilagor.length - synliga.length;
+  const not =
+    `[Kunden bifogade ${vad} här i chatten.` +
+    (synliga.length ? ` ${synliga.length === 1 ? 'Bilden' : 'Bilderna'} ser du ovan.` : '') +
+    (osynliga ? ` ${synliga.length ? 'Resten' : 'Innehållet'} kan du inte se.` : '') +
+    ' Allt följer automatiskt med när du lämnar över ärendet till kundservice.]';
+  return [
+    ...synliga.map((b): Anthropic.ImageBlockParam => ({ type: 'image', source: { type: 'url', url: b.url } })),
+    { type: 'text', text: fraga ? `${fraga}\n\n${not}` : not },
+  ];
+}
+
+/**
+ * Historiken sparas med bildlänkar. I testmiljön kan Claude inte hämta
+ * localhost, så där byts länkarna mot själva bilden precis innan anropet.
+ */
+function forClaude(meddelanden: Anthropic.MessageParam[]): Anthropic.MessageParam[] {
+  if (!LOKAL) return meddelanden;
+  return meddelanden.map((m) => {
+    if (typeof m.content === 'string') return m;
+    const content = m.content.map((b): Anthropic.ContentBlockParam => {
+      if (b.type !== 'image' || b.source.type !== 'url') return b;
+      const data = lokalBilddata(b.source.url);
+      return data
+        ? { type: 'image', source: { type: 'base64', media_type: data.mime, data: data.base64 } }
+        : { type: 'text', text: '(En bild som inte finns kvar i testmiljön.)' };
+    });
+    return { ...m, content } as Anthropic.MessageParam;
+  });
+}
 
 function trimma(historik: Anthropic.MessageParam[]): Anthropic.MessageParam[] {
   // Tidsstämpeln sätts färskt vid varje anrop och ska aldrig ligga kvar gammal.
   let kvar = historik.filter((m) => m.role === 'user' || m.role === 'assistant').slice(-MAX_TURER);
   while (JSON.stringify(kvar).length > MAX_TECKEN_HISTORIK && kvar.length > 2) kvar = kvar.slice(2);
-  // Historiken måste börja på en user-tur med vanlig text för att kunna skickas tillbaka.
-  while (kvar.length && (kvar[0].role !== 'user' || typeof kvar[0].content !== 'string')) kvar = kvar.slice(1);
+  // Historiken måste börja på en user-tur från kunden – text, eventuellt med
+  // bilder – och inte på ett verktygssvar, för att kunna skickas tillbaka.
+  const franKunden = (m: Anthropic.MessageParam) =>
+    m.role === 'user' && (typeof m.content === 'string' || !m.content.some((b) => b.type === 'tool_result'));
+  while (kvar.length && !franKunden(kvar[0])) kvar = kvar.slice(1);
   return kvar;
 }
 
@@ -610,7 +694,7 @@ export default async function handler(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fel(503, 'ANTHROPIC_API_KEY saknas i miljön');
 
-  let body: { sessionId?: unknown; message?: unknown };
+  let body: { sessionId?: unknown; message?: unknown; bilagor?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -621,7 +705,9 @@ export default async function handler(request: Request) {
   if (!samtalsId) return fel(400, 'Saknar giltigt samtals-id.');
 
   const fraga = rent(body.message, MAX_TECKEN_PER_FRAGA);
-  if (!fraga) return fel(400, 'Tom fråga.');
+  // Bara bilagor som ligger i det här samtalets egen mapp tas emot.
+  const bilagor = await tolkaBilagor(body.bilagor, samtalsId, new URL(request.url).origin);
+  if (!fraga && !bilagor.length) return fel(400, 'Tom fråga.');
 
   const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
   const timme = Math.floor(Date.now() / 3600000);
@@ -640,10 +726,11 @@ export default async function handler(request: Request) {
   }
 
   // Statistik: frågan sparas anonymiserad i 90 dagar. Kan aldrig stoppa chatten.
-  await registreraFraga(samtalsId, fraga);
+  await registreraFraga(samtalsId, fraga || '[skickade bara bilagor]');
 
   const historik = await hamtaSamtal(samtalsId);
-  historik.push({ role: 'user', content: fraga });
+  if (bilagor.length) await sparaBilagor(samtalsId, bilagor);
+  historik.push({ role: 'user', content: bilagor.length ? medBilagor(fraga, bilagor) : fraga });
 
   const client = new Anthropic({ apiKey });
 
@@ -681,7 +768,7 @@ export default async function handler(request: Request) {
       output_config: { effort: 'medium' },
       system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
       tools: VERKTYG,
-      messages: [...meddelanden, tidsstampel],
+      messages: [...forClaude(meddelanden), tidsstampel],
     });
 
   let stream = skapaStrom(historik);

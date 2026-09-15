@@ -137,8 +137,9 @@ export default async function handler(request: Request) {
       // Okänd källa får aldrig gå rakt in i ämnesraden – styrtecken bort, längd kapad.
       sourceLabel: sourceLabels[source] || String(source ?? 'okand').replace(/[^\p{L}\p{N} _-]/gu, '').slice(0, 40),
       page: page || '',
-      // Fritext från chatten: vad kunden behöver hjälp med, sammanfattat.
-      notes: typeof notes === 'string' ? notes.slice(0, 2000) : '',
+      // Fritext från chatten: vad kunden behöver hjälp med, sammanfattat, plus
+      // länkar till upp till tio bilagor.
+      notes: typeof notes === 'string' ? notes.slice(0, 4000) : '',
       timestamp: timestamp || new Date().toISOString(),
       status: 'new',
     };

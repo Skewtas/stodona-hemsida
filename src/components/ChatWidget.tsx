@@ -1,12 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Send, Phone } from "lucide-react";
+import { X, Send, Phone, Paperclip, Video, Loader2 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { track } from "../utils/analytics";
+
+interface Bilaga {
+  url: string;
+  typ: "bild" | "video";
+  namn: string;
+}
 
 interface Meddelande {
   roll: "user" | "assistant";
   text: string;
+  bilagor?: Bilaga[];
+}
+
+/** En fil kunden valt men inte skickat än. */
+interface ValdFil {
+  id: string;
+  fil: File;
+  typ: "bild" | "video";
+  forhands: string;
 }
 
 const LAGRINGSNYCKEL = "stodona-chat";
@@ -66,6 +81,104 @@ function samtalsId(): string {
 // chatten är färdig.
 const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "true";
 
+// ─── Bilagor ─────────────────────────────────────────────────────────────────
+// Samma gränser kontrolleras på servern (api/_chatBilagor.ts). Här finns de
+// bara för att kunden ska få besked direkt.
+const MAX_FILER = 5;
+const MAX_BILD_MB = 25; // före förminskning
+const MAX_VIDEO_MB = 100;
+const BILD_MAXSIDA = 1600;
+const TILLATNA_FILER = "image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm";
+const FILANDELSE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+  "video/webm": "webm",
+};
+
+function filtyp(fil: File): "bild" | "video" | null {
+  if (/^image\/(jpeg|png|webp|heic|heif)$/.test(fil.type) || (!fil.type && /\.(heic|heif)$/i.test(fil.name))) return "bild";
+  if (/^video\/(mp4|quicktime|webm)$/.test(fil.type)) return "video";
+  return null;
+}
+
+/**
+ * Förminskar en bild till högst 1600 px och sparar om den som JPEG. Det gör
+ * filen liten och tar bort platsdata (EXIF/GPS). Går bilden inte att läsa i
+ * webbläsaren, till exempel HEIC i Chrome, skickas originalet.
+ */
+async function forminska(fil: File): Promise<Blob> {
+  try {
+    const bild = await createImageBitmap(fil, { imageOrientation: "from-image" });
+    const skala = Math.min(1, BILD_MAXSIDA / Math.max(bild.width, bild.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bild.width * skala);
+    canvas.height = Math.round(bild.height * skala);
+    canvas.getContext("2d")?.drawImage(bild, 0, 0, canvas.width, canvas.height);
+    bild.close();
+    const blob = await new Promise<Blob | null>((klar) => canvas.toBlob(klar, "image/jpeg", 0.85));
+    if (blob) return blob;
+  } catch {
+    /* skicka originalet */
+  }
+  return fil;
+}
+
+/** Samtalets mapp för bilagor – samma hash som servern räknar fram. */
+async function samtalsMapp(id: string): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`stodona-bilaga:${id}`));
+  return [...new Uint8Array(hash)].slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function laddaUpp(vald: ValdFil): Promise<Bilaga> {
+  const kropp = vald.typ === "bild" ? await forminska(vald.fil) : vald.fil;
+  const mime = kropp.type || (vald.typ === "bild" ? "image/heic" : "video/mp4");
+  const bas = vald.fil.name.replace(/\.[^.]*$/, "").replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "fil";
+  const namn = `${bas}.${FILANDELSE[mime] ?? "bin"}`;
+  const id = samtalsId();
+
+  // Testmiljön tar emot filen själv och sparar den i minnet.
+  if (import.meta.env.DEV) {
+    const svar = await fetch(`/api/chat-bilaga?samtal=${encodeURIComponent(id)}&namn=${encodeURIComponent(namn)}`, {
+      method: "POST",
+      headers: { "Content-Type": mime },
+      body: kropp,
+    });
+    const data = await svar.json().catch(() => null);
+    if (!svar.ok || typeof data?.url !== "string") throw new Error(data?.error || "uppladdningen misslyckades");
+    return { url: data.url, typ: vald.typ, namn };
+  }
+
+  // I produktion går filen direkt till Vercel Blob – servern lämnar bara ut en nyckel.
+  const { upload } = await import("@vercel/blob/client");
+  const blob = await upload(`chatt/${await samtalsMapp(id)}/${namn}`, kropp, {
+    access: "public",
+    handleUploadUrl: "/api/chat-bilaga",
+    clientPayload: JSON.stringify({ samtalsId: id, typ: vald.typ }),
+    contentType: mime,
+    multipart: vald.typ === "video",
+  });
+  return { url: blob.url, typ: vald.typ, namn };
+}
+
+/** Bara våra egna bilagelänkar visas – aldrig något annat som hamnat i sessionStorage. */
+function sakerBilaga(url: string): boolean {
+  if (url.startsWith("/api/chat-bilaga?id=")) return true;
+  try {
+    const u = new URL(url);
+    return (
+      (u.protocol === "https:" && u.hostname.endsWith(".public.blob.vercel-storage.com")) ||
+      (import.meta.env.DEV && u.pathname === "/api/chat-bilaga" && (u.hostname === "127.0.0.1" || u.hostname === "localhost"))
+    );
+  } catch {
+    return false;
+  }
+}
+
 const TEXT = {
   SV: {
     oppna: "Chatta med Camilla",
@@ -88,6 +201,13 @@ const TEXT = {
     fel: "Jag når inte fram just nu. Ring 010-178 01 50 så hjälper vi dig direkt.",
     disclaimer: "Digital assistent – svaren kan innehålla fel.",
     ring: "Ring oss",
+    bifoga: "Bifoga bild eller video",
+    taBort: "Ta bort",
+    laddarUpp: "Laddar upp…",
+    felTyp: "Bara bilder och videor går att bifoga.",
+    forStor: `Filen är för stor. Videor får vara högst ${MAX_VIDEO_MB} MB.`,
+    maxAntal: `Du kan bifoga högst ${MAX_FILER} filer åt gången.`,
+    uppladdningFel: "Filen kunde inte laddas upp. Försök igen, eller ring 010-178 01 50.",
   },
   EN: {
     oppna: "Chat with Camilla",
@@ -108,6 +228,13 @@ const TEXT = {
     fel: "I can't get through right now. Call +46 10 178 01 50 and we'll help you.",
     disclaimer: "Digital assistant – answers can contain mistakes.",
     ring: "Call us",
+    bifoga: "Attach a photo or video",
+    taBort: "Remove",
+    laddarUpp: "Uploading…",
+    felTyp: "Only photos and videos can be attached.",
+    forStor: `The file is too large. Videos can be up to ${MAX_VIDEO_MB} MB.`,
+    maxAntal: `You can attach up to ${MAX_FILER} files at a time.`,
+    uppladdningFel: "The file couldn't be uploaded. Try again, or call +46 10 178 01 50.",
   },
 };
 
@@ -208,6 +335,11 @@ export default function ChatWidget() {
   /** null = välkomsthälsningen syns i sin helhet. */
   const [valkomstLangd, setValkomstLangd] = useState<number | null>(null);
   const [valkomstPrickar, setValkomstPrickar] = useState(false);
+  /** Bilder och videor som valts men inte skickats. */
+  const [valda, setValda] = useState<ValdFil[]>([]);
+  const [laddarUpp, setLaddarUpp] = useState(false);
+  const [bilagefel, setBilagefel] = useState("");
+  const filRef = useRef<HTMLInputElement>(null);
 
   const listaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -347,11 +479,60 @@ export default function ChatWidget() {
     return () => window.clearInterval(id);
   }, [skrivIndex]);
 
-  async function skicka(fraga: string) {
-    const rensad = fraga.trim();
-    if (!rensad || skriver) return;
+  function valjFiler(lista: FileList | null) {
+    setBilagefel("");
+    const nya: ValdFil[] = [];
+    for (const fil of Array.from(lista ?? [])) {
+      const typ = filtyp(fil);
+      if (!typ) {
+        setBilagefel(s.felTyp);
+        continue;
+      }
+      if (fil.size > (typ === "video" ? MAX_VIDEO_MB : MAX_BILD_MB) * 1024 * 1024) {
+        setBilagefel(s.forStor);
+        continue;
+      }
+      nya.push({ id: crypto.randomUUID(), fil, typ, forhands: URL.createObjectURL(fil) });
+    }
+    const alla = [...valda, ...nya];
+    if (alla.length > MAX_FILER) {
+      setBilagefel(s.maxAntal);
+      alla.slice(MAX_FILER).forEach((v) => URL.revokeObjectURL(v.forhands));
+    }
+    setValda(alla.slice(0, MAX_FILER));
+    if (filRef.current) filRef.current.value = "";
+    inputRef.current?.focus();
+  }
 
-    const historik: Meddelande[] = [...meddelanden, { roll: "user", text: rensad }];
+  function taBort(id: string) {
+    const bort = valda.find((v) => v.id === id);
+    if (bort) URL.revokeObjectURL(bort.forhands);
+    setValda(valda.filter((v) => v.id !== id));
+    setBilagefel("");
+  }
+
+  async function skicka(fraga: string, filer: ValdFil[] = []) {
+    const rensad = fraga.trim();
+    if ((!rensad && !filer.length) || skriver || laddarUpp) return;
+
+    // Filerna laddas upp först. Går det inte ligger de kvar, så kunden kan försöka igen.
+    let bilagor: Bilaga[] = [];
+    if (filer.length) {
+      setLaddarUpp(true);
+      setBilagefel("");
+      try {
+        bilagor = await Promise.all(filer.map(laddaUpp));
+      } catch {
+        setBilagefel(s.uppladdningFel);
+        return;
+      } finally {
+        setLaddarUpp(false);
+      }
+      filer.forEach((v) => URL.revokeObjectURL(v.forhands));
+      setValda([]);
+    }
+
+    const historik: Meddelande[] = [...meddelanden, { roll: "user", text: rensad, ...(bilagor.length ? { bilagor } : {}) }];
     setMeddelanden([...historik, { roll: "assistant", text: "" }]);
     setUtkast("");
     setSvarar(true);
@@ -362,15 +543,15 @@ export default function ChatWidget() {
     pauser.current = { las: lasPaus(), skriv: skrivPaus() };
     setPrickar(false);
     setSkrivIndex(historik.length);
-    track("chat_message", { length: rensad.length });
+    track("chat_message", { length: rensad.length, bilagor: bilagor.length });
 
     try {
-      // Bara frågan och samtals-id:t skickas. Servern håller historiken, så
-      // ingen kan förfalska vad boten redan sagt.
+      // Bara frågan, länkarna till bilagorna och samtals-id:t skickas. Servern
+      // håller historiken, så ingen kan förfalska vad boten redan sagt.
       const svar = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: samtalsId(), message: rensad }),
+        body: JSON.stringify({ sessionId: samtalsId(), message: rensad, bilagor: bilagor.map((b) => ({ url: b.url })) }),
       });
 
       if (!svar.ok) {
@@ -485,12 +666,36 @@ export default function ChatWidget() {
 
               {meddelanden.map((m, i) => {
                 if (m.roll === "user") {
+                  const bilagor = (m.bilagor ?? []).filter((b) => sakerBilaga(b.url));
                   return (
-                    <div
-                      key={i}
-                      className="bg-bg-dark text-text-light rounded-2xl rounded-br-sm px-4 py-3 text-sm ml-auto max-w-[80%] w-fit whitespace-pre-wrap"
-                    >
-                      {m.text}
+                    <div key={i} className="ml-auto max-w-[80%] w-fit flex flex-col items-end gap-1.5">
+                      {bilagor.length > 0 && (
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          {bilagor.map((b) => (
+                            <a
+                              key={b.url}
+                              href={b.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block w-24 h-24 rounded-xl overflow-hidden ring-1 ring-text-primary/10 bg-bg-dark text-text-light"
+                            >
+                              {b.typ === "bild" ? (
+                                <img src={b.url} alt={b.namn} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="w-full h-full flex flex-col items-center justify-center gap-1 px-1.5 text-[10px] text-center">
+                                  <Video className="w-5 h-5" aria-hidden="true" />
+                                  <span className="truncate w-full">{b.namn}</span>
+                                </span>
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      {m.text && (
+                        <div className="bg-bg-dark text-text-light rounded-2xl rounded-br-sm px-4 py-3 text-sm whitespace-pre-wrap">
+                          {m.text}
+                        </div>
+                      )}
                     </div>
                   );
                 }
@@ -548,26 +753,74 @@ export default function ChatWidget() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                skicka(utkast);
+                skicka(utkast, valda);
               }}
               className="border-t border-text-primary/10 p-3 shrink-0"
             >
+              {(valda.length > 0 || bilagefel || laddarUpp) && (
+                <div className="mb-2 space-y-1.5">
+                  {valda.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto pt-1.5 pr-1.5">
+                      {valda.map((v) => (
+                        <div key={v.id} className="relative shrink-0">
+                          {v.typ === "bild" ? (
+                            <img src={v.forhands} alt={v.fil.name} className="w-14 h-14 object-cover rounded-lg bg-bg-primary" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-bg-dark text-text-light flex items-center justify-center" title={v.fil.name}>
+                              <Video className="w-5 h-5" aria-hidden="true" />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => taBort(v.id)}
+                            disabled={laddarUpp}
+                            aria-label={`${s.taBort} ${v.fil.name}`}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-bg-dark text-text-light flex items-center justify-center ring-2 ring-white disabled:opacity-40"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {laddarUpp && <p className="text-[11px] text-text-secondary px-1" role="status">{s.laddarUpp}</p>}
+                  {bilagefel && <p className="text-[11px] text-red-700 px-1" role="alert">{bilagefel}</p>}
+                </div>
+              )}
               <div className="flex items-center gap-2">
+                <input
+                  ref={filRef}
+                  type="file"
+                  accept={TILLATNA_FILER}
+                  multiple
+                  className="hidden"
+                  onChange={(e) => valjFiler(e.target.files)}
+                />
+                <button
+                  type="button"
+                  onClick={() => filRef.current?.click()}
+                  disabled={skriver || laddarUpp || valda.length >= MAX_FILER}
+                  aria-label={s.bifoga}
+                  title={s.bifoga}
+                  className="w-10 h-10 -mr-1 rounded-full text-text-secondary flex items-center justify-center shrink-0 disabled:opacity-40 hover:text-text-primary hover:bg-bg-primary transition-colors"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
                 <input
                   ref={inputRef}
                   value={utkast}
                   onChange={(e) => setUtkast(e.target.value)}
                   placeholder={s.platshallare}
                   maxLength={1500}
-                  className="flex-1 px-4 py-2.5 rounded-full bg-bg-primary text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                  className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-bg-primary text-sm outline-none focus:ring-2 focus:ring-accent/40"
                 />
                 <button
                   type="submit"
-                  disabled={skriver || !utkast.trim()}
+                  disabled={skriver || laddarUpp || (!utkast.trim() && valda.length === 0)}
                   aria-label={s.skicka}
                   className="w-10 h-10 rounded-full bg-bg-dark text-text-light flex items-center justify-center shrink-0 disabled:opacity-40 hover:bg-accent hover:text-text-primary transition-colors"
                 >
-                  <Send className="w-4 h-4" />
+                  {laddarUpp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
               </div>
               <div className="flex items-center justify-between gap-3 mt-2 px-1">

@@ -13,7 +13,8 @@ const LAGRINGSNYCKEL = "stodona-chat";
 const IDNYCKEL = "stodona-chat-id";
 /** Välkomsthälsningen skrivs ut en gång per flik – sedan visas den direkt. */
 const HALSATNYCKEL = "stodona-chat-halsat";
-const AVATAR = "/camilla.svg";
+/** Camilla på Stodonas kundservice. Kvadratisk beskärning, 192 px för skarpa retinaskärmar. */
+const AVATAR = "/camilla.webp";
 
 // Skrivtakt. En tick var 30:e ms med två tecken ger ungefär 65 tecken i
 // sekunden – snabbt skrivande i en chatt. Långa svar skrivs fortare så de inte
@@ -158,7 +159,7 @@ function Avatar({ storlek = 28 }: { storlek?: number }) {
       alt=""
       width={storlek}
       height={storlek}
-      className="rounded-full shrink-0 ring-1 ring-text-primary/10 bg-bg-primary"
+      className="rounded-full shrink-0 object-cover ring-1 ring-text-primary/10 bg-bg-primary"
       style={{ width: storlek, height: storlek }}
     />
   );
@@ -400,7 +401,7 @@ export default function ChatWidget() {
           <X className="w-6 h-6" />
         ) : (
           <>
-            <img src={AVATAR} alt="" className="w-full h-full rounded-full" />
+            <img src={AVATAR} alt="" className="w-full h-full rounded-full object-cover" />
             <span className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white" aria-hidden="true" />
           </>
         )}

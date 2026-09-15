@@ -11,6 +11,9 @@
 // filens första byte, så en HTML-fil inte kan utge sig för att vara en bild.
 // GET ?id= visar filen igen.
 //
+// Filerna ligger bara kvar tills ärendet mejlats till kundservice. Se
+// api/_chatBilagor.ts.
+//
 // Kräver CHAT_ENABLED=true och i produktion BLOB_READ_WRITE_TOKEN.
 
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
@@ -29,6 +32,8 @@ import {
   hamtaLokalFil,
   antalLokalaFiler,
   overUppladdningstaket,
+  forstaPa,
+  rensaGamlaBilagor,
 } from './_chatBilagor';
 
 export const config = { runtime: 'edge' };
@@ -160,6 +165,11 @@ export default async function handler(request: Request) {
         };
       },
     });
+    // Högst var tionde minut: radera filer från avbrutna samtal som legat kvar
+    // längre än två timmar. Nattjobbet är skyddsnätet om ingen laddar upp.
+    if (await forstaPa('chat:bilaga:rensning', 600)) {
+      await rensaGamlaBilagor().catch((f) => console.error('chat-bilaga: rensningen misslyckades:', f));
+    }
     return json(svar);
   } catch (f) {
     console.error('chat-bilaga: uppladdningen nekades:', f);

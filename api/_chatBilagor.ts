@@ -2,9 +2,19 @@
 // något inte blev bra vid en städning.
 //
 // Filen börjar med understreck, så Vercel gör den inte till en egen endpoint.
-// Den används av api/chat.ts, api/chat-bilaga.ts och api/chat-bilagor-rensa.ts.
+// Den används av api/chat.ts, api/chat-bilaga.ts, api/chat-bilagor-rensa.ts
+// och api/lead.ts.
 //
-// SÄKERHET OCH INTEGRITET
+// FILERNA SPARAS INTE – Stodonas beslut 2026-09-15
+//  * En fil ligger bara kvar medan samtalet pågår. När Camilla lämnar över
+//    ärendet skickas filerna som bilagor i mejlet till info@stodona.se och
+//    raderas direkt efter att mejlet gått iväg.
+//  * Skickas inget ärende raderas filerna automatiskt: vid nästa uppladdning
+//    efter två timmar, och varje natt av api/chat-bilagor-rensa.
+//  * Bilder visas för Camilla bara i meddelandet de skickas i. De sparas aldrig
+//    i samtalshistoriken.
+//
+// SÄKERHET
 //  * Bara bilder (JPEG, PNG, WebP, HEIC) och videor (MP4, MOV, WebM). Aldrig
 //    SVG, HTML, PDF eller annat som kan innehålla kod.
 //  * Bilder förminskas i webbläsaren innan de skickas. Det tar också bort
@@ -12,14 +22,18 @@
 //  * Varje fil hamnar i en mapp som är en hash av samtals-id:t. Chatten tar
 //    bara emot bilagor från det egna samtalets mapp, så ingen kan skicka in
 //    någon annans filer eller länkar till främmande sajter.
-//  * I produktion ligger filerna i Vercel Blob med slumpade, ogissbara namn och
-//    raderas efter 90 dagar. Testmiljön sparar i minnet och rör aldrig Blob.
+//  * Allt som skickas med ett mejl ryms under Resends gräns på 40 MB.
+
+import { head, del, list } from '@vercel/blob';
 
 export const MAX_BILAGOR_PER_MEDDELANDE = 5;
 export const MAX_BILAGOR_PER_SAMTAL = 10;
 export const MAX_BILD_BYTE = 15 * 1024 * 1024;
-export const MAX_VIDEO_BYTE = 100 * 1024 * 1024;
-export const LAGRINGSDAGAR = 90;
+export const MAX_VIDEO_BYTE = 25 * 1024 * 1024;
+/** Alla bilagor i ett mejl tillsammans. Base64 gör dem en tredjedel större, och Resend tar högst 40 MB. */
+export const MAX_TOTAL_BYTE = 28 * 1024 * 1024;
+/** Hur länge en fil som aldrig skickats får ligga kvar innan den rensas bort. */
+export const MAX_TIMMAR = 2;
 
 export const BILDTYPER = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 export const VIDEOTYPER = ['video/mp4', 'video/quicktime', 'video/webm'];
@@ -46,6 +60,7 @@ export interface Bilaga {
   typ: Bilagetyp;
   mime: string;
   namn: string;
+  storlek: number;
 }
 
 export function typFor(mime: string): Bilagetyp | null {
@@ -108,13 +123,16 @@ interface LokalFil {
   mime: string;
   namn: string;
   mapp: string;
+  skapad: number;
 }
 
 const lokalaFiler = new Map<string, LokalFil>();
 
-export function sparaLokalt(fil: LokalFil): string {
+export function sparaLokalt(fil: Omit<LokalFil, 'skapad'>): string {
+  const grans = Date.now() - MAX_TIMMAR * 3600 * 1000;
+  for (const [id, gammal] of lokalaFiler) if (gammal.skapad < grans) lokalaFiler.delete(id);
   const id = crypto.randomUUID();
-  lokalaFiler.set(id, fil);
+  lokalaFiler.set(id, { ...fil, skapad: Date.now() });
   return id;
 }
 
@@ -128,41 +146,42 @@ export function antalLokalaFiler(mapp: string): number {
 
 /** En bild i testmiljön som base64 – Claude kan inte hämta localhost-länkar själv. */
 export function lokalBilddata(url: string): { mime: (typeof SYNLIGA_BILDTYPER)[number]; base64: string } | null {
-  let id = '';
-  try {
-    const u = new URL(url);
-    if (u.pathname !== '/api/chat-bilaga') return null;
-    id = u.searchParams.get('id') ?? '';
-  } catch {
-    return null;
-  }
-  const fil = lokalaFiler.get(id);
+  const fil = lokalaFiler.get(lokaltId(url));
   if (!fil || !(SYNLIGA_BILDTYPER as readonly string[]).includes(fil.mime)) return null;
   let binar = '';
   for (let i = 0; i < fil.bytes.length; i += 0x8000) binar += String.fromCharCode(...fil.bytes.subarray(i, i + 0x8000));
   return { mime: fil.mime as (typeof SYNLIGA_BILDTYPER)[number], base64: btoa(binar) };
 }
 
-// ─── Tak ─────────────────────────────────────────────────────────────────────
+function lokaltId(url: string): string {
+  try {
+    const u = new URL(url, 'http://lokal');
+    return u.pathname === '/api/chat-bilaga' ? u.searchParams.get('id') ?? '' : '';
+  } catch {
+    return '';
+  }
+}
+
+// ─── KV ──────────────────────────────────────────────────────────────────────
+
+async function kvKommando(kommando: string[]): Promise<unknown> {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (LOKAL || !url || !token) return null;
+  const svar = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(kommando),
+  });
+  if (!svar.ok) throw new Error(`KV svarade ${svar.status}`);
+  return (await svar.json()).result;
+}
 
 /** Räknar upp en nyckel i KV och svarar om taket är passerat. Släpper igenom om KV inte svarar. */
 export async function overUppladdningstaket(nyckel: string, tak: number, ttlSekunder: number): Promise<boolean> {
-  if (LOKAL) return false;
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;
-  const kor = async (kommando: string[]) => {
-    const svar = await fetch(url, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(kommando),
-    });
-    if (!svar.ok) throw new Error(`KV svarade ${svar.status}`);
-    return (await svar.json()).result;
-  };
   try {
-    const antal = Number(await kor(['INCR', nyckel]));
-    if (antal === 1) await kor(['EXPIRE', nyckel, String(ttlSekunder)]);
+    const antal = Number(await kvKommando(['INCR', nyckel]));
+    if (antal === 1) await kvKommando(['EXPIRE', nyckel, String(ttlSekunder)]);
     return antal > tak;
   } catch (fel) {
     console.error('chat-bilaga: kunde inte räkna taket:', fel);
@@ -170,11 +189,20 @@ export async function overUppladdningstaket(nyckel: string, tak: number, ttlSeku
   }
 }
 
-// ─── Tolkning ────────────────────────────────────────────────────────────────
+/** Sant för den första som frågar under perioden – används för att inte rensa för ofta. */
+export async function forstaPa(nyckel: string, ttlSekunder: number): Promise<boolean> {
+  try {
+    return (await kvKommando(['SET', nyckel, '1', 'NX', 'EX', String(ttlSekunder)])) === 'OK';
+  } catch {
+    return false;
+  }
+}
+
+// ─── Tolkning, radering och rensning ─────────────────────────────────────────
 
 /**
  * Tolkar bilagorna som webbläsaren skickar med ett meddelande. Allt som inte
- * ligger i samtalets egen mapp kastas tyst.
+ * ligger i samtalets egen mapp, eller inte finns, kastas tyst.
  */
 export async function tolkaBilagor(indata: unknown, samtalsId: string, egenOrigin: string): Promise<Bilaga[]> {
   if (!Array.isArray(indata) || !samtalsId) return [];
@@ -195,24 +223,69 @@ export async function tolkaBilagor(indata: unknown, samtalsId: string, egenOrigi
       const fil = u.origin === egenOrigin && u.pathname === '/api/chat-bilaga' ? lokalaFiler.get(id) : undefined;
       const typ = fil ? typFor(fil.mime) : null;
       if (!fil || !typ || fil.mapp !== mapp) continue;
-      ut.push({ url: `${egenOrigin}/api/chat-bilaga?id=${id}`, typ, mime: fil.mime, namn: fil.namn });
+      ut.push({ url: `${egenOrigin}/api/chat-bilaga?id=${id}`, typ, mime: fil.mime, namn: fil.namn, storlek: fil.bytes.length });
       continue;
     }
 
     const vard = blobVard();
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
     const delar = u.pathname.split('/');
     const mime = mimeFranFilnamn(u.pathname);
     const typ = mime ? typFor(mime) : null;
-    if (!vard || u.protocol !== 'https:' || u.host !== vard || delar.length !== 4 || delar[1] !== 'chatt' || delar[2] !== mapp) continue;
+    if (!vard || !token || u.protocol !== 'https:' || u.host !== vard || delar.length !== 4 || delar[1] !== 'chatt' || delar[2] !== mapp) continue;
     if (!mime || !typ) continue;
+
+    const url = `https://${vard}${u.pathname}`;
+    let storlek = 0;
+    try {
+      // Kontrollerar att filen finns och hur stor den faktiskt är.
+      storlek = (await head(url, { token })).size;
+    } catch {
+      continue;
+    }
     let namn = delar[3];
     try {
       namn = decodeURIComponent(namn);
     } catch {
       /* behåll som det är */
     }
-    ut.push({ url: `https://${vard}${u.pathname}`, typ, mime, namn: namn.slice(0, 80) });
+    ut.push({ url, typ, mime, namn: namn.slice(0, 80), storlek });
   }
 
   return ut.filter((b, i, alla) => alla.findIndex((x) => x.url === b.url) === i);
+}
+
+/** Raderar filer – efter att de skickats till kundservice, eller om de inte kunde tas emot. */
+export async function raderaBilagor(bilagor: Bilaga[]): Promise<void> {
+  if (!bilagor.length) return;
+  if (LOKAL) {
+    for (const b of bilagor) lokalaFiler.delete(lokaltId(b.url));
+    return;
+  }
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) return;
+  try {
+    await del(bilagor.map((b) => b.url), { token });
+  } catch (fel) {
+    console.error('chat-bilaga: kunde inte radera filerna:', fel);
+  }
+}
+
+/** Raderar filer som legat kvar längre än MAX_TIMMAR utan att skickas. */
+export async function rensaGamlaBilagor(): Promise<number> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (LOKAL || !token) return 0;
+  const grans = Date.now() - MAX_TIMMAR * 3600 * 1000;
+  let cursor: string | undefined;
+  let raderade = 0;
+  do {
+    const sida = await list({ prefix: 'chatt/', cursor, limit: 1000, token });
+    const gamla = sida.blobs.filter((b) => new Date(b.uploadedAt).getTime() < grans).map((b) => b.url);
+    if (gamla.length) {
+      await del(gamla, { token });
+      raderade += gamla.length;
+    }
+    cursor = sida.hasMore ? sida.cursor : undefined;
+  } while (cursor);
+  return raderade;
 }

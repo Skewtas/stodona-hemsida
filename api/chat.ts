@@ -28,7 +28,15 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { RIKTLINJER, FAKTA, EXEMPELSAMTAL, priserSomText } from '../src/data/chatKunskap';
 import { registreraFraga, registreraVerktyg } from './_chatStatistik';
-import { tolkaBilagor, lokalBilddata, SYNLIGA_BILDTYPER, MAX_BILAGOR_PER_SAMTAL, LAGRINGSDAGAR, type Bilaga } from './_chatBilagor';
+import {
+  tolkaBilagor,
+  lokalBilddata,
+  raderaBilagor,
+  SYNLIGA_BILDTYPER,
+  MAX_BILAGOR_PER_SAMTAL,
+  MAX_TOTAL_BYTE,
+  type Bilaga,
+} from './_chatBilagor';
 
 export const config = { runtime: 'edge' };
 
@@ -68,7 +76,7 @@ TEKNISKT FÖR CHATTEN
 - Andra länkar skriver du kort, som boka.stodona.se eller stodona.se/e-faktura, utan https.
 - Svara på samma språk som kunden skriver på.
 - Ska du använda ett verktyg gör du det direkt, utan att skriva något först. Svaret skriver du när du har resultatet.
-- BILAGOR: kunden kan bifoga bilder och videor med gemet bredvid skrivfältet. Bilder ser du. Beskriv kort och sakligt vad bilden visar när det hjälper ärendet, men bedöm aldrig vem som gjort fel, hur allvarligt det är eller vad det leder till. Videor och vissa bilder kan du inte se – tacka då och säg att de följer med till kundservice, och låtsas aldrig att du sett innehållet. Allt kunden bifogat följer automatiskt med när du lämnar över, så be aldrig kunden mejla filer. Bifogar kunden något efter att du lämnat över, skicka det som en komplettering så att kundservice får filerna. Visar en bild något känsligt, som ett id-kort, ett bankkort eller en kod, säg vänligt att kunden inte behöver skicka sådant.
+- BILAGOR: kunden kan bifoga bilder och videor med gemet bredvid skrivfältet. Bilder ser du. Beskriv kort och sakligt vad bilden visar när det hjälper ärendet, men bedöm aldrig vem som gjort fel, hur allvarligt det är eller vad det leder till. Du ser en bild bara i meddelandet den skickas i. Videor och vissa bilder kan du inte se – tacka då och säg att de följer med till kundservice, och låtsas aldrig att du sett innehållet. Allt kunden bifogat skickas som bilagor i mejlet till kundservice när du lämnar över och sparas inte hos oss, så be inte kunden mejla filerna – utom när ett meddelande säger att en fil var för stor. Bifogar kunden något efter att du lämnat över, skicka det som en komplettering så att kundservice får filerna. Visar en bild något känsligt, som ett id-kort, ett bankkort eller en kod, säg vänligt att kunden inte behöver skicka sådant.
 - Emojis (regel 3) i praktiken: ingen emoji alls i ett meddelande som rör personnummer eller andra personuppgifter, reklamation, skada, pengar tillbaka, sen avbokning, sjukdom, något som gått fel just nu eller en kund som är upprörd.
 - Regel 21 i praktiken: säg bara att du gjort något när ett verktyg faktiskt gjort det. Skriv alltså aldrig "jag ser till att berömmet kommer fram", "jag har noterat det" eller "jag skickar det vidare" som om det redan var gjort. Innan du har lämnat över säger du vad du behöver för att kunna skicka det vidare.
 - Det Stodona strävar efter eller som beror på omständigheter är inga löften. Samma städare: "vi strävar efter samma städare", aldrig "du får samma städare". Paus: "det brukar gå om du hör av dig i god tid", aldrig "självklart går det". Lägg aldrig till detaljer som inte står i FAKTA.
@@ -486,11 +494,9 @@ async function koraVerktyg(
           rent(indata.sammanfattning, 1500) && `Sammanfattning: ${rent(indata.sammanfattning, 1500)}`,
         ];
 
-  // Allt kunden bifogat i samtalet följer med, så kundservice ser det direkt.
+  // Det kunden bifogat och som inte redan skickats följer med som bilagor i mejlet.
   const samtalsBilagor = await hamtaBilagor(samtalsId);
-  const bilagerader = samtalsBilagor.length
-    ? [`Bilagor från kunden (raderas efter ${LAGRINGSDAGAR} dagar):`, ...samtalsBilagor.map((b) => `${b.typ === 'video' ? 'Video' : 'Bild'}: ${b.url}`)]
-    : [];
+  const bilagerader = samtalsBilagor.length ? [`Bilagor: ${beskrivBilagor(samtalsBilagor)} från kunden ligger bifogade i det här mejlet.`] : [];
 
   const kropp = {
     name: rent(indata.fornamn, 80),
@@ -499,6 +505,7 @@ async function koraVerktyg(
     source: namn === 'skicka_lead' ? 'chat_lead' : 'chat_eskalering',
     page: 'chatten',
     notes: [...rader.filter(Boolean), ...bilagerader].join('\n'),
+    bilagor: samtalsBilagor.map((b) => ({ url: b.url, namn: b.namn })),
     timestamp: new Date().toISOString(),
   };
 
@@ -510,6 +517,11 @@ async function koraVerktyg(
   // Testmiljön mejlar aldrig kundservice – leadet skrivs ut i terminalen.
   if (LOKAL) {
     console.log(`\n[lokal chat] ${namn} – skickas INTE i testmiljön:\n${JSON.stringify(kropp, null, 2)}\n`);
+    if (samtalsBilagor.length) {
+      console.log(`[lokal chat] bilagor som hade mejlats: ${samtalsBilagor.map((b) => `${b.namn} (${Math.round(b.storlek / 1024)} kB)`).join(', ')} – raderas nu\n`);
+      await raderaBilagor(samtalsBilagor);
+      await glomBilagor(samtalsId);
+    }
     return bekraftelse;
   }
 
@@ -522,6 +534,16 @@ async function koraVerktyg(
     if (!svar.ok) {
       console.error('chat: /api/lead svarade', svar.status);
       return 'Kunde inte skickas just nu. Be besökaren höra av sig på 010-178 01 50 eller info@stodona.se.';
+    }
+    if (samtalsBilagor.length) {
+      // Filerna raderas bara när mejlet med dem bevisligen gått iväg.
+      const resultat = (await svar.json().catch(() => ({}))) as { bilagorSkickade?: boolean };
+      if (!resultat.bilagorSkickade) {
+        console.error('chat: bilagorna kom inte med i mejlet till kundservice');
+        return `${bekraftelse} Bilagorna kunde dock inte skickas med. Be kunden mejla dem till info@stodona.se.`;
+      }
+      await raderaBilagor(samtalsBilagor);
+      await glomBilagor(samtalsId);
     }
     return bekraftelse;
   } catch (fel) {
@@ -550,10 +572,32 @@ async function hamtaBilagor(samtalsId: string): Promise<Bilaga[]> {
   }
 }
 
-async function sparaBilagor(samtalsId: string, nya: Bilaga[]): Promise<void> {
-  const alla = [...(await hamtaBilagor(samtalsId)), ...nya]
-    .filter((b, i, lista) => lista.findIndex((x) => x.url === b.url) === i)
-    .slice(-MAX_BILAGOR_PER_SAMTAL);
+/** Lägger till nya bilagor, så länge alla ryms i ett och samma mejl till kundservice. */
+async function sparaBilagor(samtalsId: string, nya: Bilaga[]): Promise<{ tagna: Bilaga[]; forStora: Bilaga[] }> {
+  const alla = await hamtaBilagor(samtalsId);
+  const tagna: Bilaga[] = [];
+  const forStora: Bilaga[] = [];
+  let summa = alla.reduce((n, b) => n + (b.storlek || 0), 0);
+  for (const b of nya) {
+    if (alla.some((x) => x.url === b.url)) continue;
+    if (alla.length >= MAX_BILAGOR_PER_SAMTAL || summa + b.storlek > MAX_TOTAL_BYTE) {
+      forStora.push(b);
+      continue;
+    }
+    alla.push(b);
+    tagna.push(b);
+    summa += b.storlek;
+  }
+  await skrivBilagor(samtalsId, alla);
+  return { tagna, forStora };
+}
+
+/** Glömmer bilagorna när de har mejlats till kundservice. */
+async function glomBilagor(samtalsId: string): Promise<void> {
+  await skrivBilagor(samtalsId, []);
+}
+
+async function skrivBilagor(samtalsId: string, alla: Bilaga[]): Promise<void> {
   if (LOKAL) {
     lokalaBilagor.set(samtalsId, alla);
     return;
@@ -566,27 +610,55 @@ async function sparaBilagor(samtalsId: string, nya: Bilaga[]): Promise<void> {
   }
 }
 
-/** Kundens tur med bilagor: bilderna Claude kan se, och en rad om vad som bifogats. */
-function medBilagor(fraga: string, bilagor: Bilaga[]): Anthropic.ContentBlockParam[] {
-  const synliga = bilagor.filter((b) => (SYNLIGA_BILDTYPER as readonly string[]).includes(b.mime));
+/** "2 bilder och 1 video". */
+function beskrivBilagor(bilagor: Bilaga[]): string {
   const bilder = bilagor.filter((b) => b.typ === 'bild').length;
   const videor = bilagor.length - bilder;
-  const vad = [
-    bilder && `${bilder} ${bilder === 1 ? 'bild' : 'bilder'}`,
-    videor && `${videor} ${videor === 1 ? 'video' : 'videor'}`,
-  ]
+  return [bilder && `${bilder} ${bilder === 1 ? 'bild' : 'bilder'}`, videor && `${videor} ${videor === 1 ? 'video' : 'videor'}`]
     .filter(Boolean)
     .join(' och ');
-  const osynliga = bilagor.length - synliga.length;
-  const not =
-    `[Kunden bifogade ${vad} här i chatten.` +
-    (synliga.length ? ` ${synliga.length === 1 ? 'Bilden' : 'Bilderna'} ser du ovan.` : '') +
-    (osynliga ? ` ${synliga.length ? 'Resten' : 'Innehållet'} kan du inte se.` : '') +
-    ' Allt följer automatiskt med när du lämnar över ärendet till kundservice.]';
+}
+
+/** Kundens tur med bilagor: bilderna Claude kan se, och en rad om vad som bifogats. */
+function medBilagor(fraga: string, tagna: Bilaga[], forStora: Bilaga[]): Anthropic.ContentBlockParam[] {
+  const synliga = tagna.filter((b) => (SYNLIGA_BILDTYPER as readonly string[]).includes(b.mime));
+  const osynliga = tagna.length - synliga.length;
+  const rader: string[] = [];
+  if (tagna.length) {
+    rader.push(
+      `[Kunden bifogade ${beskrivBilagor(tagna)} här i chatten.` +
+        (synliga.length
+          ? ` ${synliga.length === 1 ? 'Bilden' : 'Bilderna'} ser du ovan – bara i det här meddelandet, så beskriv det som behövs nu.`
+          : '') +
+        (osynliga ? ` ${synliga.length ? 'Resten' : 'Innehållet'} kan du inte se.` : '') +
+        ' Allt skickas som bilagor i mejlet till kundservice när du lämnar över ärendet.]'
+    );
+  }
+  if (forStora.length) {
+    rader.push(
+      `[${beskrivBilagor(forStora)} kunde inte tas emot – filerna blev för stora för att rymmas i mejlet till kundservice. ` +
+        `Be kunden mejla ${forStora.length === 1 ? 'den' : 'dem'} till info@stodona.se.]`
+    );
+  }
+  const not = rader.join('\n');
   return [
     ...synliga.map((b): Anthropic.ImageBlockParam => ({ type: 'image', source: { type: 'url', url: b.url } })),
     { type: 'text', text: fraga ? `${fraga}\n\n${not}` : not },
   ];
+}
+
+/**
+ * Bilder sparas aldrig i samtalet. Camilla ser dem i meddelandet de skickas i;
+ * sedan ersätts de med en rad text, så filen kan raderas utan att samtalet går sönder.
+ */
+function utanBilder(meddelanden: Anthropic.MessageParam[]): Anthropic.MessageParam[] {
+  return meddelanden.map((m) => {
+    if (typeof m.content === 'string' || !m.content.some((b) => b.type === 'image')) return m;
+    const content = m.content.map(
+      (b): Anthropic.ContentBlockParam => (b.type === 'image' ? { type: 'text', text: '(Här bifogade kunden en bild.)' } : b)
+    );
+    return { ...m, content } as Anthropic.MessageParam;
+  });
 }
 
 /**
@@ -636,7 +708,7 @@ async function hamtaSamtal(samtalsId: string): Promise<Anthropic.MessageParam[]>
 }
 
 async function sparaSamtal(samtalsId: string, historik: Anthropic.MessageParam[]): Promise<void> {
-  const kvar = trimma(historik);
+  const kvar = trimma(utanBilder(historik));
   if (LOKAL) {
     lokalaSamtal.set(samtalsId, kvar);
     return;
@@ -729,8 +801,10 @@ export default async function handler(request: Request) {
   await registreraFraga(samtalsId, fraga || '[skickade bara bilagor]');
 
   const historik = await hamtaSamtal(samtalsId);
-  if (bilagor.length) await sparaBilagor(samtalsId, bilagor);
-  historik.push({ role: 'user', content: bilagor.length ? medBilagor(fraga, bilagor) : fraga });
+  // Filer som inte ryms i mejlet till kundservice raderas direkt, och Camilla får veta det.
+  const { tagna, forStora } = bilagor.length ? await sparaBilagor(samtalsId, bilagor) : { tagna: [], forStora: [] };
+  if (forStora.length) await raderaBilagor(forStora);
+  historik.push({ role: 'user', content: bilagor.length ? medBilagor(fraga, tagna, forStora) : fraga });
 
   const client = new Anthropic({ apiKey });
 

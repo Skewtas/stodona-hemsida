@@ -2,6 +2,8 @@
 // POST: Save a new lead to Vercel KV + send email via Resend
 // GET: Retrieve all leads (password protected)
 
+import { blobVard } from './_chatBilagor';
+
 export const config = {
   runtime: 'edge',
 };
@@ -98,7 +100,7 @@ export default async function handler(request: Request) {
 
   try {
     const data = await request.json();
-    const { email: raEpost, phone: raTelefon, name, source, timestamp, page, notes } = data;
+    const { email: raEpost, phone: raTelefon, name, source, timestamp, page, notes, bilagor } = data;
 
     // Ogiltig adress används inte alls – varken som mottagare, reply-to eller i
     // mejltexten.
@@ -186,6 +188,26 @@ export default async function handler(request: Request) {
       );
     }
 
+    // Bilder och videor från chatten skickas som bilagor i mejlet och sparas
+    // aldrig i leadlistan. Bara filer i chattens mapp i vår egen Blob-butik
+    // godtas – Resend hämtar dem själv. api/chat.ts raderar filerna när svaret
+    // säger att de kom med.
+    const vard = blobVard();
+    const attachments =
+      vard && Array.isArray(bilagor)
+        ? (bilagor as Array<{ url?: unknown; namn?: unknown }>).slice(0, 10).flatMap((b) => {
+            try {
+              const u = new URL(typeof b?.url === 'string' ? b.url : '');
+              if (u.protocol !== 'https:' || u.host !== vard || !u.pathname.startsWith('/chatt/')) return [];
+              const filnamn = String(b?.namn ?? '').replace(/[^\p{L}\p{N}._-]/gu, '').slice(0, 80) || 'bilaga';
+              return [{ filename: filnamn, path: u.toString() }];
+            } catch {
+              return [];
+            }
+          })
+        : [];
+    let bilagorSkickade = false;
+
     // Send notification email via Resend
     if (RESEND_API_KEY) {
       const emailHtml = `
@@ -205,7 +227,7 @@ export default async function handler(request: Request) {
       `;
 
       try {
-        await fetch('https://api.resend.com/emails', {
+        const resendSvar = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${RESEND_API_KEY}`,
@@ -224,8 +246,11 @@ export default async function handler(request: Request) {
             ...(email ? { reply_to: email } : {}),
             subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone}`,
             html: emailHtml,
+            ...(attachments.length ? { attachments } : {}),
           }),
         });
+        bilagorSkickade = attachments.length > 0 && resendSvar.ok;
+        if (!resendSvar.ok) console.error('Resend svarade', resendSvar.status, await resendSvar.text());
       } catch (error) {
         console.error('Resend error:', error);
       }
@@ -267,7 +292,7 @@ export default async function handler(request: Request) {
       }
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, bilagorSkickade }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

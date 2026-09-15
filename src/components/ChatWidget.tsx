@@ -86,7 +86,9 @@ const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "t
 // bara för att kunden ska få besked direkt.
 const MAX_FILER = 5;
 const MAX_BILD_MB = 25; // före förminskning
-const MAX_VIDEO_MB = 100;
+// Filerna skickas som bilagor i ett mejl till kundservice, och ett mejl får
+// vara högst 40 MB. 25 MB räcker till ungefär 20 sekunders mobilvideo.
+const MAX_VIDEO_MB = 25;
 const BILD_MAXSIDA = 1600;
 const TILLATNA_FILER = "image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm";
 const FILANDELSE: Record<string, string> = {
@@ -205,7 +207,8 @@ const TEXT = {
     taBort: "Ta bort",
     laddarUpp: "Laddar upp…",
     felTyp: "Bara bilder och videor går att bifoga.",
-    forStor: `Filen är för stor. Videor får vara högst ${MAX_VIDEO_MB} MB.`,
+    forStor: `Filen är för stor. Videor får vara högst ${MAX_VIDEO_MB} MB, ungefär 20 sekunder. Längre videor kan du mejla till info@stodona.se.`,
+    bildSkickad: "Bild skickad",
     maxAntal: `Du kan bifoga högst ${MAX_FILER} filer åt gången.`,
     uppladdningFel: "Filen kunde inte laddas upp. Försök igen, eller ring 010-178 01 50.",
   },
@@ -232,7 +235,8 @@ const TEXT = {
     taBort: "Remove",
     laddarUpp: "Uploading…",
     felTyp: "Only photos and videos can be attached.",
-    forStor: `The file is too large. Videos can be up to ${MAX_VIDEO_MB} MB.`,
+    forStor: `The file is too large. Videos can be up to ${MAX_VIDEO_MB} MB, about 20 seconds. You can email longer videos to info@stodona.se.`,
+    bildSkickad: "Photo sent",
     maxAntal: `You can attach up to ${MAX_FILER} files at a time.`,
     uppladdningFel: "The file couldn't be uploaded. Try again, or call +46 10 178 01 50.",
   },
@@ -677,10 +681,21 @@ export default function ChatWidget() {
                               href={b.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="block w-24 h-24 rounded-xl overflow-hidden ring-1 ring-text-primary/10 bg-bg-dark text-text-light"
+                              className="relative block w-24 h-24 rounded-xl overflow-hidden ring-1 ring-text-primary/10 bg-bg-dark text-text-light"
                             >
                               {b.typ === "bild" ? (
-                                <img src={b.url} alt={b.namn} className="w-full h-full object-cover" />
+                                <>
+                                  {/* Filen raderas när ärendet mejlats till kundservice – då syns texten i stället. */}
+                                  <span className="absolute inset-0 flex items-center justify-center px-1.5 text-[10px] text-center">{s.bildSkickad}</span>
+                                  <img
+                                    src={b.url}
+                                    alt={b.namn}
+                                    className="relative w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.visibility = "hidden";
+                                    }}
+                                  />
+                                </>
                               ) : (
                                 <span className="w-full h-full flex flex-col items-center justify-center gap-1 px-1.5 text-[10px] text-center">
                                   <Video className="w-5 h-5" aria-hidden="true" />

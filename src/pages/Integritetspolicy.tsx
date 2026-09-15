@@ -67,7 +67,7 @@ export default function Integritetspolicy() {
                 <strong>Vem som behandlar det:</strong> meddelandena skickas till vår AI-leverantör Anthropic för att ta fram svaren. Anthropic använder dem inte för att träna sina AI-modeller.
               </li>
               <li>
-                <strong>Bilder och videor:</strong> du kan bifoga bilder och videor i chatten, till exempel när något inte blev bra. De sparas hos vår driftleverantör och följer med ditt ärende till kundservice. Bilder förminskas i regel innan de skickas, vilket också tar bort platsinformation från mobilbilder. Bilderna visas för AI-assistenten så att den kan förstå ärendet, videor ser bara kundservice. Allt raderas efter 90 dagar.
+                <strong>Bilder och videor:</strong> du kan bifoga bilder och videor i chatten, till exempel när något inte blev bra. Vi sparar dem inte. När ärendet lämnas över skickas de som bilagor i ett mejl till vår kundservice och raderas hos oss direkt efter det. Skickas inget ärende raderas de automatiskt, normalt inom två timmar. Bilder förminskas i regel innan de skickas, vilket också tar bort platsinformation från mobilbilder. Bilderna visas för AI-assistenten så att den kan förstå ärendet, videor ser bara kundservice.
               </li>
               <li>
                 <strong>Om du vill boka eller bli kontaktad:</strong> uppgifterna du lämnar går vidare till vårt bokningssystem eller till vår kundservice, och behandlas då som vid en vanlig bokning eller kontakt.
@@ -95,7 +95,7 @@ export default function Integritetspolicy() {
               Vi sparar dina uppgifter så länge det är nödvändigt för de ändamål de samlades in för, eller så länge det krävs enligt lag.
             </p>
             <p className="text-text-secondary mb-8">
-              Chattsamtal sparas i högst två timmar. Bilder och videor som bifogats i chatten, liksom anonymiserade frågor från chatten, raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
+              Chattsamtal sparas i högst två timmar. Bilder och videor från chatten sparas inte hos oss – de mejlas till kundservice och hanteras där som annan kundkorrespondens. Anonymiserade frågor från chatten raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
             </p>
 
             <h2 className="text-3xl font-bold mb-6">Dina rättigheter</h2>

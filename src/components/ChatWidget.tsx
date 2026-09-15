@@ -16,12 +16,14 @@ const HALSATNYCKEL = "stodona-chat-halsat";
 /** Camilla på Stodonas kundservice. Kvadratisk beskärning, 192 px för skarpa retinaskärmar. */
 const AVATAR = "/camilla.webp";
 
-// Skrivtakt. En tick var 30:e ms med två tecken ger ungefär 65 tecken i
-// sekunden – snabbt skrivande i en chatt. Långa svar skrivs fortare så de inte
-// drar ut, och prickarna syns en stund innan första tecknet kommer.
+// Tidtagning som liknar en människa. Först "läser" Camilla en stund utan att
+// något syns, sedan visas att hon skriver, och sedan kommer texten i ungefär 35
+// tecken i sekunden. Pauserna slumpas lite så det aldrig känns mekaniskt, och
+// långa svar skrivs fortare så de inte drar ut.
 const TICK_MS = 30;
-const MIN_SKRIVER_MS = 850;
-const teckenPerTick = (kvar: number) => (kvar > 200 ? 8 : kvar > 80 ? 4 : 2);
+const lasPaus = () => 900 + Math.random() * 500; // innan "skriver" syns
+const skrivPaus = () => 1100 + Math.random() * 700; // prickar innan första tecknet
+const teckenPerTick = (kvar: number) => (kvar > 300 ? 4 : kvar > 120 ? 2 : 1);
 
 // Tecken räknas som kodpunkter, så en emoji aldrig klyvs på mitten under
 // animationen och syns som en trasig ruta.
@@ -137,6 +139,16 @@ function delaUppVal(text: string): { text: string; val: string[] } {
   return { text: ren.trimEnd(), val };
 }
 
+/** Visar länken utan https och med å, ä och ö i klartext – adressen i href förblir kodad. */
+function lasbarLank(bit: string): string {
+  const utan = bit.replace(/^https?:\/\//, "");
+  try {
+    return decodeURI(utan);
+  } catch {
+    return utan;
+  }
+}
+
 /** Gör länkar till våra egna adresser i botens svar klickbara. */
 function medLankar(text: string) {
   // split med en fångstgrupp lägger varje träff på udda index.
@@ -144,7 +156,7 @@ function medLankar(text: string) {
     const url = /^https?:\/\//i.test(bit) ? bit : `https://${bit}`;
     return i % 2 === 1 && egenLank(url) ? (
       <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="underline break-words hover:text-cta-hover">
-        {bit.replace(/^https?:\/\//, "")}
+        {lasbarLank(bit)}
       </a>
     ) : (
       <span key={i}>{bit}</span>
@@ -191,12 +203,16 @@ export default function ChatWidget() {
   /** Vilket botsvar som skrivs ut just nu, och hur många tecken som syns. */
   const [skrivIndex, setSkrivIndex] = useState<number | null>(null);
   const [synligLangd, setSynligLangd] = useState(0);
+  /** Om "Camilla skriver"-prickarna ska synas för svaret som är på väg. */
+  const [prickar, setPrickar] = useState(false);
   /** null = välkomsthälsningen syns i sin helhet. */
   const [valkomstLangd, setValkomstLangd] = useState<number | null>(null);
+  const [valkomstPrickar, setValkomstPrickar] = useState(false);
 
   const listaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const skrivStart = useRef(0);
+  const pauser = useRef({ las: 0, skriv: 0 });
   const minskadRorelse = useRef(false);
   // Skrivloopen läser senaste läget via refs, så intervallet inte startas om
   // vid varje nytt tecken.
@@ -249,7 +265,7 @@ export default function ChatWidget() {
     if (!lista) return;
     const animerar = skrivIndex !== null || valkomstLangd !== null;
     lista.scrollTo({ top: lista.scrollHeight, behavior: animerar ? "auto" : "smooth" });
-  }, [meddelanden, svarar, synligLangd, skrivIndex, valkomstLangd]);
+  }, [meddelanden, svarar, synligLangd, skrivIndex, valkomstLangd, prickar, valkomstPrickar]);
 
   useEffect(() => {
     if (!oppen) return;
@@ -273,9 +289,16 @@ export default function ChatWidget() {
     const text = s.valkommen;
     const mal = antalTecken(text);
     const start = Date.now();
+    // Chatten har nyss öppnats, så läspausen är lite kortare här.
+    const las = lasPaus() - 300;
+    const skriv = skrivPaus();
     setValkomstLangd(0);
+    setValkomstPrickar(false);
     const id = window.setInterval(() => {
-      if (Date.now() - start < MIN_SKRIVER_MS) return;
+      const gatt = Date.now() - start;
+      if (gatt < las) return;
+      setValkomstPrickar(true);
+      if (gatt < las + skriv) return;
       setValkomstLangd((n) => {
         if (n === null) return null;
         const nasta = Math.min(mal, n + teckenPerTick(mal - n));
@@ -306,7 +329,12 @@ export default function ChatWidget() {
         return;
       }
       const mal = antalTecken(delaUppVal(m.text).text);
-      if (!minskadRorelse.current && Date.now() - skrivStart.current < MIN_SKRIVER_MS) return;
+      if (!minskadRorelse.current) {
+        const gatt = Date.now() - skrivStart.current;
+        if (gatt < pauser.current.las) return;
+        setPrickar(true);
+        if (gatt < pauser.current.las + pauser.current.skriv) return;
+      }
 
       const nu = synligRef.current;
       const nasta = minskadRorelse.current ? mal : Math.min(mal, nu + teckenPerTick(mal - nu));
@@ -331,6 +359,8 @@ export default function ChatWidget() {
     synligRef.current = 0;
     setSynligLangd(0);
     skrivStart.current = Date.now();
+    pauser.current = { las: lasPaus(), skriv: skrivPaus() };
+    setPrickar(false);
     setSkrivIndex(historik.length);
     track("chat_message", { length: rensad.length });
 
@@ -435,6 +465,7 @@ export default function ChatWidget() {
             </div>
 
             <div ref={listaRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" aria-live="polite">
+              {(valkomstLangd !== 0 || valkomstPrickar) && (
               <div className="flex items-end gap-2">
                 <Avatar />
                 <div className={BOTBUBBLA}>
@@ -450,6 +481,7 @@ export default function ChatWidget() {
                   )}
                 </div>
               </div>
+              )}
 
               {meddelanden.map((m, i) => {
                 if (m.roll === "user") {
@@ -465,6 +497,8 @@ export default function ChatWidget() {
                 const ren = delaUppVal(m.text).text;
                 const skrivsNu = i === skrivIndex;
                 const synlig = skrivsNu ? forstaTecken(ren, synligLangd) : ren;
+                // Under läspausen syns ingenting alls – varken bubbla eller prickar.
+                if (skrivsNu && synlig.length === 0 && !prickar) return null;
                 return (
                   <div key={i} className="flex items-end gap-2">
                     <Avatar />

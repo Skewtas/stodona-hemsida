@@ -168,8 +168,13 @@ export default function ChatWidget() {
     try {
       sessionStorage.setItem(LAGRINGSNYCKEL, JSON.stringify(meddelanden.slice(-24)));
     } catch { /* strunt i det */ }
-    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: "smooth" });
   }, [meddelanden]);
+
+  // Scrolla även när svaret strömmat klart: knapparna visas först då, utan att
+  // något meddelande ändras – annars hamnar de under skrivfältet, osynliga.
+  useEffect(() => {
+    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: "smooth" });
+  }, [meddelanden, svarar]);
 
   useEffect(() => {
     if (!oppen) return;

@@ -52,7 +52,30 @@ export default function Integritetspolicy() {
               <li>Kontaktar oss via formulär, e-post eller telefon</li>
               <li>Använder vår kundportal</li>
               <li>Anmäler dig till vårt nyhetsbrev</li>
+              <li>Chattar med Camilla, vår digitala assistent på webbplatsen</li>
             </ul>
+
+            <h2 className="text-3xl font-bold mb-6">Chatten på webbplatsen</h2>
+            <p className="text-text-secondary mb-4">
+              Camilla i chatten är en digital assistent som drivs av AI, inte en människa. Hon svarar på frågor, räknar fram priser, visar lediga tider och kan förbereda en bokning som du själv slutför. Svaren kan innehålla fel, och ersättning eller undantag bedöms alltid av vår kundservice.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mb-4 text-text-secondary">
+              <li>
+                <strong>Vad som behandlas:</strong> det du skriver i chatten, och de uppgifter du själv väljer att lämna, till exempel namn, e-post, telefon eller adress när du vill boka eller bli kontaktad. Skriv aldrig personnummer, portkoder eller kortuppgifter i chatten – de fyller du i på bokningssidan.
+              </li>
+              <li>
+                <strong>Vem som behandlar det:</strong> meddelandena skickas till vår AI-leverantör Anthropic för att ta fram svaren. Anthropic använder dem inte för att träna sina AI-modeller.
+              </li>
+              <li>
+                <strong>Om du vill boka eller bli kontaktad:</strong> uppgifterna du lämnar går vidare till vårt bokningssystem eller till vår kundservice, och behandlas då som vid en vanlig bokning eller kontakt.
+              </li>
+              <li>
+                <strong>Statistik:</strong> för att förbättra chatten och vår service sparar vi vilka ämnen samtalen gäller, hur de slutade och frågorna i anonymiserad form. Telefonnummer, e-post, personnummer, adresser och namn rensas bort innan något sparas. Statistiken kan inte kopplas till din webbläsare och visas bara för behörig personal. Den rättsliga grunden är vårt berättigade intresse av att förbättra vår service.
+              </li>
+            </ul>
+            <p className="text-text-secondary mb-8">
+              Själva samtalet sparas i högst två timmar så att chatten minns vad ni pratat om. I din webbläsare sparas samtalet bara tills du stänger fliken.
+            </p>
 
             <h2 className="text-3xl font-bold mb-6">Varför behandlar vi dina uppgifter?</h2>
             <p className="text-text-secondary mb-6">Vi behandlar dina personuppgifter för att kunna:</p>
@@ -67,6 +90,9 @@ export default function Integritetspolicy() {
             <h2 className="text-3xl font-bold mb-6">Hur länge sparar vi uppgifterna?</h2>
             <p className="text-text-secondary mb-8">
               Vi sparar dina uppgifter så länge det är nödvändigt för de ändamål de samlades in för, eller så länge det krävs enligt lag.
+            </p>
+            <p className="text-text-secondary mb-8">
+              Chattsamtal sparas i högst två timmar. Anonymiserade frågor från chatten raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
             </p>
 
             <h2 className="text-3xl font-bold mb-6">Dina rättigheter</h2>

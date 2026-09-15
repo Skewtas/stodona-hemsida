@@ -27,6 +27,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { RIKTLINJER, FAKTA, EXEMPELSAMTAL, priserSomText } from '../src/data/chatKunskap';
+import { registreraFraga, registreraVerktyg } from './_chatStatistik';
 
 export const config = { runtime: 'edge' };
 
@@ -628,6 +629,9 @@ export default async function handler(request: Request) {
     return fel(429, 'Chatten är hårt belastad just nu. Ring 010-178 01 50 så hjälper vi dig direkt.');
   }
 
+  // Statistik: frågan sparas anonymiserad i 90 dagar. Kan aldrig stoppa chatten.
+  await registreraFraga(samtalsId, fraga);
+
   const historik = await hamtaSamtal(samtalsId);
   historik.push({ role: 'user', content: fraga });
 
@@ -718,6 +722,11 @@ export default async function handler(request: Request) {
           for (const block of slutgiltigt.content) {
             if (block.type !== 'tool_use') continue;
             const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId);
+            await registreraVerktyg(
+              samtalsId,
+              block.name,
+              block.name === 'eskalera_till_kundservice' ? rent((block.input as Record<string, unknown> | undefined)?.arende, 60) : undefined
+            );
             resultat.push({ type: 'tool_result', tool_use_id: block.id, content: svar });
           }
           historik.push({ role: 'user', content: resultat });

@@ -73,7 +73,8 @@ TEKNISKT FÖR CHATTEN
 - Antyd aldrig att en avgift kan strykas eller att kunden kan få ett undantag, till exempel vid sjukdom. Visa förståelse och säg att kundservice kontrollerar ärendet.
 - Befintliga bokningar (tillägg D) i praktiken: säg aldrig att kundservice "kan flytta", "kan avboka" eller "kan pausa" – säg att kundservice kontrollerar om det går.
 - Leads (regel 6) i praktiken: be om förnamnet först och sedan telefon eller mejl. Ett ensamt ord som "Test" eller "Anna" är ett namn, inte ett felskrivet nummer. Skicka leadet en gång, när du har förnamn och ett sätt att nå kunden, och ta med allt kunden redan sagt. Lämnar kunden något nytt efteråt, som en önskad tid, skickar du det som en komplettering bara om det verkligen är ny information.
-- Ett ärende, ett mejl till kundservice: innan du skickar ett lead eller lämnar över, fråga efter det som saknas och som kundservice behöver för att agera. För ett lead om att bli uppringd: när det passar bäst att ringa. För en ombokning: vilken dag eller tid kunden vill ha i stället. Fråga det innan du skickar, inte efteråt.
+- Ett ärende, ett mejl till kundservice: innan du skickar ett lead eller lämnar över, fråga efter det som saknas och som kundservice behöver för att agera. För ett lead om att bli uppringd: när det passar bäst att ringa. Fråga det innan du skickar, inte efteråt.
+- Ombokning – Stodonas beslut om ordning och ordval. Fråga en sak åt gången, i den här ordningen, och hoppa över det kunden redan sagt: 1) "Vilket tillfälle vill du omboka?" 2) "Vilken dag och tid vill du ändra till?" 3) namnet 4) telefon eller mejl. Lämna sedan över. Gissa aldrig och utgå aldrig från något kunden inte sagt, och bekräfta inte med "Perfekt" eller "Toppen" förrän kunden faktiskt har gett dig något.
 - Fråga en sak åt gången (regel 24): först namnet, sedan telefon eller mejl. I en bokning först adressen, sedan datumet. Svarar kunden inte på din fråga, bemöt först det kunden skrev och fråga sedan igen med andra ord – upprepa aldrig samma mening.
 - Du heter Camilla. Du behöver inte påpeka att du är digital i varje svar. Men frågar kunden om du är en människa, en robot eller en AI svarar du alltid ärligt: att du är Stodonas digitala assistent, och att en kollega på kundservice gärna tar över om kunden hellre vill det. Påstå aldrig att du är en människa. Bilden i chatten föreställer Camilla på Stodonas kundservice. Frågar kunden om det är hon som skriver, svarar du ärligt att du är den digitala assistenten och att Camilla och hennes kollegor på kundservice tar över när det behövs. Låtsas aldrig vara den riktiga Camilla.
 - KNAPPAR: när kunden ska välja mellan två till åtta fasta alternativ – tjänst, hur ofta, lediga tider, hur vi kommer in, ja eller nej – ställer du frågan i texten och avslutar meddelandet med en egen rad i exakt det här formatet:
@@ -202,7 +203,7 @@ const VERKTYG: Anthropic.Tool[] = [
         },
         sammanfattning: {
           type: 'string',
-          description: 'Vad kunden behöver hjälp med, relevanta bokningsuppgifter, vad du redan sagt och vad kundservice behöver göra.',
+          description: 'Vad kunden behöver hjälp med, relevanta bokningsuppgifter, vad du redan sagt och vad kundservice behöver göra. Skriv dagar både som kunden sa dem och med datum ur kalendern, t.ex. "torsdag 2026-09-17". Är det en komplettering: upprepa samma datum som i det första ärendet.',
         },
         bradskande: { type: 'boolean', description: 'Sant vid säkerhet, nycklar, larm eller ett pågående besök där något gått fel.' },
       },
@@ -653,12 +654,21 @@ export default async function handler(request: Request) {
   const nu = new Date();
   const sv = (opt: Intl.DateTimeFormatOptions) =>
     new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', ...opt }).format(nu);
+  // En färdig kalender för de kommande två veckorna, så att boten slår upp
+  // "på torsdag" i stället för att räkna – annars kan den hamna en dag fel.
+  const kalender = Array.from({ length: 14 }, (_, i) => {
+    const dag = new Date(nu.getTime() + i * 24 * 3600 * 1000);
+    const f = (opt: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', ...opt }).format(dag);
+    return `${f({ weekday: 'long' })} ${f({ year: 'numeric', month: '2-digit', day: '2-digit' })}`;
+  }).join(', ');
   const tidsstampel: Anthropic.MessageParam = {
     role: 'system' as unknown as 'user',
     content:
       `Just nu är det ${sv({ weekday: 'long' })} den ${sv({ year: 'numeric', month: '2-digit', day: '2-digit' })} ` +
       `klockan ${sv({ hour: '2-digit', minute: '2-digit' })} i Stockholm. ` +
-      'Använd det när kunden säger "på tisdag" eller "22 september" – datum du skickar till verktygen ska vara ÅÅÅÅ-MM-DD. ' +
+      `Kalender för de kommande dagarna: ${kalender}. ` +
+      'Säger kunden "på torsdag" menar kunden den närmaste torsdagen i kalendern. Slå alltid upp datumet där, räkna aldrig själv. ' +
+      'Datum du skickar till verktygen och skriver i sammanfattningar ska vara ÅÅÅÅ-MM-DD. ' +
       'Kundservice svarar i telefon vardagar 10–16. Är det stängt just nu, säg när vi öppnar igen i stället för att be kunden ringa direkt.',
   };
 
@@ -674,15 +684,29 @@ export default async function handler(request: Request) {
       messages: [...meddelanden, tidsstampel],
     });
 
-  const stream = skapaStrom(historik);
+  let stream = skapaStrom(historik);
 
   // Vi väntar in första händelsen innan svaret börjar skickas. Då hinner ett
   // trasigt anrop – fel nyckel, slut på kredit, spärr – bli en riktig
   // felstatus i stället för en 200 med en ursäkt i texten.
-  const iterator = stream[Symbol.asyncIterator]();
-  let forsta: IteratorResult<Anthropic.MessageStreamEvent>;
+  let iterator = stream[Symbol.asyncIterator]();
+  let forsta!: IteratorResult<Anthropic.MessageStreamEvent>;
   try {
-    forsta = await iterator.next();
+    // Är Claude tillfälligt överbelastat försöker vi igen två gånger, med en
+    // kort paus, innan kunden får ett fel. Inget har skickats till kunden än.
+    for (let forsok = 0; ; forsok++) {
+      try {
+        forsta = await iterator.next();
+        break;
+      } catch (f) {
+        const typ = f instanceof Anthropic.APIError ? (f.error as { error?: { type?: string } })?.error?.type : undefined;
+        const tillfalligt = f instanceof Anthropic.APIError && (typ === 'overloaded_error' || f.status === 529);
+        if (!tillfalligt || forsok >= 2) throw f;
+        await new Promise((klar) => setTimeout(klar, 800 * (forsok + 1)));
+        stream = skapaStrom(historik);
+        iterator = stream[Symbol.asyncIterator]();
+      }
+    }
   } catch (f) {
     const slag = f instanceof Anthropic.APIError ? (f.error as { error?: { type?: string } })?.error?.type ?? String(f.status) : 'okant_fel';
     console.error('chat: anropet mot Claude misslyckades:', f);

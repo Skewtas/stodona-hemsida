@@ -11,8 +11,9 @@
 // till cron-jobbet. Bara filer i chattens egen mapp i vår Blob-butik godtas,
 // så nyckeln kan aldrig användas för att radera något annat.
 
-import { blobStorlek, blobRadera, blobRensa } from './_blobLagring';
-import { blobVard, MAX_TIMMAR } from './_chatBilagor';
+// Node kräver filändelsen i importen, till skillnad från edge-funktionerna.
+import { blobStorlek, blobRadera, blobRensa } from './_blobLagring.js';
+import { blobVard, MAX_TIMMAR } from './_chatBilagor.js';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });

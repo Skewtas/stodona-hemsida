@@ -34,8 +34,10 @@ import {
   overUppladdningstaket,
   forstaPa,
   MAX_TIMMAR,
-} from './_chatBilagor';
-import { blobRensa } from './_blobLagring';
+  // Node kräver filändelsen i importen. Edge-funktionerna buntas ihop och
+  // klarar sig utan, men den här funktionen kör i Node.
+} from './_chatBilagor.js';
+import { blobRensa } from './_blobLagring.js';
 
 // Kör i Node-miljön (se web-signaturen längst ned): Vercel Blobs paket bygger
 // på Node-moduler och fungerar inte i edge.

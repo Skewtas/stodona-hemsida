@@ -226,8 +226,11 @@ export default async function handler(request: Request) {
         </div>
       `;
 
-      try {
-        const resendSvar = await fetch('https://api.resend.com/emails', {
+      // Mejlet skickas i första hand med bilagorna. Nekar Resend dem skickas
+      // mejlet ändå, med länkar i stället, så kundservice aldrig blir utan
+      // ärendet. Filerna raderas bara när bilagorna faktiskt kom med.
+      const skickaMejl = (medBilagor: boolean) =>
+        fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${RESEND_API_KEY}`,
@@ -245,12 +248,28 @@ export default async function handler(request: Request) {
             // utelämnas fältet hellre än att peka tillbaka på oss själva.
             ...(email ? { reply_to: email } : {}),
             subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone}`,
-            html: emailHtml,
-            ...(attachments.length ? { attachments } : {}),
+            html:
+              medBilagor || !attachments.length
+                ? emailHtml
+                : emailHtml +
+                  `<p style="font-family:Arial,sans-serif;font-size:13px;color:#666;">Bilagorna från chatten kunde inte bifogas. De ligger kvar en kort stund här:<br>${attachments
+                    .map((a) => `<a href="${esc(a.path)}">${esc(a.filename)}</a>`)
+                    .join('<br>')}</p>`,
+            ...(medBilagor && attachments.length ? { attachments } : {}),
           }),
         });
-        bilagorSkickade = attachments.length > 0 && resendSvar.ok;
-        if (!resendSvar.ok) console.error('Resend svarade', resendSvar.status, await resendSvar.text());
+
+      try {
+        const forsta = await skickaMejl(attachments.length > 0);
+        if (forsta.ok) {
+          bilagorSkickade = attachments.length > 0;
+        } else {
+          console.error('Resend svarade', forsta.status, await forsta.text());
+          if (attachments.length) {
+            const utan = await skickaMejl(false);
+            if (!utan.ok) console.error('Resend svarade även utan bilagor', utan.status, await utan.text());
+          }
+        }
       } catch (error) {
         console.error('Resend error:', error);
       }

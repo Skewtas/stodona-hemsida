@@ -21,6 +21,8 @@ function lokalChatApi(env: Record<string, string>): Plugin {
       }
       process.env.STODONA_LOKAL = 'true';
       process.env.CHAT_ENABLED = 'true';
+      // Inloggad kundtjänst med simulerad BankID finns BARA i testmiljön.
+      process.env.CHAT_KUNDTJANST = 'true';
 
       server.config.logger.info(
         `[lokal chat] ${Object.keys(env).length} env-variabler lästa · ` +

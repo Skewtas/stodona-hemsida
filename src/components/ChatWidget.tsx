@@ -81,6 +81,11 @@ function samtalsId(): string {
 // chatten är färdig.
 const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "true";
 
+// Inloggad kundtjänst (legitimering, fakturor, bokningar) finns bara i
+// testmiljön. Servern nekar allt utan CHAT_KUNDTJANST, och här visas
+// varken knapp eller legitimeringsruta i ett produktionsbygge.
+const KUNDTJANST_PA = import.meta.env.DEV;
+
 // ─── Bilagor ─────────────────────────────────────────────────────────────────
 // Samma gränser kontrolleras på servern (api/_chatBilagor.ts). Här finns de
 // bara för att kunden ska få besked direkt.
@@ -209,6 +214,14 @@ const TEXT = {
     felTyp: "Bara bilder och videor går att bifoga.",
     forStor: `Filen är för stor. Videor får vara högst ${MAX_VIDEO_MB} MB, ungefär 20 sekunder. Längre videor kan du mejla till info@stodona.se.`,
     bildSkickad: "Bild skickad",
+    bankidKnapp: "Verifiera med Mobilt BankID",
+    bankidRubrik: "Legitimera dig med Mobilt BankID",
+    bankidTestlage: "Testläge – ingen riktig BankID. Välj ett testpersonnummer:",
+    bankidStarta: "Starta BankID",
+    bankidVantar: "Väntar på signering i BankID-appen…",
+    bankidAvbryt: "Avbryt",
+    bankidKlarPrefix: "Du är legitimerad som",
+    bankidFel: "Legitimeringen gick inte igenom. Försök igen.",
     maxAntal: `Du kan bifoga högst ${MAX_FILER} filer åt gången.`,
     uppladdningFel: "Filen kunde inte laddas upp. Försök igen, eller ring 010-178 01 50.",
   },
@@ -237,6 +250,14 @@ const TEXT = {
     felTyp: "Only photos and videos can be attached.",
     forStor: `The file is too large. Videos can be up to ${MAX_VIDEO_MB} MB, about 20 seconds. You can email longer videos to info@stodona.se.`,
     bildSkickad: "Photo sent",
+    bankidKnapp: "Verify with Mobile BankID",
+    bankidRubrik: "Verify with Mobile BankID",
+    bankidTestlage: "Test mode – not real BankID. Pick a test ID number:",
+    bankidStarta: "Start BankID",
+    bankidVantar: "Waiting for signature in the BankID app…",
+    bankidAvbryt: "Cancel",
+    bankidKlarPrefix: "You are verified as",
+    bankidFel: "Verification failed. Please try again.",
     maxAntal: `You can attach up to ${MAX_FILER} files at a time.`,
     uppladdningFel: "The file couldn't be uploaded. Try again, or call +46 10 178 01 50.",
   },
@@ -254,8 +275,11 @@ const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?
  * Medan svaret strömmar in döljs en halvfärdig "[[" så att markeringen aldrig
  * syns. Etiketterna renderas som vanlig text och kan inte innehålla markup.
  */
-function delaUppVal(text: string): { text: string; val: string[] } {
+function delaUppVal(text: string): { text: string; val: string[]; bankid: boolean } {
   let val: string[] = [];
+  // [[bankid]] betyder att kunden ska erbjudas legitimering. Raden blir en knapp.
+  const bankid = /\[\[\s*bankid\s*\]\]/i.test(text);
+  text = text.replace(/\[\[\s*bankid\s*\]\]/gi, '');
   const hittade = [...text.matchAll(/\[\[\s*val\s*:\s*([^\]]*)\]\]/gi)];
   if (hittade.length) {
     val = hittade[hittade.length - 1][1]
@@ -267,7 +291,7 @@ function delaUppVal(text: string): { text: string; val: string[] } {
   let ren = text.replace(/\[\[\s*val\s*:[^\]]*\]\]/gi, "").replace(/[ \t]{2,}/g, " ");
   const halvfardig = ren.lastIndexOf("[[");
   if (halvfardig !== -1 && !ren.includes("]]", halvfardig)) ren = ren.slice(0, halvfardig);
-  return { text: ren.trimEnd(), val };
+  return { text: ren.trimEnd(), val, bankid };
 }
 
 /** Visar länken utan https och med å, ä och ö i klartext – adressen i href förblir kodad. */
@@ -344,6 +368,12 @@ export default function ChatWidget() {
   const [laddarUpp, setLaddarUpp] = useState(false);
   const [bilagefel, setBilagefel] = useState("");
   const filRef = useRef<HTMLInputElement>(null);
+  /** Legitimering med Mobilt BankID – simulerad, och finns bara i testmiljön. */
+  const [bankidOppen, setBankidOppen] = useState(false);
+  const [bankidPnr, setBankidPnr] = useState("");
+  const [bankidVantar, setBankidVantar] = useState(false);
+  const [bankidFel, setBankidFel] = useState("");
+  const [testnummer, setTestnummer] = useState<{ personnummer: string; namn: string }[]>([]);
 
   const listaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -508,6 +538,61 @@ export default function ChatWidget() {
     inputRef.current?.focus();
   }
 
+  async function oppnaBankid() {
+    setBankidFel("");
+    setBankidOppen(true);
+    try {
+      const svar = await fetch("/api/kund-bankid");
+      const data = await svar.json();
+      if (Array.isArray(data?.personnummer)) setTestnummer(data.personnummer);
+    } catch {
+      /* listan är bara en hjälp i testläget */
+    }
+  }
+
+  /**
+   * Startar den simulerade signeringen och frågar sedan servern hur det går.
+   * Personnumret skickas hit, aldrig in i chatten, och sparas inte i samtalet.
+   */
+  async function startaBankid() {
+    if (!bankidPnr.trim() || bankidVantar) return;
+    setBankidFel("");
+    setBankidVantar(true);
+    try {
+      const start = await fetch("/api/kund-bankid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ samtalsId: samtalsId(), handling: "starta", personnummer: bankidPnr.trim() }),
+      });
+      const startData = await start.json();
+      if (!start.ok || !startData?.ordernummer) throw new Error(startData?.error || "start misslyckades");
+
+      for (let forsok = 0; forsok < 30; forsok++) {
+        await new Promise((klar) => setTimeout(klar, 1000));
+        const koll = await fetch("/api/kund-bankid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ samtalsId: samtalsId(), handling: "kolla", ordernummer: startData.ordernummer }),
+        });
+        const data = await koll.json();
+        if (!koll.ok) throw new Error(data?.error || "kontrollen misslyckades");
+        if (data.status === "klar") {
+          setBankidOppen(false);
+          setBankidPnr("");
+          setBankidVantar(false);
+          // Camilla bekräftar själv vem kunden är i nästa svar, så ingen egen rad här.
+          skicka("Jag har legitimerat mig nu.");
+          return;
+        }
+      }
+      throw new Error("tog för lång tid");
+    } catch (f) {
+      setBankidFel(f instanceof Error && f.message.length < 120 ? f.message : s.bankidFel);
+    } finally {
+      setBankidVantar(false);
+    }
+  }
+
   function taBort(id: string) {
     const bort = valda.find((v) => v.id === id);
     if (bort) URL.revokeObjectURL(bort.forhands);
@@ -592,6 +677,9 @@ export default function ChatWidget() {
 
   const sista = meddelanden[meddelanden.length - 1];
   const knappval = sista && sista.roll === "assistant" && !skriver ? delaUppVal(sista.text).val : [];
+  const bankidErbjuds = Boolean(
+    KUNDTJANST_PA && sista && sista.roll === "assistant" && !skriver && delaUppVal(sista.text).bankid && !bankidOppen
+  );
 
   return (
     <>
@@ -750,6 +838,17 @@ export default function ChatWidget() {
                 </div>
               )}
 
+              {bankidErbjuds && (
+                <div className="pt-1 pl-9">
+                  <button
+                    onClick={oppnaBankid}
+                    className="text-sm px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors"
+                  >
+                    {s.bankidKnapp}
+                  </button>
+                </div>
+              )}
+
               {meddelanden.length === 0 && valkomstLangd === null && (
                 <div className="flex flex-wrap gap-2 pt-1 pl-9">
                   {s.forslag.map((f) => (
@@ -764,6 +863,68 @@ export default function ChatWidget() {
                 </div>
               )}
             </div>
+
+            {KUNDTJANST_PA && bankidOppen && (
+              <div className="border-t border-text-primary/10 bg-bg-primary/60 p-4 shrink-0">
+                <p className="text-sm font-bold text-text-primary">{s.bankidRubrik}</p>
+                <p className="text-[11px] text-text-secondary mt-1">{s.bankidTestlage}</p>
+                {testnummer.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {testnummer.map((t) => (
+                      <button
+                        key={t.personnummer}
+                        type="button"
+                        onClick={() => setBankidPnr(t.personnummer)}
+                        disabled={bankidVantar}
+                        className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                          bankidPnr === t.personnummer
+                            ? "bg-bg-dark text-text-light border-bg-dark"
+                            : "bg-white border-text-primary/20 text-text-secondary hover:border-text-primary"
+                        }`}
+                      >
+                        {t.namn}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 mt-3">
+                  <input
+                    value={bankidPnr}
+                    onChange={(e) => setBankidPnr(e.target.value)}
+                    placeholder="ÅÅÅÅMMDD-XXXX"
+                    inputMode="numeric"
+                    maxLength={13}
+                    disabled={bankidVantar}
+                    className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                  />
+                  <button
+                    type="button"
+                    onClick={startaBankid}
+                    disabled={bankidVantar || !bankidPnr.trim()}
+                    className="px-4 py-2 rounded-xl bg-bg-dark text-text-light text-sm shrink-0 disabled:opacity-40"
+                  >
+                    {s.bankidStarta}
+                  </button>
+                </div>
+                {bankidVantar && (
+                  <p className="text-[11px] text-text-secondary mt-2 flex items-center gap-2" role="status">
+                    <Loader2 className="w-3 h-3 animate-spin" /> {s.bankidVantar}
+                  </p>
+                )}
+                {bankidFel && <p className="text-[11px] text-red-700 mt-2" role="alert">{bankidFel}</p>}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBankidOppen(false);
+                    setBankidFel("");
+                  }}
+                  disabled={bankidVantar}
+                  className="text-[11px] text-text-secondary underline mt-2 disabled:opacity-40"
+                >
+                  {s.bankidAvbryt}
+                </button>
+              </div>
+            )}
 
             <form
               onSubmit={(e) => {

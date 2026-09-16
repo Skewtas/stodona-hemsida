@@ -474,7 +474,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Chatten finns bara i den lokala testmiljön (`vite`, dev) tills den är
           helt färdig. import.meta.env.DEV är false i `vite build`, så widgeten
           tas bort helt ur produktionsbygget. */}
-      {import.meta.env.DEV && !isInfluencerPage && <ChatWidget />}
+      {!isInfluencerPage && <ChatWidget />}
       {!isBabysittingPage && !isInfluencerPage && (
         <>
           <StickyCTA />

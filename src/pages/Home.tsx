@@ -108,18 +108,11 @@ export default function Home() {
                 <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
               </span>
 
-                {/* Flytande grad så att "Bäst hemstädning i Stockholm." aldrig
-                  bryts. Raden är 14,11 gånger bredare än teckengraden, och
-                  kortet är numera en halv skärm brett – graden måste därför
-                  följa KORTETS bredd (cqw) och inte fönstrets, annars bryts
-                  raden i tvåspaltsläget. Brytgränsen går vid 7,08cqw, så 7cqw
-                  är alltid säkert oavsett hur högt taket sätts. */}
-              <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-4">
-                {t('home.hero.title1', lang)}
-                <br />
-                <span className="italic font-normal text-accent-deep">
-                  {t('home.hero.title2', lang)}
-                </span>
+                {/* Graden följer KORTETS bredd (cqw) och inte fönstrets, eftersom
+                  kortet bara är en halv skärm brett i tvåspaltsläget. Frågan
+                  är en hel mening och får brytas över två rader. */}
+              <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-6">
+                {t('home.hero.title', lang)}
               </h1>
 
               {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
@@ -129,9 +122,6 @@ export default function Home() {
                   på mobil ligger menyn bakom hamburgaren och tjänstesektionen
                   först vid 964 px. */}
               <form onSubmit={startBooking} className="mb-7">
-                <span className="block text-text-secondary text-base sm:text-lg mb-3">
-                  {t('home.hero.serviceLabel', lang)}
-                </span>
                   {/* Fem knappar kräver ca 650 px och ryms inte på en rad nu när
                     kortet delar heron med filmrutan – de radbryter i stället,
                     så att alla tjänster syns utan sidscroll. */}

@@ -34,6 +34,6 @@
     { "source": "/(.*)", "destination": "/app.html" }
   ],
   "crons": [
-    { "path": "/api/chat-bilagor-rensa", "schedule": "15 3 * * *" }
+    { "path": "/api/chat-bilagor", "schedule": "15 3 * * *" }
   ]
 }

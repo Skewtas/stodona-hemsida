@@ -52,7 +52,10 @@ function lokalChatApi(env: Record<string, string>): Plugin {
             body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(bitar),
           });
 
-          const svar: Response = await modul.default(request);
+          // Edge-funktioner exporterar en funktion, Node-funktioner ett { fetch }.
+          const kor = typeof modul.default === 'function' ? modul.default : modul.default?.fetch;
+          if (typeof kor !== 'function') return next();
+          const svar: Response = await kor(request);
           res.statusCode = svar.status;
           svar.headers.forEach((v, k) => res.setHeader(k, v));
           if (svar.body) {

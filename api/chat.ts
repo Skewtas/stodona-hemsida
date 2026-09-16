@@ -519,7 +519,7 @@ async function koraVerktyg(
     console.log(`\n[lokal chat] ${namn} – skickas INTE i testmiljön:\n${JSON.stringify(kropp, null, 2)}\n`);
     if (samtalsBilagor.length) {
       console.log(`[lokal chat] bilagor som hade mejlats: ${samtalsBilagor.map((b) => `${b.namn} (${Math.round(b.storlek / 1024)} kB)`).join(', ')} – raderas nu\n`);
-      await raderaBilagor(samtalsBilagor);
+      await raderaBilagor(samtalsBilagor, new URL(request.url).origin);
       await glomBilagor(samtalsId);
     }
     return bekraftelse;
@@ -542,7 +542,7 @@ async function koraVerktyg(
         console.error('chat: bilagorna kom inte med i mejlet till kundservice');
         return `${bekraftelse} Bilagorna kunde dock inte skickas med. Be kunden mejla dem till info@stodona.se.`;
       }
-      await raderaBilagor(samtalsBilagor);
+      await raderaBilagor(samtalsBilagor, new URL(request.url).origin);
       await glomBilagor(samtalsId);
     }
     return bekraftelse;
@@ -803,7 +803,7 @@ export default async function handler(request: Request) {
   const historik = await hamtaSamtal(samtalsId);
   // Filer som inte ryms i mejlet till kundservice raderas direkt, och Camilla får veta det.
   const { tagna, forStora } = bilagor.length ? await sparaBilagor(samtalsId, bilagor) : { tagna: [], forStora: [] };
-  if (forStora.length) await raderaBilagor(forStora);
+  if (forStora.length) await raderaBilagor(forStora, new URL(request.url).origin);
   historik.push({ role: 'user', content: bilagor.length ? medBilagor(fraga, tagna, forStora) : fraga });
 
   const client = new Anthropic({ apiKey });

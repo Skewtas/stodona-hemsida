@@ -33,10 +33,12 @@ import {
   antalLokalaFiler,
   overUppladdningstaket,
   forstaPa,
-  rensaGamlaBilagor,
+  MAX_TIMMAR,
 } from './_chatBilagor';
+import { blobRensa } from './_blobLagring';
 
-export const config = { runtime: 'edge' };
+// Kör i Node-miljön (se web-signaturen längst ned): Vercel Blobs paket bygger
+// på Node-moduler och fungerar inte i edge.
 
 const LOKAL = process.env.STODONA_LOKAL === 'true';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -66,7 +68,7 @@ function franSajten(request: Request): boolean {
   return false;
 }
 
-export default async function handler(request: Request) {
+async function handler(request: Request): Promise<Response> {
   if (process.env.CHAT_ENABLED !== 'true') return fel(503, 'Chatten är avstängd.');
 
   if (request.method === 'GET') {
@@ -168,7 +170,7 @@ export default async function handler(request: Request) {
     // Högst var tionde minut: radera filer från avbrutna samtal som legat kvar
     // längre än två timmar. Nattjobbet är skyddsnätet om ingen laddar upp.
     if (await forstaPa('chat:bilaga:rensning', 600)) {
-      await rensaGamlaBilagor().catch((f) => console.error('chat-bilaga: rensningen misslyckades:', f));
+      await blobRensa(MAX_TIMMAR).catch((f) => console.error('chat-bilaga: rensningen misslyckades:', f));
     }
     return json(svar);
   } catch (f) {
@@ -176,3 +178,6 @@ export default async function handler(request: Request) {
     return fel(400, 'Filen kunde inte tas emot.');
   }
 }
+
+// Web-signaturen gör funktionen till en Node-funktion hos Vercel.
+export default { fetch: handler };

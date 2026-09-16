@@ -24,7 +24,8 @@
 //    någon annans filer eller länkar till främmande sajter.
 //  * Allt som skickas med ett mejl ryms under Resends gräns på 40 MB.
 
-import { head, del, list } from '@vercel/blob';
+// Själva lagringen sköts av api/chat-bilagor.ts, som kör i Node-miljön.
+// Vercel Blobs paket kan inte användas härifrån, eftersom chatten kör i edge.
 
 export const MAX_BILAGOR_PER_MEDDELANDE = 5;
 export const MAX_BILAGOR_PER_SAMTAL = 10;
@@ -228,64 +229,62 @@ export async function tolkaBilagor(indata: unknown, samtalsId: string, egenOrigi
     }
 
     const vard = blobVard();
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
     const delar = u.pathname.split('/');
     const mime = mimeFranFilnamn(u.pathname);
     const typ = mime ? typFor(mime) : null;
-    if (!vard || !token || u.protocol !== 'https:' || u.host !== vard || delar.length !== 4 || delar[1] !== 'chatt' || delar[2] !== mapp) continue;
+    if (!vard || u.protocol !== 'https:' || u.host !== vard || delar.length !== 4 || delar[1] !== 'chatt' || delar[2] !== mapp) continue;
     if (!mime || !typ) continue;
 
-    const url = `https://${vard}${u.pathname}`;
-    let storlek = 0;
-    try {
-      // Kontrollerar att filen finns och hur stor den faktiskt är.
-      storlek = (await head(url, { token })).size;
-    } catch {
-      continue;
-    }
     let namn = delar[3];
     try {
       namn = decodeURIComponent(namn);
     } catch {
       /* behåll som det är */
     }
-    ut.push({ url, typ, mime, namn: namn.slice(0, 80), storlek });
+    ut.push({ url: `https://${vard}${u.pathname}`, typ, mime, namn: namn.slice(0, 80), storlek: 0 });
   }
 
-  return ut.filter((b, i, alla) => alla.findIndex((x) => x.url === b.url) === i);
+  const unika = ut.filter((b, i, alla) => alla.findIndex((x) => x.url === b.url) === i);
+  if (LOKAL || !unika.length) return unika;
+
+  // Storleken hämtas från lagringen, aldrig från webbläsaren. Filer som inte
+  // finns faller bort här.
+  try {
+    const svar = (await lagring(egenOrigin, { handling: 'granska', urls: unika.map((b) => b.url) })) as {
+      storlekar?: Record<string, number>;
+    };
+    return unika
+      .map((b) => ({ ...b, storlek: svar.storlekar?.[b.url] ?? 0 }))
+      .filter((b) => b.storlek > 0);
+  } catch (fel) {
+    console.error('chat-bilaga: kunde inte granska filerna:', fel);
+    return [];
+  }
+}
+
+/** Anropar api/chat-bilagor, som är den enda delen som pratar med Vercel Blob. */
+async function lagring(egenOrigin: string, kropp: Record<string, unknown>): Promise<unknown> {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) throw new Error('CRON_SECRET saknas');
+  const svar = await fetch(new URL('/api/chat-bilagor', egenOrigin).toString(), {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(kropp),
+  });
+  if (!svar.ok) throw new Error(`lagringen svarade ${svar.status}`);
+  return svar.json();
 }
 
 /** Raderar filer – efter att de skickats till kundservice, eller om de inte kunde tas emot. */
-export async function raderaBilagor(bilagor: Bilaga[]): Promise<void> {
+export async function raderaBilagor(bilagor: Bilaga[], egenOrigin: string): Promise<void> {
   if (!bilagor.length) return;
   if (LOKAL) {
     for (const b of bilagor) lokalaFiler.delete(lokaltId(b.url));
     return;
   }
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) return;
   try {
-    await del(bilagor.map((b) => b.url), { token });
+    await lagring(egenOrigin, { handling: 'radera', urls: bilagor.map((b) => b.url) });
   } catch (fel) {
     console.error('chat-bilaga: kunde inte radera filerna:', fel);
   }
-}
-
-/** Raderar filer som legat kvar längre än MAX_TIMMAR utan att skickas. */
-export async function rensaGamlaBilagor(): Promise<number> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (LOKAL || !token) return 0;
-  const grans = Date.now() - MAX_TIMMAR * 3600 * 1000;
-  let cursor: string | undefined;
-  let raderade = 0;
-  do {
-    const sida = await list({ prefix: 'chatt/', cursor, limit: 1000, token });
-    const gamla = sida.blobs.filter((b) => new Date(b.uploadedAt).getTime() < grans).map((b) => b.url);
-    if (gamla.length) {
-      await del(gamla, { token });
-      raderade += gamla.length;
-    }
-    cursor = sida.hasMore ? sida.cursor : undefined;
-  } while (cursor);
-  return raderade;
 }

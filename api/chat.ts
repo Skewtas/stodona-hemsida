@@ -57,8 +57,15 @@ const LOKAL = process.env.STODONA_LOKAL === 'true';
 const MAX_TURER = 20;
 const MAX_TECKEN_PER_FRAGA = 1200;
 const MAX_TECKEN_HISTORIK = 16000;
-/** Samtalet glöms av sig självt. */
-const SAMTAL_TTL_SEKUNDER = 2 * 3600;
+/**
+ * Samtalet glöms av sig självt efter 7 dagar (Mikaela 2026-09-19:
+ * "vill kunna söka, men de kan tas bort efter en vecka"). Kort fönster
+ * så Head of hinner spegla för sökbarhet utan att vi bygger ett arkiv.
+ *
+ * OBS! GDPR: kunder kan begära ut/radering — samtalen finns tillgängliga
+ * i 7 dagar. Uppdatera integritetstexten på stodona.se.
+ */
+const SAMTAL_TTL_SEKUNDER = 7 * 24 * 3600;
 
 /** Spärrband. Per IP och timme rymmer flera personer bakom samma kontors-
  *  eller mobil-IP; per samtal och minut stoppar ett skript som spammar med

@@ -87,7 +87,10 @@ export function utfallFor(verktyg: Record<string, number>): Utfall {
 // ─── Lagring ─────────────────────────────────────────────────────────────────
 
 const LOKAL = process.env.STODONA_LOKAL === "true";
-const TTL_SEKUNDER = 90 * 24 * 3600;
+// 7 dagar matchar SAMTAL_TTL_SEKUNDER i chat.ts så Head of hinner spegla
+// hela dialogen till sitt eget arkiv innan den försvinner (Mikaela
+// 2026-09-19: "vill kunna söka, men de kan tas bort efter en vecka").
+const TTL_SEKUNDER = 7 * 24 * 3600;
 const MAX_FRAGOR_PER_SAMTAL = 20;
 
 export interface SamtalsStatistik {
@@ -175,12 +178,32 @@ async function uppdatera(samtalsId: string, andra: (s: SamtalsStatistik) => void
 
 /** Anropas för varje fråga. Texten anonymiseras innan den sparas. */
 export function registreraFraga(samtalsId: string, fraga: string): Promise<void> {
+  // Sido-effekt: indexera raw samtalsId per dag så Head of kan hämta hela
+  // dialogen (chat:samtal:<id>) för att bygga sitt sökbara arkiv.
+  // Detta INDEX innehåller inga samtalstexter — bara id:n.
+  (async () => {
+    try {
+      if (!LOKAL && kvUppgifter()) {
+        const dag = dagSthlm();
+        await kv(["SADD", `chat:samtal-ider:${dag}`, samtalsId]);
+        await kv(["EXPIRE", `chat:samtal-ider:${dag}`, String(TTL_SEKUNDER)]);
+      }
+    } catch (fel) { console.error("chattstatistik: kunde inte indexera id:", fel); }
+  })();
   return uppdatera(samtalsId, (s) => {
     s.antalFragor += 1;
     if (s.fragor.length < MAX_FRAGOR_PER_SAMTAL) {
       s.fragor.push({ tid: new Date().toISOString(), text: anonymisera(fraga).slice(0, 300), amnen: amnenFor(fraga) });
     }
   });
+}
+
+/** Alla raw samtalsIds som startade en viss dag (för dialog-hämtning). */
+export async function hamtaSamtalsIderForDag(dag: string): Promise<string[]> {
+  if (LOKAL) return [];
+  if (!kvUppgifter()) return [];
+  const ider = (await kv(["SMEMBERS", `chat:samtal-ider:${dag}`])) as string[] | null;
+  return ider ?? [];
 }
 
 /** Anropas när boten använder ett verktyg – det avgör hur samtalet slutade. */

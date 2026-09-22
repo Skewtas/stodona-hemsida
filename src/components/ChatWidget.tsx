@@ -348,8 +348,8 @@ export default function ChatWidget() {
   const { lang } = useLanguage();
   const s = TEXT[lang === "EN" ? "EN" : "SV"];
   const [oppen, setOppen] = useState(false);
-  // Cookiebannern ligger över allt annat på mobil. Vänta med chattbubblan tills
-  // besökaren svarat på den, annars krockar de på första besöket.
+  // Cookiebannern ligger över allt annat på mobil. Chatten visas ändå direkt –
+  // den kräver inget samtycke – men bubblan lyfts tills rutan är besvarad.
   const [cookiesBesvarade, setCookiesBesvarade] = useState(false);
   const [meddelanden, setMeddelanden] = useState<Meddelande[]>([]);
   const [utkast, setUtkast] = useState("");
@@ -673,7 +673,7 @@ export default function ChatWidget() {
     }
   }
 
-  if (!PASLAGEN || !cookiesBesvarade) return null;
+  if (!PASLAGEN) return null;
 
   const sista = meddelanden[meddelanden.length - 1];
   const knappval = sista && sista.roll === "assistant" && !skriver ? delaUppVal(sista.text).val : [];
@@ -694,7 +694,7 @@ export default function ChatWidget() {
         }}
         aria-label={oppen ? s.stang : s.oppna}
         aria-expanded={oppen}
-        className={`fixed bottom-24 md:bottom-8 right-4 md:right-8 z-[9995] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-colors ${
+        className={`fixed ${cookiesBesvarade ? "bottom-24 md:bottom-8" : "bottom-64 md:bottom-44"} right-4 md:right-8 z-[9995] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-colors ${
           oppen
             ? "bg-bg-dark text-text-light hover:bg-accent hover:text-text-primary"
             : "bg-bg-primary ring-2 ring-white hover:ring-accent"
@@ -719,7 +719,7 @@ export default function ChatWidget() {
             transition={{ duration: 0.2 }}
             role="dialog"
             aria-label={s.rubrik}
-            className="fixed z-[9995] bg-white shadow-2xl flex flex-col overflow-hidden inset-x-3 bottom-40 top-20 rounded-3xl md:inset-x-auto md:top-auto md:right-8 md:bottom-28 md:w-[400px] md:h-[min(560px,calc(100vh-9rem))]"
+            className="fixed z-[10000] bg-white shadow-2xl flex flex-col overflow-hidden inset-x-3 bottom-40 top-20 rounded-3xl md:inset-x-auto md:top-auto md:right-8 md:bottom-28 md:w-[400px] md:h-[min(560px,calc(100vh-9rem))]"
           >
             <div className="bg-bg-dark text-text-light px-4 py-3 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">

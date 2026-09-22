@@ -1,5 +1,13 @@
-// Vercel Edge Middleware – RIKTIGT lösenordsskydd på servernivå för den dolda
-// influencer-sidan. Utan giltig cookie serveras en elegant inloggningssida i
+// Vercel Edge Middleware – två saker:
+//
+//  1. BESÖKSRÄKNING. Varje sidvisning räknas i vår egen KV: en summa per dag
+//     och en räknare per sida. Inga cookies, ingen IP, inga personuppgifter –
+//     bara antal. Därför påverkas siffran varken av cookieval eller av
+//     blockerare, till skillnad från Google Analytics som bara räknar dem som
+//     klickat "Acceptera". Siffrorna sparas i 90 dagar och läses av
+//     api/trafik-statistik.
+//
+//  2. RIKTIGT lösenordsskydd på servernivå för den dolda influencer-sidan. Utan giltig cookie serveras en elegant inloggningssida i
 // stället för sidans innehåll (sidans SPA-HTML skickas aldrig till obehöriga).
 //
 // Lösenordet läses från miljövariabeln INFLUENCER_PW (sätts i Vercel), med en
@@ -13,13 +21,55 @@ import { next } from "@vercel/edge";
 // Måste hållas i synk med GATED_PATHS i api/influencer-auth.ts och med
 // routerna i App.tsx. Läggs en ny adress till i App.tsx utan att den står här
 // blir sidan publik.
+// Middleware körs på alla sidor (för räkningen), men aldrig på filer, bilder
+// eller api-anrop. Lösenordet gäller bara sidorna i LASTA_SIDOR nedan.
 export const config = {
-  matcher: [
-    "/min-partnersida",
-    "/influencersamarbete",
-    "/influencersamarbete-9f3c7a2b",
-  ],
+  matcher: ["/((?!api/|assets/|_vercel/|.*\\.[a-zA-Z0-9]+$).*)"],
 };
+
+// Måste hållas i synk med GATED_PATHS i api/influencer-auth.ts och med
+// routerna i App.tsx.
+const LASTA_SIDOR = ["/min-partnersida", "/influencersamarbete", "/influencersamarbete-9f3c7a2b"];
+
+const BESOK_TTL = 90 * 24 * 3600;
+/** Sökmotorer och verktyg ska inte räknas som besök. */
+const ROBOT = /bot|crawler|spider|crawling|preview|monitor|curl|wget|headless|lighthouse|pingdom|gtmetrix/i;
+
+function dagSthlm(): string {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
+}
+
+/** Räknar en sidvisning. Får aldrig sinka eller stoppa svaret till besökaren. */
+async function raknaBesok(request: Request, url: URL): Promise<void> {
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
+  if (!kvUrl || !kvToken) return;
+
+  const ua = request.headers.get("user-agent") || "";
+  const accept = request.headers.get("accept") || "";
+  const forhandsladdning = request.headers.get("purpose") === "prefetch" || request.headers.get("sec-purpose")?.includes("prefetch");
+  if (request.method !== "GET" || !accept.includes("text/html") || ROBOT.test(ua) || forhandsladdning) return;
+
+  const dag = dagSthlm();
+  // Sidans adress, utan frågesträng och kapad – aldrig något som kan peka ut en person.
+  const sida = url.pathname.replace(/[^a-zA-Z0-9\/_-]/g, "").slice(0, 80) || "/";
+  try {
+    await fetch(`${kvUrl.replace(/\/$/, "")}/pipeline`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify([
+        ["INCR", `trafik:${dag}`],
+        ["EXPIRE", `trafik:${dag}`, String(BESOK_TTL), "NX"],
+        ["HINCRBY", `trafik:sidor:${dag}`, sida, "1"],
+        ["EXPIRE", `trafik:sidor:${dag}`, String(BESOK_TTL), "NX"],
+      ]),
+    });
+  } catch {
+    /* räkningen får aldrig påverka besökaren */
+  }
+}
 
 async function sha256hex(s: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -95,8 +145,16 @@ function loginPage(showError: boolean, path: string): string {
 </body></html>`;
 }
 
-export default async function middleware(request: Request) {
+export default async function middleware(request: Request, context: { waitUntil?: (p: Promise<unknown>) => void }) {
   const url = new URL(request.url);
+
+  // Besöksräkningen görs vid sidan av svaret, så den aldrig sinkar sidan.
+  const raknat = raknaBesok(request, url);
+  if (context?.waitUntil) context.waitUntil(raknat);
+
+  // Allt utom de låsta sidorna släpps igenom direkt.
+  if (!LASTA_SIDOR.includes(url.pathname)) return next();
+
   // Lösenordet är inte känsligt – fallback så sidan funkar direkt. Kan överridas
   // med miljövariabeln INFLUENCER_PW i Vercel om det ska bytas.
   const PW = process.env.INFLUENCER_PW || "samarbete";

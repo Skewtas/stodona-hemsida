@@ -5,6 +5,7 @@ import { Helmet } from "../seo";
 import { CheckCircle2, ArrowRight, Clock, XCircle, ChevronDown } from "lucide-react";
 import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
+import HeroVideo from "../components/HeroVideo";
 
 /**
  * Kampanjsida för H007 – 30 % på hemstädningen året ut.
@@ -199,14 +200,14 @@ export default function KampanjH007() {
 
       {/* Hero */}
       <section className="relative min-h-[80vh] flex items-center overflow-hidden text-text-light pt-24">
-        <img
-          src="/stodona_right_image.jpg"
-          alt="Nystädat vardagsrum"
-          width="800"
-          height="1600"
-          loading="eager"
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover"
+        {/* Rörlig bakgrund. HeroVideo ritar postern först och hämtar filmen
+            bara när den tillför något – aldrig på mobil, i sparläge eller på
+            långsam uppkoppling. Då blir heron en vanlig, optimerad bild. */}
+        <HeroVideo
+          srcAv1="/stodona-hero-av1.mp4"
+          src="/stodona-hero.mp4"
+          poster="/hero-poster.webp"
+          alt="Nystädat sovrum med uppbäddad säng"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-bg-dark/45 via-bg-dark/15 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/30 via-transparent to-bg-dark/15" />

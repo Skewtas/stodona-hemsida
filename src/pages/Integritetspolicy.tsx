@@ -77,7 +77,7 @@ export default function Integritetspolicy() {
               </li>
             </ul>
             <p className="text-text-secondary mb-8">
-              Själva samtalet sparas i högst två timmar så att chatten minns vad ni pratat om. I din webbläsare sparas samtalet bara tills du stänger fliken.
+              Själva samtalet sparas hos oss i upp till 7 dagar så att vår personal kan följa upp enskilda ärenden (t.ex. om du hört av dig om en missad städning eller om chatten inte kunde hjälpa dig). Efter 7 dagar raderas samtalet automatiskt. I din webbläsare sparas samtalet bara tills du stänger fliken. Vill du ha en kopia av dina egna chatt-samtal — eller att vi raderar dem direkt — mejla <a href="mailto:info@stodona.se" className="underline">info@stodona.se</a>.
             </p>
 
             <h2 className="text-3xl font-bold mb-6">Varför behandlar vi dina uppgifter?</h2>
@@ -95,7 +95,7 @@ export default function Integritetspolicy() {
               Vi sparar dina uppgifter så länge det är nödvändigt för de ändamål de samlades in för, eller så länge det krävs enligt lag.
             </p>
             <p className="text-text-secondary mb-8">
-              Chattsamtal sparas i högst två timmar. Bilder och videor från chatten sparas inte hos oss – de mejlas till kundservice och hanteras där som annan kundkorrespondens. Anonymiserade frågor från chatten raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
+              Chattsamtal sparas i upp till 7 dagar och raderas sedan automatiskt. Bilder och videor från chatten sparas inte hos oss – de mejlas till kundservice och hanteras där som annan kundkorrespondens. Anonymiserade frågor från chatten raderas efter 90 dagar. Kvar blir bara siffror, till exempel hur många samtal som gällde flyttstädning en viss dag.
             </p>
 
             <h2 className="text-3xl font-bold mb-6">Dina rättigheter</h2>

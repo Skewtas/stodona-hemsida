@@ -58,6 +58,7 @@ const Stadabonnemang = React.lazy(() => import("./pages/Stadabonnemang"));
 // noindex och medvetet utanför sitemap, så den varken förrenderas eller
 // hamnar i sökresultaten.
 const Kampanj = React.lazy(() => import("./pages/Kampanj"));
+const KampanjH007 = React.lazy(() => import("./pages/KampanjH007"));
 // Publik tjänst – barnpassning/nanny (lanserad 2026-09-06).
 const Barnpassning = React.lazy(() => import("./pages/Barnpassning"));
 const BarnvaktJobb = React.lazy(() => import("./pages/BarnvaktJobb"));
@@ -129,7 +130,10 @@ export default function App() {
           <Route path="/e-faktura" element={<EFaktura />} />
           <Route path="/efaktura" element={<EFaktura />} />
           <Route path="/stadabonnemang" element={<Stadabonnemang />} />
-          <Route path="/kampanj" element={<Kampanj />} />
+          {/* Aktuell kampanj: H007, 30 % året ut. ABO25 (gick ut 13/9) skickar
+              själv vidare till /stadabonnemang. */}
+          <Route path="/kampanj" element={<KampanjH007 />} />
+          <Route path="/h007" element={<KampanjH007 />} />
           <Route path="/abo25" element={<Kampanj />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
           {/* Min partnersida – grindad i middleware.ts. Lägg ALDRIG till en ny

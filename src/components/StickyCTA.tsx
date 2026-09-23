@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { Phone, CheckCircle2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
 import { bookingUrl } from "../utils/bookingUrl";
 import { useActiveOverlay } from '../utils/overlays';
 
 export default function StickyCTA() {
   const activeOverlay = useActiveOverlay();
+  // På kampanjsidan ska knappen lova kampanjen, inte den allmänna rabatten,
+  // och ta med koden in i bokningen.
+  const { pathname } = useLocation();
+  const kampanj = pathname === '/kampanj' || pathname === '/h007';
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,10 +46,10 @@ export default function StickyCTA() {
         {!showInput ? (
           <>
             <a
-              href={bookingUrl()}
+              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: 'H007' }) : bookingUrl()}
               className="flex-1 py-3 bg-cta-hover text-text-primary font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all"
             >
-              Boka nu – 15% rabatt
+              {kampanj ? 'Boka nu – 30 % året ut' : 'Boka nu – 15% rabatt'}
             </a>
             <button
               onClick={() => setShowInput(true)}

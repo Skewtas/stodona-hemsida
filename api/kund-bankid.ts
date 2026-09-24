@@ -68,7 +68,7 @@ export default async function handler(request: Request) {
   // Inloggning med engångskod via SMS (api/_smskod.ts).
   if (body.handling === 'sms-skicka') {
     const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
-    const svar = await skickaKod(samtalsId, String(body.telefon ?? '').slice(0, 30), ip);
+    const svar = await skickaKod(samtalsId, String(body.telefon ?? '').slice(0, 30), ip, new URL(request.url).origin);
     return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
   }
   if (body.handling === 'sms-kolla') {

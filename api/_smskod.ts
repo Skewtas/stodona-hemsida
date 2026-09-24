@@ -1,5 +1,6 @@
 // Inloggning i chatten med engångskod via SMS (SureSMS – samma konto och
-// avsändare "Stodona.se" som fakturapåminnelserna och Bokis).
+// avsändare "Stodona.se" som fakturapåminnelserna och Bokis). Själva
+// utskicket görs av Node-funktionen api/sms-skicka.ts.
 //
 // SÄKERHET
 //  * Koden skickas bara till ett mobilnummer som REDAN finns på kunden i
@@ -26,10 +27,9 @@ const MAX_PER_IP = 10;
 /** Så många aktiva konton får dela ett mobilnummer innan det räknas som ett registerfel. */
 const MAX_KONTON = 5;
 
-const SURESMS = 'https://api.suresms.com/Script/SendSMS.aspx';
 
 export function smsKonfigurerat(): boolean {
-  return Boolean(process.env.SURESMS_API_KEY?.trim());
+  return Boolean(process.env.SURESMS_API_KEY?.trim() && process.env.SMS_INTERN_NYCKEL);
 }
 
 /** Svenskt mobilnummer i formatet +467xxxxxxxx, eller null. */
@@ -54,20 +54,23 @@ export function platshallare(mobil: string): boolean {
 }
 
 /**
- * Skickar ett SMS från "Stodona.se". SureSMS svarar "Message sent." (eller
- * äldre "OK: …") – allt annat räknas som misslyckat.
+ * Skickar ett SMS från "Stodona.se" via den interna Node-funktionen
+ * api/sms-skicka.ts – från Edge-miljön bryts anslutningen till SureSMS.
+ * @param origin sajtens adress, t.ex. https://www.stodona.se (från anropet)
  */
-export async function skickaSms(mobil: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }> {
-  const nyckel = process.env.SURESMS_API_KEY?.trim();
-  if (!nyckel) return { ok: false, fel: 'SURESMS_API_KEY saknas' };
-  const params = new URLSearchParams({ login: 'apikey', password: nyckel, to: mobil, text, from: 'Stodona.se' });
+export async function skickaSms(mobil: string, text: string, origin: string): Promise<{ ok: true } | { ok: false; fel: string }> {
+  const nyckel = process.env.SMS_INTERN_NYCKEL;
+  if (!nyckel) return { ok: false, fel: 'SMS_INTERN_NYCKEL saknas' };
   try {
-    const svar = await fetch(`${SURESMS}?${params.toString()}`);
-    const kropp = (await svar.text()).trim();
-    if (!svar.ok || !(/^ok\b/i.test(kropp) || /^message sent/i.test(kropp))) return { ok: false, fel: `SureSMS ${svar.status}: ${kropp.slice(0, 120)}` };
-    return { ok: true };
+    const svar = await fetch(new URL('/api/sms-skicka', origin).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-intern-nyckel': nyckel },
+      body: JSON.stringify({ mobil, text }),
+    });
+    const data = (await svar.json().catch(() => ({}))) as { ok?: boolean; fel?: string };
+    return data.ok === true ? { ok: true } : { ok: false, fel: data.fel ?? `sms-skicka svarade ${svar.status}` };
   } catch (fel) {
-    return { ok: false, fel: `SureSMS gick inte att nå: ${String(fel).slice(0, 100)}` };
+    return { ok: false, fel: `sms-skicka gick inte att nå: ${String(fel).slice(0, 100)}` };
   }
 }
 
@@ -133,7 +136,7 @@ export const GENERISKT_SVAR = 'Om numret finns hos oss har vi skickat en kod med
  * Startar inloggningen. Svarar alltid samma sak utåt – vare sig numret finns
  * eller inte – utom när något av skydden slår till.
  */
-export async function skickaKod(samtalsId: string, text: string, ip: string): Promise<{ ok: true; meddelande: string } | { fel: string }> {
+export async function skickaKod(samtalsId: string, text: string, ip: string, origin: string): Promise<{ ok: true; meddelande: string } | { fel: string }> {
   const mobil = mobilnummer(text);
   if (!mobil) return { fel: 'Skriv ett svenskt mobilnummer, till exempel 070-123 45 67.' };
   if (!smsKonfigurerat()) return { fel: 'Inloggning med SMS är inte påslagen.' };
@@ -157,7 +160,7 @@ export async function skickaKod(samtalsId: string, text: string, ip: string): Pr
   const kod = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
   await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar, hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
 
-  const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`);
+  const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`, origin);
   if (skickat.ok === false) {
     console.error(`smskod: ${skickat.fel}`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);

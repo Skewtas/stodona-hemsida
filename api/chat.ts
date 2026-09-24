@@ -913,7 +913,7 @@ const BYGGE = (process.env.VERCEL_GIT_COMMIT_SHA || 'lokal').slice(0, 7);
  * testlägets banderoll. De går direkt hit, förbi modellen – modellen kan
  * aldrig själv genomföra en ändring.
  */
-async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: string, personal: string | null): Promise<Response> {
+async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: string, personal: string | null, origin: string): Promise<Response> {
   // (Anroparen har redan kontrollerat att självservicen är tillåten.)
   const svara = (data: unknown) => new Response(JSON.stringify(data), { headers: JSON_HEADERS });
 
@@ -934,7 +934,7 @@ async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: st
     if (await overTaket(`chat:bekrafta:${samtalsId}:${Math.floor(Date.now() / 60000)}`, 5, 120)) {
       return fel(429, 'För många försök just nu. Vänta en minut.');
     }
-    const resultat = await bekraftaOmbokning(samtalsId, forslagId, personal);
+    const resultat = await bekraftaOmbokning(samtalsId, forslagId, personal, origin);
     // Samtalet får veta vad som hänt, så Camilla kan fortsätta därifrån.
     const historik = await hamtaSamtal(samtalsId);
     historik.push(
@@ -979,7 +979,7 @@ export default async function handler(request: Request) {
   const sjalv = sjalvserviceTillaten(personalchatt);
 
   if (typeof body.handling === 'string') {
-    return sjalv ? sjalvserviceHandling(body, samtalsId, personal) : fel(404, 'Finns inte.');
+    return sjalv ? sjalvserviceHandling(body, samtalsId, personal, new URL(request.url).origin) : fel(404, 'Finns inte.');
   }
 
   const fraga = rent(body.message, MAX_TECKEN_PER_FRAGA);

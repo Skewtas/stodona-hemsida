@@ -604,7 +604,8 @@ function engangsrad(e: Engangsuppdrag): string {
 const KUNDSERVICE_VAL = '[[val: Ja, hjälp mig via kundservice | Nej tack]]';
 
 /** @param utfortAv namnet i personalmiljön, när det är personalen som provar – annars null (kunden själv). */
-export async function bekraftaOmbokning(samtalsId: string, forslagId: string, utfortAv: string | null = null): Promise<Bekraftelse> {
+/** @param origin sajtens adress, för bekräftelse-SMS:et via api/sms-skicka. */
+export async function bekraftaOmbokning(samtalsId: string, forslagId: string, utfortAv: string | null = null, origin = ''): Promise<Bekraftelse> {
   const bekraftadTid = new Date().toISOString();
   const kund = await verifieradKund(samtalsId);
   if (!kund) return { utfall: 'EJ_LEGITIMERAD', text: 'Din legitimering har gått ut, så ingenting är ändrat. Legitimera dig igen så fortsätter vi.\n[[bankid]]' };
@@ -773,7 +774,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
     } else if (TESTLAGE) {
       extra.sms = `TESTLÄGE – skickades inte: ${smsText}`;
     } else {
-      const svar = await skickaSms(mobil, smsText);
+      const svar = await skickaSms(mobil, smsText, origin);
       smsSkickat = svar.ok;
       extra.sms = svar.ok === true ? `skickat till …${mobil.slice(-2)}` : `misslyckades (${svar.fel})`;
     }

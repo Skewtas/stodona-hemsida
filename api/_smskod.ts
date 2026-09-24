@@ -136,7 +136,14 @@ export const GENERISKT_SVAR = 'Om numret finns hos oss har vi skickat en kod med
  * Startar inloggningen. Svarar alltid samma sak utåt – vare sig numret finns
  * eller inte – utom när något av skydden slår till.
  */
-export async function skickaKod(samtalsId: string, text: string, ip: string, origin: string): Promise<{ ok: true; meddelande: string } | { fel: string }> {
+export async function skickaKod(
+  samtalsId: string,
+  text: string,
+  ip: string,
+  origin: string,
+  /** Var kunden skriver in koden – styr bara texten i SMS:et. */
+  kanal: 'webb' | 'instagram' = 'webb'
+): Promise<{ ok: true; meddelande: string } | { fel: string }> {
   const mobil = mobilnummer(text);
   if (!mobil) return { fel: 'Skriv ett svenskt mobilnummer, till exempel 070-123 45 67.' };
   if (!smsKonfigurerat()) return { fel: 'Inloggning med SMS är inte påslagen.' };
@@ -160,7 +167,11 @@ export async function skickaKod(samtalsId: string, text: string, ip: string, ori
   const kod = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
   await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar, hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
 
-  const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`, origin);
+  const smstext =
+    kanal === 'instagram'
+      ? `${kod} är din kod till Stodonas chatt på Instagram. Skriv den bara i din DM-tråd med Stodona. Den gäller i 10 minuter.`
+      : `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`;
+  const skickat = await skickaSms(mobil, smstext, origin);
   if (skickat.ok === false) {
     console.error(`smskod: ${skickat.fel}`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);

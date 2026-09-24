@@ -100,7 +100,7 @@ export default async function handler(request: Request) {
 
   try {
     const data = await request.json();
-    const { email: raEpost, phone: raTelefon, name, source, timestamp, page, notes, bilagor } = data;
+    const { email: raEpost, phone: raTelefon, name, source, timestamp, page, notes, bilagor, kanalKontakt: raKanal } = data;
 
     // Ogiltig adress används inte alls – varken som mottagare, reply-to eller i
     // mejltexten.
@@ -111,7 +111,13 @@ export default async function handler(request: Request) {
       ? raTelefon.trim()
       : '';
 
-    if (!email && !phone) {
+    // Från Instagram kan kundservice svara i DM-tråden, så där räcker den som kontaktväg.
+    const kanalKontakt =
+      typeof raKanal === 'string' && typeof source === 'string' && source.startsWith('instagram_')
+        ? raKanal.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 100)
+        : '';
+
+    if (!email && !phone && !kanalKontakt) {
       return new Response(JSON.stringify({ error: 'E-post eller telefon krävs' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
@@ -128,12 +134,15 @@ export default async function handler(request: Request) {
       byta_stadbolag: '🔄 Byta städbolag',
       chat_lead: '💬 Chatten – vill bli kontaktad',
       chat_eskalering: '🆘 Chatten – behöver kundservice',
+      instagram_lead: '📸 Instagram – vill bli kontaktad',
+      instagram_eskalering: '🆘 Instagram – behöver kundservice',
     };
 
     const lead = {
       id: crypto.randomUUID(),
       email: email || '',
       phone: phone || '',
+      kanalKontakt,
       name: typeof name === 'string' ? name.slice(0, 80) : '',
       source: source || 'unknown',
       // Okänd källa får aldrig gå rakt in i ämnesraden – styrtecken bort, längd kapad.
@@ -219,6 +228,7 @@ export default async function handler(request: Request) {
           <div style="background: #f8f8f8; padding: 20px; border: 1px solid #eee; border-radius: 0 0 12px 12px;">
             ${email ? `<p><strong>📧</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></p>` : ''}
             ${phone ? `<p><strong>📱</strong> <a href="tel:${esc(phone)}">${esc(phone)}</a></p>` : ''}
+            ${kanalKontakt ? `<p><strong>📸</strong> ${esc(kanalKontakt)}</p>` : ''}
             ${lead.name ? `<p><strong>🙋</strong> ${esc(lead.name)}</p>` : ''}
             ${lead.notes ? `<div style="margin-top:12px;padding:12px;background:#fff;border-radius:8px;white-space:pre-wrap;">${esc(lead.notes)}</div>` : ''}
             <p style="font-size: 12px; color: #666;">Sida: ${esc(lead.page)} | ${esc(new Date(lead.timestamp).toLocaleString('sv-SE'))}</p>
@@ -247,7 +257,7 @@ export default async function handler(request: Request) {
             // till hen. Vid "Ring mig" finns bara ett telefonnummer – då
             // utelämnas fältet hellre än att peka tillbaka på oss själva.
             ...(email ? { reply_to: email } : {}),
-            subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone}`,
+            subject: `Nytt lead: ${lead.sourceLabel} – ${email || phone || kanalKontakt}`,
             html:
               medBilagor || !attachments.length
                 ? emailHtml

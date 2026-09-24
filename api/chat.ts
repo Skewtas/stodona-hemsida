@@ -41,6 +41,7 @@ import {
   testlageAtgard,
 } from './_sjalvservice';
 import { personalNamn } from './_personal';
+import { internNyckelOk, EXTERNA_KANALER, logga as kanalLogga, markeraOverlamnad, markeraKraverAtgard, type Kanal } from './_kanaler';
 import {
   tolkaBilagor,
   lokalBilddata,
@@ -170,9 +171,53 @@ Du pratar nu med Stodonas personal, inte med en kund. Personalen hjälper en kun
 - Nämner personalen en annan kund mitt i samtalet: sök igen.
 `;
 
+/**
+ * Instagram-DM (api/_instagram.ts). Samma Camilla, samma regler och verktyg –
+ * bara det som skiljer kanalen åt: ingen widget, inga filer i chatten, och
+ * identifieringen sköts av systemet i tråden.
+ */
+const INSTAGRAM_REGLER = `
+INSTAGRAM – gäller före allt ovan om hälsning, knappar, bilagor och legitimering
+Du svarar nu i Stodonas Instagram-DM, inte i chatten på stodona.se. Samma regler, fakta, priser och verktyg gäller.
+- Kunden har inte fått någon välkomsthälsning här. Hälsar kunden, hälsa kort tillbaka i samma mening som du svarar. Presentera dig bara om kunden frågar vem du är.
+- Skriv som i en DM: kort, personligt och lätt att läsa i mobilen. Oftast en eller två meningar.
+- Kunden skriver ofta kort och vardagligt ("pris?", "kan ni imorgon", "vill byta fredag", "avboka"). Tolka det utifrån samtalet och fråga bara efter det som verkligen saknas.
+- Knapparna [[val: …]] visas som snabbsvar i Instagram. Håll varje alternativ kort, helst under 20 tecken.
+- IDENTIFIERING: avsluta med raden [[bankid]] precis som i webbchatten. Då frågar systemet själv efter kundens mobilnummer och skickar en kod med SMS, som kunden skriver här i tråden. Be aldrig själv om koden eller mobilnumret för identifiering, och nämn ingen knapp "Identifiera dig".
+- OMBOKNING: när du avslutar med [[bekrafta:…]] visar systemet sammanfattningen med snabbsvaret "Bekräfta ombokning". Ändringen görs först när kunden bekräftat där – säg aldrig att något är ändrat innan systemet skrivit det.
+- BILAGOR: kunden kan skicka bilder och videor i DM:en, men du kan inte se dem. Tacka, säg att de finns kvar i tråden för kundservice, och låtsas aldrig att du sett innehållet.
+- LEADS: kundservice kan svara kunden här i Instagram. Be ändå om förnamn och telefon eller mejl, men vill kunden inte lämna det går det bra – skicka leadet ändå, så svarar kundservice i den här tråden.
+- Länkar skriver du ut hela, till exempel boka.stodona.se – de blir klickbara i Instagram.
+`;
+
 const SYSTEM = byggSystem('');
 const SYSTEM_SJALV = byggSystem(SJALVSERVICE_REGLER);
 const SYSTEM_PERSONAL = byggSystem(SJALVSERVICE_REGLER + PERSONAL_REGLER);
+const SYSTEM_INSTAGRAM = byggSystem(INSTAGRAM_REGLER);
+const SYSTEM_SJALV_INSTAGRAM = byggSystem(SJALVSERVICE_REGLER + INSTAGRAM_REGLER);
+
+/** Kanalen anropet kommer från, när det inte är webbchatten. */
+interface Kanalanrop {
+  kanal: Exclude<Kanal, 'webb'>;
+  /** Kanalens id för personen – används för spärrbanden i stället för IP. */
+  avsandare: string;
+  /** Det kundservice känner igen, t.ex. @användarnamn. */
+  kontakt: string;
+}
+
+/** Interna anrop från en kanaladapter (api/_kanaler.ts). Kräver KANAL_INTERN_NYCKEL. */
+function kanalanrop(request: Request): Kanalanrop | null {
+  if (!internNyckelOk(request)) return null;
+  const kanal = request.headers.get('x-kanal') as Kanal | null;
+  if (!kanal || kanal === 'webb' || !EXTERNA_KANALER.includes(kanal)) return null;
+  let kontakt = '';
+  try {
+    kontakt = rent(decodeURIComponent(request.headers.get('x-kanal-kontakt') ?? ''), 80);
+  } catch {
+    /* trasig kodning – utelämnas */
+  }
+  return { kanal, avsandare: rent(request.headers.get('x-kanal-avsandare'), 80) || 'okand', kontakt };
+}
 
 const MAX_SVARSTOKENS = 1024;
 
@@ -642,7 +687,9 @@ async function koraVerktyg(
   /** Självservicen är tillåten för anropet. */
   sjalv: boolean,
   /** Anropet kommer från personalchatten. */
-  personalchatt: boolean
+  personalchatt: boolean,
+  /** Anropet kommer från en annan kanal än webbchatten, t.ex. Instagram. */
+  kanal: Kanalanrop | null = null
 ): Promise<string> {
   if (namn === 'berakna_pris') return beraknaPris(indata, request);
   if (namn === 'visa_lediga_tider') return ledigaTider(indata);
@@ -673,7 +720,8 @@ async function koraVerktyg(
   const telefon = giltigTelefon(rent(indata.telefon, 30));
   const epost = giltigEpost(rent(indata.epost, 254));
 
-  if (!telefon && !epost) {
+  // I Instagram kan kundservice svara i samma tråd, så där räcker kanalen som kontaktväg.
+  if (!telefon && !epost && !kanal) {
     return 'Kunde inte skickas: kundservice behöver ett giltigt telefonnummer eller en giltig e-postadress för att kunna höra av sig. Be besökaren om det och försök igen.';
   }
 
@@ -704,9 +752,17 @@ async function koraVerktyg(
     name: rent(indata.fornamn, 80),
     phone: telefon,
     email: epost,
-    source: namn === 'skicka_lead' ? 'chat_lead' : 'chat_eskalering',
-    page: 'chatten',
-    notes: [personalchatt && 'TEST FRÅN PERSONALCHATTEN – inte en riktig kund.', ...rader.filter(Boolean), ...bilagerader].filter(Boolean).join('\n'),
+    source: `${kanal ? kanal.kanal : 'chat'}_${namn === 'skicka_lead' ? 'lead' : 'eskalering'}`,
+    page: kanal ? `${kanal.kanal} (${kanal.kontakt || kanal.avsandare})` : 'chatten',
+    kanalKontakt: kanal ? `Instagram-DM ${kanal.kontakt || kanal.avsandare}` : undefined,
+    notes: [
+      personalchatt && 'TEST FRÅN PERSONALCHATTEN – inte en riktig kund.',
+      kanal && `Kanal: Instagram-DM från ${kanal.kontakt || kanal.avsandare}. Svara kunden i Instagram-tråden${telefon || epost ? ' eller via kontaktuppgifterna' : ''}. Bilder kunden skickat finns kvar i tråden.`,
+      ...rader.filter(Boolean),
+      ...bilagerader,
+    ]
+      .filter(Boolean)
+      .join('\n'),
     bilagor: samtalsBilagor.map((b) => ({ url: b.url, namn: b.namn })),
     timestamp: new Date().toISOString(),
   };
@@ -716,6 +772,14 @@ async function koraVerktyg(
       ? 'Skickat till kundservice. Bekräfta för besökaren att någon hör av sig, utan att lova en tidpunkt och utan att upprepa kontaktuppgifterna.'
       : 'Överlämnat till kundservice. Säg till kunden med Stodonas formulering från regel 21: "Jag skickar detta vidare till kundservice för kontroll." Lova inte att det går att ordna, inte när de hör av sig och inte vad beskedet blir. Upprepa inte kontaktuppgifterna.';
 
+  // Kundservice svarar i samma tråd: i andra kanaler pausas AI:n vid
+  // överlämning, och ett lead markeras för uppföljning (api/_kanaler.ts).
+  const efterSkickat = async () => {
+    if (!kanal) return;
+    if (namn === 'eskalera_till_kundservice') await markeraOverlamnad(samtalsId, rent(indata.arende, 60));
+    else await markeraKraverAtgard(samtalsId, 'Nytt lead att följa upp');
+  };
+
   // Testmiljön mejlar aldrig kundservice – leadet skrivs ut i terminalen.
   if (LOKAL) {
     console.log(`\n[lokal chat] ${namn} – skickas INTE i testmiljön:\n${JSON.stringify(kropp, null, 2)}\n`);
@@ -724,6 +788,7 @@ async function koraVerktyg(
       await raderaBilagor(samtalsBilagor, new URL(request.url).origin);
       await glomBilagor(samtalsId);
     }
+    await efterSkickat();
     return bekraftelse;
   }
 
@@ -747,6 +812,7 @@ async function koraVerktyg(
       await raderaBilagor(samtalsBilagor, new URL(request.url).origin);
       await glomBilagor(samtalsId);
     }
+    await efterSkickat();
     return bekraftelse;
   } catch (fel) {
     console.error('chat: kunde inte nå /api/lead:', fel);
@@ -1003,13 +1069,25 @@ export default async function handler(request: Request) {
   // satt i miljön, så den kan inte kosta något medan chatten byggs klart.
   if (process.env.CHAT_ENABLED !== 'true') return fel(503, 'Chatten är avstängd.');
 
-  if (!franSajten(request)) return fel(403, 'Chatten kan bara användas från stodona.se.');
+  // Andra kanaler (Instagram …) når Camilla via sajtens egen server med en intern nyckel.
+  const kanal = kanalanrop(request);
+  if (!kanal && !franSajten(request)) return fel(403, 'Chatten kan bara användas från stodona.se.');
 
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fel(503, 'ANTHROPIC_API_KEY saknas i miljön');
 
-  let body: { sessionId?: unknown; message?: unknown; bilagor?: unknown; handling?: unknown; forslagId?: unknown; atgard?: unknown; lage?: unknown };
+  let body: {
+    sessionId?: unknown;
+    message?: unknown;
+    bilagor?: unknown;
+    handling?: unknown;
+    forslagId?: unknown;
+    atgard?: unknown;
+    lage?: unknown;
+    notering?: unknown;
+    fran?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
@@ -1022,20 +1100,33 @@ export default async function handler(request: Request) {
   // Personalchatten: inloggad personal på den gömda sidan. Bara då – eller i
   // testläget – får chatten logga in kunder och boka om.
   // Lokalt finns ingen personalinloggning – där räknas personalläget som inloggat.
-  const personal = body.lage === 'personal' ? ((await personalNamn(request)) ?? (LOKAL ? 'lokal test' : null)) : null;
+  const personal = body.lage === 'personal' && !kanal ? ((await personalNamn(request)) ?? (LOKAL ? 'lokal test' : null)) : null;
   const personalchatt = Boolean(personal);
   const sjalv = sjalvserviceTillaten(personalchatt);
+
+  // Kanalerna för in det som skrivits utan Camilla – kundservice svar och det
+  // kunden skrev under tiden – så att hon kan fortsätta med rätt sammanhang.
+  if (kanal && body.handling === 'notering') {
+    const text = rent(body.notering, 1500);
+    if (!text) return fel(400, 'Tom notering.');
+    const vem = body.fran === 'personal' ? 'Kundservice skrev till kunden' : 'Kunden skrev (medan kundservice hade samtalet)';
+    const historik = await hamtaSamtal(samtalsId);
+    historik.push({ role: 'user', content: `[${vem} i ${kanal.kanal === 'instagram' ? 'Instagram' : kanal.kanal}: "${text}"]` });
+    await sparaSamtal(samtalsId, historik);
+    return new Response(JSON.stringify({ ok: true }), { headers: JSON_HEADERS });
+  }
 
   if (typeof body.handling === 'string') {
     return sjalv ? sjalvserviceHandling(body, samtalsId, personal, new URL(request.url).origin) : fel(404, 'Finns inte.');
   }
 
   const fraga = rent(body.message, MAX_TECKEN_PER_FRAGA);
-  // Bara bilagor som ligger i det här samtalets egen mapp tas emot.
-  const bilagor = await tolkaBilagor(body.bilagor, samtalsId, new URL(request.url).origin);
+  // Bara bilagor som ligger i det här samtalets egen mapp tas emot. (Andra kanaler har inga.)
+  const bilagor = kanal ? [] : await tolkaBilagor(body.bilagor, samtalsId, new URL(request.url).origin);
   if (!fraga && !bilagor.length) return fel(400, 'Tom fråga.');
 
-  const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
+  // Kanalanropen kommer alla från sajtens egen server – där räknas personen i kanalen i stället för IP.
+  const ip = kanal ? `${kanal.kanal}:${kanal.avsandare}` : (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
   const timme = Math.floor(Date.now() / 3600000);
   const minut = Math.floor(Date.now() / 60000);
   const dygn = Math.floor(Date.now() / 86400000);
@@ -1095,7 +1186,21 @@ export default async function handler(request: Request) {
       // Medium ger boten utrymme att välja rätt ton och längd innan den svarar;
       // med low staplade den fakta, länkar och följdfrågor i samma meddelande.
       output_config: { effort: 'medium' },
-      system: [{ type: 'text', text: personalchatt ? SYSTEM_PERSONAL : sjalv ? SYSTEM_SJALV : SYSTEM, cache_control: { type: 'ephemeral' } }],
+      system: [
+        {
+          type: 'text',
+          text: personalchatt
+            ? SYSTEM_PERSONAL
+            : kanal?.kanal === 'instagram'
+              ? sjalv
+                ? SYSTEM_SJALV_INSTAGRAM
+                : SYSTEM_INSTAGRAM
+              : sjalv
+                ? SYSTEM_SJALV
+                : SYSTEM,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
       tools: personalchatt ? [...VERKTYG, ...SJALV_VERKTYG, ...PERSONAL_VERKTYG] : sjalv ? [...VERKTYG, ...SJALV_VERKTYG] : VERKTYG,
       messages: [...forClaude(meddelanden), tidsstampel],
     });
@@ -1187,7 +1292,9 @@ export default async function handler(request: Request) {
           const resultat: Anthropic.ToolResultBlockParam[] = [];
           for (const block of slutgiltigt.content) {
             if (block.type !== 'tool_use') continue;
-            const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId, sjalv, personalchatt);
+            const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId, sjalv, personalchatt, kanal);
+            // Varje steg loggas per samtal, så att det går att följa vad Camilla gjort (api/_kanaler.ts).
+            if (kanal) await kanalLogga(samtalsId, `verktyg ${block.name}`, `${JSON.stringify(block.input ?? {}).slice(0, 200)} → ${svar.slice(0, 250)}`);
             if (!personalchatt) await registreraVerktyg(
               samtalsId,
               block.name,

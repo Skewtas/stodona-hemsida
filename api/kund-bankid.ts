@@ -13,9 +13,8 @@
 // kund-bankid för att inte bryta äldre sidor i webbläsarens cache.
 
 import { personalNamn } from './_personal';
-import { skickaKod, kontrolleraKod, smsKonfigurerat } from './_smskod';
-import { sjalvserviceTillaten, SJALVSERVICE_PA, TESTLAGE, startaSignering, kollaSignering, avbrytSignering, valjKundFor, kontonForVal, TESTKUNDLISTA } from './_sjalvservice';
-import * as lagring from './_lagring';
+import { skickaKod, smsKonfigurerat } from './_smskod';
+import { sjalvserviceTillaten, SJALVSERVICE_PA, TESTLAGE, startaSignering, kollaSignering, avbrytSignering, loggaInMedKod, valjSmsKonto, TESTKUNDLISTA } from './_sjalvservice';
 
 export const config = { runtime: 'edge' };
 
@@ -72,29 +71,14 @@ export default async function handler(request: Request) {
     return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
   }
   if (body.handling === 'sms-kolla') {
-    const svar = await kontrolleraKod(samtalsId, String(body.kod ?? '').slice(0, 10));
+    const svar = await loggaInMedKod(samtalsId, String(body.kod ?? '').slice(0, 10));
     if ('fel' in svar) return json({ error: svar.fel }, 400);
     // Numret står på flera konton: den som har telefonen väljer vilket.
-    if (svar.kundnummer.length > 1) {
-      const konton = await kontonForVal(samtalsId, svar.kundnummer);
-      if (konton.length > 1) {
-        await lagring.spara(`sjalv:smsval:${samtalsId}`, konton.map((k) => k.nummer), 600);
-        return json({ status: 'valj', konton });
-      }
-    }
-    const kund = await valjKundFor(samtalsId, svar.kundnummer[0]);
-    if (!kund) return json({ error: 'Inloggningen gick inte igenom. Skriv till oss i chatten eller via kundportalen så hjälper vi dig.' }, 400);
-    return json({ status: 'klar', namn: kund.namn });
+    return 'konton' in svar ? json(svar) : json({ status: 'klar', namn: svar.namn });
   }
   if (body.handling === 'sms-valj') {
-    // Bara ett av kontona som just verifierats med SMS-koden i det här samtalet.
-    const tillatna = await lagring.hamta<string[]>(`sjalv:smsval:${samtalsId}`);
-    const valt = String(body.kundnummer ?? '').replace(/\D/g, '');
-    if (!tillatna?.includes(valt)) return json({ error: 'Valet har gått ut. Be om en ny kod.' }, 400);
-    await lagring.taBort(`sjalv:smsval:${samtalsId}`);
-    const kund = await valjKundFor(samtalsId, valt);
-    if (!kund) return json({ error: 'Inloggningen gick inte igenom. Be om en ny kod.' }, 400);
-    return json({ status: 'klar', namn: kund.namn });
+    const svar = await valjSmsKonto(samtalsId, String(body.kundnummer ?? ''));
+    return 'fel' in svar ? json({ error: svar.fel }, 400) : json({ status: 'klar', namn: svar.namn });
   }
 
   if (body.handling === 'starta') {

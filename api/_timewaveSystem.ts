@@ -17,8 +17,11 @@
 // läses tillbaka och jämförs innan kunden får "Klart". Kräver
 // SJALVSERVICE_TW_SKRIV=true.
 //
-// INTE KLART ÄNNU: andra städare än den ordinarie, förtur och
-// engångsbokningar hos kunden.
+// ANDRA STÄDARE: aktiva städare med kundens tjänst i TimeWave (högst 12 per
+// sökning), samma schemakontroll som för ordinarie städare. Området vägs inte
+// in ännu – bara restid som marginal.
+//
+// INTE KLART ÄNNU: förtur och engångsbokningar hos kunden.
 
 import {
   twFlyttaTillfalle,
@@ -174,6 +177,7 @@ function tillBokning(m: TwMission, rad: TwMissionAnstalld): Bokning {
     id: `M${m.id}-B${rad.bookingline_id}`,
     kundId: String(k?.number ?? ''),
     tjanst: m.services?.[0]?.name ?? 'Städning',
+    tjanstId: m.services?.[0]?.id ? String(m.services[0].id) : undefined,
     datum: rad.startdate,
     start,
     slut,
@@ -218,14 +222,18 @@ function arbetstid(anstalld: TwAnstalld, datum: string): { start: number; slut: 
   return null;
 }
 
-async function schema(anstalldId: string, fran: string, till: string): Promise<{ anstalld: TwAnstalld; upptaget: Upptaget[] }> {
+/** Alla arbetsorderrader som startar i perioden – samma för alla städare, så de kan hämtas en gång. */
+async function raderIPeriod(fran: string, till: string): Promise<TwArbetsorderrad[][]> {
   const datum: string[] = [];
   for (let d = fran; d <= till; d = laggTillDagar(d, 1)) datum.push(d);
+  return Promise.all(datum.map((d) => twGetAlla<TwArbetsorderrad>(`/workorderlines?filter[start_date]=${d}`)));
+}
 
+async function schema(anstalldId: string, fran: string, till: string, forhamtade?: TwArbetsorderrad[][]): Promise<{ anstalld: TwAnstalld; upptaget: Upptaget[] }> {
   const [anstalldSvar, missions, rader] = await Promise.all([
     twGet<{ data?: TwAnstalld } & TwAnstalld>(`/employees/${encodeURIComponent(anstalldId)}`),
     twGetAlla<TwMission>(`/missions?filter[employee_id]=${encodeURIComponent(anstalldId)}&filter[startdate]=${fran}&filter[enddate]=${till}`),
-    Promise.all(datum.map((d) => twGetAlla<TwArbetsorderrad>(`/workorderlines?filter[start_date]=${d}`))),
+    forhamtade ?? raderIPeriod(fran, till),
   ]);
   const anstalld = (anstalldSvar.data ?? anstalldSvar) as TwAnstalld;
 
@@ -254,6 +262,41 @@ function ledig(anstalld: TwAnstalld, upptaget: Upptaget[], datum: string, start:
   );
 }
 
+/** Lediga tider för en städare: högst två per dag, minst tre timmar emellan – önskat klockslag först. */
+function luckorFor(anstalld: TwAnstalld, upptaget: Upptaget[], bokning: Bokning, fran: string, till: string, onskad: number | null, stadare: { id: string; namn: string }): Lucka[] {
+  const langd = minuter(bokning.slut) - minuter(bokning.start);
+  const luckor: Lucka[] = [];
+  for (let datum = fran; datum <= till; datum = laggTillDagar(datum, 1)) {
+    const tid = arbetstid(anstalld, datum);
+    if (!tid) continue;
+    const fria: number[] = [];
+    for (let start = tid.start; start + langd <= tid.slut; start += STEG_MINUTER) {
+      if (sthlmTidpunkt(datum, tidText(start)) <= Date.now()) continue;
+      if (datum === bokning.datum && tidText(start) === bokning.start && stadare.id === bokning.stadare.id) continue;
+      if (ledig(anstalld, upptaget, datum, start, start + langd, bokning.id)) fria.push(start);
+    }
+    const dagens: number[] = onskad !== null && fria.includes(onskad) ? [onskad] : [];
+    for (const start of fria) {
+      if (dagens.length >= 2) break;
+      if (dagens.every((d) => Math.abs(d - start) >= 180)) dagens.push(start);
+    }
+    for (const start of dagens.sort((a, b) => a - b)) {
+      luckor.push({ datum, start: tidText(start), slut: tidText(start + langd), stadare });
+    }
+  }
+  return luckor;
+}
+
+/** Kan städaren utföra tjänsten? (Tjänsterna står på den anställda i TimeWave.) */
+function kanUtfora(anstalld: TwAnstalld, tjanstId: string | undefined): boolean {
+  if (!tjanstId) return false;
+  const tjanster = (anstalld as TwAnstalld & { services?: { id: string | number }[] }).services ?? [];
+  return tjanster.some((t) => String(t.id) === tjanstId);
+}
+
+/** Högst så många kollegor gås igenom per sökning – annars blir svaret för långsamt. */
+const MAX_KOLLEGOR = 12;
+
 async function hamtaMission(missionId: number): Promise<TwMission | null> {
   const svar = await twGet<{ data?: TwMission[] | TwMission }>(`/missions/${missionId}`);
   return (Array.isArray(svar.data) ? svar.data[0] : svar.data) ?? null;
@@ -264,7 +307,7 @@ async function hamtaMission(missionId: number): Promise<TwMission | null> {
 export function timewaveSystem(): Bokningssystem {
   return {
     namn: 'timewave',
-    kanSokaKollegor: false,
+    kanSokaKollegor: true,
     kanSkriva: SKRIVER,
 
     async hamtaKund(kundNummer) {
@@ -305,43 +348,52 @@ export function timewaveSystem(): Bokningssystem {
     },
 
     async ledigaLuckor(bokning, franDatum, tillDatum, bara, onskadStart) {
-      // Bara ordinarie städare i det här steget.
-      if (!bara || bara.id !== bokning.stadare.id) return [];
       const idag = idagSthlm();
       const fran = franDatum < idag ? idag : franDatum;
       const till = tillDatum;
       if (till < fran) return [];
-      const { anstalld, upptaget } = await schema(bara.id, fran, till);
-      const langd = minuter(bokning.slut) - minuter(bokning.start);
       const onskad = onskadStart && /^\d{2}:\d{2}$/.test(onskadStart) ? minuter(onskadStart) : null;
 
-      const luckor: Lucka[] = [];
-      for (let datum = fran; datum <= till; datum = laggTillDagar(datum, 1)) {
-        const tid = arbetstid(anstalld, datum);
-        if (!tid) continue;
-        const fria: number[] = [];
-        for (let start = tid.start; start + langd <= tid.slut; start += STEG_MINUTER) {
-          if (sthlmTidpunkt(datum, tidText(start)) <= Date.now()) continue;
-          if (datum === bokning.datum && tidText(start) === bokning.start) continue;
-          if (ledig(anstalld, upptaget, datum, start, start + langd, bokning.id)) fria.push(start);
-        }
-        // Högst två tider per dag, minst tre timmar emellan – önskat klockslag först.
-        const dagens: number[] = onskad !== null && fria.includes(onskad) ? [onskad] : [];
-        for (const start of fria) {
-          if (dagens.length >= 2) break;
-          if (dagens.every((d) => Math.abs(d - start) >= 180)) dagens.push(start);
-        }
-        for (const start of dagens.sort((a, b) => a - b)) {
-          luckor.push({ datum, start: tidText(start), slut: tidText(start + langd), stadare: bara });
-        }
+      // Ordinarie städare.
+      if (bara) {
+        if (bara.id !== bokning.stadare.id) return [];
+        const { anstalld, upptaget } = await schema(bara.id, fran, till);
+        return luckorFor(anstalld, upptaget, bokning, fran, till, onskad, bara);
       }
-      return luckor;
+
+      // Kollegor: aktiva städare med samma tjänst i TimeWave, utom ordinarie.
+      if (!bokning.tjanstId) return [];
+      const kandidater = (
+        await twGetAlla<TwAnstalld>(`/employees?filter[service_id]=${encodeURIComponent(bokning.tjanstId)}&filter[status]=active`)
+      )
+        .filter((a) => String(a.id) !== bokning.stadare.id && (a.availability ?? []).length > 0)
+        .slice(0, MAX_KOLLEGOR);
+      if (!kandidater.length) return [];
+      const rader = await raderIPeriod(fran, till);
+      const luckor: Lucka[] = [];
+      // Fyra åt gången, så att TimeWave inte överbelastas.
+      for (let i = 0; i < kandidater.length; i += 4) {
+        const omgang = await Promise.all(
+          kandidater.slice(i, i + 4).map(async (k) => {
+            try {
+              const { anstalld, upptaget } = await schema(String(k.id), fran, till, rader);
+              const namn = [anstalld.first_name, anstalld.last_name].filter(Boolean).join(' ') || 'kollega';
+              return luckorFor(anstalld, upptaget, bokning, fran, till, onskad, { id: String(k.id), namn: fornamn(namn) });
+            } catch {
+              return [];
+            }
+          })
+        );
+        luckor.push(...omgang.flat());
+      }
+      return luckor.sort((x, y) => `${x.datum}${x.start}`.localeCompare(`${y.datum}${y.start}`));
     },
 
     async kontrolleraLucka(bokning, lucka) {
       if (sthlmTidpunkt(lucka.datum, lucka.start) <= Date.now()) return { ledig: false };
-      if (lucka.stadare.id !== bokning.stadare.id) return { ledig: false };
       const { anstalld, upptaget } = await schema(lucka.stadare.id, lucka.datum, lucka.datum);
+      // En kollega måste fortfarande kunna utföra tjänsten.
+      if (lucka.stadare.id !== bokning.stadare.id && !kanUtfora(anstalld, bokning.tjanstId)) return { ledig: false };
       return ledig(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id)
         ? { ledig: true, lossas: [] }
         : { ledig: false };

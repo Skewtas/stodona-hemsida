@@ -33,6 +33,8 @@ export interface Bokning {
   /** Kundens kostnad för tillfället, ur bokningssystemet. Grund för avgiften. */
   prisKr: number;
   aterkommande: boolean;
+  /** Tjänstens id i bokningssystemet – för att hitta kollegor som kan utföra den. */
+  tjanstId?: string;
   /** Satt när tillfället inte kan ändras i chatten, med orsaken. */
   ejAndringsbar?: string;
 }

@@ -1,18 +1,17 @@
-// Legitimering med Mobilt BankID i chatten – SIMULERAD, endast i testmiljön.
+// Legitimering med Mobilt BankID i chatten – via TIC Identity (api/_tic.ts).
 //
-// Endpointen svarar bara när CHAT_KUNDTJANST=true, vilket bara vite.config.ts
-// sätter lokalt. I produktion finns den inte, och inget riktigt BankID är
-// inkopplat. När en riktig leverantör väljs byts innehållet här ut, medan
-// resten av flödet och säkerhetsreglerna kan vara kvar.
+// Endpointen svarar bara när självservicen är påslagen (se api/_sjalvservice.ts).
 //
-//   POST { samtalsId, handling: "starta", personnummer }  → { ordernummer }
-//   POST { samtalsId, handling: "kolla",  ordernummer }   → { status } | { namn }
-//   POST { samtalsId, handling: "avbryt", ordernummer }   → { ok: true }
+//   POST { samtalsId, handling: "starta" }               → { ordernummer, autoStartToken }
+//   POST { samtalsId, handling: "starta", testkundId }   → { ordernummer }  (testinloggning, bara i testläget)
+//   POST { samtalsId, handling: "kolla", ordernummer }   → { status: "vantar", qr, tips } | { status: "klar", namn }
+//   POST { samtalsId, handling: "avbryt", ordernummer }  → { ok: true }
 //
-// Personnumret skrivs i legitimeringsrutan, aldrig i chatten, och sparas
-// aldrig i samtalet. Resultatet lagras på servern, kopplat till samtalets id.
+// Personnumret passerar aldrig chatten. Servern får det från TIC, matchar det
+// mot exakt en kund i TimeWave och kopplar samtalet till kunden.
 
-import { KUNDTJANST_PA, startaSignering, kollaSignering, avbrytSignering, TESTPERSONNUMMER } from './_kundtjanst';
+import { personalNamn } from './_personal';
+import { sjalvserviceTillaten, SJALVSERVICE_PA, TESTLAGE, startaSignering, startaBankid, kollaSignering, avbrytSignering, TESTKUNDLISTA } from './_sjalvservice';
 
 export const config = { runtime: 'edge' };
 
@@ -40,15 +39,18 @@ function franSajten(request: Request): boolean {
 }
 
 export default async function handler(request: Request) {
-  if (!KUNDTJANST_PA) return json({ error: 'Legitimering är inte påslagen.' }, 503);
+  if (!SJALVSERVICE_PA) return json({ error: 'Legitimering är inte påslagen.' }, 503);
+  // I produktion bara för inloggad personal i personalchatten – även listan nedan.
+  const personal = Boolean(await personalNamn(request));
+  if (!sjalvserviceTillaten(personal)) return json({ error: 'Legitimering är inte påslagen.' }, 403);
   if (request.method === 'GET') {
     // Testlägets hjälplista: vilka testpersonnummer som fungerar.
-    return json({ testlage: true, personnummer: TESTPERSONNUMMER });
+    return json({ testkunder: TESTKUNDLISTA });
   }
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   if (!franSajten(request)) return json({ error: 'Fel ursprung.' }, 403);
 
-  let body: { samtalsId?: unknown; handling?: unknown; personnummer?: unknown; ordernummer?: unknown };
+  let body: { samtalsId?: unknown; handling?: unknown; testkundId?: unknown; ordernummer?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -59,8 +61,15 @@ export default async function handler(request: Request) {
   if (!samtalsId) return json({ error: 'Saknar giltigt samtals-id.' }, 400);
 
   if (body.handling === 'starta') {
-    const personnummer = String(body.personnummer ?? '').trim().slice(0, 20);
-    const svar = startaSignering(samtalsId, personnummer);
+    const testkundId = String(body.testkundId ?? '').trim().slice(0, 20);
+    if (testkundId) {
+      if (!TESTLAGE && !personal) return json({ error: 'Okänd handling.' }, 400);
+      const svar = await startaSignering(samtalsId, testkundId);
+      return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
+    }
+    // BankID vill ha kundens IP-adress. Lokalt finns ingen, då används 127.0.0.1.
+    const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || request.headers.get('x-real-ip') || '127.0.0.1';
+    const svar = await startaBankid(samtalsId, ip === '::1' ? '127.0.0.1' : ip, request.headers.get('user-agent') ?? '');
     return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
   }
 
@@ -68,12 +77,12 @@ export default async function handler(request: Request) {
   if (!ordernummer) return json({ error: 'Saknar ordernummer.' }, 400);
 
   if (body.handling === 'kolla') {
-    const svar = kollaSignering(samtalsId, ordernummer);
+    const svar = await kollaSignering(samtalsId, ordernummer);
     return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
   }
 
   if (body.handling === 'avbryt') {
-    avbrytSignering(samtalsId, ordernummer);
+    await avbrytSignering(samtalsId, ordernummer);
     return json({ ok: true });
   }
 

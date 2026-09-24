@@ -16,13 +16,20 @@ function lokalChatApi(env: Record<string, string>): Plugin {
     name: 'stodona-lokal-chat-api',
     apply: 'serve',
     configureServer(server: ViteDevServer) {
+      // Variabler från skalet vinner alltid. Värden från .env-filerna skrivs
+      // däremot om vid varje omstart, så att en ändrad nyckel slår igenom.
+      const g = globalThis as { __stodonaSkalEnv?: Set<string> };
+      g.__stodonaSkalEnv ??= new Set(Object.keys(process.env));
       for (const [nyckel, varde] of Object.entries(env)) {
-        if (!(nyckel in process.env)) process.env[nyckel] = varde;
+        if (!g.__stodonaSkalEnv.has(nyckel)) process.env[nyckel] = varde;
       }
       process.env.STODONA_LOKAL = 'true';
       process.env.CHAT_ENABLED = 'true';
-      // Inloggad kundtjänst med simulerad BankID finns BARA i testmiljön.
+      // Självservicen med simulerad BankID finns BARA i testmiljön.
       process.env.CHAT_KUNDTJANST = 'true';
+      // .env är ofta nedladdad från Vercels produktion (VERCEL_ENV="production"),
+      // och då vägrar testläget starta. Lokalt är det per definition inte produktion.
+      process.env.VERCEL_ENV = 'development';
 
       server.config.logger.info(
         `[lokal chat] ${Object.keys(env).length} env-variabler lästa · ` +

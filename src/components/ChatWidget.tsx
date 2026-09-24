@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Send, Phone, Paperclip, Video, Loader2 } from "lucide-react";
+import { X, Send, Phone, Paperclip, Video, Loader2, ArrowDown, FlaskConical, ChevronDown } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { track } from "../utils/analytics";
 
@@ -24,6 +24,14 @@ interface ValdFil {
   forhands: string;
 }
 
+/**
+ * Personalchatten (den gömda sidan /personalchatt) kör samma widget i
+ * personalläge. Då skickas lage: "personal" med i varje anrop – servern slår
+ * på självservicen bara för inloggad personal – och samtalet sparas separat
+ * från den vanliga chatten.
+ */
+let chattLage: "personal" | undefined;
+const nyckel = (bas: string) => (chattLage === "personal" ? `${bas}-personal` : bas);
 const LAGRINGSNYCKEL = "stodona-chat";
 const IDNYCKEL = "stodona-chat-id";
 /** Välkomsthälsningen skrivs ut en gång per flik – sedan visas den direkt. */
@@ -66,10 +74,10 @@ function egenLank(url: string): boolean {
 /** Samtalet identifieras med ett id; själva historiken bor på servern. */
 function samtalsId(): string {
   try {
-    const sparat = sessionStorage.getItem(IDNYCKEL);
+    const sparat = sessionStorage.getItem(nyckel(IDNYCKEL));
     if (sparat) return sparat;
     const nytt = crypto.randomUUID();
-    sessionStorage.setItem(IDNYCKEL, nytt);
+    sessionStorage.setItem(nyckel(IDNYCKEL), nytt);
     return nytt;
   } catch {
     return crypto.randomUUID();
@@ -81,10 +89,68 @@ function samtalsId(): string {
 // chatten är färdig.
 const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "true";
 
-// Inloggad kundtjänst (legitimering, fakturor, bokningar) finns bara i
-// testmiljön. Servern nekar allt utan CHAT_KUNDTJANST, och här visas
-// varken knapp eller legitimeringsruta i ett produktionsbygge.
-const KUNDTJANST_PA = import.meta.env.DEV;
+// Självservicen (legitimering, egna bokningar, ombokning) finns bara i
+// testläget än så länge: lokalt och på preview-deployer som byggts med
+// VITE_SJALVSERVICE_TEST=true. Det är servern som avgör – den svarar bara i
+// testläget och aldrig i produktion. Flaggan här sparar bara ett anrop.
+const SJALVSERVICE_KAN_FINNAS = import.meta.env.DEV || import.meta.env.VITE_SJALVSERVICE_TEST === "true";
+
+/** Testlägets läge, från servern. */
+interface Testlage {
+  testlage: true;
+  lage: "test" | "personal";
+  system: "test" | "timewave";
+  skriver: boolean;
+  bankid: "tic" | "test";
+  inloggad: { namn: string; kundId: string } | null;
+  simulera: "normal" | "upptagen" | "fel" | "overifierad";
+  logg: {
+    tid: string;
+    bokningId: string;
+    fore: string;
+    efter: string;
+    avgiftKr: number;
+    utfall: string;
+    systemsvar: string;
+    forturUtanAnstalld?: string[];
+    mejl?: string;
+  }[];
+}
+
+/** Sammanfattningen av en ombokning. Innehållet kommer från servern, aldrig från modellens text. */
+interface Kort {
+  id: string;
+  tjanst: string;
+  fore: { datum: string; tid: string; stadare: string };
+  efter: { datum: string; tid: string; stadare: string };
+  byteAvStadare: boolean;
+  bara_detta_tillfalle: boolean;
+  avgiftKr: number;
+  avgiftText: string;
+  status: "vantar" | "klar" | "misslyckad" | "utgangen";
+  lasläge: boolean;
+}
+
+const SIMULERINGAR: { lage: Testlage["simulera"]; etikett: string }[] = [
+  { lage: "normal", etikett: "Normalt" },
+  { lage: "upptagen", etikett: "Tiden hinner bli upptagen" },
+  { lage: "fel", etikett: "TimeWave svarar fel" },
+  { lage: "overifierad", etikett: "Går inte att verifiera" },
+];
+
+async function sjalvservice<T>(handling: string, extra: Record<string, string> = {}): Promise<T | null> {
+  try {
+    const svar = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId: samtalsId(), handling, ...(chattLage ? { lage: chattLage } : {}), ...extra }),
+    });
+    if (!svar.ok) return null;
+    return (await svar.json()) as T;
+  } catch {
+    return null;
+  }
+}
 
 // ─── Bilagor ─────────────────────────────────────────────────────────────────
 // Samma gränser kontrolleras på servern (api/_chatBilagor.ts). Här finns de
@@ -216,9 +282,8 @@ const TEXT = {
     bildSkickad: "Bild skickad",
     bankidKnapp: "Verifiera med Mobilt BankID",
     bankidRubrik: "Legitimera dig med Mobilt BankID",
-    bankidTestlage: "Testläge – ingen riktig BankID. Välj ett testpersonnummer:",
-    bankidStarta: "Starta BankID",
-    bankidVantar: "Väntar på signering i BankID-appen…",
+    bankidTestlage: "Testinloggning – ingen BankID behövs. Välj vem du är:",
+    bankidVantar: "Loggar in…",
     bankidAvbryt: "Avbryt",
     bankidKlarPrefix: "Du är legitimerad som",
     bankidFel: "Legitimeringen gick inte igenom. Försök igen.",
@@ -252,9 +317,8 @@ const TEXT = {
     bildSkickad: "Photo sent",
     bankidKnapp: "Verify with Mobile BankID",
     bankidRubrik: "Verify with Mobile BankID",
-    bankidTestlage: "Test mode – not real BankID. Pick a test ID number:",
-    bankidStarta: "Start BankID",
-    bankidVantar: "Waiting for signature in the BankID app…",
+    bankidTestlage: "Test login – no BankID needed. Pick who you are:",
+    bankidVantar: "Signing in…",
     bankidAvbryt: "Cancel",
     bankidKlarPrefix: "You are verified as",
     bankidFel: "Verification failed. Please try again.",
@@ -275,8 +339,11 @@ const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?
  * Medan svaret strömmar in döljs en halvfärdig "[[" så att markeringen aldrig
  * syns. Etiketterna renderas som vanlig text och kan inte innehålla markup.
  */
-function delaUppVal(text: string): { text: string; val: string[]; bankid: boolean } {
+function delaUppVal(text: string): { text: string; val: string[]; bankid: boolean; bekrafta: string | null } {
   let val: string[] = [];
+  // [[bekrafta:OF-…]] betyder att en sammanfattning av en ombokning ska visas som ett kort.
+  const kort = text.match(/\[\[\s*bekrafta\s*:\s*(OF-[A-Z0-9]{8})\s*\]\]/i);
+  text = text.replace(/\[\[\s*bekrafta\s*:[^\]]*\]\]/gi, "");
   // [[bankid]] betyder att kunden ska erbjudas legitimering. Raden blir en knapp.
   const bankid = /\[\[\s*bankid\s*\]\]/i.test(text);
   text = text.replace(/\[\[\s*bankid\s*\]\]/gi, '');
@@ -291,7 +358,7 @@ function delaUppVal(text: string): { text: string; val: string[]; bankid: boolea
   let ren = text.replace(/\[\[\s*val\s*:[^\]]*\]\]/gi, "").replace(/[ \t]{2,}/g, " ");
   const halvfardig = ren.lastIndexOf("[[");
   if (halvfardig !== -1 && !ren.includes("]]", halvfardig)) ren = ren.slice(0, halvfardig);
-  return { text: ren.trimEnd(), val, bankid };
+  return { text: ren.trimEnd(), val, bankid, bekrafta: kort ? kort[1].toUpperCase() : null };
 }
 
 /** Visar länken utan https och med å, ä och ö i klartext – adressen i href förblir kodad. */
@@ -342,12 +409,202 @@ function SkriverPrickar({ etikett }: { etikett: string }) {
   );
 }
 
+/** "fredag 25 september" → "Fredag 25 september". */
+const versal = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+function Ombokningskort({
+  id,
+  upptagen,
+  laddaOm,
+  onBekrafta,
+  onAvbryt,
+}: {
+  id: string;
+  /** Sant när chatten skriver eller något annat pågår. */
+  upptagen: boolean;
+  /** Ändras när kortet ska hämtas på nytt, t.ex. efter en bekräftelse. */
+  laddaOm: number;
+  onBekrafta: (id: string) => Promise<void>;
+  onAvbryt: () => void;
+}) {
+  const [kort, setKort] = useState<Kort | null>(null);
+  const [saknas, setSaknas] = useState(false);
+  const [genomfor, setGenomfor] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Kortet kommer efter texten, så listan har redan scrollat. Visa hela kortet.
+  useEffect(() => {
+    if (kort?.status === "vantar") ref.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, [kort?.status]);
+
+  useEffect(() => {
+    let aktiv = true;
+    sjalvservice<Kort>("kort", { forslagId: id }).then((k) => {
+      if (!aktiv) return;
+      if (k) setKort(k);
+      else setSaknas(true);
+    });
+    return () => {
+      aktiv = false;
+    };
+  }, [id, laddaOm]);
+
+  if (saknas) return null;
+  if (!kort) {
+    return (
+      <div className="ml-9 mt-2 text-xs text-text-secondary flex items-center gap-2">
+        <Loader2 className="w-3 h-3 animate-spin" /> Hämtar sammanfattningen…
+      </div>
+    );
+  }
+
+  const vantar = kort.status === "vantar";
+  return (
+    <div ref={ref} className="ml-9 mt-2 max-w-[85%] rounded-2xl border border-text-primary/15 bg-white p-4 text-sm text-text-primary shadow-sm">
+      <p className="font-bold">Bekräfta ombokning</p>
+      <div className="mt-3 space-y-1">
+        <p className="text-[11px] uppercase tracking-wide text-text-secondary">Nuvarande bokning</p>
+        <p>{versal(kort.fore.datum)}</p>
+        <p className="text-text-secondary">{kort.fore.tid} · {kort.fore.stadare}</p>
+      </div>
+      <ArrowDown className="w-4 h-4 my-2 text-text-secondary" aria-hidden="true" />
+      <div className="space-y-1">
+        <p className="text-[11px] uppercase tracking-wide text-text-secondary">Ny bokning</p>
+        <p className="font-medium">{versal(kort.efter.datum)}</p>
+        <p>
+          {kort.efter.tid} · {kort.efter.stadare}
+          {kort.byteAvStadare && <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Annan städare</span>}
+        </p>
+      </div>
+      {kort.bara_detta_tillfalle && <p className="mt-3 text-xs text-text-secondary">Gäller bara det här tillfället. Dina övriga städningar är oförändrade.</p>}
+      <div className={`mt-3 rounded-xl px-3 py-2 text-xs ${kort.avgiftKr > 0 ? "bg-amber-50 text-amber-900" : "bg-bg-primary text-text-secondary"}`}>
+        <p className="font-medium text-text-primary">Avgift för ändringen: {kort.avgiftKr} kr</p>
+        {kort.avgiftKr > 0 && <p className="mt-1">{kort.avgiftText}</p>}
+      </div>
+
+      {vantar && kort.lasläge && (
+        <p className="mt-3 text-xs rounded-xl px-3 py-2 bg-amber-100 text-amber-950">
+          Testläge: allt kontrolleras mot TimeWave, men ändringen skrivs inte dit ännu.
+        </p>
+      )}
+      {vantar ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={upptagen || genomfor}
+            onClick={async () => {
+              setGenomfor(true);
+              try {
+                await onBekrafta(kort.id);
+              } finally {
+                setGenomfor(false);
+              }
+            }}
+            className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors disabled:opacity-40 inline-flex items-center gap-2"
+          >
+            {genomfor && <Loader2 className="w-4 h-4 animate-spin" />}
+            {genomfor ? "Genomför…" : "Bekräfta ombokning"}
+          </button>
+          <button
+            type="button"
+            disabled={upptagen || genomfor}
+            onClick={onAvbryt}
+            className="px-4 py-2.5 rounded-xl border border-text-primary/20 hover:border-text-primary transition-colors disabled:opacity-40"
+          >
+            Avbryt
+          </button>
+        </div>
+      ) : (
+        <p className="mt-3 text-xs font-medium text-text-secondary">
+          {kort.status === "klar" ? "✓ Genomförd" : kort.status === "misslyckad" ? "Inte genomförd" : "Sammanfattningen har gått ut"}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function TestlageBanderoll({ lage, uppdatera }: { lage: Testlage; uppdatera: (l: Testlage) => void }) {
+  const [oppen, setOppen] = useState(false);
+  const [arbetar, setArbetar] = useState(false);
+  const atgard = async (atgard: string) => {
+    setArbetar(true);
+    const ny = await sjalvservice<Testlage>("testlage", { atgard });
+    if (ny) uppdatera(ny);
+    setArbetar(false);
+  };
+  return (
+    <div className="bg-amber-300 text-amber-950 text-[11px] shrink-0">
+      <button type="button" onClick={() => setOppen((v) => !v)} className="w-full px-4 py-1.5 flex items-center gap-2 font-bold" aria-expanded={oppen}>
+        <FlaskConical className="w-3.5 h-3.5" aria-hidden="true" />
+        <span>{lage.lage === "personal" ? "PERSONALCHATT" : "TESTLÄGE"}</span>
+        <span className="font-normal truncate">
+          {lage.system === "timewave" ? "· RIKTIG TIMEWAVE-DATA" : ""}
+          {lage.inloggad ? ` · ${lage.inloggad.namn} (kund ${lage.inloggad.kundId})` : lage.system === "test" ? " · påhittade kunder, inget går till TimeWave" : ""}
+        </span>
+        <ChevronDown className={`w-3.5 h-3.5 ml-auto transition-transform ${oppen ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
+      {oppen && (
+        <div className="px-4 pb-3 space-y-2 max-h-56 overflow-y-auto">
+          {lage.system === "timewave" ? (
+            <p>
+              Riktiga bokningar och scheman från TimeWave, bara för testkundnumren.{" "}
+              {lage.skriver ? "Ändringar SKRIVS till TimeWave." : "Chatten läser bara – ingenting skrivs till TimeWave."}
+            </p>
+          ) : (
+            <p>Påhittade kunder, personal och scheman. Ingenting skickas till TimeWave eller kundservice.</p>
+          )}
+          {lage.system === "test" && (<>
+          <p className="font-bold">Nästa bekräftelse:</p>
+          <div className="flex flex-wrap gap-1.5">
+            {SIMULERINGAR.map((s) => (
+              <button
+                key={s.lage}
+                type="button"
+                disabled={arbetar}
+                onClick={() => atgard(s.lage)}
+                className={`px-2 py-1 rounded-full border border-amber-950/30 ${lage.simulera === s.lage ? "bg-amber-950 text-amber-50" : "bg-amber-100"}`}
+              >
+                {s.etikett}
+              </button>
+            ))}
+          </div>
+          <button type="button" disabled={arbetar} onClick={() => atgard("aterstall")} className="underline">
+            Återställ testdata
+          </button>
+          </>)}
+          {lage.logg.length > 0 && (
+            <div>
+              <p className="font-bold">Logg (senaste först):</p>
+              <ul className="space-y-1 mt-1 font-mono text-[10px]">
+                {lage.logg.map((l) => (
+                  <li key={l.tid}>
+                    {l.tid.slice(11, 19)} {l.utfall} · {l.bokningId} · {l.fore} → {l.efter} · {l.avgiftKr} kr · {l.systemsvar}
+                    {l.forturUtanAnstalld && l.forturUtanAnstalld.length > 0 && <> · förtur: {l.forturUtanAnstalld.join(", ")} utan anställd</>}
+                    {l.mejl && (
+                      <details className="mt-1">
+                        <summary className="cursor-pointer underline">Mejl till info@stodona.se</summary>
+                        <pre className="whitespace-pre-wrap bg-amber-100 rounded p-2 mt-1">{l.mejl}</pre>
+                      </details>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const BOTBUBBLA = "bg-bg-primary text-text-primary rounded-2xl rounded-bl-sm px-4 py-3 text-sm max-w-[80%] whitespace-pre-wrap";
 
-export default function ChatWidget() {
+export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
+  chattLage = lage;
   const { lang } = useLanguage();
   const s = TEXT[lang === "EN" ? "EN" : "SV"];
-  const [oppen, setOppen] = useState(false);
+  // Personalchatten öppnas direkt.
+  const [oppen, setOppen] = useState(lage === "personal");
   // Cookiebannern ligger över allt annat på mobil. Chatten visas ändå direkt –
   // den kräver inget samtycke – men bubblan lyfts tills rutan är besvarad.
   const [cookiesBesvarade, setCookiesBesvarade] = useState(false);
@@ -370,10 +627,21 @@ export default function ChatWidget() {
   const filRef = useRef<HTMLInputElement>(null);
   /** Legitimering med Mobilt BankID – simulerad, och finns bara i testmiljön. */
   const [bankidOppen, setBankidOppen] = useState(false);
-  const [bankidPnr, setBankidPnr] = useState("");
   const [bankidVantar, setBankidVantar] = useState(false);
   const [bankidFel, setBankidFel] = useState("");
-  const [testnummer, setTestnummer] = useState<{ personnummer: string; namn: string }[]>([]);
+  const [testkunder, setTestkunder] = useState<{ id: string; namn: string }[]>([]);
+  /** Pågående riktig BankID: QR-kod (datorn), länk till appen (mobilen) och BankID:s instruktion. */
+  const [bankidQr, setBankidQr] = useState<string | null>(null);
+  const [bankidAppLank, setBankidAppLank] = useState<string | null>(null);
+  const [bankidTips, setBankidTips] = useState("");
+  const bankidOrder = useRef<string | null>(null);
+  /** Personalmiljön: valfritt kundnummer att logga in som. */
+  const [valfrittKundnr, setValfrittKundnr] = useState("");
+  /** Självservicens testläge, enligt servern. null = självservicen finns inte. */
+  const [testlage, setTestlage] = useState<Testlage | null>(null);
+  /** Räknas upp när sammanfattningskorten ska hämtas på nytt. */
+  const [kortVersion, setKortVersion] = useState(0);
+  const sjalvservicePa = Boolean(testlage);
 
   const listaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -413,14 +681,14 @@ export default function ChatWidget() {
   // Samtalet överlever en omladdning, men bara i den här fliken.
   useEffect(() => {
     try {
-      const sparat = sessionStorage.getItem(LAGRINGSNYCKEL);
+      const sparat = sessionStorage.getItem(nyckel(LAGRINGSNYCKEL));
       if (sparat) setMeddelanden(JSON.parse(sparat));
     } catch { /* strunt i det */ }
   }, []);
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(LAGRINGSNYCKEL, JSON.stringify(meddelanden.slice(-24)));
+      sessionStorage.setItem(nyckel(LAGRINGSNYCKEL), JSON.stringify(meddelanden.slice(-24)));
     } catch { /* strunt i det */ }
   }, [meddelanden]);
 
@@ -432,6 +700,17 @@ export default function ChatWidget() {
     const animerar = skrivIndex !== null || valkomstLangd !== null;
     lista.scrollTo({ top: lista.scrollHeight, behavior: animerar ? "auto" : "smooth" });
   }, [meddelanden, svarar, synligLangd, skrivIndex, valkomstLangd, prickar, valkomstPrickar]);
+
+  // Frågar servern om självservicen finns, och i så fall om testläget.
+  const uppdateraTestlage = async () => {
+    if (!SJALVSERVICE_KAN_FINNAS && chattLage !== "personal") return;
+    const lage = await sjalvservice<Testlage>("status");
+    setTestlage(lage?.testlage ? lage : null);
+  };
+  useEffect(() => {
+    if (oppen) uppdateraTestlage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oppen]);
 
   useEffect(() => {
     if (!oppen) return;
@@ -445,12 +724,12 @@ export default function ChatWidget() {
   useEffect(() => {
     if (!oppen) return;
     let halsat = false;
-    try { halsat = sessionStorage.getItem(HALSATNYCKEL) === "1"; } catch { /* strunt i det */ }
+    try { halsat = sessionStorage.getItem(nyckel(HALSATNYCKEL)) === "1"; } catch { /* strunt i det */ }
     if (halsat || meddelandenRef.current.length > 0 || minskadRorelse.current) {
       setValkomstLangd(null);
       return;
     }
-    try { sessionStorage.setItem(HALSATNYCKEL, "1"); } catch { /* strunt i det */ }
+    try { sessionStorage.setItem(nyckel(HALSATNYCKEL), "1"); } catch { /* strunt i det */ }
 
     const text = s.valkommen;
     const mal = antalTecken(text);
@@ -544,25 +823,98 @@ export default function ChatWidget() {
     try {
       const svar = await fetch("/api/kund-bankid");
       const data = await svar.json();
-      if (Array.isArray(data?.personnummer)) setTestnummer(data.personnummer);
+      if (Array.isArray(data?.testkunder)) setTestkunder(data.testkunder);
     } catch {
-      /* listan är bara en hjälp i testläget */
+      setBankidFel(s.bankidFel);
     }
   }
 
   /**
-   * Startar den simulerade signeringen och frågar sedan servern hur det går.
-   * Personnumret skickas hit, aldrig in i chatten, och sparas inte i samtalet.
+   * Riktig Mobilt BankID via TIC Identity, direkt i chatten. Datorn visar en
+   * QR-kod som byts varje sekund; mobilen får en knapp som öppnar BankID-appen.
+   * Servern kopplar samtalet till kunden – personnumret passerar aldrig chatten.
    */
-  async function startaBankid() {
-    if (!bankidPnr.trim() || bankidVantar) return;
+  async function startaRiktigtBankid() {
+    if (bankidVantar) return;
+    setBankidFel("");
+    setBankidTips("");
+    setBankidQr(null);
+    setBankidAppLank(null);
+    setBankidVantar(true);
+    const post = (kropp: Record<string, string>) =>
+      fetch("/api/kund-bankid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ samtalsId: samtalsId(), ...kropp }),
+      }).then(async (r) => ({ ok: r.ok, data: await r.json().catch(() => ({})) }));
+    try {
+      const start = await post({ handling: "starta" });
+      if (!start.ok || !start.data?.ordernummer) throw new Error(start.data?.error || s.bankidFel);
+      const ordernummer: string = start.data.ordernummer;
+      bankidOrder.current = ordernummer;
+      const mobil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (start.data.autoStartToken) {
+        const token = encodeURIComponent(start.data.autoStartToken);
+        setBankidAppLank(mobil ? `https://app.bankid.com/?autostarttoken=${token}&redirect=null` : `bankid:///?autostarttoken=${token}&redirect=null`);
+      }
+      for (let forsok = 0; forsok < 180 && bankidOrder.current === ordernummer; forsok++) {
+        const koll = await post({ handling: "kolla", ordernummer });
+        if (!koll.ok) throw new Error(koll.data?.error || s.bankidFel);
+        if (koll.data.status === "klar") {
+          bankidOrder.current = null;
+          setBankidOppen(false);
+          setBankidQr(null);
+          setBankidAppLank(null);
+          uppdateraTestlage();
+          skicka("Jag har legitimerat mig nu.");
+          return;
+        }
+        if (typeof koll.data.tips === "string" && koll.data.tips) setBankidTips(koll.data.tips);
+        if (!mobil && typeof koll.data.qr === "string") {
+          // QR-biblioteket laddas först här, så att vanliga besökare slipper det.
+          const { toDataURL } = await import("qrcode");
+          setBankidQr(await toDataURL(koll.data.qr, { margin: 1, width: 220 }));
+        }
+        await new Promise((klar) => setTimeout(klar, 1000));
+      }
+      if (bankidOrder.current === ordernummer) throw new Error("Tiden för legitimeringen gick ut. Försök igen.");
+    } catch (f) {
+      setBankidFel(f instanceof Error && f.message.length < 160 ? f.message : s.bankidFel);
+      setBankidQr(null);
+      setBankidAppLank(null);
+    } finally {
+      setBankidVantar(false);
+    }
+  }
+
+  function avbrytRiktigtBankid() {
+    const ordernummer = bankidOrder.current;
+    bankidOrder.current = null;
+    setBankidQr(null);
+    setBankidAppLank(null);
+    setBankidTips("");
+    if (ordernummer) {
+      fetch("/api/kund-bankid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ samtalsId: samtalsId(), handling: "avbryt", ordernummer }),
+      }).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Testinloggningen: kunden väljer vem hen är, och servern kopplar kunden
+   * till samtalet. Samma fråga-tills-klar-flöde som riktig BankID får.
+   */
+  async function startaBankid(testkundId: string) {
+    if (bankidVantar) return;
     setBankidFel("");
     setBankidVantar(true);
     try {
       const start = await fetch("/api/kund-bankid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ samtalsId: samtalsId(), handling: "starta", personnummer: bankidPnr.trim() }),
+        body: JSON.stringify({ samtalsId: samtalsId(), handling: "starta", testkundId }),
       });
       const startData = await start.json();
       if (!start.ok || !startData?.ordernummer) throw new Error(startData?.error || "start misslyckades");
@@ -578,9 +930,9 @@ export default function ChatWidget() {
         if (!koll.ok) throw new Error(data?.error || "kontrollen misslyckades");
         if (data.status === "klar") {
           setBankidOppen(false);
-          setBankidPnr("");
           setBankidVantar(false);
           // Camilla bekräftar själv vem kunden är i nästa svar, så ingen egen rad här.
+          uppdateraTestlage();
           skicka("Jag har legitimerat mig nu.");
           return;
         }
@@ -600,9 +952,30 @@ export default function ChatWidget() {
     setBilagefel("");
   }
 
-  async function skicka(fraga: string, filer: ValdFil[] = []) {
+  /**
+   * Kunden tryckte "Bekräfta ombokning". Ändringen görs av servern – inte av
+   * Camilla – och det är serverns svar som visas. Först när servern svarat
+   * SUCCESS står det att bokningen är ändrad.
+   */
+  async function bekrafta(forslagId: string) {
+    if (skriver) return;
+    type Svar = { utfall: string; text: string; fortsatt?: string };
+    const resultat = await sjalvservice<Svar>("bekrafta", { forslagId });
+    const text = resultat?.text ?? "Jag kunde inte nå bokningssystemet, så ingenting är ändrat. Försök igen om en stund, eller ring 010-178 01 50.";
+    const nya: Meddelande[] = [...meddelandenRef.current, { roll: "user", text: "Bekräfta ombokning" }, { roll: "assistant", text }];
+    meddelandenRef.current = nya;
+    setMeddelanden(nya);
+    setKortVersion((v) => v + 1);
+    track("chat_ombokning", { utfall: resultat?.utfall ?? "natverksfel" });
+    uppdateraTestlage();
+    // T.ex. när tiden hann bli upptagen: Camilla hämtar nya tider direkt.
+    if (resultat?.fortsatt) await skicka(resultat.fortsatt, [], true);
+  }
+
+  /** @param dold skickas till Camilla utan att synas som kundens bubbla (systemets egna fortsättningar). */
+  async function skicka(fraga: string, filer: ValdFil[] = [], dold = false) {
     const rensad = fraga.trim();
-    if ((!rensad && !filer.length) || skriver || laddarUpp) return;
+    if ((!rensad && !filer.length) || (skriver && !dold) || laddarUpp) return;
 
     // Filerna laddas upp först. Går det inte ligger de kvar, så kunden kan försöka igen.
     let bilagor: Bilaga[] = [];
@@ -621,7 +994,9 @@ export default function ChatWidget() {
       setValda([]);
     }
 
-    const historik: Meddelande[] = [...meddelanden, { roll: "user", text: rensad, ...(bilagor.length ? { bilagor } : {}) }];
+    const historik: Meddelande[] = dold
+      ? [...meddelandenRef.current]
+      : [...meddelandenRef.current, { roll: "user", text: rensad, ...(bilagor.length ? { bilagor } : {}) }];
     setMeddelanden([...historik, { roll: "assistant", text: "" }]);
     setUtkast("");
     setSvarar(true);
@@ -640,7 +1015,7 @@ export default function ChatWidget() {
       const svar = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: samtalsId(), message: rensad, bilagor: bilagor.map((b) => ({ url: b.url })) }),
+        body: JSON.stringify({ sessionId: samtalsId(), message: rensad, bilagor: bilagor.map((b) => ({ url: b.url })), ...(lage ? { lage } : {}) }),
       });
 
       if (!svar.ok) {
@@ -673,12 +1048,12 @@ export default function ChatWidget() {
     }
   }
 
-  if (!PASLAGEN) return null;
+  if (!PASLAGEN && lage !== "personal") return null;
 
   const sista = meddelanden[meddelanden.length - 1];
   const knappval = sista && sista.roll === "assistant" && !skriver ? delaUppVal(sista.text).val : [];
   const bankidErbjuds = Boolean(
-    KUNDTJANST_PA && sista && sista.roll === "assistant" && !skriver && delaUppVal(sista.text).bankid && !bankidOppen
+    sjalvservicePa && sista && sista.roll === "assistant" && !skriver && delaUppVal(sista.text).bankid && !bankidOppen
   );
 
   return (
@@ -736,6 +1111,8 @@ export default function ChatWidget() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {testlage && <TestlageBanderoll lage={testlage} uppdatera={setTestlage} />}
 
             <div ref={listaRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" aria-live="polite">
               {(valkomstLangd !== 0 || valkomstPrickar) && (
@@ -802,24 +1179,35 @@ export default function ChatWidget() {
                     </div>
                   );
                 }
-                const ren = delaUppVal(m.text).text;
+                const { text: ren, bekrafta: kortId } = delaUppVal(m.text);
                 const skrivsNu = i === skrivIndex;
                 const synlig = skrivsNu ? forstaTecken(ren, synligLangd) : ren;
                 // Under läspausen syns ingenting alls – varken bubbla eller prickar.
                 if (skrivsNu && synlig.length === 0 && !prickar) return null;
                 return (
-                  <div key={i} className="flex items-end gap-2">
-                    <Avatar />
-                    <div className={BOTBUBBLA}>
-                      {skrivsNu && synlig.length === 0 ? (
-                        <SkriverPrickar etikett={s.skriver} />
-                      ) : (
-                        <>
-                          <span aria-hidden={skrivsNu || undefined}>{medLankar(synlig)}</span>
-                          {skrivsNu && <span className="sr-only">{s.skriver}</span>}
-                        </>
-                      )}
+                  <div key={i}>
+                    <div className="flex items-end gap-2">
+                      <Avatar />
+                      <div className={BOTBUBBLA}>
+                        {skrivsNu && synlig.length === 0 ? (
+                          <SkriverPrickar etikett={s.skriver} />
+                        ) : (
+                          <>
+                            <span aria-hidden={skrivsNu || undefined}>{medLankar(synlig)}</span>
+                            {skrivsNu && <span className="sr-only">{s.skriver}</span>}
+                          </>
+                        )}
+                      </div>
                     </div>
+                    {sjalvservicePa && kortId && !skrivsNu && (
+                      <Ombokningskort
+                        id={kortId}
+                        upptagen={skriver}
+                        laddaOm={kortVersion}
+                        onBekrafta={bekrafta}
+                        onAvbryt={() => skicka("Avbryt – jag behåller min nuvarande bokning.")}
+                      />
+                    )}
                   </div>
                 );
               })}
@@ -844,7 +1232,7 @@ export default function ChatWidget() {
                     onClick={oppnaBankid}
                     className="text-sm px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors"
                   >
-                    {s.bankidKnapp}
+                    {testlage && testlage.bankid !== "tic" ? `${s.bankidKnapp} (testinloggning)` : s.bankidKnapp}
                   </button>
                 </div>
               )}
@@ -864,48 +1252,81 @@ export default function ChatWidget() {
               )}
             </div>
 
-            {KUNDTJANST_PA && bankidOppen && (
+            {sjalvservicePa && bankidOppen && (
               <div className="border-t border-text-primary/10 bg-bg-primary/60 p-4 shrink-0">
                 <p className="text-sm font-bold text-text-primary">{s.bankidRubrik}</p>
-                <p className="text-[11px] text-text-secondary mt-1">{s.bankidTestlage}</p>
-                {testnummer.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {testnummer.map((t) => (
-                      <button
-                        key={t.personnummer}
-                        type="button"
-                        onClick={() => setBankidPnr(t.personnummer)}
-                        disabled={bankidVantar}
-                        className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                          bankidPnr === t.personnummer
-                            ? "bg-bg-dark text-text-light border-bg-dark"
-                            : "bg-white border-text-primary/20 text-text-secondary hover:border-text-primary"
-                        }`}
-                      >
-                        {t.namn}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 mt-3">
-                  <input
-                    value={bankidPnr}
-                    onChange={(e) => setBankidPnr(e.target.value)}
-                    placeholder="ÅÅÅÅMMDD-XXXX"
-                    inputMode="numeric"
-                    maxLength={13}
-                    disabled={bankidVantar}
-                    className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-accent/40"
-                  />
+                {testlage?.bankid === "tic" && !bankidQr && !bankidAppLank && (
                   <button
                     type="button"
-                    onClick={startaBankid}
-                    disabled={bankidVantar || !bankidPnr.trim()}
-                    className="px-4 py-2 rounded-xl bg-bg-dark text-text-light text-sm shrink-0 disabled:opacity-40"
+                    onClick={startaRiktigtBankid}
+                    disabled={bankidVantar}
+                    className="mt-3 w-full text-sm px-4 py-3 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors disabled:opacity-40"
                   >
-                    {s.bankidStarta}
+                    Starta BankID
                   </button>
+                )}
+                {(bankidQr || bankidAppLank) && (
+                  <div className="mt-3 flex flex-col items-center gap-2 text-center">
+                    {bankidQr && (
+                      <>
+                        <img src={bankidQr} alt="QR-kod för Mobilt BankID" width={180} height={180} className="rounded-lg bg-white p-1" />
+                        <p className="text-[11px] text-text-secondary">Öppna BankID-appen och skanna QR-koden.</p>
+                      </>
+                    )}
+                    {bankidAppLank && (
+                      <a
+                        href={bankidAppLank}
+                        className={bankidQr
+                          ? "text-[11px] underline text-text-secondary"
+                          : "w-full text-sm px-4 py-3 rounded-xl bg-bg-dark text-text-light font-medium text-center"}
+                      >
+                        {bankidQr ? "BankID på den här datorn" : "Öppna BankID-appen"}
+                      </a>
+                    )}
+                    {bankidTips && <p className="text-[11px] text-text-primary" role="status">{bankidTips}</p>}
+                    <button type="button" onClick={avbrytRiktigtBankid} className="text-[11px] text-text-secondary underline">
+                      Avbryt
+                    </button>
+                  </div>
+                )}
+                {testkunder.length > 0 && (
+                <>
+                <p className="text-[11px] text-text-secondary mt-3">{s.bankidTestlage}</p>
+                <div className="flex flex-col gap-2 mt-2">
+                  {testkunder.some((k) => k.id === "*") && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={valfrittKundnr}
+                        onChange={(e) => setValfrittKundnr(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="Kundnummer"
+                        inputMode="numeric"
+                        disabled={bankidVantar}
+                        className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white border border-text-primary/15 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => startaBankid(valfrittKundnr)}
+                        disabled={bankidVantar || !valfrittKundnr}
+                        className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light text-sm shrink-0 disabled:opacity-40"
+                      >
+                        Logga in
+                      </button>
+                    </div>
+                  )}
+                  {testkunder.filter((k) => k.id !== "*").map((k) => (
+                    <button
+                      key={k.id}
+                      type="button"
+                      onClick={() => startaBankid(k.id)}
+                      disabled={bankidVantar}
+                      className="text-left text-sm px-4 py-2.5 rounded-xl bg-white border border-text-primary/15 hover:border-text-primary transition-colors disabled:opacity-40"
+                    >
+                      Logga in som {k.namn}
+                    </button>
+                  ))}
                 </div>
+                </>
+                )}
                 {bankidVantar && (
                   <p className="text-[11px] text-text-secondary mt-2 flex items-center gap-2" role="status">
                     <Loader2 className="w-3 h-3 animate-spin" /> {s.bankidVantar}

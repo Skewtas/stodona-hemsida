@@ -28,6 +28,7 @@ const PresentkortMall = React.lazy(() => import("./pages/PresentkortMall"));
 const Julklapp = React.lazy(() => import("./pages/Julklapp"));
 // Dold influencer-sida (noindex, ej i meny/sitemap/sök) – nås via direktlänk.
 const InfluencerSamarbete = React.lazy(() => import("./pages/InfluencerSamarbete"));
+const Personalchatt = React.lazy(() => import("./pages/Personalchatt"));
 const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
@@ -141,6 +142,9 @@ export default function App() {
           <Route path="/min-partnersida" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete" element={<InfluencerSamarbete />} />
           <Route path="/influencersamarbete-9f3c7a2b" element={<InfluencerSamarbete />} />
+          {/* Personalchatten – GÖMD, grindad med personallösenord i middleware.ts
+              (PERSONALCHATT_SIDA i api/_personal.ts). Aldrig i sitemapen. */}
+          <Route path="/personalchatt" element={<Personalchatt />} />
 
           {/* Barnpassning/nanny – publik tjänst. Formulärsidorna (/ny-kund,
               /barnvakt-ansokan) är fortsatt noindex. */}

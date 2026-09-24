@@ -14,9 +14,13 @@
 // fallback i koden nedan. Fallbacken ligger alltså i klartext i detta repo,
 // som är publikt. Cookie-token = sha256(lösenordet).
 //
+//  3. PERSONALCHATTEN (api/_personal.ts): den gömda sidan visas bara för
+//     inloggad personal, och räknas inte som besök.
+//
 // Byt URL: uppdatera matcher nedan, route i App.tsx samt GATED_PATHS/PAGE_PATH
 // i api/influencer-auth.ts.
 import { next } from "@vercel/edge";
+import { PERSONALCHATT_SIDA, personalNamn, personalInloggning } from "./api/_personal";
 
 // Måste hållas i synk med GATED_PATHS i api/influencer-auth.ts och med
 // routerna i App.tsx. Läggs en ny adress till i App.tsx utan att den står här
@@ -147,6 +151,12 @@ function loginPage(showError: boolean, path: string): string {
 
 export default async function middleware(request: Request, context: { waitUntil?: (p: Promise<unknown>) => void }) {
   const url = new URL(request.url);
+
+  // Personalchatten: bara för inloggad personal, och räknas inte som besök.
+  if (url.pathname === PERSONALCHATT_SIDA) {
+    if (await personalNamn(request)) return next();
+    return personalInloggning(url.searchParams.get("fel") === "1");
+  }
 
   // Besöksräkningen görs vid sidan av svaret, så den aldrig sinkar sidan.
   const raknat = raknaBesok(request, url);

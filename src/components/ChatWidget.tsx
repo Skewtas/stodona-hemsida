@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Send, Phone, Paperclip, Video, Loader2, ArrowDown, FlaskConical, ChevronDown } from "lucide-react";
+import { X, Send, Paperclip, Video, Loader2, ArrowDown, FlaskConical, ChevronDown } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { track } from "../utils/analytics";
 
@@ -272,7 +272,6 @@ const TEXT = {
     annatPlatshallare: "Skriv vad du tänker på…",
     skicka: "Skicka",
     fel: "Jag når inte fram just nu. Ring 010-178 01 50 så hjälper vi dig direkt.",
-    ring: "Ring oss",
     bifoga: "Bifoga bild eller video",
     taBort: "Ta bort",
     laddarUpp: "Laddar upp…",
@@ -305,7 +304,6 @@ const TEXT = {
     annatPlatshallare: "Tell me what you have in mind…",
     skicka: "Send",
     fel: "I can't get through right now. Call +46 10 178 01 50 and we'll help you.",
-    ring: "Call us",
     bifoga: "Attach a photo or video",
     taBort: "Remove",
     laddarUpp: "Uploading…",
@@ -1533,11 +1531,6 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                 >
                   {laddarUpp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
-              </div>
-              <div className="flex items-center justify-end gap-3 mt-2 px-1">
-                <a href="tel:0101780150" className="text-[11px] inline-flex items-center gap-1 text-text-secondary hover:text-text-primary shrink-0">
-                  <Phone className="w-3 h-3" /> {s.ring}
-                </a>
               </div>
             </form>
           </motion.div>

@@ -14,6 +14,7 @@ const BAS = process.env.TIMEWAVE_BASE_URL || 'https://api.timewave.se/v3';
 const TIMEOUT_MS = 8000;
 
 let token: string | null = null;
+let tokenRequest: Promise<string> | null = null;
 
 export function timewaveKonfigurerad(): boolean {
   return Boolean(process.env.TIMEWAVE_CLIENT_ID && process.env.TIMEWAVE_API_KEY);
@@ -21,16 +22,21 @@ export function timewaveKonfigurerad(): boolean {
 
 async function hamtaToken(): Promise<string> {
   if (token) return token;
-  const form = new FormData();
-  form.append('client_id', process.env.TIMEWAVE_CLIENT_ID ?? '');
-  form.append('client_secret', process.env.TIMEWAVE_API_KEY ?? '');
-  form.append('grant_type', 'client_credentials');
-  const svar = await fetch(`${BAS}/oauth/token`, { method: 'POST', body: form });
-  if (!svar.ok) throw new Error(`TimeWave-inloggningen misslyckades: ${svar.status}`);
-  const data = (await svar.json()) as { access_token?: string };
-  if (!data.access_token) throw new Error('TimeWave-inloggningen gav ingen token');
-  token = data.access_token;
-  return token;
+  if (tokenRequest) return tokenRequest;
+  // Parallel schedule reads must not invalidate each other's access tokens.
+  tokenRequest = (async () => {
+    const form = new FormData();
+    form.append('client_id', process.env.TIMEWAVE_CLIENT_ID ?? '');
+    form.append('client_secret', process.env.TIMEWAVE_API_KEY ?? '');
+    form.append('grant_type', 'client_credentials');
+    const svar = await fetch(`${BAS}/oauth/token`, { method: 'POST', body: form, signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!svar.ok) throw new Error(`TimeWave-inloggningen misslyckades: ${svar.status}`);
+    const data = (await svar.json()) as { access_token?: string };
+    if (!data.access_token) throw new Error('TimeWave-inloggningen gav ingen token');
+    token = data.access_token;
+    return token;
+  })();
+  try { return await tokenRequest; } finally { tokenRequest = null; }
 }
 
 async function anropa(bearer: string, sokvag: string): Promise<Response> {
@@ -68,7 +74,8 @@ export async function twGet<T = unknown>(sokvag: string): Promise<T> {
 export async function twGetAlla<T>(sokvag: string): Promise<T[]> {
   const sep = sokvag.includes('?') ? '&' : '?';
   const forsta = await twGet<{ data?: T[]; last_page?: number }>(`${sokvag}${sep}page=1`);
-  const sidor = Math.min(Number(forsta.last_page ?? 1), 20);
+  const sidor = Number(forsta.last_page ?? 1);
+  if (!Number.isInteger(sidor) || sidor < 1 || sidor > 20) throw new Error('TimeWave-listningen kan inte hämtas fullständigt');
   const resten = await Promise.all(
     Array.from({ length: Math.max(0, sidor - 1) }, (_, i) =>
       twGet<{ data?: T[] }>(`${sokvag}${sep}page=${i + 2}`).then((r) => r.data ?? [])
@@ -140,7 +147,76 @@ export async function twFlyttaTillfalle(indata: {
   return { ok: true };
 }
 
+/**
+ * Skapar en anteckning i TimeWave, t.ex. en ekonomianteckning om en avgift.
+ * Typer enligt API:et: MISSION, IMPORTANT, OTHER, INVOICE, ECONOMY, ADMIN,
+ * ORDER, OFFER, CRM. Skrivs som systemanvändaren TIMEWAVE_NOTE_EMPLOYEE_ID
+ * (samma som bokningsmodulen). Görs högst en gång – inget nytt försök efter
+ * timeout, så att det aldrig blir dubbla anteckningar.
+ */
+export async function twSkapaAnteckning(indata: {
+  resurs: 'clients' | 'workorders' | 'workorderlines';
+  resursId: number;
+  typ: 'ECONOMY' | 'ADMIN' | 'IMPORTANT';
+  rubrik: string;
+  text: string;
+  viktig?: boolean;
+}): Promise<{ ok: true } | { ok: false; fel: string }> {
+  const skapare = Number(process.env.TIMEWAVE_NOTE_EMPLOYEE_ID);
+  if (!skapare) return { ok: false, fel: 'TIMEWAVE_NOTE_EMPLOYEE_ID saknas' };
+  const kropp = JSON.stringify({
+    resource_name: indata.resurs,
+    resource_id: indata.resursId,
+    employee_id: skapare,
+    type: indata.typ,
+    subject: indata.rubrik.slice(0, 128),
+    content: indata.text,
+    important: Boolean(indata.viktig),
+    public: false,
+    closed: false,
+  });
+  const skicka = async (bearer: string) => {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
+    try {
+      return await fetch(`${BAS}/notes`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${bearer}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: kropp,
+        signal: ac.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  try {
+    let svar = await skicka(await hamtaToken());
+    if (svar.status === 401 || svar.status === 403) {
+      token = null;
+      svar = await skicka(await hamtaToken());
+    }
+    const text = await svar.text().catch(() => '');
+    if (!svar.ok || /"errors"/.test(text)) return { ok: false, fel: `TimeWave svarade ${svar.status}: ${text.slice(0, 200)}` };
+    return { ok: true };
+  } catch (fel) {
+    return { ok: false, fel: `Inget svar från TimeWave (${String(fel).slice(0, 100)})` };
+  }
+}
+
 // ─── Typer (bara fälten vi använder) ─────────────────────────────────────────
+
+/** Documented at https://developer.timewave.se/missions/. Never retry a cancellation. */
+export async function twAvbokaTillfalle(bokningsrad: number): Promise<{ ok: true } | { ok: false; fel: string; osaker: boolean }> {
+  try {
+    const response = await fetch(`${BAS}/missions/bookinglines/cancel/${bokningsrad}`, {
+      method: 'PUT', headers: { Authorization: `Bearer ${await hamtaToken()}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: '{}', signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!response.ok) return { ok: false, fel: `TimeWave svarade ${response.status}`, osaker: response.status >= 500 };
+    // Readback by the shared action service is required even after HTTP success.
+    return { ok: true };
+  } catch { return { ok: false, fel: 'Inget säkert svar på avbokningen från TimeWave.', osaker: true }; }
+}
 
 export interface TwKlient {
   id: number;

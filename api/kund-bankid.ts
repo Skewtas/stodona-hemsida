@@ -1,17 +1,20 @@
-// Legitimering med Mobilt BankID i chatten – via TIC Identity (api/_tic.ts).
+// Inloggning i chatten. Kunderna identifierar sig med engångskod via SMS
+// (api/_smskod.ts); testinloggning med kundnummer finns bara lokalt och för
+// personalen i personalchatten. (BankID är borttaget – Mikaela 2026-09-25.)
 //
-// Endpointen svarar bara när självservicen är påslagen (se api/_sjalvservice.ts).
-//
-//   POST { samtalsId, handling: "starta" }               → { ordernummer, autoStartToken }
-//   POST { samtalsId, handling: "starta", testkundId }   → { ordernummer }  (testinloggning, bara i testläget)
-//   POST { samtalsId, handling: "kolla", ordernummer }   → { status: "vantar", qr, tips } | { status: "klar", namn }
+//   POST { samtalsId, handling: "sms-skicka", telefon }  → { ok, meddelande }
+//   POST { samtalsId, handling: "sms-kolla", kod }       → { status: "klar", namn }
+//   POST { samtalsId, handling: "starta", testkundId }   → { ordernummer }       (testinloggning)
+//   POST { samtalsId, handling: "kolla", ordernummer }   → { status: "vantar" } | { status: "klar", namn }
 //   POST { samtalsId, handling: "avbryt", ordernummer }  → { ok: true }
 //
-// Personnumret passerar aldrig chatten. Servern får det från TIC, matchar det
-// mot exakt en kund i TimeWave och kopplar samtalet till kunden.
+// Endpointen svarar bara när självservicen är tillåten för anropet (se
+// sjalvserviceTillaten i api/_sjalvservice.ts). Adressen heter fortfarande
+// kund-bankid för att inte bryta äldre sidor i webbläsarens cache.
 
 import { personalNamn } from './_personal';
-import { sjalvserviceTillaten, SJALVSERVICE_PA, TESTLAGE, startaSignering, startaBankid, kollaSignering, avbrytSignering, TESTKUNDLISTA } from './_sjalvservice';
+import { skickaKod, kontrolleraKod, smsKonfigurerat } from './_smskod';
+import { sjalvserviceTillaten, SJALVSERVICE_PA, TESTLAGE, startaSignering, kollaSignering, avbrytSignering, valjKundFor, TESTKUNDLISTA } from './_sjalvservice';
 
 export const config = { runtime: 'edge' };
 
@@ -45,12 +48,13 @@ export default async function handler(request: Request) {
   if (!sjalvserviceTillaten(personal)) return json({ error: 'Legitimering är inte påslagen.' }, 403);
   if (request.method === 'GET') {
     // Testlägets hjälplista: vilka testpersonnummer som fungerar.
-    return json({ testkunder: TESTKUNDLISTA });
+    // Testinloggningen (valfritt kundnummer) syns bara lokalt och för personalen – aldrig för kunder.
+    return json({ testkunder: TESTLAGE || personal ? TESTKUNDLISTA : [], sms: smsKonfigurerat() });
   }
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   if (!franSajten(request)) return json({ error: 'Fel ursprung.' }, 403);
 
-  let body: { samtalsId?: unknown; handling?: unknown; testkundId?: unknown; ordernummer?: unknown };
+  let body: { samtalsId?: unknown; handling?: unknown; testkundId?: unknown; ordernummer?: unknown; telefon?: unknown; kod?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -60,6 +64,20 @@ export default async function handler(request: Request) {
   const samtalsId = typeof body.samtalsId === 'string' && UUID.test(body.samtalsId) ? body.samtalsId : '';
   if (!samtalsId) return json({ error: 'Saknar giltigt samtals-id.' }, 400);
 
+  // Inloggning med engångskod via SMS (api/_smskod.ts).
+  if (body.handling === 'sms-skicka') {
+    const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
+    const svar = await skickaKod(samtalsId, String(body.telefon ?? '').slice(0, 30), ip);
+    return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
+  }
+  if (body.handling === 'sms-kolla') {
+    const svar = await kontrolleraKod(samtalsId, String(body.kod ?? '').slice(0, 10));
+    if ('fel' in svar) return json({ error: svar.fel }, 400);
+    const kund = await valjKundFor(samtalsId, svar.kundnummer);
+    if (!kund) return json({ error: 'Inloggningen gick inte igenom. Ring oss på 010-178 01 50 så hjälper vi dig.' }, 400);
+    return json({ status: 'klar', namn: kund.namn });
+  }
+
   if (body.handling === 'starta') {
     const testkundId = String(body.testkundId ?? '').trim().slice(0, 20);
     if (testkundId) {
@@ -67,10 +85,7 @@ export default async function handler(request: Request) {
       const svar = await startaSignering(samtalsId, testkundId);
       return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
     }
-    // BankID vill ha kundens IP-adress. Lokalt finns ingen, då används 127.0.0.1.
-    const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || request.headers.get('x-real-ip') || '127.0.0.1';
-    const svar = await startaBankid(samtalsId, ip === '::1' ? '127.0.0.1' : ip, request.headers.get('user-agent') ?? '');
-    return 'fel' in svar ? json({ error: svar.fel }, 400) : json(svar);
+    return json({ error: 'Välj ett kundnummer.' }, 400);
   }
 
   const ordernummer = typeof body.ordernummer === 'string' && UUID.test(body.ordernummer) ? body.ordernummer : '';

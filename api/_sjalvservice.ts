@@ -36,23 +36,20 @@
 // engångsuppdraget.
 //
 // LÄGEN
-// Just nu finns bara TESTLÄGET: påhittade kunder och scheman, simulerad
-// BankID, inget anrop till TimeWave. Det går att slå på lokalt och på
-// Vercels preview-miljöer – aldrig i produktion, oavsett miljövariabler.
+//  * Testläget (lokalt/preview): testvärld eller riktiga TimeWave, testinloggning.
+//  * Personalchatten (stodona.se/personalchatt): inloggad personal väljer kund.
+//  * Kunderna (vanliga chatten): identifiering med SMS-kod (api/_smskod.ts),
+//    bara när huvudbrytaren SJALVSERVICE_KUNDER=true är på.
 
 import * as lagring from './_lagring';
 import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
 import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
 import { testsystem, testkund, hamtaSimulering, sattSimulering, aterstallVarld, SIMULERINGAR, TESTKUNDLISTA as TESTVARLDENS_KUNDER, type Simulering } from './_testBokningssystem';
-import { timewaveSystem, kunderForPersonnummer, sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
-import { ticKonfigurerat, ticStarta, ticFraga, ticAvbryt, qrData, type TicStart } from './_tic';
+import { sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
+import { customerBookingActions } from './_customerBookingActions';
 
-/** Testkopplingen "ÅÅÅÅMMDDNNNN:kundnummer" – ett test-BankID loggas in som en viss kund. Bara i testläget. */
-function testkoppling(): { personnummer: string; kundnummer: string } | null {
-  const m = (process.env.AUTH_TEST_SSN_MAP || '').trim().match(/^(\d{12}):(\d+)$/);
-  return m ? { personnummer: m[1], kundnummer: m[2] } : null;
-}
+
 import { timewaveKonfigurerad } from './_timewave';
 
 const LOKAL = process.env.STODONA_LOKAL === 'true';
@@ -70,11 +67,18 @@ export const TESTLAGE =
  * api/chat.ts och api/kund-bankid.ts – i produktion bara inloggad personal
  * på den gömda sidan, aldrig den vanliga chatten.
  */
-export const SJALVSERVICE_PA = (TESTLAGE || personalchattPa()) && lagring.lagringFinns();
+/**
+ * HUVUDBRYTARE för kunderna: SJALVSERVICE_KUNDER=true slår på självservicen i
+ * den vanliga chatten på stodona.se, där kunden identifierar sig med SMS-kod
+ * till sitt registrerade mobilnummer. Av som standard – slås på först när Mikaela säger till.
+ */
+export const KUNDER_PA = process.env.SJALVSERVICE_KUNDER === 'true';
+
+export const SJALVSERVICE_PA = (TESTLAGE || personalchattPa() || KUNDER_PA) && lagring.lagringFinns();
 
 /** Får det här anropet använda självservicen? */
 export function sjalvserviceTillaten(personalchatt: boolean): boolean {
-  return SJALVSERVICE_PA && (TESTLAGE || personalchatt);
+  return SJALVSERVICE_PA && (TESTLAGE || personalchatt || KUNDER_PA);
 }
 
 const VERIFIERING_MINUTER = 30;
@@ -92,7 +96,7 @@ const MAX_PERIOD_DAGAR = 14;
  *             SJALVSERVICE_TESTKUNDNUMMER. Läser just nu; skriver inte.
  */
 const SYSTEM: 'test' | 'timewave' = process.env.SJALVSERVICE_SYSTEM === 'timewave' && timewaveKonfigurerad() ? 'timewave' : 'test';
-/** Kundnummer som får loggas in utan BankID mot riktiga TimeWave. Bara i testläget. */
+/** Kundnummer som får testinloggas (utan SMS-kod) mot riktiga TimeWave. Bara lokalt och i personalchatten. */
 const TW_TESTKUNDER = (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',').map((s) => s.trim()).filter((s) => /^\d{1,10}$/.test(s));
 /**
  * "*" = alla kundnummer. Tillåts bara lokalt och i personalchatten, där
@@ -100,12 +104,12 @@ const TW_TESTKUNDER = (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',')
  * vanliga chatten når aldrig inloggningen – se sjalvserviceTillaten.
  */
 const ALLA_KUNDER =
-  (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',').map((s) => s.trim()).includes('*') && (LOKAL || personalchattPa());
+  (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',').map((s) => s.trim()).includes('*') && (LOKAL || personalchattPa() || KUNDER_PA);
 const tillatenKund = (nummer: string) => ALLA_KUNDER || TW_TESTKUNDER.includes(nummer);
 const LOGG_NYCKEL = `sjalv:logg:${SYSTEM}`;
 
 function system(samtalsId: string): Bokningssystem {
-  return SYSTEM === 'timewave' ? timewaveSystem() : testsystem(samtalsId);
+  return SYSTEM === 'timewave' ? customerBookingActions() : testsystem(samtalsId);
 }
 
 function slumpId(prefix: string): string {
@@ -113,7 +117,7 @@ function slumpId(prefix: string): string {
   return `${prefix}-${[...b].map((x) => x.toString(36).padStart(2, '0')).join('').slice(0, 8).toUpperCase()}`;
 }
 
-// ─── Legitimering (simulerad BankID i testläget) ─────────────────────────────
+// ─── Testinloggning (lokalt och i personalchatten) ───────────────────────────
 
 interface Verifiering {
   kundId: string;
@@ -127,37 +131,17 @@ interface Pagaende {
   kundId?: string;
   namn?: string;
   klarTid?: number;
-  /** Riktig BankID via TIC Identity. */
-  tic?: TicStart;
-  senastFragad?: number;
 }
 
-/** Hur ofta TIC tillfrågas. QR-koden byts ändå varje sekund – den räknas fram här. */
-const TIC_FRAGA_MS = 2000;
-
-/** Startar riktig Mobilt BankID via TIC. Svaret innehåller autostart-token för BankID-appen på samma enhet. */
-export async function startaBankid(samtalsId: string, ip: string, userAgent: string): Promise<{ ordernummer: string; autoStartToken: string } | { fel: string }> {
-  if (!SJALVSERVICE_PA || !ticKonfigurerat()) return { fel: 'BankID är inte påslaget.' };
-  try {
-    const tic = await ticStarta(ip, userAgent);
-    const ordernummer = crypto.randomUUID();
-    await lagring.spara(`sjalv:bankid:${ordernummer}`, { samtalsId, tic, senastFragad: 0 } satisfies Pagaende, 300);
-    return { ordernummer, autoStartToken: tic.autoStartToken };
-  } catch (fel) {
-    console.error('självservice: BankID kunde inte startas', fel);
-    return { fel: 'BankID går inte att starta just nu. Försök igen om en stund.' };
-  }
-}
-
-/** Vilka man kan logga in som i testläget. */
+/** Vilka man kan logga in som i testinloggningen (lokalt och i personalchatten). */
 export const TESTKUNDLISTA =
   SYSTEM === 'timewave'
     ? [...(ALLA_KUNDER ? [{ id: '*', namn: 'valfritt kundnummer' }] : []), ...TW_TESTKUNDER.map((nr) => ({ id: nr, namn: `kund ${nr} (riktig TimeWave-data)` }))]
     : TESTVARLDENS_KUNDER;
 
 /**
- * TESTINLOGGNING – ingen BankID. Den som testar väljer vilken testkund hen
- * "är". Finns bara i testläget; riktig BankID går via TIC Identity (api/_tic.ts).
+ * TESTINLOGGNING – ingen SMS-kod. Den som testar väljer vilken testkund hen
+ * "är". Finns bara i testläget; kunderna identifierar sig med SMS-kod (api/_smskod.ts).
  */
 export async function startaSignering(samtalsId: string, testkundId: string): Promise<{ ordernummer: string } | { fel: string }> {
   if (!SJALVSERVICE_PA) return { fel: 'Legitimering är inte påslagen.' };
@@ -173,33 +157,10 @@ export async function startaSignering(samtalsId: string, testkundId: string): Pr
 export async function kollaSignering(
   samtalsId: string,
   ordernummer: string
-): Promise<{ status: 'vantar'; qr?: string; tips?: string } | { status: 'klar'; namn: string } | { fel: string }> {
+): Promise<{ status: 'vantar' } | { status: 'klar'; namn: string } | { fel: string }> {
   const order = await lagring.hamta<Pagaende>(`sjalv:bankid:${ordernummer}`);
   // Ordern måste höra till det här samtalet – annars går den inte att kapa.
   if (!order || order.samtalsId !== samtalsId) return { fel: 'Legitimeringen hittades inte. Börja om.' };
-
-  if (order.tic) {
-    const qr = await qrData(order.tic);
-    // TIC tillfrågas högst varannan sekund; däremellan får chatten bara en ny QR-kod.
-    if (Date.now() - (order.senastFragad ?? 0) < TIC_FRAGA_MS) return { status: 'vantar', qr };
-    await lagring.spara(`sjalv:bankid:${ordernummer}`, { ...order, senastFragad: Date.now() }, 300);
-    const svar = await ticFraga(order.tic.sessionId);
-    if (svar.status === 'vantar') return { status: 'vantar', qr, tips: svar.tips };
-    await lagring.taBort(`sjalv:bankid:${ordernummer}`);
-    if (svar.status === 'misslyckad') return { fel: svar.tips };
-    const resultat = await loggaInMedBankid(samtalsId, svar.personnummer);
-    if ('fel' in resultat) {
-      return {
-        fel: {
-          ingen_kund: 'Vi hittar ingen kund hos Stodona med ditt personnummer. Kontakta kundservice på 010-178 01 50 så hjälper vi dig.',
-          flera_kunder: 'Vi behöver kontrollera ditt kundkonto innan du kan logga in här. Kontakta kundservice på 010-178 01 50.',
-          ej_testkund: 'Chatten är i testläge och kan än så länge bara användas av testkunder.',
-          av: 'Inloggning med BankID är inte påslagen.',
-        }[resultat.fel],
-      };
-    }
-    return { status: 'klar', namn: resultat.namn };
-  }
 
   if (!order.kundId || !order.namn || Date.now() < (order.klarTid ?? 0)) return { status: 'vantar' };
   await lagring.taBort(`sjalv:bankid:${ordernummer}`);
@@ -211,45 +172,10 @@ export async function kollaSignering(
   return { status: 'klar', namn: order.namn };
 }
 
-/**
- * Riktig BankID (TIC Identity) är klar och personnumret kontrollerat – koppla
- * samtalet till EXAKT EN kund. Gissa aldrig: noll eller flera träffar ger
- * ingen inloggning. Personnumret sparas inte.
- */
-export async function loggaInMedBankid(samtalsId: string, personnummer: string): Promise<{ namn: string } | { fel: 'ingen_kund' | 'flera_kunder' | 'ej_testkund' | 'av' }> {
-  if (!SJALVSERVICE_PA) return { fel: 'av' };
-  let kund: Kund | null = null;
-  const test = TESTLAGE ? testkoppling() : null;
-
-  if (SYSTEM === 'timewave') {
-    const traffar = await kunderForPersonnummer(personnummer);
-    if (traffar.length > 1) {
-      console.warn(`självservice: BankID-personnumret matchar ${traffar.length} kundposter – ingen inloggning`);
-      return { fel: 'flera_kunder' };
-    }
-    if (traffar.length === 1) kund = await system(samtalsId).hamtaKund(String(traffar[0].number));
-    else if (test && test.personnummer === personnummer) {
-      console.warn(`självservice: TESTKOPPLING – BankID-testlegitimation loggas in som kund ${test.kundnummer}`);
-      kund = await system(samtalsId).hamtaKund(test.kundnummer);
-    }
-    // Så länge vi testar mot riktiga TimeWave får bara testkundnumren använda chatten.
-    if (kund && TESTLAGE && !tillatenKund(kund.id)) return { fel: 'ej_testkund' };
-  } else if (test && test.personnummer === personnummer) {
-    kund = testkund(test.kundnummer);
-  }
-
-  if (!kund) return { fel: 'ingen_kund' };
-  await lagring.spara(
-    `sjalv:verifierad:${samtalsId}`,
-    { kundId: kund.id, namn: kund.namn, giltigTill: Date.now() + VERIFIERING_MINUTER * 60000 } satisfies Verifiering,
-    VERIFIERING_MINUTER * 60
-  );
-  return { namn: kund.namn };
-}
-
 // ─── Personalchatten: välj kund på namn ──────────────────────────────────────
 
-async function valjKundFor(samtalsId: string, kundnummer: string): Promise<Kund | null> {
+/** Kopplar samtalet till kunden (personalens val, eller en godkänd SMS-kod). */
+export async function valjKundFor(samtalsId: string, kundnummer: string): Promise<Kund | null> {
   if (!/^\d{1,10}$/.test(kundnummer) || !tillatenKund(kundnummer)) return null;
   const kund = await system(samtalsId).hamtaKund(kundnummer);
   if (!kund) return null;
@@ -307,7 +233,6 @@ export async function avbrytSignering(samtalsId: string, ordernummer: string): P
   const order = await lagring.hamta<Pagaende>(`sjalv:bankid:${ordernummer}`);
   if (!order || order.samtalsId !== samtalsId) return;
   await lagring.taBort(`sjalv:bankid:${ordernummer}`);
-  if (order.tic) await ticAvbryt(order.tic.sessionId);
 }
 
 /** Den legitimerade kunden i samtalet, eller null. Enda källan till vem kunden är. */
@@ -597,6 +522,8 @@ interface Loggpost {
   /** Mejlet till info@stodona.se, om ett skickades (i testläget: hade skickats). */
   mejl: string;
   utfortAv: string;
+  /** Ekonomianteckningen om avgiften, när ombokningen kostade något. */
+  ekonomi?: string;
 }
 
 interface Extra {
@@ -604,6 +531,8 @@ interface Extra {
   mejl: string;
   /** "kunden", eller namnet på den i personalen som provade i personalmiljön. */
   utfortAv: string;
+  /** Ekonomianteckningen om avgiften: "skapad", "mejlad" eller felet. Tom när ingen avgift. */
+  ekonomi?: string;
 }
 
 async function logga(f: Forslag, systemnamn: string, bekraftadTid: string, utfall: Utfall, systemsvar: string, verifierad: boolean, extra: Extra): Promise<void> {
@@ -792,6 +721,32 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       if (extra.mejl.startsWith('MEJLET MISSLYCKADES')) await sys.skapaArende('Chatten: engångsuppdrag utan anställd', text);
     }
 
+    // 7. Avgift för sen ombokning: ekonomianteckning på kunden i TimeWave, så
+    //    att den faktureras. Går den inte att skapa mejlas ekonomin i stället –
+    //    avgiften får aldrig bara försvinna.
+    if (f.avgiftKr > 0) {
+      const rubrik = `Avgift sen ombokning ${f.avgiftKr} kr – ska faktureras`;
+      const text = [
+        `Sen ombokning via Stodonas chatt (${extra.utfortAv === 'kunden' ? 'kunden själv' : `personalen: ${extra.utfortAv}`}).`,
+        `Kund: ${kund.namn} (kund ${f.kundId}).`,
+        `Tillfälle: ${f.tjanst}, ${datumText(f.fore.datum)} ${f.fore.start}–${f.fore.slut} → flyttat till ${datumText(f.efter.datum)} ${f.efter.start}–${f.efter.slut}.`,
+        `Ombokningen gjordes ${Math.max(0, Math.floor(f.timmarKvar))} timmar före start, inom avbokningsfristen (regel ${f.regel}).`,
+        `Avgift enligt villkoren: ${f.avgiftKr} kr (50 % av tillfällets kostnad). Kunden informerades och bekräftade i chatten ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC.`,
+      ].join('\n');
+      const anteckning = sys.skapaEkonomianteckning
+        ? await sys.skapaEkonomianteckning(f.kundId, rubrik, text).catch((fel) => ({ ok: false as const, fel: String(fel) }))
+        : { ok: false as const, fel: 'systemet saknar ekonomianteckningar' };
+      if (anteckning.ok === true) {
+        extra.ekonomi = 'ekonomianteckning skapad i TimeWave';
+      } else if (anteckning.ok === false) {
+        console.error('självservice: ekonomianteckningen kunde inte skapas', anteckning.fel);
+        extra.ekonomi = `ekonomianteckning misslyckades (${anteckning.fel.slice(0, 120)}) – mejlad till info@`;
+        extra.mejl = await mejlaKundservice(`FAKTURERA: ${rubrik} (chatten)`, `Ekonomianteckningen kunde inte skapas i TimeWave – lägg in avgiften manuellt.\n\n${text}`).catch(
+          (fel) => `MEJLET MISSLYCKADES: ${String(fel)}`
+        );
+      }
+    }
+
     const byte = f.efter.stadare.id !== f.fore.stadare.id;
     const text = [
       'Klart! ✓ Din städning är ombokad.',
@@ -814,23 +769,21 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
 export interface Testlage {
   testlage: true;
-  /** 'test' = lokalt/preview; 'personal' = den gömda personalchatten. */
-  lage: 'test' | 'personal';
+  /** 'test' = lokalt/preview; 'personal' = den gömda personalchatten; 'kund' = vanliga chatten (ingen banderoll). */
+  lage: 'test' | 'personal' | 'kund';
   system: 'test' | 'timewave';
   skriver: boolean;
-  /** 'tic' = riktig Mobilt BankID via TIC Identity; 'test' = bara testinloggning. */
-  bankid: 'tic' | 'test';
   inloggad: { namn: string; kundId: string } | null;
   simulera: Simulering;
   logg: Loggpost[];
 }
 
-export async function testlageStatus(samtalsId: string): Promise<Testlage | null> {
+export async function testlageStatus(samtalsId: string, personalchatt = false): Promise<Testlage | null> {
   if (!SJALVSERVICE_PA) return null;
   const kund = await verifieradKund(samtalsId);
   const logg = (await lagring.lasLista<Loggpost>(LOGG_NYCKEL, 200)).filter((p) => p.samtalsId === samtalsId).slice(0, 10);
   const sys = system(samtalsId);
-  return { testlage: true, lage: TESTLAGE ? 'test' : 'personal', system: sys.namn, skriver: sys.kanSkriva, bankid: ticKonfigurerat() ? 'tic' : 'test', inloggad: kund ? { namn: kund.namn, kundId: kund.kundId } : null, simulera: SYSTEM === 'test' ? await hamtaSimulering(samtalsId) : 'normal', logg };
+  return { testlage: true, lage: TESTLAGE ? 'test' : personalchatt ? 'personal' : 'kund', system: sys.namn, skriver: sys.kanSkriva, inloggad: kund ? { namn: kund.namn, kundId: kund.kundId } : null, simulera: SYSTEM === 'test' ? await hamtaSimulering(samtalsId) : 'normal', logg };
 }
 
 export async function testlageAtgard(samtalsId: string, atgard: string): Promise<boolean> {

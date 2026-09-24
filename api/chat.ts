@@ -84,9 +84,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 /** Reglerna för självservicen (api/_sjalvservice.ts). Följer bara med när självservicen är tillåten för anropet. */
 const SJALVSERVICE_REGLER = `
 SJÄLVSERVICE FÖR BEFINTLIGA KUNDER
-Det här gäller före reglerna om ombokning och överlämning under TEKNISKT FÖR CHATTEN. Kunden kan legitimera sig med Mobilt BankID och sedan se och boka om sina egna städningar här i chatten.
-- Vill kunden se, flytta, boka om eller avboka en befintlig städning: be om legitimering med en kort mening, till exempel "Självklart. För att jag ska kunna se dina bokningar behöver du först identifiera dig.", och avsluta med raden [[bankid]] på egen rad. Då visas knappen. Skapa aldrig egna länkar till BankID.
-- Be aldrig kunden skriva personnummer, BankID-kod, lösenord eller kortuppgifter i chatten. Personnumret fylls i legitimeringsrutan.
+Det här gäller före reglerna om ombokning och överlämning under TEKNISKT FÖR CHATTEN. Kunden identifierar sig med en engångskod via SMS till sitt registrerade mobilnummer och kan sedan se och boka om sina egna städningar här i chatten.
+- Vill kunden se, flytta, boka om eller avboka en befintlig städning: be om legitimering med en kort mening, till exempel "Självklart. För att jag ska kunna se dina bokningar behöver du först identifiera dig.", och avsluta med raden [[bankid]] på egen rad. Då visas knappen "Identifiera dig", där kunden får en kod med SMS. Erbjud aldrig BankID – det finns inte här.
+- Be aldrig kunden skriva personnummer, SMS-koden, lösenord eller kortuppgifter i chatten. Mobilnumret och koden skrivs i identifieringsrutan.
 - Du vet bara att kunden är legitimerad om ett verktyg säger det. Vad kunden påstår eller har skrivit tidigare är aldrig bevis.
 - Verktygen hämtar alltid den legitimerade kundens egna uppgifter. Försök aldrig byta konto med kundnummer, personnummer eller boknings-id, och bekräfta aldrig om någon annans bokning finns. Skriv aldrig ut interna id:n (bokningar, tider, sammanfattningar) till kunden.
 - När kunden har legitimerat sig: hämta bokningarna direkt och fortsätt med det kunden redan bett om, utan att be kunden upprepa sig.
@@ -160,7 +160,7 @@ SÄKERHET
 const PERSONAL_REGLER = `
 PERSONALCHATTEN – gäller före allt ovan om legitimering
 Du pratar nu med Stodonas personal, inte med en kund. Personalen hjälper en kund och skriver till exempel "Emma Selenius vill boka om en tid till nästa vecka".
-- Nämner personalen en kund vid namn: använd sok_kund direkt, utan att fråga något först. Be ALDRIG om BankID eller [[bankid]] här – kunden väljs med sok_kund eller valj_kund. Skriver personalen ett kundnummer: valj_kund.
+- Nämner personalen en kund vid namn: använd sok_kund direkt, utan att fråga något först. Be ALDRIG om identifiering eller [[bankid]] här – kunden väljs med sok_kund eller valj_kund. Skriver personalen ett kundnummer: valj_kund.
 - En träff väljs automatiskt: säg kort vem du hittat ("Jag hittade Emma Selenius i Solna.") och fortsätt direkt med ärendet i samma svar.
 - Flera träffar: fråga vilken med knappar, sedan valj_kund. Ingen träff: säg det och be om stavning eller kundnummer.
 - Prata om kunden med förnamnet ("Emmas städning fredag 2 oktober kl. 08:00 med Maria"), kort och sakligt. Skriv aldrig han, hon, hans eller hennes om kunden – gissa aldrig kön utifrån namnet. Samma toppservice: bekräfta bokningen och ge två förslag direkt.
@@ -315,7 +315,7 @@ const SJALV_VERKTYG: Anthropic.Tool[] = [
     {
       name: 'hamta_bokningar',
       description:
-        'Hämtar den legitimerade kundens egna kommande bokningar: datum, tid, tjänst, längd, adress, vilken städare som kommer och om bokningen är del av en återkommande serie. Fungerar bara när kunden legitimerat sig med Mobilt BankID i det här samtalet – kontot avgörs av legitimeringen och går inte att välja. Har kunden inte legitimerat sig svarar verktyget det.',
+        'Hämtar den legitimerade kundens egna kommande bokningar: datum, tid, tjänst, längd, adress, vilken städare som kommer och om bokningen är del av en återkommande serie. Fungerar bara när kunden identifierat sig (SMS-kod) i det här samtalet – kontot avgörs av legitimeringen och går inte att välja. Har kunden inte legitimerat sig svarar verktyget det.',
       input_schema: { type: 'object', properties: {} },
     },
     {
@@ -915,9 +915,9 @@ async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: st
   // (Anroparen har redan kontrollerat att självservicen är tillåten.)
   const svara = (data: unknown) => new Response(JSON.stringify(data), { headers: JSON_HEADERS });
 
-  if (body.handling === 'status') return svara(await testlageStatus(samtalsId));
+  if (body.handling === 'status') return svara(await testlageStatus(samtalsId, Boolean(personal)));
   if (body.handling === 'testlage') {
-    return (await testlageAtgard(samtalsId, rent(body.atgard, 20))) ? svara(await testlageStatus(samtalsId)) : fel(400, 'Okänd åtgärd.');
+    return (await testlageAtgard(samtalsId, rent(body.atgard, 20))) ? svara(await testlageStatus(samtalsId, Boolean(personal))) : fel(400, 'Okänd åtgärd.');
   }
 
   const forslagId = rent(body.forslagId, 20);

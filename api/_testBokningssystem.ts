@@ -446,6 +446,11 @@ export function testsystem(samtalsId: string): Bokningssystem {
       return varld.pass.find((p) => p.id === uppdragId)?.stadareId;
     },
 
+    async skapaEkonomianteckning(kundId, rubrik, text) {
+      console.log(`\n[testläge] ekonomianteckning skapas INTE i testläget (kund ${kundId}):\n${rubrik}\n${text}\n`);
+      return { ok: true };
+    },
+
     async skapaArende(rubrik, text) {
       console.log(`\n[testläge] ärende till kundservice skapas INTE i testläget:\n${rubrik}\n${text}\n`);
     },

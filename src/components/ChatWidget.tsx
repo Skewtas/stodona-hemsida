@@ -34,8 +34,6 @@ let chattLage: "personal" | undefined;
 const nyckel = (bas: string) => (chattLage === "personal" ? `${bas}-personal` : bas);
 const LAGRINGSNYCKEL = "stodona-chat";
 const IDNYCKEL = "stodona-chat-id";
-/** Välkomsthälsningen skrivs ut en gång per flik – sedan visas den direkt. */
-const HALSATNYCKEL = "stodona-chat-halsat";
 /** Camilla på Stodonas kundservice. Kvadratisk beskärning, 192 px för skarpa retinaskärmar. */
 const AVATAR = "/camilla.webp";
 
@@ -93,15 +91,15 @@ const PASLAGEN = import.meta.env.DEV || import.meta.env.VITE_CHAT_ENABLED === "t
 // testläget än så länge: lokalt och på preview-deployer som byggts med
 // VITE_SJALVSERVICE_TEST=true. Det är servern som avgör – den svarar bara i
 // testläget och aldrig i produktion. Flaggan här sparar bara ett anrop.
-const SJALVSERVICE_KAN_FINNAS = import.meta.env.DEV || import.meta.env.VITE_SJALVSERVICE_TEST === "true";
+const SJALVSERVICE_KAN_FINNAS =
+  import.meta.env.DEV || import.meta.env.VITE_SJALVSERVICE_TEST === "true" || import.meta.env.VITE_SJALVSERVICE_KUNDER === "true";
 
 /** Testlägets läge, från servern. */
 interface Testlage {
   testlage: true;
-  lage: "test" | "personal";
+  lage: "test" | "personal" | "kund";
   system: "test" | "timewave";
   skriver: boolean;
-  bankid: "tic" | "test";
   inloggad: { namn: string; kundId: string } | null;
   simulera: "normal" | "upptagen" | "fel" | "overifierad";
   logg: {
@@ -114,6 +112,7 @@ interface Testlage {
     systemsvar: string;
     forturUtanAnstalld?: string[];
     mejl?: string;
+    ekonomi?: string;
   }[];
 }
 
@@ -263,16 +262,13 @@ const TEXT = {
     underrubrik: "Stodonas digitala assistent",
     valkommen: "Välkommen till Stodona! Camilla heter jag och är assistent här på Stodona. Hur kan jag hjälpa dig? 🤍✨",
     skriver: "Camilla skriver…",
-    forslag: [
-      "Vad kostar hemstädning?",
-      "Vad ingår i en flyttstädning?",
-      "Hur fungerar RUT-avdraget?",
-      "Hur kopplar jag på e-faktura?",
-    ],
+    forslag: ["Boka städning", "Ändra, boka om eller av", "Fakturafrågor", "Vad ingår?"],
+    // Visas bredvid chattknappen en stund efter att sidan öppnats.
+    inbjudan: "Jag hjälper dig att boka – eller om du har några frågor eller funderingar.",
+    stangInbjudan: "Stäng",
     platshallare: "Skriv ett meddelande…",
     skicka: "Skicka",
     fel: "Jag når inte fram just nu. Ring 010-178 01 50 så hjälper vi dig direkt.",
-    disclaimer: "Digital assistent – svaren kan innehålla fel.",
     ring: "Ring oss",
     bifoga: "Bifoga bild eller video",
     taBort: "Ta bort",
@@ -280,9 +276,9 @@ const TEXT = {
     felTyp: "Bara bilder och videor går att bifoga.",
     forStor: `Filen är för stor. Videor får vara högst ${MAX_VIDEO_MB} MB, ungefär 20 sekunder. Längre videor kan du mejla till info@stodona.se.`,
     bildSkickad: "Bild skickad",
-    bankidKnapp: "Verifiera med Mobilt BankID",
-    bankidRubrik: "Legitimera dig med Mobilt BankID",
-    bankidTestlage: "Testinloggning – ingen BankID behövs. Välj vem du är:",
+    bankidKnapp: "Identifiera dig",
+    bankidRubrik: "Identifiera dig",
+    bankidTestlage: "Testinloggning (bara personal och test) – välj kund:",
     bankidVantar: "Loggar in…",
     bankidAvbryt: "Avbryt",
     bankidKlarPrefix: "Du är legitimerad som",
@@ -298,16 +294,12 @@ const TEXT = {
     underrubrik: "Stodona's digital assistant",
     valkommen: "Welcome to Stodona! I'm Camilla, the assistant here at Stodona. How can I help you? 🤍✨",
     skriver: "Camilla is typing…",
-    forslag: [
-      "What does home cleaning cost?",
-      "What is included in a move-out clean?",
-      "How does the RUT deduction work?",
-      "How do I set up e-invoicing?",
-    ],
+    forslag: ["Book a cleaning", "Change, reschedule or cancel", "Invoice questions", "What's included?"],
+    inbjudan: "I can help you book – or answer any questions you have.",
+    stangInbjudan: "Close",
     platshallare: "Type a message…",
     skicka: "Send",
     fel: "I can't get through right now. Call +46 10 178 01 50 and we'll help you.",
-    disclaimer: "Digital assistant – answers can contain mistakes.",
     ring: "Call us",
     bifoga: "Attach a photo or video",
     taBort: "Remove",
@@ -315,9 +307,9 @@ const TEXT = {
     felTyp: "Only photos and videos can be attached.",
     forStor: `The file is too large. Videos can be up to ${MAX_VIDEO_MB} MB, about 20 seconds. You can email longer videos to info@stodona.se.`,
     bildSkickad: "Photo sent",
-    bankidKnapp: "Verify with Mobile BankID",
-    bankidRubrik: "Verify with Mobile BankID",
-    bankidTestlage: "Test login – no BankID needed. Pick who you are:",
+    bankidKnapp: "Verify your identity",
+    bankidRubrik: "Verify your identity",
+    bankidTestlage: "Test login (staff and testing only) – pick a customer:",
     bankidVantar: "Signing in…",
     bankidAvbryt: "Cancel",
     bankidKlarPrefix: "You are verified as",
@@ -580,6 +572,7 @@ function TestlageBanderoll({ lage, uppdatera }: { lage: Testlage; uppdatera: (l:
                   <li key={l.tid}>
                     {l.tid.slice(11, 19)} {l.utfall} · {l.bokningId} · {l.fore} → {l.efter} · {l.avgiftKr} kr · {l.systemsvar}
                     {l.forturUtanAnstalld && l.forturUtanAnstalld.length > 0 && <> · förtur: {l.forturUtanAnstalld.join(", ")} utan anställd</>}
+                    {l.ekonomi && <> · avgift: {l.ekonomi}</>}
                     {l.mejl && (
                       <details className="mt-1">
                         <summary className="cursor-pointer underline">Mejl till info@stodona.se</summary>
@@ -605,6 +598,20 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   const s = TEXT[lang === "EN" ? "EN" : "SV"];
   // Personalchatten öppnas direkt.
   const [oppen, setOppen] = useState(lage === "personal");
+  /** Inbjudan bredvid chattknappen – en gång per besök, och aldrig i personalchatten. */
+  const [inbjudan, setInbjudan] = useState(false);
+  useEffect(() => {
+    if (lage === "personal") return;
+    let visad = false;
+    try { visad = sessionStorage.getItem("stodona-chat-inbjudan") === "1"; } catch { /* strunt i det */ }
+    if (visad) return;
+    const id = window.setTimeout(() => setInbjudan(true), 3500);
+    return () => window.clearTimeout(id);
+  }, [lage]);
+  const stangInbjudan = () => {
+    setInbjudan(false);
+    try { sessionStorage.setItem("stodona-chat-inbjudan", "1"); } catch { /* strunt i det */ }
+  };
   // Cookiebannern ligger över allt annat på mobil. Chatten visas ändå direkt –
   // den kräver inget samtycke – men bubblan lyfts tills rutan är besvarad.
   const [cookiesBesvarade, setCookiesBesvarade] = useState(false);
@@ -618,23 +625,26 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   /** Om "Camilla skriver"-prickarna ska synas för svaret som är på väg. */
   const [prickar, setPrickar] = useState(false);
   /** null = välkomsthälsningen syns i sin helhet. */
-  const [valkomstLangd, setValkomstLangd] = useState<number | null>(null);
-  const [valkomstPrickar, setValkomstPrickar] = useState(false);
+  // Välkomsthälsningen står redan där när chatten öppnas (Mikaela 2026-09-25) –
+  // ingen skrivanimation. null = hela hälsningen syns.
+  const valkomstLangd = null as number | null;
+  const valkomstPrickar = false;
   /** Bilder och videor som valts men inte skickats. */
   const [valda, setValda] = useState<ValdFil[]>([]);
   const [laddarUpp, setLaddarUpp] = useState(false);
   const [bilagefel, setBilagefel] = useState("");
   const filRef = useRef<HTMLInputElement>(null);
-  /** Legitimering med Mobilt BankID – simulerad, och finns bara i testmiljön. */
+  /** Identifieringsrutan: SMS-kod för kunderna, testinloggning lokalt och för personalen. */
   const [bankidOppen, setBankidOppen] = useState(false);
   const [bankidVantar, setBankidVantar] = useState(false);
   const [bankidFel, setBankidFel] = useState("");
   const [testkunder, setTestkunder] = useState<{ id: string; namn: string }[]>([]);
-  /** Pågående riktig BankID: QR-kod (datorn), länk till appen (mobilen) och BankID:s instruktion. */
-  const [bankidQr, setBankidQr] = useState<string | null>(null);
-  const [bankidAppLank, setBankidAppLank] = useState<string | null>(null);
-  const [bankidTips, setBankidTips] = useState("");
-  const bankidOrder = useRef<string | null>(null);
+  /** Inloggning med engångskod via SMS. */
+  const [smsFinns, setSmsFinns] = useState(false);
+  const [smsTelefon, setSmsTelefon] = useState("");
+  const [smsKod, setSmsKod] = useState("");
+  const [smsSkickad, setSmsSkickad] = useState(false);
+  const [smsInfo, setSmsInfo] = useState("");
   /** Personalmiljön: valfritt kundnummer att logga in som. */
   const [valfrittKundnr, setValfrittKundnr] = useState("");
   /** Självservicens testläge, enligt servern. null = självservicen finns inte. */
@@ -720,47 +730,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     return () => window.removeEventListener("keydown", vidTangent);
   }, [oppen]);
 
-  // Välkomsthälsningen skrivs ut första gången chatten öppnas i fliken.
-  useEffect(() => {
-    if (!oppen) return;
-    let halsat = false;
-    try { halsat = sessionStorage.getItem(nyckel(HALSATNYCKEL)) === "1"; } catch { /* strunt i det */ }
-    if (halsat || meddelandenRef.current.length > 0 || minskadRorelse.current) {
-      setValkomstLangd(null);
-      return;
-    }
-    try { sessionStorage.setItem(nyckel(HALSATNYCKEL), "1"); } catch { /* strunt i det */ }
 
-    const text = s.valkommen;
-    const mal = antalTecken(text);
-    const start = Date.now();
-    // Chatten har nyss öppnats, så läspausen är lite kortare här.
-    const las = lasPaus() - 300;
-    const skriv = skrivPaus();
-    setValkomstLangd(0);
-    setValkomstPrickar(false);
-    const id = window.setInterval(() => {
-      const gatt = Date.now() - start;
-      if (gatt < las) return;
-      setValkomstPrickar(true);
-      if (gatt < las + skriv) return;
-      setValkomstLangd((n) => {
-        if (n === null) return null;
-        const nasta = Math.min(mal, n + teckenPerTick(mal - n));
-        if (nasta >= mal) {
-          window.clearInterval(id);
-          return null;
-        }
-        return nasta;
-      });
-    }, TICK_MS);
-    return () => {
-      window.clearInterval(id);
-      setValkomstLangd(null);
-    };
-    // Texten läses när chatten öppnas; ett språkbyte mitt i animationen spelar ingen roll.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oppen]);
 
   // Skriver ut botens svar tecken för tecken. Svaret strömmar in från servern i
   // bitar; loopen visar dem i jämn takt och blir klar först när strömmen är
@@ -824,87 +794,66 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
       const svar = await fetch("/api/kund-bankid");
       const data = await svar.json();
       if (Array.isArray(data?.testkunder)) setTestkunder(data.testkunder);
+      setSmsFinns(data?.sms === true);
     } catch {
       setBankidFel(s.bankidFel);
     }
   }
 
   /**
-   * Riktig Mobilt BankID via TIC Identity, direkt i chatten. Datorn visar en
-   * QR-kod som byts varje sekund; mobilen får en knapp som öppnar BankID-appen.
-   * Servern kopplar samtalet till kunden – personnumret passerar aldrig chatten.
+   * Engångskod via SMS. Servern skickar koden bara till mobilnumret som redan
+   * finns på kunden i TimeWave, och svarar likadant oavsett om numret finns.
    */
-  async function startaRiktigtBankid() {
-    if (bankidVantar) return;
+  async function smsAnrop(kropp: Record<string, string>) {
+    const r = await fetch("/api/kund-bankid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ samtalsId: samtalsId(), ...kropp }),
+    });
+    return { ok: r.ok, data: await r.json().catch(() => ({})) };
+  }
+
+  async function skickaSmsKod() {
+    if (bankidVantar || !smsTelefon.trim()) return;
     setBankidFel("");
-    setBankidTips("");
-    setBankidQr(null);
-    setBankidAppLank(null);
     setBankidVantar(true);
-    const post = (kropp: Record<string, string>) =>
-      fetch("/api/kund-bankid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ samtalsId: samtalsId(), ...kropp }),
-      }).then(async (r) => ({ ok: r.ok, data: await r.json().catch(() => ({})) }));
     try {
-      const start = await post({ handling: "starta" });
-      if (!start.ok || !start.data?.ordernummer) throw new Error(start.data?.error || s.bankidFel);
-      const ordernummer: string = start.data.ordernummer;
-      bankidOrder.current = ordernummer;
-      const mobil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (start.data.autoStartToken) {
-        const token = encodeURIComponent(start.data.autoStartToken);
-        setBankidAppLank(mobil ? `https://app.bankid.com/?autostarttoken=${token}&redirect=null` : `bankid:///?autostarttoken=${token}&redirect=null`);
-      }
-      for (let forsok = 0; forsok < 180 && bankidOrder.current === ordernummer; forsok++) {
-        const koll = await post({ handling: "kolla", ordernummer });
-        if (!koll.ok) throw new Error(koll.data?.error || s.bankidFel);
-        if (koll.data.status === "klar") {
-          bankidOrder.current = null;
-          setBankidOppen(false);
-          setBankidQr(null);
-          setBankidAppLank(null);
-          uppdateraTestlage();
-          skicka("Jag har legitimerat mig nu.");
-          return;
-        }
-        if (typeof koll.data.tips === "string" && koll.data.tips) setBankidTips(koll.data.tips);
-        if (!mobil && typeof koll.data.qr === "string") {
-          // QR-biblioteket laddas först här, så att vanliga besökare slipper det.
-          const { toDataURL } = await import("qrcode");
-          setBankidQr(await toDataURL(koll.data.qr, { margin: 1, width: 220 }));
-        }
-        await new Promise((klar) => setTimeout(klar, 1000));
-      }
-      if (bankidOrder.current === ordernummer) throw new Error("Tiden för legitimeringen gick ut. Försök igen.");
+      const svar = await smsAnrop({ handling: "sms-skicka", telefon: smsTelefon });
+      if (!svar.ok) throw new Error(svar.data?.error || s.bankidFel);
+      setSmsSkickad(true);
+      setSmsInfo(svar.data?.meddelande || "");
     } catch (f) {
       setBankidFel(f instanceof Error && f.message.length < 160 ? f.message : s.bankidFel);
-      setBankidQr(null);
-      setBankidAppLank(null);
     } finally {
       setBankidVantar(false);
     }
   }
 
-  function avbrytRiktigtBankid() {
-    const ordernummer = bankidOrder.current;
-    bankidOrder.current = null;
-    setBankidQr(null);
-    setBankidAppLank(null);
-    setBankidTips("");
-    if (ordernummer) {
-      fetch("/api/kund-bankid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ samtalsId: samtalsId(), handling: "avbryt", ordernummer }),
-      }).catch(() => undefined);
+  async function kontrolleraSmsKod() {
+    if (bankidVantar || smsKod.length < 6) return;
+    setBankidFel("");
+    setBankidVantar(true);
+    try {
+      const svar = await smsAnrop({ handling: "sms-kolla", kod: smsKod });
+      if (!svar.ok || svar.data?.status !== "klar") throw new Error(svar.data?.error || s.bankidFel);
+      setBankidOppen(false);
+      setSmsSkickad(false);
+      setSmsKod("");
+      setSmsTelefon("");
+      setSmsInfo("");
+      uppdateraTestlage();
+      skicka("Jag har legitimerat mig nu.");
+    } catch (f) {
+      setBankidFel(f instanceof Error && f.message.length < 160 ? f.message : s.bankidFel);
+      setSmsKod("");
+    } finally {
+      setBankidVantar(false);
     }
   }
 
   /**
    * Testinloggningen: kunden väljer vem hen är, och servern kopplar kunden
-   * till samtalet. Samma fråga-tills-klar-flöde som riktig BankID får.
+   * till samtalet.
    */
   async function startaBankid(testkundId: string) {
     if (bankidVantar) return;
@@ -1060,8 +1009,42 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     <>
       {/* Bubblan sitter ovanför den mobila bokningsremsan (z-9990) men under
           cookiebannern (z-9999). Stängd visar den Camilla, öppen ett kryss. */}
+      <AnimatePresence>
+        {inbjudan && !oppen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.25 }}
+            className={`fixed ${cookiesBesvarade ? "bottom-40 md:bottom-24" : "bottom-80 md:bottom-60"} right-4 md:right-8 z-[9995] max-w-[260px] rounded-2xl rounded-br-sm bg-white shadow-xl ring-1 ring-text-primary/10 pl-4 pr-8 py-3 text-sm text-text-primary`}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                stangInbjudan();
+                setOppen(true);
+                track("chat_open", { kalla: "inbjudan" });
+              }}
+              className="text-left"
+            >
+              <span className="block text-xs font-bold mb-0.5">Camilla</span>
+              {s.inbjudan}
+            </button>
+            <button
+              type="button"
+              onClick={stangInbjudan}
+              aria-label={s.stangInbjudan}
+              className="absolute top-2 right-2 text-text-secondary hover:text-text-primary"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <button
         onClick={() => {
+          stangInbjudan();
           setOppen((v) => {
             if (!v) track("chat_open", {});
             return !v;
@@ -1112,7 +1095,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
               </button>
             </div>
 
-            {testlage && <TestlageBanderoll lage={testlage} uppdatera={setTestlage} />}
+            {testlage && testlage.lage !== "kund" && <TestlageBanderoll lage={testlage} uppdatera={setTestlage} />}
 
             <div ref={listaRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" aria-live="polite">
               {(valkomstLangd !== 0 || valkomstPrickar) && (
@@ -1232,7 +1215,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                     onClick={oppnaBankid}
                     className="text-sm px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors"
                   >
-                    {testlage && testlage.bankid !== "tic" ? `${s.bankidKnapp} (testinloggning)` : s.bankidKnapp}
+                    {s.bankidKnapp}
                   </button>
                 </div>
               )}
@@ -1255,38 +1238,68 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
             {sjalvservicePa && bankidOppen && (
               <div className="border-t border-text-primary/10 bg-bg-primary/60 p-4 shrink-0">
                 <p className="text-sm font-bold text-text-primary">{s.bankidRubrik}</p>
-                {testlage?.bankid === "tic" && !bankidQr && !bankidAppLank && (
-                  <button
-                    type="button"
-                    onClick={startaRiktigtBankid}
-                    disabled={bankidVantar}
-                    className="mt-3 w-full text-sm px-4 py-3 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors disabled:opacity-40"
-                  >
-                    Starta BankID
-                  </button>
-                )}
-                {(bankidQr || bankidAppLank) && (
-                  <div className="mt-3 flex flex-col items-center gap-2 text-center">
-                    {bankidQr && (
+                {smsFinns && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[11px] text-text-secondary">
+                      {smsSkickad ? smsInfo : "Få en kod med SMS till mobilnumret du har registrerat hos oss."}
+                    </p>
+                    {!smsSkickad ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          value={smsTelefon}
+                          onChange={(e) => setSmsTelefon(e.target.value.slice(0, 20))}
+                          onKeyDown={(e) => e.key === "Enter" && skickaSmsKod()}
+                          placeholder="Mobilnummer"
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          disabled={bankidVantar}
+                          className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white border border-text-primary/15 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                        />
+                        <button
+                          type="button"
+                          onClick={skickaSmsKod}
+                          disabled={bankidVantar || !smsTelefon.trim()}
+                          className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light text-sm shrink-0 disabled:opacity-40"
+                        >
+                          Skicka kod
+                        </button>
+                      </div>
+                    ) : (
                       <>
-                        <img src={bankidQr} alt="QR-kod för Mobilt BankID" width={180} height={180} className="rounded-lg bg-white p-1" />
-                        <p className="text-[11px] text-text-secondary">Öppna BankID-appen och skanna QR-koden.</p>
+                        <div className="flex items-center gap-2">
+                          <input
+                            value={smsKod}
+                            onChange={(e) => setSmsKod(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            onKeyDown={(e) => e.key === "Enter" && kontrolleraSmsKod()}
+                            placeholder="6 siffror"
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
+                            disabled={bankidVantar}
+                            className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white border border-text-primary/15 text-sm tracking-widest outline-none focus:ring-2 focus:ring-accent/40"
+                          />
+                          <button
+                            type="button"
+                            onClick={kontrolleraSmsKod}
+                            disabled={bankidVantar || smsKod.length < 6}
+                            className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light text-sm shrink-0 disabled:opacity-40"
+                          >
+                            Logga in
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSmsSkickad(false);
+                            setSmsKod("");
+                            setBankidFel("");
+                          }}
+                          className="text-[11px] text-text-secondary underline"
+                        >
+                          Fel nummer eller ingen kod? Försök igen
+                        </button>
                       </>
                     )}
-                    {bankidAppLank && (
-                      <a
-                        href={bankidAppLank}
-                        className={bankidQr
-                          ? "text-[11px] underline text-text-secondary"
-                          : "w-full text-sm px-4 py-3 rounded-xl bg-bg-dark text-text-light font-medium text-center"}
-                      >
-                        {bankidQr ? "BankID på den här datorn" : "Öppna BankID-appen"}
-                      </a>
-                    )}
-                    {bankidTips && <p className="text-[11px] text-text-primary" role="status">{bankidTips}</p>}
-                    <button type="button" onClick={avbrytRiktigtBankid} className="text-[11px] text-text-secondary underline">
-                      Avbryt
-                    </button>
                   </div>
                 )}
                 {testkunder.length > 0 && (
@@ -1420,8 +1433,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                   {laddarUpp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
               </div>
-              <div className="flex items-center justify-between gap-3 mt-2 px-1">
-                <p className="text-[11px] leading-tight text-text-secondary/80">{s.disclaimer}</p>
+              <div className="flex items-center justify-end gap-3 mt-2 px-1">
                 <a href="tel:0101780150" className="text-[11px] inline-flex items-center gap-1 text-text-secondary hover:text-text-primary shrink-0">
                   <Phone className="w-3 h-3" /> {s.ring}
                 </a>

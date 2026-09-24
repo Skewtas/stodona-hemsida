@@ -106,12 +106,20 @@ export interface Bokningssystem {
   /** Flyttar ETT tillfälle. Övriga tillfällen i en återkommande serie ska vara orörda. */
   /** `notering` följer med ändringen (t.ex. vem i personalen som gjorde den). */
   flyttaTillfalle(bokning: Bokning, lucka: Lucka, notering?: string): Promise<Skrivresultat>;
+  /** Explicit single-occurrence cancellation; absence is never proof of cancellation. */
+  avbokaTillfalle?(bokning: Bokning): Promise<Skrivresultat>;
+  kontrolleraAvbokad?(bokning: Bokning): Promise<boolean>;
   /** Sätter ett uppdrag till "Utan anställd". */
   lossaAnstalld(uppdragId: string): Promise<Skrivresultat>;
   /** Lägger tillbaka en anställd på ett uppdrag – används om en ombokning måste backas. */
   atertilldela(uppdragId: string, anstalld: Anstalld): Promise<Skrivresultat>;
   /** Vem som står på ett uppdrag just nu (null = utan anställd), för verifiering. */
   anstalldPa(uppdragId: string): Promise<string | null | undefined>;
+  /**
+   * Ekonomianteckning på kunden, t.ex. om en avgift för sen ombokning som ska
+   * faktureras. Saknas metoden, eller misslyckas den, mejlas ekonomin i stället.
+   */
+  skapaEkonomianteckning?(kundId: string, rubrik: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }>;
   /** Ärende till kundservice när något behöver ses över manuellt. */
   skapaArende(rubrik: string, text: string): Promise<void>;
 }

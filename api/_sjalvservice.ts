@@ -42,6 +42,7 @@
 //    bara när huvudbrytaren SJALVSERVICE_KUNDER=true är på.
 
 import * as lagring from './_lagring';
+import { skickaSms } from './_smskod';
 import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
 import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
@@ -524,6 +525,8 @@ interface Loggpost {
   utfortAv: string;
   /** Ekonomianteckningen om avgiften, när ombokningen kostade något. */
   ekonomi?: string;
+  /** Bekräftelse-SMS till kunden efter en genomförd ombokning. */
+  sms?: string;
 }
 
 interface Extra {
@@ -533,6 +536,8 @@ interface Extra {
   utfortAv: string;
   /** Ekonomianteckningen om avgiften: "skapad", "mejlad" eller felet. Tom när ingen avgift. */
   ekonomi?: string;
+  /** Bekräftelse-SMS till kunden efter en genomförd ombokning. */
+  sms?: string;
 }
 
 async function logga(f: Forslag, systemnamn: string, bekraftadTid: string, utfall: Utfall, systemsvar: string, verifierad: boolean, extra: Extra): Promise<void> {
@@ -747,6 +752,43 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       }
     }
 
+    // 8. Bekräftelse: SMS till kundens mobilnummer i TimeWave och en samlad
+    //    sammanfattning till info@stodona.se (Mikaela 2026-09-25).
+    const nyTid = `${datumText(f.efter.datum)} kl. ${f.efter.start}–${f.efter.slut}`;
+    const mobil = sys.kundensMobil ? await sys.kundensMobil(f.kundId).catch(() => null) : null;
+    const smsText =
+      `Hej! Din städning är ombokad till ${nyTid} med ${f.efter.stadare.namn}.` +
+      (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '') +
+      ' Frågor? Ring 010-178 01 50. Hälsningar Stodona';
+    let smsSkickat = false;
+    if (!mobil) {
+      extra.sms = 'inget giltigt mobilnummer i TimeWave – inget SMS';
+    } else if (TESTLAGE) {
+      extra.sms = `TESTLÄGE – skickades inte: ${smsText}`;
+    } else {
+      const svar = await skickaSms(mobil, smsText);
+      smsSkickat = svar.ok;
+      extra.sms = svar.ok === true ? `skickat till …${mobil.slice(-2)}` : `misslyckades (${svar.fel})`;
+    }
+    const sammanfattning = [
+      `Ombokning genomförd i chatten av ${extra.utfortAv === 'kunden' ? 'kunden själv (inloggad med SMS-kod)' : `personalen: ${extra.utfortAv}`}.`,
+      '',
+      `Kund: ${kund.namn} (kund ${f.kundId})`,
+      `Tjänst: ${f.tjanst}`,
+      `Före: ${datumText(f.fore.datum)} kl. ${f.fore.start}–${f.fore.slut}, ${f.fore.stadare.namn}`,
+      `Efter: ${nyTid}, ${f.efter.stadare.namn}${f.efter.stadare.id !== f.fore.stadare.id ? ' (BYTE av städare)' : ''}`,
+      `Avgift: ${f.avgiftKr > 0 ? `${f.avgiftKr} kr – ${extra.ekonomi ?? ''}` : '0 kr'}`,
+      extra.forturUtanAnstalld.length ? `Förtur: ${extra.forturUtanAnstalld.join(', ')} står nu utan anställd` : null,
+      `SMS-bekräftelse till kunden: ${extra.sms}`,
+      `TimeWave: ${skrivning.referens}, verifierad`,
+    ]
+      .filter((rad) => rad !== null)
+      .join('\n');
+    const sammanfattningMejl = await mejlaKundservice(`Ombokning via chatten – ${kund.namn} (kund ${f.kundId})`, sammanfattning).catch(
+      (fel) => `MEJLET MISSLYCKADES: ${String(fel)}`
+    );
+    extra.mejl = extra.mejl ? `${extra.mejl}\n\n---\n\n${sammanfattningMejl}` : sammanfattningMejl;
+
     const byte = f.efter.stadare.id !== f.fore.stadare.id;
     const text = [
       'Klart! ✓ Din städning är ombokad.',
@@ -754,6 +796,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       byte ? `${f.efter.stadare.namn} kommer den gången.` : `${f.efter.stadare.namn} kommer som vanligt.`,
       f.aterkommande ? 'Dina övriga städningar är oförändrade.' : '',
       f.avgiftKr > 0 ? `Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '',
+      smsSkickat ? 'Du får också en bekräftelse med SMS.' : '',
     ]
       .filter(Boolean)
       .join('\n');

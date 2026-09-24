@@ -44,6 +44,7 @@ import {
   tidText,
   veckodagNr,
 } from './_bokningssystem';
+import { mobilnummer, platshallare } from './_smskod';
 
 const RESTID_MINUTER = 30;
 const STEG_MINUTER = 30;
@@ -394,6 +395,16 @@ export function timewaveSystem(): Bokningssystem {
     },
     async skapaArende(rubrik, text) {
       console.log(`\n[självservice/timewave] ärende skapas inte i TimeWave ännu:\n${rubrik}\n${text}\n`);
+    },
+
+    async kundensMobil(kundId) {
+      const k = (await klientForNummer(kundId)) as (TwKlient & { mobile?: string; phone?: string }) | null;
+      if (!k) return null;
+      for (const nummer of [k.mobile, k.phone]) {
+        const mobil = mobilnummer(nummer ?? '');
+        if (mobil && !platshallare(mobil)) return mobil;
+      }
+      return null;
     },
 
     async skapaEkonomianteckning(kundId, rubrik, text) {

@@ -120,6 +120,8 @@ export interface Bokningssystem {
    * faktureras. Saknas metoden, eller misslyckas den, mejlas ekonomin i stället.
    */
   skapaEkonomianteckning?(kundId: string, rubrik: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }>;
+  /** Kundens mobilnummer (+467…) ur kundregistret, för bekräftelse-SMS. null om det saknas eller är en platshållare. */
+  kundensMobil?(kundId: string): Promise<string | null>;
   /** Ärende till kundservice när något behöver ses över manuellt. */
   skapaArende(rubrik: string, text: string): Promise<void>;
 }

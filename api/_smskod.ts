@@ -49,6 +49,24 @@ export function platshallare(mobil: string): boolean {
   return /0{6}/.test(abonnent) || /^(\d)\1+$/.test(abonnent) || /^(0123456|1234567)/.test(abonnent);
 }
 
+/**
+ * Skickar ett SMS från "Stodona.se". SureSMS svarar "Message sent." (eller
+ * äldre "OK: …") – allt annat räknas som misslyckat.
+ */
+export async function skickaSms(mobil: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }> {
+  const nyckel = process.env.SURESMS_API_KEY?.trim();
+  if (!nyckel) return { ok: false, fel: 'SURESMS_API_KEY saknas' };
+  const params = new URLSearchParams({ login: 'apikey', password: nyckel, to: mobil, text, from: 'Stodona.se' });
+  try {
+    const svar = await fetch(`${SURESMS}?${params.toString()}`);
+    const kropp = (await svar.text()).trim();
+    if (!svar.ok || !(/^ok\b/i.test(kropp) || /^message sent/i.test(kropp))) return { ok: false, fel: `SureSMS ${svar.status}: ${kropp.slice(0, 120)}` };
+    return { ok: true };
+  } catch (fel) {
+    return { ok: false, fel: `SureSMS gick inte att nå: ${String(fel).slice(0, 100)}` };
+  }
+}
+
 // ─── Vem har numret? ─────────────────────────────────────────────────────────
 
 /**
@@ -134,24 +152,9 @@ export async function skickaKod(samtalsId: string, text: string, ip: string): Pr
   const kod = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
   await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar[0], hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
 
-  const params = new URLSearchParams({
-    login: 'apikey',
-    password: process.env.SURESMS_API_KEY?.trim() ?? '',
-    to: mobil,
-    text: `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`,
-    from: 'Stodona.se',
-  });
-  try {
-    const svar = await fetch(`${SURESMS}?${params.toString()}`);
-    const kropp = (await svar.text()).trim();
-    // SureSMS svarar "Message sent." (eller äldre "OK: …") – allt annat är ett misslyckande.
-    if (!svar.ok || !(/^ok\b/i.test(kropp) || /^message sent/i.test(kropp))) {
-      console.error(`smskod: SureSMS avvisade (${svar.status}): ${kropp.slice(0, 120)}`);
-      await lagring.taBort(`sjalv:smskod:${samtalsId}`);
-      return { fel: 'SMS:et kunde inte skickas just nu. Försök igen om en stund.' };
-    }
-  } catch (fel) {
-    console.error('smskod: SureSMS gick inte att nå', fel);
+  const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`);
+  if (skickat.ok === false) {
+    console.error(`smskod: ${skickat.fel}`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);
     return { fel: 'SMS:et kunde inte skickas just nu. Försök igen om en stund.' };
   }

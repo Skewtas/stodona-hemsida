@@ -113,6 +113,7 @@ interface Testlage {
     forturUtanAnstalld?: string[];
     mejl?: string;
     ekonomi?: string;
+    sms?: string;
   }[];
 }
 
@@ -267,6 +268,8 @@ const TEXT = {
     inbjudan: "Jag hjälper dig att boka – eller om du har några frågor eller funderingar.",
     stangInbjudan: "Stäng",
     platshallare: "Skriv ett meddelande…",
+    annat: "Annat",
+    annatPlatshallare: "Skriv vad du tänker på…",
     skicka: "Skicka",
     fel: "Jag når inte fram just nu. Ring 010-178 01 50 så hjälper vi dig direkt.",
     ring: "Ring oss",
@@ -298,6 +301,8 @@ const TEXT = {
     inbjudan: "I can help you book – or answer any questions you have.",
     stangInbjudan: "Close",
     platshallare: "Type a message…",
+    annat: "Other",
+    annatPlatshallare: "Tell me what you have in mind…",
     skicka: "Send",
     fel: "I can't get through right now. Call +46 10 178 01 50 and we'll help you.",
     ring: "Call us",
@@ -573,6 +578,7 @@ function TestlageBanderoll({ lage, uppdatera }: { lage: Testlage; uppdatera: (l:
                     {l.tid.slice(11, 19)} {l.utfall} · {l.bokningId} · {l.fore} → {l.efter} · {l.avgiftKr} kr · {l.systemsvar}
                     {l.forturUtanAnstalld && l.forturUtanAnstalld.length > 0 && <> · förtur: {l.forturUtanAnstalld.join(", ")} utan anställd</>}
                     {l.ekonomi && <> · avgift: {l.ekonomi}</>}
+                    {l.sms && <> · sms: {l.sms}</>}
                     {l.mejl && (
                       <details className="mt-1">
                         <summary className="cursor-pointer underline">Mejl till info@stodona.se</summary>
@@ -600,6 +606,8 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   const [oppen, setOppen] = useState(lage === "personal");
   /** Inbjudan bredvid chattknappen – en gång per besök, och aldrig i personalchatten. */
   const [inbjudan, setInbjudan] = useState(false);
+  /** Kunden tryckte "Annat" – textfältet får en tydligare uppmaning. */
+  const [annatValt, setAnnatValt] = useState(false);
   useEffect(() => {
     if (lage === "personal") return;
     let visad = false;
@@ -924,6 +932,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   /** @param dold skickas till Camilla utan att synas som kundens bubbla (systemets egna fortsättningar). */
   async function skicka(fraga: string, filer: ValdFil[] = [], dold = false) {
     const rensad = fraga.trim();
+    if (!dold) setAnnatValt(false);
     if ((!rensad && !filer.length) || (skriver && !dold) || laddarUpp) return;
 
     // Filerna laddas upp först. Går det inte ligger de kvar, så kunden kan försöka igen.
@@ -1206,6 +1215,19 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                       {v}
                     </button>
                   ))}
+                  {/* "Annat" finns alltid sist: kunden skriver själv i stället för att välja. */}
+                  {!knappval.some((v) => /^annat$/i.test(v)) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAnnatValt(true);
+                        inputRef.current?.focus();
+                      }}
+                      className="text-sm px-4 py-2 rounded-full border border-dashed border-text-primary/30 text-text-secondary bg-white hover:border-text-primary hover:text-text-primary transition-colors"
+                    >
+                      {s.annat}
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -1420,7 +1442,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                   ref={inputRef}
                   value={utkast}
                   onChange={(e) => setUtkast(e.target.value)}
-                  placeholder={s.platshallare}
+                  placeholder={annatValt ? s.annatPlatshallare : s.platshallare}
                   maxLength={1500}
                   className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-bg-primary text-sm outline-none focus:ring-2 focus:ring-accent/40"
                 />

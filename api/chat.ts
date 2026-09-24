@@ -549,6 +549,22 @@ async function ledigaTider(indata: Record<string, unknown>): Promise<string> {
   }
 }
 
+/**
+ * Länken till det förifyllda bokningsformuläret. Den byggs alltid här, mot
+ * BOKNING_BAS (boka.stodona.se), utifrån utkastets id – den 25/9 kom länken
+ * tillbaka som www.stodona.se/?quoteId=…, som öppnar hemsidan i stället för
+ * formuläret, så kunden såg ett "tomt" formulär trots att allt var ifyllt.
+ */
+function bokningslank(url: string): string {
+  try {
+    const token = new URL(url).searchParams.get('quoteId');
+    if (token && /^[A-Za-z0-9_-]{6,64}$/.test(token)) return `${BOKNING_BAS.replace(/\/+$/, '')}/?quoteId=${token}`;
+  } catch {
+    /* ogiltig adress – använd den som den är */
+  }
+  return url;
+}
+
 /** Sparar kundens uppgifter som ett bokningsutkast och ger tillbaka länken där
  *  bara personnummer och godkännande av villkoren återstår. */
 async function forberedBokning(indata: Record<string, unknown>): Promise<string> {
@@ -607,7 +623,7 @@ async function forberedBokning(indata: Record<string, unknown>): Promise<string>
       return 'Bokningen kunde inte förberedas just nu. Erbjud kunden att boka på boka.stodona.se eller att kundservice hör av sig.';
     }
     return [
-      `Bokningen är förberedd. Ge kunden exakt den här länken, tecken för tecken: ${data.url}`,
+      `Bokningen är förberedd. Ge kunden exakt den här länken, tecken för tecken: ${bokningslank(data.url)}`,
       'Säg att allt är ifyllt och att det bara är personnummer för RUT-avdraget och godkännande av villkoren kvar – det gör kunden själv i sista steget.',
       'Bokningen är INTE klar förrän kunden bekräftat där. Säg aldrig att den är bokad.',
     ].join(' ');

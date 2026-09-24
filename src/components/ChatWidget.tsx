@@ -653,6 +653,8 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   const [smsKod, setSmsKod] = useState("");
   const [smsSkickad, setSmsSkickad] = useState(false);
   const [smsInfo, setSmsInfo] = useState("");
+  /** Numret står på flera konton: kunden väljer efter rätt kod. */
+  const [smsKonton, setSmsKonton] = useState<{ nummer: string; namn: string }[]>([]);
   /** Personalmiljön: valfritt kundnummer att logga in som. */
   const [valfrittKundnr, setValfrittKundnr] = useState("");
   /** Självservicens testläge, enligt servern. null = självservicen finns inte. */
@@ -843,20 +845,48 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     setBankidVantar(true);
     try {
       const svar = await smsAnrop({ handling: "sms-kolla", kod: smsKod });
+      if (svar.ok && svar.data?.status === "valj" && Array.isArray(svar.data.konton)) {
+        setSmsKonton(svar.data.konton);
+        return;
+      }
       if (!svar.ok || svar.data?.status !== "klar") throw new Error(svar.data?.error || s.bankidFel);
-      setBankidOppen(false);
-      setSmsSkickad(false);
-      setSmsKod("");
-      setSmsTelefon("");
-      setSmsInfo("");
-      uppdateraTestlage();
-      skicka("Jag har legitimerat mig nu.");
+      inloggadMedSms();
     } catch (f) {
       setBankidFel(f instanceof Error && f.message.length < 160 ? f.message : s.bankidFel);
       setSmsKod("");
     } finally {
       setBankidVantar(false);
     }
+  }
+
+  async function valjSmsKonto(kundnummer: string) {
+    if (bankidVantar) return;
+    setBankidFel("");
+    setBankidVantar(true);
+    try {
+      const svar = await smsAnrop({ handling: "sms-valj", kundnummer });
+      if (!svar.ok || svar.data?.status !== "klar") throw new Error(svar.data?.error || s.bankidFel);
+      inloggadMedSms();
+    } catch (f) {
+      setBankidFel(f instanceof Error && f.message.length < 160 ? f.message : s.bankidFel);
+      setSmsKonton([]);
+      setSmsSkickad(false);
+      setSmsKod("");
+    } finally {
+      setBankidVantar(false);
+    }
+  }
+
+  /** Inloggad med SMS-kod: stäng rutan och låt Camilla fortsätta ärendet. */
+  function inloggadMedSms() {
+    setSmsKonton([]);
+    setBankidOppen(false);
+    setSmsSkickad(false);
+    setSmsKod("");
+    setSmsTelefon("");
+    setSmsInfo("");
+    uppdateraTestlage();
+    skicka("Jag har legitimerat mig nu.");
   }
 
   /**
@@ -1265,7 +1295,22 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                     <p className="text-[11px] text-text-secondary">
                       {smsSkickad ? smsInfo : "Få en kod med SMS till mobilnumret du har registrerat hos oss."}
                     </p>
-                    {!smsSkickad ? (
+                    {smsKonton.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[11px] text-text-primary">Numret finns på flera konton. Vilket gäller det?</p>
+                        {smsKonton.map((k) => (
+                          <button
+                            key={k.nummer}
+                            type="button"
+                            onClick={() => valjSmsKonto(k.nummer)}
+                            disabled={bankidVantar}
+                            className="text-left text-sm px-4 py-2.5 rounded-xl bg-white border border-text-primary/15 hover:border-text-primary transition-colors disabled:opacity-40"
+                          >
+                            {k.namn} (kund {k.nummer})
+                          </button>
+                        ))}
+                      </div>
+                    ) : !smsSkickad ? (
                       <div className="flex items-center gap-2">
                         <input
                           value={smsTelefon}

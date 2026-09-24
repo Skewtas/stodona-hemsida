@@ -3,8 +3,10 @@
 //
 // SÄKERHET
 //  * Koden skickas bara till ett mobilnummer som REDAN finns på kunden i
-//    TimeWave, och bara om numret hör till exakt en aktiv kund. Numret kunden
-//    skriver används bara för att leta – aldrig som mottagare på egen hand.
+//    TimeWave. Numret kunden skriver används bara för att leta – aldrig som
+//    mottagare på egen hand. Står numret på flera konton (dubbletter, en
+//    familj) får den som har telefonen välja konto EFTER rätt kod – högst
+//    MAX_KONTON; fler än så räknas som ett fel i registret och ger ingen kod.
 //  * Svaret är alltid detsamma ("om numret finns hos oss har vi skickat en
 //    kod"), så chatten avslöjar aldrig vem som är kund.
 //  * 6 siffror, gäller 10 minuter, högst 5 försök. Koden sparas bara som
@@ -21,6 +23,8 @@ const SPARR_SEKUNDER = 15 * 60;
 const MAX_PER_SAMTAL = 3;
 const MAX_PER_NUMMER = 3;
 const MAX_PER_IP = 10;
+/** Så många aktiva konton får dela ett mobilnummer innan det räknas som ett registerfel. */
+const MAX_KONTON = 5;
 
 const SURESMS = 'https://api.suresms.com/Script/SendSMS.aspx';
 
@@ -117,7 +121,8 @@ function lika(a: string, b: string): boolean {
 }
 
 interface Vantande {
-  kundnummer: string;
+  /** Kontona som har mobilnumret. Fler än ett: kunden väljer efter rätt kod. */
+  kundnummer: string[];
   hash: string;
   forsok: number;
 }
@@ -138,19 +143,19 @@ export async function skickaKod(samtalsId: string, text: string, ip: string): Pr
     (await overTaket(`sjalv:sms:nummer:${await hash(mobil)}`, MAX_PER_NUMMER)) ||
     (await overTaket(`sjalv:sms:ip:${ip}`, MAX_PER_IP))
   ) {
-    return { fel: 'För många försök. Vänta en kvart och försök igen, eller ring oss på 010-178 01 50.' };
+    return { fel: 'För många försök. Vänta en kvart och försök igen.' };
   }
 
   const traffar = platshallare(mobil) ? [] : await kunderMedNummer(mobil);
-  if (traffar.length !== 1) {
-    // Ingen eller flera kunder med numret: skicka ingenting, men svara som vanligt.
-    if (traffar.length > 1) console.warn(`smskod: numret hör till ${traffar.length} kunder – ingen kod skickad`);
+  if (traffar.length === 0 || traffar.length > MAX_KONTON) {
+    // Ingen kund, eller orimligt många konton med numret: skicka ingenting, men svara som vanligt.
+    if (traffar.length > MAX_KONTON) console.warn(`smskod: numret hör till ${traffar.length} kunder – ingen kod skickad`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);
     return { ok: true, meddelande: GENERISKT_SVAR };
   }
 
   const kod = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
-  await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar[0], hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
+  await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar, hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
 
   const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`);
   if (skickat.ok === false) {
@@ -162,7 +167,7 @@ export async function skickaKod(samtalsId: string, text: string, ip: string): Pr
 }
 
 /** Kontrollerar koden. Rätt kod ger kundnumret – en gång. */
-export async function kontrolleraKod(samtalsId: string, kod: string): Promise<{ kundnummer: string } | { fel: string }> {
+export async function kontrolleraKod(samtalsId: string, kod: string): Promise<{ kundnummer: string[] } | { fel: string }> {
   const nyckel = `sjalv:smskod:${samtalsId}`;
   const vantande = await lagring.hamta<Vantande>(nyckel);
   if (!vantande) return { fel: 'Koden har gått ut eller finns inte. Be om en ny kod.' };
@@ -177,5 +182,6 @@ export async function kontrolleraKod(samtalsId: string, kod: string): Promise<{ 
     return { fel: `Fel kod. Du har ${MAX_FORSOK - forsok} försök kvar.` };
   }
   await lagring.taBort(nyckel);
-  return { kundnummer: vantande.kundnummer };
+  // (Äldre väntande koder sparade ett enda kundnummer.)
+  return { kundnummer: Array.isArray(vantande.kundnummer) ? vantande.kundnummer : [String(vantande.kundnummer)] };
 }

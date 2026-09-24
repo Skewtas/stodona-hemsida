@@ -175,6 +175,13 @@ export async function kollaSignering(
 
 // ─── Personalchatten: välj kund på namn ──────────────────────────────────────
 
+/** Namnen på kontona som delar ett mobilnummer – visas för den som angett rätt SMS-kod. */
+export async function kontonForVal(samtalsId: string, nummer: string[]): Promise<{ nummer: string; namn: string }[]> {
+  const sys = system(samtalsId);
+  const konton = await Promise.all(nummer.map(async (nr) => ({ nummer: nr, namn: (await sys.hamtaKund(nr).catch(() => null))?.namn ?? '' })));
+  return konton.filter((k) => k.namn);
+}
+
 /** Kopplar samtalet till kunden (personalens val, eller en godkänd SMS-kod). */
 export async function valjKundFor(samtalsId: string, kundnummer: string): Promise<Kund | null> {
   if (!/^\d{1,10}$/.test(kundnummer) || !tillatenKund(kundnummer)) return null;
@@ -759,7 +766,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
     const smsText =
       `Hej! Din städning är ombokad till ${nyTid} med ${f.efter.stadare.namn}.` +
       (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '') +
-      ' Frågor? Ring 010-178 01 50. Hälsningar Stodona';
+      ' Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona';
     let smsSkickat = false;
     if (!mobil) {
       extra.sms = 'inget giltigt mobilnummer i TimeWave – inget SMS';

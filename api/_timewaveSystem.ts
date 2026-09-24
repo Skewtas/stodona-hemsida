@@ -22,6 +22,7 @@
 
 import {
   twFlyttaTillfalle,
+  twAvbokaTillfalle,
   twGet,
   twGetAlla,
   type TwAnstalld,
@@ -217,12 +218,12 @@ function arbetstid(anstalld: TwAnstalld, datum: string): { start: number; slut: 
 
 async function schema(anstalldId: string, fran: string, till: string): Promise<{ anstalld: TwAnstalld; upptaget: Upptaget[] }> {
   const datum: string[] = [];
-  for (let d = fran; d <= till; d = laggTillDagar(d, 1)) if (veckodagNr(d) >= 1 && veckodagNr(d) <= 5) datum.push(d);
+  for (let d = fran; d <= till; d = laggTillDagar(d, 1)) datum.push(d);
 
   const [anstalldSvar, missions, rader] = await Promise.all([
     twGet<{ data?: TwAnstalld } & TwAnstalld>(`/employees/${encodeURIComponent(anstalldId)}`),
     twGetAlla<TwMission>(`/missions?filter[employee_id]=${encodeURIComponent(anstalldId)}&filter[startdate]=${fran}&filter[enddate]=${till}`),
-    Promise.all(datum.map((d) => twGet<{ data?: TwArbetsorderrad[] }>(`/workorderlines?filter[start_date]=${d}`).then((r) => r.data ?? []))),
+    Promise.all(datum.map((d) => twGetAlla<TwArbetsorderrad>(`/workorderlines?filter[start_date]=${d}`))),
   ]);
   const anstalld = (anstalldSvar.data ?? anstalldSvar) as TwAnstalld;
 
@@ -304,8 +305,8 @@ export function timewaveSystem(): Bokningssystem {
     async ledigaLuckor(bokning, franDatum, tillDatum, bara, onskadStart) {
       // Bara ordinarie städare i det här steget.
       if (!bara || bara.id !== bokning.stadare.id) return [];
-      const imorgon = laggTillDagar(idagSthlm(), 1);
-      const fran = franDatum < imorgon ? imorgon : franDatum;
+      const idag = idagSthlm();
+      const fran = franDatum < idag ? idag : franDatum;
       const till = tillDatum;
       if (till < fran) return [];
       const { anstalld, upptaget } = await schema(bara.id, fran, till);
@@ -318,6 +319,7 @@ export function timewaveSystem(): Bokningssystem {
         if (!tid) continue;
         const fria: number[] = [];
         for (let start = tid.start; start + langd <= tid.slut; start += STEG_MINUTER) {
+          if (sthlmTidpunkt(datum, tidText(start)) <= Date.now()) continue;
           if (datum === bokning.datum && tidText(start) === bokning.start) continue;
           if (ledig(anstalld, upptaget, datum, start, start + langd, bokning.id)) fria.push(start);
         }
@@ -335,6 +337,7 @@ export function timewaveSystem(): Bokningssystem {
     },
 
     async kontrolleraLucka(bokning, lucka) {
+      if (sthlmTidpunkt(lucka.datum, lucka.start) <= Date.now()) return { ledig: false };
       if (lucka.stadare.id !== bokning.stadare.id) return { ledig: false };
       const { anstalld, upptaget } = await schema(lucka.stadare.id, lucka.datum, lucka.datum);
       return ledig(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id)
@@ -366,6 +369,21 @@ export function timewaveSystem(): Bokningssystem {
 
     async lossaAnstalld() {
       return { ok: false, fel: 'Förtur finns inte mot TimeWave ännu. Ingenting ändrades.' };
+    },
+    async avbokaTillfalle(bokning) {
+      if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
+      const id = tolkaId(bokning.id);
+      if (!id) return { ok: false, fel: 'Ogiltigt boknings-id.' };
+      const result = await twAvbokaTillfalle(id.rad);
+      return result.ok === true ? { ok: true, referens: 'TimeWave-avbokning' } : result;
+    },
+    async kontrolleraAvbokad(bokning) {
+      const id = tolkaId(bokning.id);
+      if (!id) return false;
+      // Cancelled records are explicitly requested. Missing data is NOT success.
+      const rows = await twGetAlla<TwMission>(`/missions?filter[id]=${id.mission}&filter[client_id]=${(await klientForNummer(bokning.kundId))?.id ?? 0}&filter[startdate]=${bokning.datum}&filter[enddate]=${bokning.datum}&filter[cancelled]=1`);
+      const mission = rows.find(m => m.id === id.mission && String(m.client?.number) === bokning.kundId);
+      return mission?.employees?.some(row => row.bookingline_id === id.rad && row.startdate === bokning.datum && row.cancelled === true) === true;
     },
     async atertilldela() {
       return { ok: false, fel: 'Förtur finns inte mot TimeWave ännu. Ingenting ändrades.' };

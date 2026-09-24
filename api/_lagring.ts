@@ -27,7 +27,9 @@ async function kv(kommando: string[]): Promise<unknown> {
     body: JSON.stringify(kommando),
   });
   if (!res.ok) throw new Error(`KV svarade ${res.status}`);
-  return (await res.json()).result;
+  const data = await res.json();
+  if (data.error) throw new Error('KV-kommandot misslyckades');
+  return data.result;
 }
 
 // ─── Minne (lokalt) ──────────────────────────────────────────────────────────
@@ -72,6 +74,28 @@ export async function taBort(nyckel: string): Promise<void> {
     return;
   }
   await kv(['DEL', nyckel]);
+}
+
+/** Beständiga operationsjournaler får inte försvinna innan ett osäkert utfall är utrett. */
+export async function sparaPermanent(nyckel: string, varde: unknown): Promise<void> {
+  const text = JSON.stringify(varde);
+  if (LOKAL) { minne.set(nyckel, { varde: text, gar_ut: null }); return; }
+  await kv(['SET', nyckel, text]);
+}
+
+/** Lås utan automatisk utgång: en krasch kräver utredning, inte en ny skrivning. */
+export async function taOperationslas(nyckel: string, agare: string): Promise<boolean> {
+  if (LOKAL) {
+    if (minnesHamta(nyckel) !== null) return false;
+    minne.set(nyckel, { varde: agare, gar_ut: null });
+    return true;
+  }
+  return await kv(['SET', nyckel, agare, 'NX']) === 'OK';
+}
+
+export async function slappOperationslas(nyckel: string, agare: string): Promise<void> {
+  if (LOKAL) { if (minnesHamta(nyckel) === agare) minne.delete(nyckel); return; }
+  await kv(['EVAL', "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end", '1', nyckel, agare]);
 }
 
 /**

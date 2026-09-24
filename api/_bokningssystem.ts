@@ -106,6 +106,9 @@ export interface Bokningssystem {
   /** Flyttar ETT tillfälle. Övriga tillfällen i en återkommande serie ska vara orörda. */
   /** `notering` följer med ändringen (t.ex. vem i personalen som gjorde den). */
   flyttaTillfalle(bokning: Bokning, lucka: Lucka, notering?: string): Promise<Skrivresultat>;
+  /** Explicit single-occurrence cancellation; absence is never proof of cancellation. */
+  avbokaTillfalle?(bokning: Bokning): Promise<Skrivresultat>;
+  kontrolleraAvbokad?(bokning: Bokning): Promise<boolean>;
   /** Sätter ett uppdrag till "Utan anställd". */
   lossaAnstalld(uppdragId: string): Promise<Skrivresultat>;
   /** Lägger tillbaka en anställd på ett uppdrag – används om en ombokning måste backas. */

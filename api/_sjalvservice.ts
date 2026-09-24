@@ -45,7 +45,8 @@ import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
 import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
 import { testsystem, testkund, hamtaSimulering, sattSimulering, aterstallVarld, SIMULERINGAR, TESTKUNDLISTA as TESTVARLDENS_KUNDER, type Simulering } from './_testBokningssystem';
-import { timewaveSystem, kunderForPersonnummer, sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
+import { kunderForPersonnummer, sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
+import { customerBookingActions } from './_customerBookingActions';
 import { ticKonfigurerat, ticStarta, ticFraga, ticAvbryt, qrData, type TicStart } from './_tic';
 
 /** Testkopplingen "ÅÅÅÅMMDDNNNN:kundnummer" – ett test-BankID loggas in som en viss kund. Bara i testläget. */
@@ -105,7 +106,7 @@ const tillatenKund = (nummer: string) => ALLA_KUNDER || TW_TESTKUNDER.includes(n
 const LOGG_NYCKEL = `sjalv:logg:${SYSTEM}`;
 
 function system(samtalsId: string): Bokningssystem {
-  return SYSTEM === 'timewave' ? timewaveSystem() : testsystem(samtalsId);
+  return SYSTEM === 'timewave' ? customerBookingActions() : testsystem(samtalsId);
 }
 
 function slumpId(prefix: string): string {

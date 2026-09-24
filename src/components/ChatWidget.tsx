@@ -877,6 +877,24 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     }
   }
 
+  // Andra sidor kan öppna chatten, gärna med en färdig fråga – t.ex. korten på
+  // stodona.se/chatt: window.dispatchEvent(new CustomEvent("stodona:chatt", { detail: { fraga } })).
+  const skickaRef = useRef(skicka);
+  skickaRef.current = skicka;
+  useEffect(() => {
+    if (lage === "personal") return;
+    const oppna = (e: Event) => {
+      const fraga = (e as CustomEvent<{ fraga?: string }>).detail?.fraga;
+      stangInbjudan();
+      setOppen(true);
+      track("chat_open", { kalla: "chattsidan" });
+      if (fraga) window.setTimeout(() => skickaRef.current(fraga), 350);
+    };
+    window.addEventListener("stodona:chatt", oppna);
+    return () => window.removeEventListener("stodona:chatt", oppna);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lage]);
+
   /** Inloggad med SMS-kod: stäng rutan och låt Camilla fortsätta ärendet. */
   function inloggadMedSms() {
     setSmsKonton([]);

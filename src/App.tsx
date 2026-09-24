@@ -29,6 +29,7 @@ const Julklapp = React.lazy(() => import("./pages/Julklapp"));
 // Dold influencer-sida (noindex, ej i meny/sitemap/sök) – nås via direktlänk.
 const InfluencerSamarbete = React.lazy(() => import("./pages/InfluencerSamarbete"));
 const Personalchatt = React.lazy(() => import("./pages/Personalchatt"));
+const Chatt = React.lazy(() => import("./pages/Chatt"));
 const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
@@ -159,6 +160,7 @@ export default function App() {
           <Route path="/barnvakt-ansokan" element={<BarnvaktAnsokan />} />
           <Route path="/ansok-barnvakt" element={<BarnvaktAnsokan />} />
           <Route path="/kontakt" element={<Kontakt />} />
+          <Route path="/chatt" element={<Chatt />} />
           <Route path="/kundportalen" element={<Kundportal />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
           <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />

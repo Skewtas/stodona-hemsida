@@ -97,7 +97,7 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
   2. Hämta genast två nya tider med hitta_nya_tider för den bokningen, samma städare, utan att fråga när kunden vill ha den. Har kunden sagt en dag, vecka eller tid: skicka med den. Annars utelämna datumen, så letar verktyget nära den ordinarie dagen.
   3. Svara i ETT meddelande: bekräfta bokningen och ge de två förslagen, till exempel: "Absolut! Det gäller din städning fredag 2 oktober kl. 08:00 med Mikaela. Här är två andra tider som passar:" och knapparna [[val: Tors 1/10 08:00 | Mån 5/10 10:00 | Andra tider | Det gäller en annan städning]]. Allt om tider, personal, priser, avgifter och villkor kommer från verktygen – hitta aldrig på något av det, och räkna aldrig själv.
   Väljer kunden "Andra tider": fråga kort vilken dag eller vecka som passar, och sök igen. Väljer kunden "Det gäller en annan städning": visa kundens kommande bokningar som knappar.
-  4. Har ordinarie städare ingen tid: säg det, utan att förklara varför, och fråga om du ska leta hos någon annan i teamet. Visa andra städare först när kunden sagt ja, och säg tydligt när en tid innebär en annan städare.
+  4. Har ordinarie städare ingen tid: säg det, utan att förklara varför, och erbjud exakt de val verktyget anger – inget annat. Andra städare får du bara erbjuda om verktyget uttryckligen säger att det går, och då säger du tydligt när en tid innebär en annan städare.
   5. Avgifter kommer SIST. Nämn aldrig avgift eller villkor när du visar tiderna – först i meningen före sammanfattningen, exakt som forbered_ombokning anger, och sist i den meningen. Kortet visar också avgiften längst ned.
   6. När kunden valt en tid: forbered_ombokning. Svara med en kort mening och avsluta med raden [[bekrafta:…]] exakt som verktyget anger. Då visas en sammanfattning med knapparna Bekräfta ombokning och Avbryt.
   7. Du kan inte genomföra ändringen själv. Den görs bara när kunden trycker Bekräfta ombokning, och då svarar systemet kunden direkt i chatten. Skriver kunden "ja" i stället: be kunden trycka på Bekräfta ombokning i sammanfattningen. Säg aldrig att en bokning är ändrad, flyttad eller klar om inte systemet redan skrivit det i samtalet.
@@ -137,6 +137,7 @@ TEKNISKT FÖR CHATTEN
 - KNAPPAR – ALLTID NÄR DU FRÅGAR NÅGOT SOM GÅR ATT VÄLJA: ställer du en fråga där svaret kan väljas – vilken tjänst, hur ofta, lediga tider, hur vi kommer in, vilken bokning, ja eller nej – ger du ALLTID alternativen som knappar. Frågar du till exempel vilken städning det gäller visar du tjänsterna: [[val: Hemstädning | Storstädning | Flyttstädning | Fönsterputsning | Företagsstädning | Byggstädning]]. Ställ frågan i texten och avsluta meddelandet med en egen rad i exakt det här formatet:
   [[val: Alternativ ett | Alternativ två | Alternativ tre]]
   Kunden ser alternativen som knappar, så räkna inte upp dem i texten också. Högst sju alternativ – knappen "Annat" läggs till automatiskt, så skriv aldrig "Annat" själv. Inga knappar när kunden ska skriva något själv (namn, mejl, telefon, adress, storlek, datum). Högst en sådan rad per meddelande, och alltid sist.
+- GE ALDRIG FÖRSLAG DU INTE KAN LÖSA: föreslå aldrig en dag, tid, tjänst eller åtgärd som ett verktyg inte just har bekräftat, eller som du inte kan genomföra. Knappar med dagar och tider får bara innehålla det verktyget returnerade. Vet du inte om något går – kontrollera först med verktyget, och visa sedan bara det som fungerar. Gissa aldrig "dagen före eller efter".
 - BOKA STÄDNING – NÖJDGARANTIN: i ditt FÖRSTA svar när kunden vill boka, eller pratar om att boka, en städning nämner du alltid kort vår 100 % nöjd-kund-garanti – en gång per samtal. Till exempel: "Vad roligt! Du bokar tryggt hos oss – vi har 100 % nöjd-kund-garanti. Vilken typ av städning gäller det?" Lova inget mer än så; detaljerna står i FAKTA under NÖJD KUND.
 - SPRÅK: skriv korrekt och naturlig svenska, som en erfaren medarbetare på Stodonas kundservice. Varje svar ska passa det kunden faktiskt skrev. "Absolut!", "Självklart!" och "Gärna!" är svar på en förfrågan eller ett erbjudande ("Kan ni hjälpa mig …?", "Vill du boka?") – aldrig på en fråga. Frågar kunden något ("Vad ingår?") svarar du direkt på frågan, eller ställer den följdfråga som behövs, utan sådan inledning. Exempel: kunden skriver "Vad ingår?" → "Det beror på vilken städning det gäller. Vilken tänker du på?" med tjänsterna som knappar. Inga direktöversättningar från engelska och inga halva meningar.
 
@@ -203,14 +204,15 @@ const VERKTYG: Anthropic.Tool[] = [
   {
     name: 'visa_lediga_tider',
     description:
-      'Hämtar riktiga lediga tider ur Stodonas schema för ett visst datum. Kräver tjänst, storlek, datum och kundens adress. Använd när kunden vill veta när vi kan komma. Presentera tiderna för kunden – men lova aldrig att en tid är bokad, för du kan inte boka.',
+      'Söker riktiga lediga tider ur Stodonas schema, från ett datum och upp till en vecka framåt, och returnerar BARA dagar som verkligen har lediga tider. Kräver tjänst, storlek, datum och kundens adress. Använd när kunden vill veta när vi kan komma – även när kunden nämnt en viss dag, så får du samtidigt de närmaste alternativen. Föreslå aldrig en dag eller tid som inte finns i svaret. Lova aldrig att en tid är bokad, för du kan inte boka.',
     input_schema: {
       type: 'object',
       properties: {
         tjanst: { type: 'string', enum: TJANSTER, description: 'Vilken tjänst det gäller.' },
         kvm: { type: 'number', description: 'Bostadens storlek i kvadratmeter.' },
         frekvens: { type: 'string', enum: FREKVENSER, description: 'Hur ofta städningen ska ske.' },
-        datum: { type: 'string', description: 'Datum i formatet ÅÅÅÅ-MM-DD.' },
+        datum: { type: 'string', description: 'Första dagen att söka från, ÅÅÅÅ-MM-DD – kundens önskade dag, eller i morgon om kunden inte sagt något.' },
+        till_datum: { type: 'string', description: 'Valfritt: sista dagen att söka, ÅÅÅÅ-MM-DD (högst 14 dagar efter datum). Utelämna för en vecka.' },
         gatuadress: { type: 'string', description: 'Gatuadress, t.ex. Storgatan 5.' },
         postnummer: { type: 'string', description: 'Fem siffror.' },
         ort: { type: 'string', description: 'Postort, t.ex. Stockholm.' },
@@ -493,27 +495,57 @@ async function ledigaTider(indata: Record<string, unknown>): Promise<string> {
   const onskad = rent(indata.frekvens, 30);
   const frekvens = FREKVENSER.find((f) => f.toLowerCase() === onskad.toLowerCase()) ?? 'Engång';
 
-  try {
+  // Sök över en period och returnera bara dagar som verkligen har tider – så
+  // att Camilla aldrig föreslår en dag som sedan visar sig vara full.
+  const laggTill = (d: string, n: number) => {
+    const x = new Date(`${d}T12:00:00Z`);
+    x.setUTCDate(x.getUTCDate() + n);
+    return x.toISOString().slice(0, 10);
+  };
+  const tillOnskat = rent(indata.till_datum, 10);
+  const till = /^\d{4}-\d{2}-\d{2}$/.test(tillOnskat) && tillOnskat >= datum ? (tillOnskat > laggTill(datum, 13) ? laggTill(datum, 13) : tillOnskat) : laggTill(datum, 6);
+  const dagar: string[] = [];
+  for (let d = datum; d <= till; d = laggTill(d, 1)) dagar.push(d);
+
+  const hamtaDag = async (dag: string): Promise<{ dag: string; tider: string[] } | null> => {
     const svar = await fetch('https://boka.stodona.se/api/available-slots', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ service: tjanst, frequency: frekvens, sqm: kvm, date: datum, streetAddress: gatuadress, postalCode: postnummer, city: ort }),
+      body: JSON.stringify({ service: tjanst, frequency: frekvens, sqm: kvm, date: dag, streetAddress: gatuadress, postalCode: postnummer, city: ort }),
       signal: AbortSignal.timeout(10000),
     });
-    if (!svar.ok) {
-      console.error('chat: available-slots svarade', svar.status);
-      return 'Schemat gick inte att läsa just nu. Be kunden välja tid på boka.stodona.se, eller erbjud att kundservice hör av sig.';
-    }
+    if (!svar.ok) throw new Error(`available-slots svarade ${svar.status}`);
     const d = (await svar.json()) as { slots?: { time?: string }[]; fallback?: boolean };
-    const tider = (d.slots ?? []).map((s) => s.time).filter((t): t is string => typeof t === 'string');
+    // "fallback" = utfyllnadstider utan bekräftad städare – räknas inte som lediga.
+    const tider = d.fallback ? [] : (d.slots ?? []).map((x) => x.time).filter((t): t is string => typeof t === 'string');
+    return { dag, tider };
+  };
 
-    if (!tider.length || d.fallback) {
-      return `Inga bekräftade tider den ${datum}. Föreslå en annan dag, eller erbjud att kundservice hittar en tid.`;
+  try {
+    const resultat: ({ dag: string; tider: string[] } | null)[] = [];
+    // Högst fyra samtidiga frågor mot schemat.
+    for (let i = 0; i < dagar.length; i += 4) {
+      resultat.push(...(await Promise.all(dagar.slice(i, i + 4).map((d) => hamtaDag(d).catch(() => null)))));
     }
-    return `Lediga tider den ${datum} för ${tjanst.toLowerCase()} ${kvm} kvm: ${tider.join(', ')}. Erbjud kunden tiderna. Nämn aldrig vilken städare det är – den uppgiften ska inte lämnas ut. Kom ihåg att du inte kan boka tiden själv.`;
+    if (resultat.every((r) => r === null)) {
+      return 'Schemat gick inte att läsa just nu. Föreslå inga dagar eller tider. Be kunden välja tid på boka.stodona.se, eller erbjud att kundservice hör av sig.';
+    }
+    const lediga = resultat.filter((r): r is { dag: string; tider: string[] } => Boolean(r && r.tider.length));
+    const veckodag = (d: string) => ['sön', 'mån', 'tis', 'ons', 'tors', 'fre', 'lör'][new Date(`${d}T12:00:00Z`).getUTCDay()];
+    const kort = (d: string) => `${veckodag(d).replace(/^./, (c) => c.toUpperCase())} ${Number(d.slice(8))}/${Number(d.slice(5, 7))}`;
+    if (!lediga.length) {
+      return `INGA lediga tider för ${tjanst.toLowerCase()} mellan ${datum} och ${till}. Föreslå INGA egna dagar eller tider. Säg det och erbjud [[val: Sök veckan efter | Kundservice hör av sig]] – väljer kunden att söka vidare, använd verktyget igen från ${laggTill(till, 1)}.`;
+    }
+    const onskadDag = lediga.find((r) => r.dag === datum);
+    return [
+      onskadDag ? `Önskad dag ${datum} har lediga tider.` : `Önskad dag ${datum} är FULL. Säg det kort.`,
+      `Dagar med verkligt lediga tider (${tjanst.toLowerCase()} ${kvm} kvm):`,
+      ...lediga.slice(0, 5).map((r) => `${kort(r.dag)} (${r.dag}): ${r.tider.join(', ')}`),
+      'Visa BARA dessa dagar och tider som knappar, t.ex. "Tors 1/10 09:00". Föreslå aldrig någon annan dag eller tid. Nämn aldrig vilken städare det är. Kom ihåg att du inte kan boka tiden själv.',
+    ].join('\n');
   } catch (fel) {
     console.error('chat: kunde inte nå schemat:', fel);
-    return 'Schemat gick inte att nå. Be kunden välja tid på boka.stodona.se.';
+    return 'Schemat gick inte att nå. Föreslå inga dagar eller tider. Be kunden välja tid på boka.stodona.se.';
   }
 }
 

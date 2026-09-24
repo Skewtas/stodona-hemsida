@@ -343,8 +343,10 @@ export async function hittaNyaTider(
   if (!luckor.length) {
     return [
       nuvarande,
-      indata.sammaStadare
+      indata.sammaStadare && sys.kanSokaKollegor
         ? `INGA LEDIGA TIDER med ${bokning.stadare.namn} under ${period}. Säg det till kunden, utan att förklara varför, och fråga om du ska leta efter tider med någon annan i teamet. Avsluta med [[val: Ja, visa andra tider | Nej, behåll min nuvarande bokning]]. Kunden kan också välja en annan period.`
+        : indata.sammaStadare
+          ? `INGA LEDIGA TIDER med ${bokning.stadare.namn} under ${period}. Säg det kort, utan att förklara varför. Erbjud BARA det som går: [[val: Sök veckan efter | Behåll min nuvarande bokning]] – väljer kunden att söka vidare, använd hitta_nya_tider igen från dagen efter ${till}. Föreslå aldrig en annan städare.`
         : `INGA LEDIGA TIDER hos någon i teamet under ${period}. Fråga om kunden vill prova en annan period, eller erbjud att lämna över till kundservice.`,
       villkorsText(bokning),
     ].join('\n');

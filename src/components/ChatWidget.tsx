@@ -1325,7 +1325,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                 {smsFinns && (
                   <div className="mt-3 space-y-2">
                     <p className="text-[11px] text-text-secondary">
-                      {smsSkickad ? smsInfo : "Få en kod med SMS till mobilnumret du har registrerat hos oss."}
+                      {smsSkickad ? smsInfo : "Skriv mobilnumret som finns på ditt kundkort hos oss – dit skickar vi en kod med SMS."}
                     </p>
                     {smsKonton.length > 0 ? (
                       <div className="flex flex-col gap-2">
@@ -1348,7 +1348,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                           value={smsTelefon}
                           onChange={(e) => setSmsTelefon(e.target.value.slice(0, 20))}
                           onKeyDown={(e) => e.key === "Enter" && skickaSmsKod()}
-                          placeholder="Mobilnummer"
+                          placeholder="Mobilnummer på ditt kundkort"
                           type="tel"
                           inputMode="tel"
                           autoComplete="tel"

@@ -1,14 +1,15 @@
 import { useEffect } from "react";
 import { Helmet } from "../seo";
-import { CalendarPlus, CalendarClock, UserRound, ReceiptText, MessageCircleQuestion, MessageCircle } from "lucide-react";
+import { CalendarPlus, CalendarClock, CalendarX, PencilLine, UserRound, ReceiptText, MessageCircleQuestion, MessageCircle } from "lucide-react";
 
 /**
  * stodona.se/chatt – sidan att hänvisa kunder till. Första vyn ska räcka:
  * rubrik, en mening och knappar som startar chatten med rätt fråga
  * (händelsen "stodona:chatt" som ChatWidget lyssnar på).
  *
- * Bara det chatten löser direkt får en knapp – lova inget mer. Avbokning görs
- * inte i chatten än, så den har ingen egen knapp.
+ * Bara det chatten löser direkt får en knapp – lova inget mer. Vid avbokning
+ * erbjuder Camilla först nya tider; vill kunden ändå avboka lämnar hon över
+ * till kundservice med allt ifyllt.
  */
 
 function oppnaChatt(fraga?: string) {
@@ -18,6 +19,8 @@ function oppnaChatt(fraga?: string) {
 const VAL = [
   { ikon: CalendarPlus, text: "Boka städning", fraga: "Jag vill boka städning" },
   { ikon: CalendarClock, text: "Boka om", fraga: "Jag vill boka om min städning" },
+  { ikon: PencilLine, text: "Ändra städning", fraga: "Jag vill ändra min städning" },
+  { ikon: CalendarX, text: "Avboka städning", fraga: "Jag vill avboka min städning" },
   { ikon: UserRound, text: "Vem kommer nästa gång?", fraga: "Vem kommer nästa gång och när?" },
   { ikon: ReceiptText, text: "Mina fakturor", fraga: "Jag vill se mina fakturor" },
   { ikon: MessageCircleQuestion, text: "Ställ en fråga", fraga: undefined },
@@ -78,7 +81,7 @@ export default function Chatt() {
             Starta chatten
           </button>
 
-          <p className="mt-5 text-sm text-text-secondary">Svar direkt, dygnet runt. Du loggar in med en kod via SMS.</p>
+          <p className="mt-5 text-sm text-text-secondary">Svar direkt, dygnet runt. Du identifierar dig med en SMS-kod till mobilnumret på ditt kundkort.</p>
         </div>
       </section>
     </div>

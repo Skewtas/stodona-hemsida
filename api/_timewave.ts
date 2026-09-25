@@ -100,14 +100,12 @@ export async function twFlyttaTillfalle(indata: {
   datum: string;
   start: string;
   slut: string;
-  /** Den anställda som står på bokningsraden NU – anger vilken rad avvikelsen gäller. */
-  anstalldId: number;
   /**
-   * Ny anställd på tillfället. TimeWave byter bara städare via fältet
-   * "employee"; employee_id identifierar raden (live 2026-09-25: med ny städare
-   * i employee_id flyttades tiden men städaren låg kvar).
+   * Den anställda som står på bokningsraden NU. En avvikelse byter aldrig
+   * städare (live 2026-09-25, varken via employee_id eller employee) – det
+   * görs med twBytAnstalld efteråt.
    */
-  nyAnstalldId?: number;
+  anstalldId: number;
   kommentar: string;
 }): Promise<{ ok: true } | { ok: false; fel: string; osaker: boolean }> {
   const kropp = JSON.stringify({
@@ -116,7 +114,6 @@ export async function twFlyttaTillfalle(indata: {
     starttime: indata.start,
     endtime: indata.slut,
     employee_id: indata.anstalldId,
-    ...(indata.nyAnstalldId && indata.nyAnstalldId !== indata.anstalldId ? { employee: indata.nyAnstalldId } : {}),
     comment: indata.kommentar.slice(0, 200),
   });
   const skicka = async (bearer: string) => {
@@ -153,6 +150,28 @@ export async function twFlyttaTillfalle(indata: {
     return { ok: false, fel: `Oväntat svar från TimeWave: ${text.slice(0, 200)}`, osaker: true };
   }
   return { ok: true };
+}
+
+/**
+ * Byter städare på ETT tillfälle: PUT /missions/bookinglines/{id} med samma
+ * datum och tid och den nya anställda i "employee". Verifierat live
+ * 2026-09-25 (kund 17713, rad 870628: Dzenita → Elisabet, tiden oförändrad).
+ * Aldrig nytt försök efter timeout – återläsningen avgör.
+ */
+export async function twBytAnstalld(indata: { bokningsrad: number; datum: string; start: string; slut: string; nyAnstalldId: number }): Promise<{ ok: true } | { ok: false; fel: string; osaker: boolean }> {
+  try {
+    const svar = await fetch(`${BAS}/missions/bookinglines/${indata.bokningsrad}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${await hamtaToken()}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startdate: indata.datum, starttime: indata.start, endtime: indata.slut, employee: indata.nyAnstalldId }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    const text = await svar.text().catch(() => '');
+    if (!svar.ok) return { ok: false, fel: `TimeWave svarade ${svar.status} vid byte av städare: ${text.slice(0, 200)}`, osaker: svar.status >= 500 };
+    return { ok: true };
+  } catch (fel) {
+    return { ok: false, fel: `Inget säkert svar vid byte av städare (${String(fel).slice(0, 100)})`, osaker: true };
+  }
 }
 
 /**

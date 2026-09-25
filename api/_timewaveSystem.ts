@@ -25,6 +25,7 @@
 
 import {
   twFlyttaTillfalle,
+  twBytAnstalld,
   twSkapaAnteckning,
   twAvbokaTillfalle,
   twGet,
@@ -55,7 +56,8 @@ const STEG_MINUTER = 30;
 const HORISONT_DAGAR = 56;
 const SKRIVNING_AV = 'SKRIVNING AVSTÄNGD: chatten skriver inte till TimeWave (SJALVSERVICE_TW_SKRIV). Ingenting ändrades.';
 const SKRIVER = process.env.SJALVSERVICE_TW_SKRIV === 'true';
-const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE === 'true';
+/** Byte av städare (verifierat live 2026-09-25). Kan stängas av med SJALVSERVICE_BYT_STADARE=false. */
+const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE !== 'false';
 
 const INTERVALL_DAGAR: Record<number, number> = { 1: 7, 2: 14, 3: 21, 4: 28 };
 
@@ -308,7 +310,6 @@ async function hamtaMission(missionId: number): Promise<TwMission | null> {
 export function timewaveSystem(): Bokningssystem {
   return {
     namn: 'timewave',
-    // Byte av städare kräver fältet "employee" i avvikelsen – på först när det testats live.
     kanSokaKollegor: BYT_STADARE,
     kanSkriva: SKRIVER,
 
@@ -420,10 +421,18 @@ export function timewaveSystem(): Bokningssystem {
         start: lucka.start,
         slut: lucka.slut,
         anstalldId: rad.id,
-        nyAnstalldId: Number(lucka.stadare.id),
         kommentar: `${notering ?? 'Ombokad av kunden i chatten'} (${bokning.datum} ${bokning.start} → ${lucka.datum} ${lucka.start}).`,
       });
       if (svar.ok === false) return { ok: false, fel: svar.fel, osaker: svar.osaker };
+      // En avvikelse byter aldrig städare – det görs på bokningsraden efteråt.
+      if (lucka.stadare.id !== String(rad.id)) {
+        const byte = await twBytAnstalld({ bokningsrad: rad.bookingline_id, datum: lucka.datum, start: lucka.start, slut: lucka.slut, nyAnstalldId: Number(lucka.stadare.id) });
+        if (byte.ok === false) {
+          // Tiden är redan flyttad men med fel städare – kundservice måste rätta. Återläsningen avgör.
+          return { ok: false, fel: `Tiden flyttades men städaren kunde inte bytas till ${lucka.stadare.namn}: ${byte.fel}`, osaker: true };
+        }
+        return { ok: true, referens: 'TimeWave-avvikelse + byte av städare' };
+      }
       return { ok: true, referens: 'TimeWave-avvikelse' };
     },
 

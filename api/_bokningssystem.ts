@@ -142,6 +142,8 @@ export interface Bokningssystem {
   hamtaFakturor?(kundId: string): Promise<Faktura[]>;
   /** Kundens mobilnummer (+467…) ur kundregistret, för bekräftelse-SMS. null om det saknas eller är en platshållare. */
   kundensMobil?(kundId: string): Promise<string | null>;
+  /** Kundens e-postadress, för bekräftelse när SMS inte går. null om den saknas. */
+  kundensEpost?(kundId: string): Promise<string | null>;
   /** Ärende till kundservice när något behöver ses över manuellt. */
   skapaArende(rubrik: string, text: string): Promise<void>;
 }

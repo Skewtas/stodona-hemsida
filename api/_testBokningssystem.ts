@@ -63,6 +63,7 @@ interface Pass {
   adress?: string;
   prisKr?: number;
   aterkommande?: boolean;
+  avbokad?: boolean;
 }
 
 interface Varld {
@@ -252,6 +253,7 @@ function prova(varld: Varld, stadareId: string, datum: string, start: number, sl
     (p) =>
       p.stadareId === stadareId &&
       p.datum === datum &&
+      !p.avbokad &&
       p.id !== utomPass &&
       (p.typ === 'franvaro' || (minuter(p.start) < slut + RESTID_MINUTER && minuter(p.slut) + RESTID_MINUTER > start))
   );
@@ -314,14 +316,14 @@ export function testsystem(samtalsId: string): Bokningssystem {
       const varld = await hamtaVarld(samtalsId);
       const nu = Date.now();
       return varld.pass
-        .filter((p) => p.kundId === kundId && p.typ === 'uppdrag' && sthlmTidpunkt(p.datum, p.start) > nu)
+        .filter((p) => p.kundId === kundId && p.typ === 'uppdrag' && !p.avbokad && sthlmTidpunkt(p.datum, p.start) > nu)
         .sort((a, b) => `${a.datum}${a.start}`.localeCompare(`${b.datum}${b.start}`))
         .map(tillBokning);
     },
 
     async hamtaBokning(bokningId) {
       const varld = await hamtaVarld(samtalsId);
-      const p = varld.pass.find((x) => x.id === bokningId && x.kundId !== 'annan');
+      const p = varld.pass.find((x) => x.id === bokningId && x.kundId !== 'annan' && !x.avbokad);
       return p ? tillBokning(p) : null;
     },
 
@@ -421,6 +423,30 @@ export function testsystem(samtalsId: string): Bokningssystem {
       pass.stadareId = lucka.stadare.id;
       await sparaVarld(samtalsId, varld);
       return { ok: true, referens: ref() };
+    },
+
+    async avbokaTillfalle(bokning) {
+      const varld = await hamtaVarld(samtalsId);
+      const pass = varld.pass.find((p) => p.id === bokning.id && p.kundId === bokning.kundId && !p.avbokad);
+      if (!pass) return { ok: false, fel: 'Bokningen finns inte i testsystemet.' };
+      if (varld.simulera === 'fel') {
+        varld.simulera = 'normal';
+        await sparaVarld(samtalsId, varld);
+        return { ok: false, fel: 'SIMULERAT: TimeWave svarade 500 Internal Server Error. Ingenting ändrades.' };
+      }
+      if (varld.simulera === 'overifierad') {
+        varld.simulera = 'normal';
+        await sparaVarld(samtalsId, varld);
+        return { ok: true, referens: ref() };
+      }
+      pass.avbokad = true;
+      await sparaVarld(samtalsId, varld);
+      return { ok: true, referens: ref() };
+    },
+
+    async kontrolleraAvbokad(bokning) {
+      const varld = await hamtaVarld(samtalsId);
+      return varld.pass.some((p) => p.id === bokning.id && p.kundId === bokning.kundId && p.avbokad === true);
     },
 
     async lossaAnstalld(uppdragId) {

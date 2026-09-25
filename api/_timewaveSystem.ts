@@ -487,6 +487,12 @@ export function timewaveSystem(): Bokningssystem {
       return null;
     },
 
+    async kundensEpost(kundId) {
+      const k = (await klientForNummer(kundId)) as (TwKlient & { email?: string }) | null;
+      const epost = k?.email?.trim() ?? '';
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(epost) ? epost : null;
+    },
+
     async skapaEkonomianteckning(kundId, rubrik, text) {
       if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
       const k = await klientForNummer(kundId);

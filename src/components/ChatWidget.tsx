@@ -119,11 +119,14 @@ interface Testlage {
 
 /** Sammanfattningen av en ombokning. Innehållet kommer från servern, aldrig från modellens text. */
 interface Kort {
+  /** Saknas för ombokningar. */
+  typ?: "avbokning";
   id: string;
   tjanst: string;
   fore: { datum: string; tid: string; stadare: string };
-  efter: { datum: string; tid: string; stadare: string };
-  byteAvStadare: boolean;
+  /** Bara för ombokningar. */
+  efter?: { datum: string; tid: string; stadare: string };
+  byteAvStadare?: boolean;
   bara_detta_tillfalle: boolean;
   avgiftKr: number;
   avgiftText: string;
@@ -336,8 +339,8 @@ const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?
  */
 function delaUppVal(text: string): { text: string; val: string[]; bankid: boolean; bekrafta: string | null } {
   let val: string[] = [];
-  // [[bekrafta:OF-…]] betyder att en sammanfattning av en ombokning ska visas som ett kort.
-  const kort = text.match(/\[\[\s*bekrafta\s*:\s*(OF-[A-Z0-9]{8})\s*\]\]/i);
+  // [[bekrafta:OF-…]] (ombokning) eller [[bekrafta:AV-…]] (avbokning) visas som ett kort.
+  const kort = text.match(/\[\[\s*bekrafta\s*:\s*((?:OF|AV)-[A-Z0-9]{8})\s*\]\]/i);
   text = text.replace(/\[\[\s*bekrafta\s*:[^\]]*\]\]/gi, "");
   // [[bankid]] betyder att kunden ska erbjudas legitimering. Raden blir en knapp.
   const bankid = /\[\[\s*bankid\s*\]\]/i.test(text);
@@ -454,26 +457,36 @@ function Ombokningskort({
   }
 
   const vantar = kort.status === "vantar";
+  const avbokning = kort.typ === "avbokning";
+  const knapp = avbokning ? "Bekräfta avbokning" : "Bekräfta ombokning";
   return (
     <div ref={ref} className="ml-9 mt-2 max-w-[85%] rounded-2xl border border-text-primary/15 bg-white p-4 text-sm text-text-primary shadow-sm">
-      <p className="font-bold">Bekräfta ombokning</p>
+      <p className="font-bold">{knapp}</p>
       <div className="mt-3 space-y-1">
-        <p className="text-[11px] uppercase tracking-wide text-text-secondary">Nuvarande bokning</p>
-        <p>{versal(kort.fore.datum)}</p>
+        <p className="text-[11px] uppercase tracking-wide text-text-secondary">{avbokning ? "Städningen som avbokas" : "Nuvarande bokning"}</p>
+        <p className={avbokning ? "font-medium" : ""}>{versal(kort.fore.datum)}</p>
         <p className="text-text-secondary">{kort.fore.tid} · {kort.fore.stadare}</p>
       </div>
-      <ArrowDown className="w-4 h-4 my-2 text-text-secondary" aria-hidden="true" />
-      <div className="space-y-1">
-        <p className="text-[11px] uppercase tracking-wide text-text-secondary">Ny bokning</p>
-        <p className="font-medium">{versal(kort.efter.datum)}</p>
-        <p>
-          {kort.efter.tid} · {kort.efter.stadare}
-          {kort.byteAvStadare && <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Annan städare</span>}
+      {kort.efter && (
+        <>
+          <ArrowDown className="w-4 h-4 my-2 text-text-secondary" aria-hidden="true" />
+          <div className="space-y-1">
+            <p className="text-[11px] uppercase tracking-wide text-text-secondary">Ny bokning</p>
+            <p className="font-medium">{versal(kort.efter.datum)}</p>
+            <p>
+              {kort.efter.tid} · {kort.efter.stadare}
+              {kort.byteAvStadare && <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Annan städare</span>}
+            </p>
+          </div>
+        </>
+      )}
+      {kort.bara_detta_tillfalle && (
+        <p className="mt-3 text-xs text-text-secondary">
+          Gäller bara det här tillfället. Dina övriga städningar är {avbokning ? "kvar som vanligt" : "oförändrade"}.
         </p>
-      </div>
-      {kort.bara_detta_tillfalle && <p className="mt-3 text-xs text-text-secondary">Gäller bara det här tillfället. Dina övriga städningar är oförändrade.</p>}
+      )}
       <div className={`mt-3 rounded-xl px-3 py-2 text-xs ${kort.avgiftKr > 0 ? "bg-amber-50 text-amber-900" : "bg-bg-primary text-text-secondary"}`}>
-        <p className="font-medium text-text-primary">Avgift för ändringen: {kort.avgiftKr} kr</p>
+        <p className="font-medium text-text-primary">Avgift för {avbokning ? "avbokningen" : "ändringen"}: {kort.avgiftKr} kr</p>
         {kort.avgiftKr > 0 && <p className="mt-1">{kort.avgiftText}</p>}
       </div>
 
@@ -498,7 +511,7 @@ function Ombokningskort({
             className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors disabled:opacity-40 inline-flex items-center gap-2"
           >
             {genomfor && <Loader2 className="w-4 h-4 animate-spin" />}
-            {genomfor ? "Genomför…" : "Bekräfta ombokning"}
+            {genomfor ? "Genomför…" : knapp}
           </button>
           <button
             type="button"
@@ -991,11 +1004,11 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     type Svar = { utfall: string; text: string; fortsatt?: string };
     const resultat = await sjalvservice<Svar>("bekrafta", { forslagId });
     const text = resultat?.text ?? "Jag kunde inte nå bokningssystemet, så ingenting är ändrat. Försök igen om en stund, eller ring 010-178 01 50.";
-    const nya: Meddelande[] = [...meddelandenRef.current, { roll: "user", text: "Bekräfta ombokning" }, { roll: "assistant", text }];
+    const nya: Meddelande[] = [...meddelandenRef.current, { roll: "user", text: forslagId.startsWith("AV-") ? "Bekräfta avbokning" : "Bekräfta ombokning" }, { roll: "assistant", text }];
     meddelandenRef.current = nya;
     setMeddelanden(nya);
     setKortVersion((v) => v + 1);
-    track("chat_ombokning", { utfall: resultat?.utfall ?? "natverksfel" });
+    track(forslagId.startsWith("AV-") ? "chat_avbokning" : "chat_ombokning", { utfall: resultat?.utfall ?? "natverksfel" });
     uppdateraTestlage();
     // T.ex. när tiden hann bli upptagen: Camilla hämtar nya tider direkt.
     if (resultat?.fortsatt) await skicka(resultat.fortsatt, [], true);

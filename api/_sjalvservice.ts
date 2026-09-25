@@ -42,13 +42,13 @@
 //    bara när huvudbrytaren SJALVSERVICE_KUNDER=true är på.
 
 import * as lagring from './_lagring';
-import { skickaSms } from './_smskod';
 import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
 import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
 import { testsystem, testkund, hamtaSimulering, sattSimulering, aterstallVarld, SIMULERINGAR, TESTKUNDLISTA as TESTVARLDENS_KUNDER, type Simulering } from './_testBokningssystem';
 import { sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
 import { customerBookingActions } from './_customerBookingActions';
+import { bekraftaTillKund } from './_kundbekraftelse';
 
 
 import { timewaveKonfigurerad } from './_timewave';
@@ -86,7 +86,7 @@ const VERIFIERING_MINUTER = 30;
 const SIMULERAD_SIGNERING_MS = 1000;
 const LUCKOR_MINUTER = 30;
 /** Så länge en sammanfattning går att bekräfta. Sedan måste tiden hämtas igen. */
-const FORSLAG_MINUTER = 10;
+export const FORSLAG_MINUTER = 10;
 /** Stodonas regel (Mikaela 2026-09-24): kunden får alltid två förslag – helst på två olika dagar. */
 const ANTAL_FORSLAG = 2;
 const MAX_PERIOD_DAGAR = 14;
@@ -107,13 +107,13 @@ const TW_TESTKUNDER = (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',')
 const ALLA_KUNDER =
   (process.env.SJALVSERVICE_TESTKUNDNUMMER ?? '').split(',').map((s) => s.trim()).includes('*') && (LOKAL || personalchattPa() || KUNDER_PA);
 const tillatenKund = (nummer: string) => ALLA_KUNDER || TW_TESTKUNDER.includes(nummer);
-const LOGG_NYCKEL = `sjalv:logg:${SYSTEM}`;
+export const LOGG_NYCKEL = `sjalv:logg:${SYSTEM}`;
 
-function system(samtalsId: string): Bokningssystem {
+export function system(samtalsId: string): Bokningssystem {
   return SYSTEM === 'timewave' ? customerBookingActions() : testsystem(samtalsId);
 }
 
-function slumpId(prefix: string): string {
+export function slumpId(prefix: string): string {
   const b = crypto.getRandomValues(new Uint8Array(6));
   return `${prefix}-${[...b].map((x) => x.toString(36).padStart(2, '0')).join('').slice(0, 8).toUpperCase()}`;
 }
@@ -582,7 +582,7 @@ async function logga(f: Forslag, systemnamn: string, bekraftadTid: string, utfal
  * Mejl till kundservice. I testläget skickas ingenting – mejlet syns i
  * loggen och i testbanderollen i stället, så info@ inte fylls med testdata.
  */
-async function mejlaKundservice(amne: string, text: string): Promise<string> {
+export async function mejlaKundservice(amne: string, text: string): Promise<string> {
   const helt = `${amne}\n\n${text}`;
   if (TESTLAGE) {
     console.log(`\n[testläge] mejl till info@stodona.se skickas INTE:\n${helt}\n`);
@@ -765,21 +765,26 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
     // 8. Bekräftelse: SMS till kundens mobilnummer i TimeWave och en samlad
     //    sammanfattning till info@stodona.se (Mikaela 2026-09-25).
     const nyTid = `${datumText(f.efter.datum)} kl. ${f.efter.start}–${f.efter.slut}`;
-    const mobil = sys.kundensMobil ? await sys.kundensMobil(f.kundId).catch(() => null) : null;
     const smsText =
       `Hej! Din städning är ombokad till ${nyTid} med ${f.efter.stadare.namn}.` +
       (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '') +
       ' Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona';
-    let smsSkickat = false;
-    if (!mobil) {
-      extra.sms = 'inget giltigt mobilnummer i TimeWave – inget SMS';
-    } else if (TESTLAGE) {
-      extra.sms = `TESTLÄGE – skickades inte: ${smsText}`;
-    } else {
-      const svar = await skickaSms(mobil, smsText, origin);
-      smsSkickat = svar.ok;
-      extra.sms = svar.ok === true ? `skickat till …${mobil.slice(-2)}` : `misslyckades (${svar.fel})`;
-    }
+    // SMS i första hand, annars mejl – varje ändring i schemat ska bekräftas.
+    const kvitto = await bekraftaTillKund(
+      sys,
+      f.kundId,
+      {
+        sms: smsText,
+        amne: `Din städning är ombokad till ${nyTid}`,
+        mejl:
+          `Hej!\n\nDin städning (${f.tjanst}) är ombokad från ${datumText(f.fore.datum)} kl. ${f.fore.start} till ${nyTid} med ${f.efter.stadare.namn}.` +
+          (f.aterkommande ? ' Dina övriga städningar är oförändrade.' : '') +
+          (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : ''),
+      },
+      origin,
+      TESTLAGE
+    );
+    extra.sms = kvitto.logg;
     const sammanfattning = [
       `Ombokning genomförd i chatten av ${extra.utfortAv === 'kunden' ? 'kunden själv (inloggad med SMS-kod)' : `personalen: ${extra.utfortAv}`}.`,
       '',
@@ -789,12 +794,12 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       `Efter: ${nyTid}, ${f.efter.stadare.namn}${f.efter.stadare.id !== f.fore.stadare.id ? ' (BYTE av städare)' : ''}`,
       `Avgift: ${f.avgiftKr > 0 ? `${f.avgiftKr} kr – ${extra.ekonomi ?? ''}` : '0 kr'}`,
       extra.forturUtanAnstalld.length ? `Förtur: ${extra.forturUtanAnstalld.join(', ')} står nu utan anställd` : null,
-      `SMS-bekräftelse till kunden: ${extra.sms}`,
+      `Bekräftelse till kunden: ${extra.sms}`,
       `TimeWave: ${skrivning.referens}, verifierad`,
     ]
       .filter((rad) => rad !== null)
       .join('\n');
-    const sammanfattningMejl = await mejlaKundservice(`Ombokning via chatten – ${kund.namn} (kund ${f.kundId})`, sammanfattning).catch(
+    const sammanfattningMejl = await mejlaKundservice(`${kvitto.kanal ? '' : 'KONTAKTA KUNDEN – ingen bekräftelse gick fram: '}Ombokning via chatten – ${kund.namn} (kund ${f.kundId})`, sammanfattning).catch(
       (fel) => `MEJLET MISSLYCKADES: ${String(fel)}`
     );
     extra.mejl = extra.mejl ? `${extra.mejl}\n\n---\n\n${sammanfattningMejl}` : sammanfattningMejl;
@@ -806,7 +811,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       byte ? `${f.efter.stadare.namn} kommer den gången.` : `${f.efter.stadare.namn} kommer som vanligt.`,
       f.aterkommande ? 'Dina övriga städningar är oförändrade.' : '',
       f.avgiftKr > 0 ? `Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '',
-      smsSkickat ? 'Du får också en bekräftelse med SMS.' : '',
+      kvitto.kanal === 'sms' ? 'Du får också en bekräftelse med SMS.' : kvitto.kanal === 'mejl' ? 'Du får också en bekräftelse med mejl.' : '',
     ]
       .filter(Boolean)
       .join('\n');

@@ -41,6 +41,7 @@ import {
   testlageAtgard,
 } from './_sjalvservice';
 import { hamtaFakturor } from './_fakturor';
+import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
 import { personalNamn } from './_personal';
 import {
   tolkaBilagor,
@@ -96,8 +97,10 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
 - Vill kunden AVBOKA: ta det i den här ordningen, ett steg per meddelande.
   1. Bekräfta vilken städning det gäller (som i OMBOKNING steg 1) och erbjud att flytta den i stället: två nya tider med hitta_nya_tider (samma städare, de närmaste två veckorna efter bokningen) och knapparna [[val: T1 | T2 | Andra tider | Nej, jag vill avboka]].
   2. Svarar kunden "Nej, jag vill avboka": fråga vänligt och kort varför, med knapparna [[val: Jag är bortrest | Jag är sjuk | Tiden passar inte | Jag är inte nöjd | Behöver ingen städning just nu]].
-  3. Utifrån svaret: bortrest, sjuk eller tiden passar inte – erbjud en senare tid (hitta_nya_tider med ett senare datum) eller Annan städare. Inte nöjd – beklaga, påminn om 100 % nöjd-kund-garantin och erbjud en annan städare; vill kunden reklamera, lämna över. Behöver ingen städning just nu – erbjud att flytta den några veckor framåt.
-  4. Vill kunden ändå avboka: säg att kundservice kontrollerar avbokningen och återkommer, och lämna över med eskalera_till_kundservice – med bokningen och kundens skäl i sammanfattningen. Säg aldrig att den är avbokad. Eventuell avgift enligt avbokningsreglerna nämns sist, som information.
+  3. Utifrån svaret:
+     - Bortrest, sjuk, tiden passar inte eller behöver ingen städning just nu: försök flytta den framåt i stället. Hämta två senare tider (hitta_nya_tider med ett senare datum, t.ex. en till tre veckor fram) och säg vänligt att tiderna snabbt blir fullbokade, så det är klokt att säkra en ny tid redan nu. Knappar: [[val: T1 | T2 | Andra tider | Annan städare | Nej, avboka ändå]].
+     - Inte nöjd: beklaga uppriktigt och tacka varmt för att kunden hör av sig med det, så att vi kan åtgärda det. Lyft 100 % nöjd-kund-garantin tydligt: blir något inte som kunden tänkt sig kommer vi tillbaka och åtgärdar det kostnadsfritt. Fråga vad som inte blev bra och erbjud en annan städare. Knappar: [[val: Berätta vad som blev fel | Prova en annan städare | Nej, avboka ändå]]. Berättar kunden vad som blev fel: tacka igen och lämna över till kundservice (reklamation) med det kunden skrev.
+  4. Vill kunden ändå avboka: forbered_avbokning med bokningen och kundens skäl. Svara med en kort mening och avsluta med raden [[bekrafta:…]] exakt som verktyget anger – då visas en sammanfattning med knapparna Bekräfta avbokning och Avbryt. Avgiften nämns sist, precis som verktyget anger. Säg aldrig att bokningen är avbokad innan systemet svarat. Säger verktyget att avbokning inte går i chatten: följ det (lämna över till kundservice).
 - OMBOKNING – TOPPSERVICE: kunden ska få förslag direkt, inte frågor.
   1. Vilken bokning: den kunden nämnt, annars den NÄRMASTE kommande. Fråga inte vilken – bekräfta den i ditt svar.
   2. Hämta genast två nya tider med hitta_nya_tider för den bokningen, samma städare, utan att fråga när kunden vill ha den. Har kunden sagt en dag, vecka eller tid: skicka med den. Annars utelämna datumen, så letar verktyget nära den ordinarie dagen.
@@ -364,6 +367,19 @@ const SJALV_VERKTYG: Anthropic.Tool[] = [
           tid_id: { type: 'string', description: 'Id för tiden kunden valt, från hitta_nya_tider, t.ex. T2.' },
         },
         required: ['bokning_id', 'tid_id'],
+      },
+    },
+    {
+      name: 'forbered_avbokning',
+      description:
+        'Tar fram en sammanfattning av en avbokning av ETT tillfälle, med avgift enligt avbokningsreglerna, som kunden sedan bekräftar med en knapp. Ändrar ingenting. Använd först när kunden tackat nej till nya tider och ändå vill avboka.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          bokning_id: { type: 'string', description: 'Bokningens id från hamta_bokningar.' },
+          skal: { type: 'string', description: 'Kundens skäl till avbokningen, kort, t.ex. "bortrest".' },
+        },
+        required: ['bokning_id'],
       },
     }
 ];
@@ -677,6 +693,7 @@ async function koraVerktyg(
       });
     }
     if (namn === 'forbered_ombokning') return forberedOmbokning(samtalsId, { bokningId: rent(indata.bokning_id, 30), tidId: rent(indata.tid_id, 5) });
+    if (namn === 'forbered_avbokning') return forberedAvbokning(samtalsId, { bokningId: rent(indata.bokning_id, 30), skal: rent(indata.skal, 200) });
   }
 
   if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
@@ -984,10 +1001,11 @@ async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: st
   }
 
   const forslagId = rent(body.forslagId, 20);
-  if (!/^OF-[A-Z0-9]{8}$/.test(forslagId)) return fel(400, 'Ogiltig sammanfattning.');
+  const avbokning = AVBOKNING_ID.test(forslagId);
+  if (!avbokning && !/^OF-[A-Z0-9]{8}$/.test(forslagId)) return fel(400, 'Ogiltig sammanfattning.');
 
   if (body.handling === 'kort') {
-    const kort = await hamtaKort(samtalsId, forslagId);
+    const kort = avbokning ? await hamtaAvbokningskort(samtalsId, forslagId) : await hamtaKort(samtalsId, forslagId);
     return kort ? svara(kort) : fel(404, 'Sammanfattningen finns inte.');
   }
 
@@ -995,11 +1013,11 @@ async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: st
     if (await overTaket(`chat:bekrafta:${samtalsId}:${Math.floor(Date.now() / 60000)}`, 5, 120)) {
       return fel(429, 'För många försök just nu. Vänta en minut.');
     }
-    const resultat = await bekraftaOmbokning(samtalsId, forslagId, personal, origin);
+    const resultat = avbokning ? await bekraftaAvbokning(samtalsId, forslagId, personal, origin) : await bekraftaOmbokning(samtalsId, forslagId, personal, origin);
     // Samtalet får veta vad som hänt, så Camilla kan fortsätta därifrån.
     const historik = await hamtaSamtal(samtalsId);
     historik.push(
-      { role: 'user', content: '[Kunden tryckte på "Bekräfta ombokning" i sammanfattningen.]' },
+      { role: 'user', content: `[Kunden tryckte på "${avbokning ? 'Bekräfta avbokning' : 'Bekräfta ombokning'}" i sammanfattningen.]` },
       { role: 'assistant', content: resultat.text }
     );
     await sparaSamtal(samtalsId, historik);

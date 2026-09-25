@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "../seo";
-import { CalendarPlus, CalendarClock, UserRound, MessageCircleQuestion, MessageCircle } from "lucide-react";
+import { CalendarPlus, CalendarClock, UserRound, ReceiptText, MessageCircleQuestion, MessageCircle } from "lucide-react";
 
 /**
  * stodona.se/chatt – sidan att hänvisa kunder till. Första vyn ska räcka:
@@ -19,6 +19,7 @@ const VAL = [
   { ikon: CalendarPlus, text: "Boka städning", fraga: "Jag vill boka städning" },
   { ikon: CalendarClock, text: "Boka om", fraga: "Jag vill boka om min städning" },
   { ikon: UserRound, text: "Vem kommer nästa gång?", fraga: "Vem kommer nästa gång och när?" },
+  { ikon: ReceiptText, text: "Mina fakturor", fraga: "Jag vill se mina fakturor" },
   { ikon: MessageCircleQuestion, text: "Ställ en fråga", fraga: undefined },
 ];
 
@@ -36,7 +37,7 @@ export default function Chatt() {
         <title>Chatta med Stodona – boka och boka om direkt</title>
         <meta
           name="description"
-          content="Slipp mejla, ringa och vänta. Boka städning, boka om och se vem som kommer nästa gång – direkt i chatten, dygnet runt."
+          content="Slipp mejla, ringa och vänta. Boka städning, boka om, se vem som kommer nästa gång och dina fakturor – direkt i chatten, dygnet runt."
         />
         <link rel="canonical" href="https://stodona.se/chatt" />
       </Helmet>
@@ -53,16 +54,16 @@ export default function Chatt() {
           <h1 className="mt-5 text-4xl md:text-5xl font-serif text-text-primary">Lös det direkt här</h1>
           <p className="mt-3 text-lg text-text-secondary">Slipp mejla, ringa och vänta på svar.</p>
 
-          <ul className="mt-8 grid grid-cols-2 gap-3">
+          <ul className="mt-7 flex flex-wrap justify-center gap-2">
             {VAL.map(({ ikon: Ikon, text, fraga }) => (
               <li key={text}>
                 <button
                   type="button"
                   onClick={() => oppnaChatt(fraga)}
-                  className="w-full h-full min-h-[104px] flex flex-col items-center justify-center gap-2 rounded-2xl bg-white px-3 py-5 shadow-sm ring-1 ring-text-primary/10 hover:ring-text-primary/50 hover:shadow-md transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-text-primary ring-1 ring-text-primary/15 hover:ring-text-primary/50 transition-all"
                 >
-                  <Ikon className="w-7 h-7 text-text-primary" aria-hidden="true" />
-                  <span className="font-bold text-text-primary leading-tight">{text}</span>
+                  <Ikon className="w-4 h-4" aria-hidden="true" />
+                  {text}
                 </button>
               </li>
             ))}
@@ -71,7 +72,7 @@ export default function Chatt() {
           <button
             type="button"
             onClick={() => oppnaChatt()}
-            className="mt-6 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-bg-dark text-text-light font-medium shadow-lg hover:bg-accent hover:text-text-primary transition-colors"
+            className="mt-6 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-bg-dark text-text-light font-medium shadow-lg hover:bg-accent hover:text-text-primary transition-colors"
           >
             <MessageCircle className="w-5 h-5" aria-hidden="true" />
             Starta chatten

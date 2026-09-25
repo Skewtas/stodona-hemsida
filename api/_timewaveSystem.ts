@@ -449,6 +449,34 @@ export function timewaveSystem(): Bokningssystem {
       console.log(`\n[självservice/timewave] ärende skapas inte i TimeWave ännu:\n${rubrik}\n${text}\n`);
     },
 
+    async hamtaFakturor(kundId) {
+      const k = await klientForNummer(kundId);
+      if (!k) return [];
+      type TwFaktura = {
+        number?: string; invoice_date?: string; due_date?: string; total?: string | number; taxreduction?: string | number;
+        payed?: string | number | boolean; payed_date?: string | null; deleted?: boolean | number; credit_of_id?: number | null;
+        credited?: boolean | number; ocr?: string; company_bg?: string; client_id?: number;
+      };
+      const rader = await twGetAlla<TwFaktura>(`/invoices?filter[client_id]=${k.id}`);
+      return rader
+        // Dubbelkolla att fakturan verkligen är kundens, och hoppa över raderade.
+        .filter((f) => Number(f.client_id) === Number(k.id) && !Number(f.deleted) && f.number)
+        .sort((a, b) => String(b.invoice_date).localeCompare(String(a.invoice_date)))
+        .slice(0, 6)
+        .map((f) => ({
+          nummer: String(f.number),
+          datum: String(f.invoice_date ?? '').slice(0, 10),
+          forfallodatum: String(f.due_date ?? '').slice(0, 10),
+          beloppKr: Math.round(Number(f.total ?? 0)),
+          rutKr: Math.round(Number(f.taxreduction ?? 0)),
+          betald: Boolean(Number(f.payed)) || Boolean(f.payed_date),
+          betaldDatum: f.payed_date ? String(f.payed_date).slice(0, 10) : null,
+          kreditfaktura: Boolean(f.credit_of_id),
+          ocr: String(f.ocr ?? ''),
+          bankgiro: String(f.company_bg ?? ''),
+        }));
+    },
+
     async kundensMobil(kundId) {
       const k = (await klientForNummer(kundId)) as (TwKlient & { mobile?: string; phone?: string }) | null;
       if (!k) return null;

@@ -71,6 +71,22 @@ export type Kontroll =
   /** `lossas` = engångsuppdrag som får lämna plats enligt förtursregeln. Tom när tiden är helt fri. */
   | { ledig: true; lossas: Engangsuppdrag[] };
 
+/** En faktura som kunden får se i chatten. Bara det som behövs för att förstå och betala den. */
+export interface Faktura {
+  nummer: string;
+  datum: string;
+  forfallodatum: string;
+  /** Att betala, i kronor – efter RUT-avdrag. */
+  beloppKr: number;
+  /** RUT-avdrag på fakturan, i kronor (0 om inget). */
+  rutKr: number;
+  betald: boolean;
+  betaldDatum: string | null;
+  kreditfaktura: boolean;
+  ocr: string;
+  bankgiro: string;
+}
+
 export type Skrivresultat =
   | { ok: true; referens: string }
   /** `osaker` = vi vet inte om ändringen gick igenom (t.ex. timeout). Ska aldrig tolkas som lyckat. */
@@ -122,6 +138,8 @@ export interface Bokningssystem {
    * faktureras. Saknas metoden, eller misslyckas den, mejlas ekonomin i stället.
    */
   skapaEkonomianteckning?(kundId: string, rubrik: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }>;
+  /** Kundens senaste fakturor, nyast först – bara för den legitimerade kunden. */
+  hamtaFakturor?(kundId: string): Promise<Faktura[]>;
   /** Kundens mobilnummer (+467…) ur kundregistret, för bekräftelse-SMS. null om det saknas eller är en platshållare. */
   kundensMobil?(kundId: string): Promise<string | null>;
   /** Ärende till kundservice när något behöver ses över manuellt. */

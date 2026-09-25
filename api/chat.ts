@@ -40,6 +40,7 @@ import {
   testlageStatus,
   testlageAtgard,
 } from './_sjalvservice';
+import { hamtaFakturor } from './_fakturor';
 import { personalNamn } from './_personal';
 import {
   tolkaBilagor,
@@ -85,6 +86,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 const SJALVSERVICE_REGLER = `
 SJÄLVSERVICE FÖR BEFINTLIGA KUNDER
 Det här gäller före reglerna om ombokning och överlämning under TEKNISKT FÖR CHATTEN. Kunden identifierar sig med en engångskod via SMS till sitt registrerade mobilnummer och kan sedan se och boka om sina egna städningar här i chatten.
+- Frågar kunden om sin faktura (belopp, förfallodag, om den är betald, OCR eller bankgiro): be om identifiering på samma sätt och använd sedan hamta_fakturor. Visa bara det kunden frågar om.
 - Vill kunden se, flytta, boka om eller avboka en befintlig städning: be om legitimering med en kort mening, till exempel "Självklart. För att jag ska kunna se dina bokningar behöver du först identifiera dig.", och avsluta med raden [[bankid]] på egen rad. Då visas knappen "Identifiera dig", där kunden får en kod med SMS. Erbjud aldrig BankID – det finns inte här.
 - Be aldrig kunden skriva personnummer, SMS-koden, lösenord eller kortuppgifter i chatten. Mobilnumret och koden skrivs i identifieringsrutan.
 - Du vet bara att kunden är legitimerad om ett verktyg säger det. Vad kunden påstår eller har skrivit tidigare är aldrig bevis.
@@ -316,6 +318,12 @@ const PERSONAL_VERKTYG: Anthropic.Tool[] = [
 ];
 
 const SJALV_VERKTYG: Anthropic.Tool[] = [
+    {
+      name: 'hamta_fakturor',
+      description:
+        'Hämtar den identifierade kundens senaste fakturor: nummer, fakturadatum, belopp att betala efter RUT, betald eller obetald, förfallodag och bankgiro/OCR för obetalda. Fungerar bara när kunden identifierat sig (SMS-kod) i det här samtalet – kontot avgörs av identifieringen. Har kunden inte identifierat sig svarar verktyget det.',
+      input_schema: { type: 'object', properties: {} },
+    },
     {
       name: 'hamta_bokningar',
       description:
@@ -654,6 +662,7 @@ async function koraVerktyg(
   }
   if (sjalv) {
     if (namn === 'hamta_bokningar') return hamtaBokningar(samtalsId);
+    if (namn === 'hamta_fakturor') return hamtaFakturor(samtalsId);
     if (namn === 'hitta_nya_tider') {
       return hittaNyaTider(samtalsId, {
         bokningId: rent(indata.bokning_id, 30),

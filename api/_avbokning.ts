@@ -17,7 +17,7 @@
 import * as lagring from './_lagring';
 import { bedom } from './_avbokningsregler';
 import { avtryck, datumText, sthlmTidpunkt, type Bokning } from './_bokningssystem';
-import { bekraftaTillKund } from './_kundbekraftelse';
+import { bekraftaTillKund, nastaStadning } from './_kundbekraftelse';
 import {
   FORSLAG_MINUTER,
   LOGG_NYCKEL,
@@ -262,15 +262,16 @@ export async function bekraftaAvbokning(samtalsId: string, id: string, utfortAv:
     }
 
     // 6. Bekräftelse till kunden (SMS, annars mejl) och sammanfattning till info@.
+    const nasta = await nastaStadning(sys, f.kundId);
     const avgiftRad = f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för avbokningen.` : '';
     const ovriga = f.aterkommande ? ' Dina övriga städningar är kvar som vanligt.' : '';
     const kvitto = await bekraftaTillKund(
       sys,
       f.kundId,
       {
-        sms: `Hej! Din städning ${tillfalle} är avbokad.${ovriga}${avgiftRad} Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona`,
+        sms: `Hej! Din städning ${tillfalle} är avbokad.${avgiftRad}${nasta ? ` ${nasta}` : ''} Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona`,
         amne: `Din städning ${datumText(f.fore.datum)} är avbokad`,
-        mejl: `Hej!\n\nDin städning (${f.tjanst}) ${tillfalle} med ${f.fore.stadare.namn} är avbokad.${ovriga}${avgiftRad}`,
+        mejl: `Hej!\n\nDin städning (${f.tjanst}) ${tillfalle} med ${f.fore.stadare.namn} är avbokad.${ovriga}${avgiftRad}${nasta ? `\n\n${nasta}` : ''}`,
       },
       origin,
       TESTLAGE
@@ -295,8 +296,8 @@ export async function bekraftaAvbokning(samtalsId: string, id: string, utfortAv:
     const text = [
       'Klart! ✓ Din städning är avbokad.',
       `${tillfalle.replace(/^./, (c) => c.toUpperCase())} med ${f.fore.stadare.namn}.`,
-      f.aterkommande ? 'Dina övriga städningar är kvar som vanligt.' : '',
       f.avgiftKr > 0 ? `Enligt villkoren debiteras ${f.avgiftKr} kr för avbokningen.` : '',
+      nasta || (f.aterkommande ? 'Dina övriga städningar är kvar som vanligt.' : ''),
       kvitto.kanal === 'sms' ? 'Du får också en bekräftelse med SMS.' : kvitto.kanal === 'mejl' ? 'Du får också en bekräftelse med mejl.' : '',
     ]
       .filter(Boolean)

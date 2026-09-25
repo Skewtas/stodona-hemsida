@@ -6,7 +6,7 @@
 // säger resultatet det tydligt, så att info@ kan kontakta kunden.
 
 import { skickaSms } from './_smskod';
-import type { Bokningssystem } from './_bokningssystem';
+import { datumText, type Bokningssystem } from './_bokningssystem';
 
 export interface KundBekraftelse {
   /** Hur kunden fick bekräftelsen – null betyder att kunden INTE fått någon. */
@@ -58,4 +58,15 @@ export async function bekraftaTillKund(
   } catch (fel) {
     return { kanal: null, logg: `${smsFel}; mejlet misslyckades (${String(fel).slice(0, 100)}) – KUNDEN HAR INTE FÅTT NÅGON BEKRÄFTELSE` };
   }
+}
+
+/**
+ * "Din nästa städning är fredag 2 oktober kl. 08:00–09:00 med Mikaela." –
+ * efter varje ändring får kunden veta när nästa städning är (Mikaela 2026-09-25).
+ * Tom sträng om kunden inte har någon kommande städning eller den inte gick att läsa.
+ */
+export async function nastaStadning(sys: Bokningssystem, kundId: string): Promise<string> {
+  const b = (await sys.hamtaBokningar(kundId).catch(() => []))[0];
+  if (!b) return '';
+  return `Din nästa städning är ${datumText(b.datum)} kl. ${b.start}–${b.slut}${b.stadare.id ? ` med ${b.stadare.namn}` : ''}.`;
 }

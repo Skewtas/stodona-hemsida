@@ -48,7 +48,7 @@ import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type
 import { testsystem, testkund, hamtaSimulering, sattSimulering, aterstallVarld, SIMULERINGAR, TESTKUNDLISTA as TESTVARLDENS_KUNDER, type Simulering } from './_testBokningssystem';
 import { sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
 import { customerBookingActions } from './_customerBookingActions';
-import { bekraftaTillKund } from './_kundbekraftelse';
+import { bekraftaTillKund, nastaStadning } from './_kundbekraftelse';
 
 
 import { timewaveKonfigurerad } from './_timewave';
@@ -765,9 +765,11 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
     // 8. Bekräftelse: SMS till kundens mobilnummer i TimeWave och en samlad
     //    sammanfattning till info@stodona.se (Mikaela 2026-09-25).
     const nyTid = `${datumText(f.efter.datum)} kl. ${f.efter.start}–${f.efter.slut}`;
+    const nasta = await nastaStadning(sys, f.kundId);
     const smsText =
       `Hej! Din städning är ombokad till ${nyTid} med ${f.efter.stadare.namn}.` +
       (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '') +
+      (nasta && !nasta.includes(nyTid) ? ` ${nasta}` : '') +
       ' Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona';
     // SMS i första hand, annars mejl – varje ändring i schemat ska bekräftas.
     const kvitto = await bekraftaTillKund(
@@ -811,6 +813,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       byte ? `${f.efter.stadare.namn} kommer den gången.` : `${f.efter.stadare.namn} kommer som vanligt.`,
       f.aterkommande ? 'Dina övriga städningar är oförändrade.' : '',
       f.avgiftKr > 0 ? `Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '',
+      nasta && !nasta.includes(nyTid) ? nasta : '',
       kvitto.kanal === 'sms' ? 'Du får också en bekräftelse med SMS.' : kvitto.kanal === 'mejl' ? 'Du får också en bekräftelse med mejl.' : '',
     ]
       .filter(Boolean)

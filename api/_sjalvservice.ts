@@ -317,7 +317,7 @@ export async function hittaNyaTider(
     return `Det här tillfället kan inte ändras i chatten (${bokning.ejAndringsbar}). Säg det vänligt och erbjud att lämna över till kundservice.`;
   }
   if (!indata.sammaStadare && !sys.kanSokaKollegor) {
-    return 'Att leta tider hos andra städare än den ordinarie går inte i chatten ännu. Säg det och erbjud att lämna över till kundservice, eller att leta en annan period med samma städare.';
+    return 'Att byta städare går inte i chatten just nu. Säg det kort och erbjud att leta en annan period med samma städare, eller att kundservice hjälper till med en annan städare. Visa aldrig knappen "Annan städare" igen i det här samtalet.';
   }
 
   const imorgon = laggTillDagar(idagSthlm(), 1);
@@ -362,10 +362,13 @@ export async function hittaNyaTider(
         }`
     ),
     villkorsText(bokning),
+    sys.kanSokaKollegor ? '' : 'Byte av städare går inte i chatten just nu: ta INTE med knappen "Annan städare" och erbjud aldrig en annan städare.',
     luckor.length === 1
       ? 'Det finns bara EN ledig tid. Visa den som knapp och fråga om kunden vill ha den eller prova en annan period.'
       : 'Ge kunden exakt de här två förslagen, som knappar med korta etiketter, t.ex. "Mån 28/9 10:00". Inga andra tider finns – hitta aldrig på några. Vill kunden ha andra tider: sök igen med en annan period. När kunden valt: forbered_ombokning med tidens id (T1 eller T2).',
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 /**

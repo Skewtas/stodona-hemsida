@@ -55,6 +55,7 @@ const STEG_MINUTER = 30;
 const HORISONT_DAGAR = 56;
 const SKRIVNING_AV = 'SKRIVNING AVSTÄNGD: chatten skriver inte till TimeWave (SJALVSERVICE_TW_SKRIV). Ingenting ändrades.';
 const SKRIVER = process.env.SJALVSERVICE_TW_SKRIV === 'true';
+const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE === 'true';
 
 const INTERVALL_DAGAR: Record<number, number> = { 1: 7, 2: 14, 3: 21, 4: 28 };
 
@@ -307,7 +308,8 @@ async function hamtaMission(missionId: number): Promise<TwMission | null> {
 export function timewaveSystem(): Bokningssystem {
   return {
     namn: 'timewave',
-    kanSokaKollegor: true,
+    // Byte av städare kräver fältet "employee" i avvikelsen – på först när det testats live.
+    kanSokaKollegor: BYT_STADARE,
     kanSkriva: SKRIVER,
 
     async hamtaKund(kundNummer) {
@@ -409,12 +411,16 @@ export function timewaveSystem(): Bokningssystem {
       if (!m || !rad || rad.startdate !== bokning.datum || hhmm(rad.starttime) !== bokning.start || String(rad.id) !== bokning.stadare.id) {
         return { ok: false, fel: 'Tillfället har ändrats i TimeWave sedan kunden bekräftade. Ingenting ändrades.' };
       }
+      if (lucka.stadare.id !== bokning.stadare.id && !BYT_STADARE) {
+        return { ok: false, fel: 'Byte av städare är inte påslaget i chatten. Ingenting ändrades.' };
+      }
       const svar = await twFlyttaTillfalle({
         bokningsrad: rad.bookingline_id,
         datum: lucka.datum,
         start: lucka.start,
         slut: lucka.slut,
-        anstalldId: Number(lucka.stadare.id),
+        anstalldId: rad.id,
+        nyAnstalldId: Number(lucka.stadare.id),
         kommentar: `${notering ?? 'Ombokad av kunden i chatten'} (${bokning.datum} ${bokning.start} → ${lucka.datum} ${lucka.start}).`,
       });
       if (svar.ok === false) return { ok: false, fel: svar.fel, osaker: svar.osaker };

@@ -100,7 +100,14 @@ export async function twFlyttaTillfalle(indata: {
   datum: string;
   start: string;
   slut: string;
+  /** Den anställda som står på bokningsraden NU – anger vilken rad avvikelsen gäller. */
   anstalldId: number;
+  /**
+   * Ny anställd på tillfället. TimeWave byter bara städare via fältet
+   * "employee"; employee_id identifierar raden (live 2026-09-25: med ny städare
+   * i employee_id flyttades tiden men städaren låg kvar).
+   */
+  nyAnstalldId?: number;
   kommentar: string;
 }): Promise<{ ok: true } | { ok: false; fel: string; osaker: boolean }> {
   const kropp = JSON.stringify({
@@ -109,6 +116,7 @@ export async function twFlyttaTillfalle(indata: {
     starttime: indata.start,
     endtime: indata.slut,
     employee_id: indata.anstalldId,
+    ...(indata.nyAnstalldId && indata.nyAnstalldId !== indata.anstalldId ? { employee: indata.nyAnstalldId } : {}),
     comment: indata.kommentar.slice(0, 200),
   });
   const skicka = async (bearer: string) => {

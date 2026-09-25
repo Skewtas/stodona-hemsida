@@ -485,10 +485,13 @@ function Ombokningskort({
           Gäller bara det här tillfället. Dina övriga städningar är {avbokning ? "kvar som vanligt" : "oförändrade"}.
         </p>
       )}
-      <div className={`mt-3 rounded-xl px-3 py-2 text-xs ${kort.avgiftKr > 0 ? "bg-amber-50 text-amber-900" : "bg-bg-primary text-text-secondary"}`}>
-        <p className="font-medium text-text-primary">Avgift för {avbokning ? "avbokningen" : "ändringen"}: {kort.avgiftKr} kr</p>
-        {kort.avgiftKr > 0 && <p className="mt-1">{kort.avgiftText}</p>}
-      </div>
+      {/* Avgiften visas bara när det finns en – "0 kr" ska inte synas. */}
+      {kort.avgiftKr > 0 && (
+        <div className="mt-3 rounded-xl px-3 py-2 text-xs bg-amber-50 text-amber-900">
+          <p className="font-medium text-text-primary">Avgift för {avbokning ? "avbokningen" : "ändringen"}: {kort.avgiftKr} kr</p>
+          <p className="mt-1">{kort.avgiftText}</p>
+        </div>
+      )}
 
       {vantar && kort.lasläge && (
         <p className="mt-3 text-xs rounded-xl px-3 py-2 bg-amber-100 text-amber-950">

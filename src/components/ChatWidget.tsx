@@ -730,7 +730,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     if (!lista) return;
     const animerar = skrivIndex !== null || valkomstLangd !== null;
     lista.scrollTo({ top: lista.scrollHeight, behavior: animerar ? "auto" : "smooth" });
-  }, [meddelanden, svarar, synligLangd, skrivIndex, valkomstLangd, prickar, valkomstPrickar]);
+  }, [meddelanden, svarar, synligLangd, skrivIndex, valkomstLangd, prickar, valkomstPrickar, bankidOppen, smsFinns]);
 
   // Frågar servern om självservicen finns, och i så fall om testläget.
   const uppdateraTestlage = async () => {

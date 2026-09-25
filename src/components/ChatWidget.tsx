@@ -677,6 +677,19 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
 
   const skriver = svarar || skrivIndex !== null;
 
+  // Ber Camilla kunden identifiera sig öppnas rutan direkt med fältet för
+  // mobilnumret – en gång per meddelande, så "Avbryt" respekteras.
+  const autoIdentifierad = useRef(-1);
+  useEffect(() => {
+    const i = meddelanden.length - 1;
+    const m = meddelanden[i];
+    if (!sjalvservicePa || skriver || bankidOppen || !m || m.roll !== "assistant") return;
+    if (autoIdentifierad.current === i || !delaUppVal(m.text).bankid) return;
+    autoIdentifierad.current = i;
+    oppnaBankid();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meddelanden, skriver, sjalvservicePa, bankidOppen]);
+
   useEffect(() => {
     try {
       minskadRorelse.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -795,15 +808,28 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     inputRef.current?.focus();
   }
 
+  // Identifieringens läge hämtas i förväg, så fältet syns direkt när rutan öppnas.
+  const identifieringHamtad = useRef(false);
+  async function hamtaIdentifiering() {
+    identifieringHamtad.current = true;
+    const svar = await fetch("/api/kund-bankid");
+    const data = await svar.json();
+    if (Array.isArray(data?.testkunder)) setTestkunder(data.testkunder);
+    setSmsFinns(data?.sms === true);
+  }
+  useEffect(() => {
+    if (sjalvservicePa && !identifieringHamtad.current) hamtaIdentifiering().catch(() => { identifieringHamtad.current = false; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sjalvservicePa]);
+
   async function oppnaBankid() {
     setBankidFel("");
     setBankidOppen(true);
+    if (identifieringHamtad.current) return;
     try {
-      const svar = await fetch("/api/kund-bankid");
-      const data = await svar.json();
-      if (Array.isArray(data?.testkunder)) setTestkunder(data.testkunder);
-      setSmsFinns(data?.sms === true);
+      await hamtaIdentifiering();
     } catch {
+      identifieringHamtad.current = false;
       setBankidFel(s.bankidFel);
     }
   }
@@ -1349,6 +1375,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                           onChange={(e) => setSmsTelefon(e.target.value.slice(0, 20))}
                           onKeyDown={(e) => e.key === "Enter" && skickaSmsKod()}
                           placeholder="Mobilnummer på ditt kundkort"
+                          autoFocus
                           type="tel"
                           inputMode="tel"
                           autoComplete="tel"

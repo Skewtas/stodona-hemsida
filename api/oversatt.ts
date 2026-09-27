@@ -135,12 +135,15 @@ export default async function handler(request: Request): Promise<Response> {
   texter.forEach((t, i) => (typeof sparade[i] === 'string' ? (oversattningar[t] = sparade[i] as string) : saknas.push(i)));
   if (!saknas.length) return svara({ oversattningar });
 
-  const ip = (request.headers.get('x-forwarded-for') ?? 'okand').split(',')[0].trim();
+  // Förvärmningen (scripts/forvarm-engelska.cjs) går förbi taket med den interna nyckeln.
+  const intern = process.env.SMS_INTERN_NYCKEL;
+  const forvarm = Boolean(intern) && request.headers.get('x-intern-nyckel') === intern;
+  const ip = forvarm ? 'forvarm' : (request.headers.get('x-forwarded-for') ?? 'okand').split(',')[0].trim();
   const takNyckel = `oversatt:tak:${ip}:${Math.floor(Date.now() / 3600000)}`;
   try {
     const antal = Number(await kv(['INCRBY', takNyckel, saknas.length]));
     if (antal === saknas.length) await kv(['EXPIRE', takNyckel, 3700]);
-    if (antal > TAK_PER_IP) return svara({ oversattningar, begransad: true });
+    if (antal > TAK_PER_IP && !forvarm) return svara({ oversattningar, begransad: true });
   } catch {
     /* utan KV: översätt ändå, men inget sparas */
   }

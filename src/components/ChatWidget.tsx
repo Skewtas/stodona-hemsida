@@ -1268,7 +1268,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                         </div>
                       )}
                       {m.text && (
-                        <div className="bg-bg-dark text-text-light rounded-2xl rounded-br-sm px-4 py-3 text-sm whitespace-pre-wrap">
+                        <div data-no-translate className="bg-bg-dark text-text-light rounded-2xl rounded-br-sm px-4 py-3 text-sm whitespace-pre-wrap">
                           {m.text}
                         </div>
                       )}
@@ -1284,7 +1284,8 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                   <div key={i}>
                     <div className="flex items-end gap-2">
                       <Avatar />
-                      <div className={BOTBUBBLA}>
+                      {/* Camilla svarar redan på kundens språk – sajtens översättning rör inte samtalet. */}
+                      <div className={BOTBUBBLA} data-no-translate>
                         {skrivsNu && synlig.length === 0 ? (
                           <SkriverPrickar etikett={s.skriver} />
                         ) : (
@@ -1309,7 +1310,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
               })}
 
               {knappval.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1 pl-9" role="group" aria-label="Välj ett alternativ">
+                <div className="flex flex-wrap gap-2 pt-1 pl-9" role="group" aria-label="Välj ett alternativ" data-no-translate>
                   {knappval.map((v) => (
                     <button
                       key={v}

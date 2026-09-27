@@ -13,7 +13,7 @@ import Anthropic from '@anthropic-ai/sdk';
 export const config = { runtime: 'edge' };
 
 const MODELL = 'claude-haiku-4-5-20251001';
-const VERSION = 'v3';
+const VERSION = 'v4';
 const MAX_TEXTER = 60;
 const MAX_TECKEN_PER_TEXT = 4000;
 const MAX_TECKEN_TOTALT = 12000;
@@ -49,6 +49,7 @@ Rules:
 - Translate the meaning, not word by word. Keep the tone: friendly, confident, clear.
 - Keep unchanged: the brand Stodona, people's names (e.g. Camilla, Mikaela), Swedish place names (Stockholm, Södermalm, Nacka, Solna …), e-mail addresses, URLs, phone numbers, prices, numbers and emojis.
 - "RUT" / "RUT-avdrag": write "RUT deduction" (the Swedish tax deduction for household services). "kr" stays "kr" (SEK).
+- Always use these names (same as the site menu): hemstädning = home cleaning, storstädning = deep cleaning, fönsterputs/fönsterputsning = window cleaning, flyttstädning = move-out cleaning, företagsstädning/kontorsstädning = office cleaning, byggstädning = post-construction cleaning, trappstädning = stairwell cleaning, städabonnemang = cleaning subscription, kundportalen = the customer portal, nöjd-kund-garanti = satisfaction guarantee, städare/städerska = cleaner, barnvakt/barnpassning = babysitter/childcare. Keep the capitalisation of the original (a title-cased Swedish heading gets a title-cased English heading).
 - Keep leading/trailing punctuation, bullets, arrows and line breaks as in the original.
 - If a text is already English, or has nothing to translate, return it exactly as it is.
 - Never add explanations.

@@ -15,7 +15,7 @@
 
 const ATTRIBUT = ["placeholder", "title", "aria-label", "alt"] as const;
 const HOPPA_TAGGAR = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "CODE", "PRE", "SVG", "IFRAME"]);
-const LAGRING = "stodona-oversattning-en-v3";
+const LAGRING = "stodona-oversattning-en-v4";
 const MAX_I_LAGRING = 4000;
 const PER_ANROP = 25;
 const TECKEN_PER_ANROP = 6000;

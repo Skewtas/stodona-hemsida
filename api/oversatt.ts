@@ -2,7 +2,11 @@
 //
 // Webbläsaren (src/utils/oversattning.ts) skickar de svenska texter som syns på
 // sidan. Varje text översätts EN gång och sparas i KV för alltid, så nästa
-// besökare får översättningen direkt. Bara det som saknas går till Claude.
+// besökare får översättningen direkt.
+//
+// GRATIS (Mikaela 2026-09-27): det som saknas översätts av MyMemory, en gratis
+// översättningstjänst (50 000 tecken/dag). Hela sajten översattes en gång med
+// Claude (≈10 kr) och ligger sparad. Claude används bara om OVERSATT_AI=true.
 //
 // Skydd mot att endpointen används som gratis översättningstjänst: bara anrop
 // från sajten (Origin), begränsad längd per anrop och ett tak per IP-adress för
@@ -93,6 +97,40 @@ async function oversatt(texter: string[]): Promise<string[] | null> {
   return null;
 }
 
+const AI_PA = process.env.OVERSATT_AI === 'true';
+
+/** Gratis: MyMemory, en text i taget (högst ~480 tecken per anrop – längre texter delas vid meningar). */
+async function oversattGratis(texter: string[]): Promise<(string | null)[]> {
+  const enText = async (text: string): Promise<string | null> => {
+    const delar: string[] = [];
+    let nu = '';
+    for (const mening of text.split(/(?<=[.!?])\s+/)) {
+      if (nu && (nu + ' ' + mening).length > 480) { delar.push(nu); nu = mening; }
+      else nu = nu ? `${nu} ${mening}` : mening;
+    }
+    if (nu) delar.push(nu);
+    const ut: string[] = [];
+    for (const del of delar) {
+      if (del.length > 480) return null;
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(del)}&langpair=sv%7Cen&de=info%40stodona.se`;
+        const svar = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        const data = (await svar.json()) as { responseStatus?: number; quotaFinished?: boolean; responseData?: { translatedText?: string } };
+        const en = data.responseData?.translatedText;
+        if (data.responseStatus !== 200 || data.quotaFinished || !en || /MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(en)) return null;
+        ut.push(en.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+      } catch {
+        return null;
+      }
+    }
+    return ut.join(' ');
+  };
+  const resultat: (string | null)[] = [];
+  // Några i taget, för att inte överbelasta gratistjänsten.
+  for (let i = 0; i < texter.length; i += 5) resultat.push(...(await Promise.all(texter.slice(i, i + 5).map((t) => enText(tolka(t).t)))));
+  return resultat;
+}
+
 /**
  * Svarar modellen med fel antal rader kastas hela gruppen – dela då upp den
  * och försök igen, ner till en text i taget. Det som ändå inte går blir kvar
@@ -148,7 +186,7 @@ export default async function handler(request: Request): Promise<Response> {
     /* utan KV: översätt ändå, men inget sparas */
   }
 
-  const nya = await oversattDelat(saknas.map((i) => texter[i]));
+  const nya = AI_PA ? await oversattDelat(saknas.map((i) => texter[i])) : await oversattGratis(saknas.map((i) => texter[i]));
   const set: string[] = [];
   saknas.forEach((i, j) => {
     const en = nya[j];

@@ -39,7 +39,9 @@ import {
 import {
   type Bokning,
   type Bokningssystem,
+  type Engangsuppdrag,
   type Kund,
+  type Kontroll,
   type Lucka,
   idagSthlm,
   laggTillDagar,
@@ -59,7 +61,14 @@ const SKRIVER = process.env.SJALVSERVICE_TW_SKRIV === 'true';
 /** Byte av städare (verifierat live 2026-09-25). Kan stängas av med SJALVSERVICE_BYT_STADARE=false. */
 const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE !== 'false';
 
-const INTERVALL_DAGAR: Record<number, number> = { 1: 7, 2: 14, 3: 21, 4: 28 };
+/**
+ * Ett ENGÅNGSUPPDRAG i TimeWave: typen "single" (flyttstädning, storstädning,
+ * byggstädning …) eller en "serie" med intervall 6 / tjänsten "… ett tillfälle",
+ * som i praktiken är en enstaka städning. Allt annat räknas som återkommande.
+ */
+function arEngang(m: TwMission): boolean {
+  return m.type !== 'reccurent' || Number(m.recurrencyinterval_id) === 6 || /ett tillf[aä]lle|eng[aå]ng/i.test(m.services?.[0]?.name ?? '');
+}
 
 const klientCache = new Map<string, TwKlient>();
 
@@ -188,7 +197,7 @@ function tillBokning(m: TwMission, rad: TwMissionAnstalld): Bokning {
     adress: [k?.address, [k?.postal_code, k?.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
     omrade: k?.workarea_name ?? '',
     prisKr: prisFor(m, start, slut),
-    aterkommande: Boolean(INTERVALL_DAGAR[Number(m.recurrencyinterval_id)]),
+    aterkommande: !arEngang(m),
     ...(utanStadare ? { ejAndringsbar: 'Ingen städare är tilldelad än, så kundservice behöver hjälpa till med ändringen.' } : {}),
   };
 }
@@ -200,6 +209,8 @@ interface Upptaget {
   datum: string;
   start: number;
   slut: number;
+  /** Satt när det är en annan kunds engångsuppdrag – kan lämna plats enligt förtursregeln. */
+  engang?: Engangsuppdrag;
 }
 
 function isoVecka(datum: string): number {
@@ -245,11 +256,38 @@ async function schema(anstalldId: string, fran: string, till: string, forhamtade
     for (const rad of m.employees ?? []) {
       if (String(rad.id) !== anstalldId || rad.cancelled || !rad.starttime || !rad.endtime) continue;
       if (rad.startdate < fran || rad.startdate > till) continue;
-      upptaget.push({ nyckel: `M${m.id}-B${rad.bookingline_id}`, datum: rad.startdate, start: minuter(hhmm(rad.starttime)), slut: minuter(hhmm(rad.endtime)) });
+      const nyckel = `M${m.id}-B${rad.bookingline_id}`;
+      const start = hhmm(rad.starttime);
+      const slut = hhmm(rad.endtime);
+      const k = m.client;
+      upptaget.push({
+        nyckel,
+        datum: rad.startdate,
+        start: minuter(start),
+        slut: minuter(slut),
+        ...(arEngang(m)
+          ? {
+              engang: {
+                // Datumet följer med, så att raden kan hittas igen (lossa/återtilldela).
+                id: `${nyckel}@${rad.startdate}`,
+                kund: `${k?.name ?? 'kund'} (kund ${k?.number ?? '?'})`,
+                tjanst: m.services?.[0]?.name ?? 'Städning',
+                datum: rad.startdate,
+                start,
+                slut,
+                adress: [k?.address, [k?.postal_code, k?.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                stadare: { id: anstalldId, namn: fornamn(rad.name) },
+              },
+            }
+          : {}),
+      });
     }
   }
   for (const rad of rader.flat()) {
     if (rad.deleted || !(rad.employees ?? []).some((e) => String(e.id) === anstalldId)) continue;
+    // Engångsrader finns alltid också som uppdrag (typ "single") och räknas där – med
+    // förturen. Arbetsorderraden kan dessutom ligga kvar med städaren efter "Utan anställd".
+    if (!rad.recurrencyinterval_id || Number(rad.recurrencyinterval_id) === 6) continue;
     const u = { nyckel: `W${rad.id}`, datum: rad.start_date, start: minuter(hhmm(rad.start_time)), slut: minuter(hhmm(rad.end_time)) };
     // Samma uppdrag kan finnas både som mission och som rad – räkna det en gång.
     if (!upptaget.some((x) => x.datum === u.datum && x.start === u.start && x.slut === u.slut)) upptaget.push(u);
@@ -257,12 +295,26 @@ async function schema(anstalldId: string, fran: string, till: string, forhamtade
   return { anstalld, upptaget };
 }
 
-function ledig(anstalld: TwAnstalld, upptaget: Upptaget[], datum: string, start: number, slut: number, utom: string): boolean {
+/**
+ * Går tiden att boka? Med förtur (en återkommande kund, Mikaela 2026-09-24/28)
+ * räknas andra kunders ENGÅNGSUPPDRAG som lediga: de listas i "lossas" och
+ * blir "Utan anställd" först när kunden bekräftar. Återkommande städningar,
+ * frånvaro och annat som inte går att identifiera flyttas aldrig.
+ */
+function prova(anstalld: TwAnstalld, upptaget: Upptaget[], datum: string, start: number, slut: number, utom: string, fortur: boolean): Kontroll {
   const tid = arbetstid(anstalld, datum);
-  if (!tid || start < tid.start || slut > tid.slut) return false;
-  return !upptaget.some(
-    (u) => u.datum === datum && u.nyckel !== utom && u.start < slut + RESTID_MINUTER && u.slut + RESTID_MINUTER > start
-  );
+  if (!tid || start < tid.start || slut > tid.slut) return { ledig: false };
+  const hinder = upptaget.filter((u) => u.datum === datum && u.nyckel !== utom && u.start < slut + RESTID_MINUTER && u.slut + RESTID_MINUTER > start);
+  if (!hinder.length) return { ledig: true, lossas: [] };
+  if (!fortur || hinder.some((u) => !u.engang)) return { ledig: false };
+  // Ett engångsuppdrag som redan har börjat lämnar aldrig plats.
+  if (hinder.some((u) => sthlmTidpunkt(u.datum, tidText(u.start)) <= Date.now())) return { ledig: false };
+  return { ledig: true, lossas: hinder.map((u) => u.engang!) };
+}
+
+/** Förtur: en återkommande kund får tider där en annan kund har ett engångsuppdrag. */
+function harFortur(bokning: Bokning): boolean {
+  return bokning.aterkommande;
 }
 
 /** Lediga tider för en städare: högst två per dag, minst tre timmar emellan – önskat klockslag först. */
@@ -273,18 +325,23 @@ function luckorFor(anstalld: TwAnstalld, upptaget: Upptaget[], bokning: Bokning,
     const tid = arbetstid(anstalld, datum);
     if (!tid) continue;
     const fria: number[] = [];
+    /** Tider som blir lediga när ett engångsuppdrag lämnar plats (förtur). */
+    const medFortur: number[] = [];
     for (let start = tid.start; start + langd <= tid.slut; start += STEG_MINUTER) {
       if (sthlmTidpunkt(datum, tidText(start)) <= Date.now()) continue;
       if (datum === bokning.datum && tidText(start) === bokning.start && stadare.id === bokning.stadare.id) continue;
-      if (ledig(anstalld, upptaget, datum, start, start + langd, bokning.id)) fria.push(start);
+      const utfall = prova(anstalld, upptaget, datum, start, start + langd, bokning.id, harFortur(bokning));
+      if (utfall.ledig) (utfall.lossas.length ? medFortur : fria).push(start);
     }
-    const dagens: number[] = onskad !== null && fria.includes(onskad) ? [onskad] : [];
-    for (const start of fria) {
+    // Helt fria tider först; förturstider fyller på.
+    const alla = [...fria, ...medFortur];
+    const dagens: number[] = onskad !== null && alla.includes(onskad) ? [onskad] : [];
+    for (const start of alla) {
       if (dagens.length >= 2) break;
       if (dagens.every((d) => Math.abs(d - start) >= 180)) dagens.push(start);
     }
     for (const start of dagens.sort((a, b) => a - b)) {
-      luckor.push({ datum, start: tidText(start), slut: tidText(start + langd), stadare });
+      luckor.push({ datum, start: tidText(start), slut: tidText(start + langd), stadare, ...(medFortur.includes(start) ? { fortur: true } : {}) });
     }
   }
   return luckor;
@@ -303,6 +360,15 @@ const MAX_KOLLEGOR = 12;
 async function hamtaMission(missionId: number): Promise<TwMission | null> {
   const svar = await twGet<{ data?: TwMission[] | TwMission }>(`/missions/${missionId}`);
   return (Array.isArray(svar.data) ? svar.data[0] : svar.data) ?? null;
+}
+
+/** Bokningsraden för ett engångsuppdrag, id "M{mission}-B{rad}@{datum}". */
+async function engangsrad(uppdragId: string): Promise<TwMissionAnstalld | null> {
+  const t = /^M(\d{1,10})-B(\d{1,10})@(\d{4}-\d{2}-\d{2})$/.exec(uppdragId);
+  if (!t) return null;
+  const rader = await twGetAlla<TwMission>(`/missions?filter[id]=${t[1]}&filter[startdate]=${t[3]}&filter[enddate]=${t[3]}`);
+  const m = rader.find((x) => String(x.id) === t[1]);
+  return m?.employees?.find((e) => String(e.bookingline_id) === t[2] && !e.cancelled) ?? null;
 }
 
 // ─── Gränssnittet ────────────────────────────────────────────────────────────
@@ -397,9 +463,7 @@ export function timewaveSystem(): Bokningssystem {
       const { anstalld, upptaget } = await schema(lucka.stadare.id, lucka.datum, lucka.datum);
       // En kollega måste fortfarande kunna utföra tjänsten.
       if (lucka.stadare.id !== bokning.stadare.id && !kanUtfora(anstalld, bokning.tjanstId)) return { ledig: false };
-      return ledig(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id)
-        ? { ledig: true, lossas: [] }
-        : { ledig: false };
+      return prova(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id, harFortur(bokning));
     },
 
     async flyttaTillfalle(bokning, lucka, notering) {
@@ -436,8 +500,14 @@ export function timewaveSystem(): Bokningssystem {
       return { ok: true, referens: 'TimeWave-avvikelse' };
     },
 
-    async lossaAnstalld() {
-      return { ok: false, fel: 'Förtur finns inte mot TimeWave ännu. Ingenting ändrades.' };
+    // Förtursregeln: engångsuppdraget sätts till "Utan anställd" (anställd 0) på
+    // just den bokningsraden. Kontrolleras efteråt med anstalldPa.
+    async lossaAnstalld(uppdragId) {
+      if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
+      const rad = await engangsrad(uppdragId);
+      if (!rad) return { ok: false, fel: `Engångsuppdraget ${uppdragId} hittades inte.` };
+      const svar = await twBytAnstalld({ bokningsrad: rad.bookingline_id, datum: rad.startdate, start: hhmm(rad.starttime), slut: hhmm(rad.endtime), nyAnstalldId: 0 });
+      return svar.ok === true ? { ok: true, referens: 'TimeWave: utan anställd' } : svar;
     },
     async avbokaTillfalle(bokning) {
       if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
@@ -454,11 +524,18 @@ export function timewaveSystem(): Bokningssystem {
       const mission = rows.find(m => m.id === id.mission && String(m.client?.number) === bokning.kundId);
       return mission?.employees?.some(row => row.bookingline_id === id.rad && row.startdate === bokning.datum && row.cancelled === true) === true;
     },
-    async atertilldela() {
-      return { ok: false, fel: 'Förtur finns inte mot TimeWave ännu. Ingenting ändrades.' };
+    async atertilldela(uppdragId, anstalld) {
+      if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
+      const rad = await engangsrad(uppdragId);
+      if (!rad) return { ok: false, fel: `Engångsuppdraget ${uppdragId} hittades inte.` };
+      const svar = await twBytAnstalld({ bokningsrad: rad.bookingline_id, datum: rad.startdate, start: hhmm(rad.starttime), slut: hhmm(rad.endtime), nyAnstalldId: Number(anstalld.id) });
+      return svar.ok === true ? { ok: true, referens: 'TimeWave: städaren tillbaka' } : svar;
     },
-    async anstalldPa() {
-      return undefined;
+    /** Vem står på engångsuppdraget nu? null = Utan anställd, undefined = hittades inte. */
+    async anstalldPa(uppdragId) {
+      const rad = await engangsrad(uppdragId);
+      if (!rad) return undefined;
+      return !rad.id || /^utan\b/i.test(String(rad.name ?? '').trim()) ? null : String(rad.id);
     },
     async skapaArende(rubrik, text) {
       console.log(`\n[självservice/timewave] ärende skapas inte i TimeWave ännu:\n${rubrik}\n${text}\n`);

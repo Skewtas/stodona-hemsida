@@ -46,7 +46,7 @@ export default function StickyCTA() {
         {!showInput ? (
           <>
             <a
-              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: 'H007' }) : bookingUrl()}
+              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: 'TRETTI' }) : bookingUrl()}
               className="flex-1 py-3 bg-cta-hover text-text-primary font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all"
             >
               {kampanj ? 'Boka nu – 30 % året ut' : 'Boka nu – 15% rabatt'}

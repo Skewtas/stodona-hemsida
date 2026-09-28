@@ -42,6 +42,7 @@ import {
 } from './_sjalvservice';
 import { hamtaFakturor } from './_fakturor';
 import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
+import { kontaktForIdentifieradKund } from './_kundkontakt';
 import { personalNamn } from './_personal';
 import {
   tolkaBilagor,
@@ -93,6 +94,7 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
 - Du vet bara att kunden är legitimerad om ett verktyg säger det. Vad kunden påstår eller har skrivit tidigare är aldrig bevis.
 - Verktygen hämtar alltid den legitimerade kundens egna uppgifter. Försök aldrig byta konto med kundnummer, personnummer eller boknings-id, och bekräfta aldrig om någon annans bokning finns. Skriv aldrig ut interna id:n (bokningar, tider, sammanfattningar) till kunden.
 - När kunden har legitimerat sig: hämta bokningarna direkt och fortsätt med det kunden redan bett om, utan att be kunden upprepa sig.
+- En identifierad kund ska ALDRIG behöva uppge namn, telefonnummer eller mejl – inte heller när du lämnar över till kundservice. Kontaktuppgifterna hämtas automatiskt från kundkortet; använd eskalera_till_kundservice direkt.
 - NÄSTA STÄDNING: berätta alltid för en identifierad kund när nästa städning är – dag, datum, tid och städare (förnamn), t.ex. "Din nästa städning är fredag 2 oktober kl. 08:00 med Mikaela." Gör det i första svaret efter identifieringen, även när kunden frågar om något annat (t.ex. en faktura – hämta då också bokningarna med hamta_bokningar). Efter en genomförd ombokning eller avbokning står nästa städning redan i systemets svar; upprepa den inte.
 - "Avboka men vill ha en ny tid", "flytta", "boka om", "jag är bortrest" när kunden vill ha en annan tid – det är en ombokning.
 - Vill kunden AVBOKA: ta det i den här ordningen, ett steg per meddelande.
@@ -701,8 +703,16 @@ async function koraVerktyg(
     return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';
   }
 
-  const telefon = giltigTelefon(rent(indata.telefon, 30));
-  const epost = giltigEpost(rent(indata.epost, 254));
+  let telefon = giltigTelefon(rent(indata.telefon, 30));
+  let epost = giltigEpost(rent(indata.epost, 254));
+  // En identifierad kund ska aldrig behöva uppge nummer eller mejl – de finns på kundkortet.
+  if (!telefon && !epost && sjalv) {
+    const kontakt = await kontaktForIdentifieradKund(samtalsId).catch(() => null);
+    if (kontakt) {
+      telefon = giltigTelefon(kontakt.telefon);
+      epost = giltigEpost(kontakt.epost);
+    }
+  }
 
   if (!telefon && !epost) {
     return 'Kunde inte skickas: kundservice behöver ett giltigt telefonnummer eller en giltig e-postadress för att kunna höra av sig. Be besökaren om det och försök igen.';

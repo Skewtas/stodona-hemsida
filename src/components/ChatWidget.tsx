@@ -264,11 +264,11 @@ const TEXT = {
     // Visas under namnet hela tiden, så kunden alltid vet att det är en
     // digital assistent – även när skrivanimationen känns mänsklig.
     underrubrik: "Stodonas digitala assistent",
-    valkommen: "Välkommen till Stodona! Camilla heter jag och är assistent här på Stodona. Hur kan jag hjälpa dig? 🤍✨",
+    valkommen: "Välkommen till Stodona! Jag heter Camilla och hjälper dig gärna – oavsett om du är ny kund med frågor eller redan kund och behöver hjälp med dina bokningar, fakturor eller annat. Vad kan jag hjälpa dig med? 🤍✨",
     skriver: "Camilla skriver…",
     forslag: ["Boka städning", "Ändra, boka om eller av", "Fakturafrågor", "Vad ingår?"],
     // Visas bredvid chattknappen en stund efter att sidan öppnats.
-    inbjudan: "Jag hjälper dig att boka – eller om du har några frågor eller funderingar.",
+    inbjudan: "Jag hjälper dig gärna – med frågor som ny kund, eller med dina bokningar och fakturor.",
     stangInbjudan: "Stäng",
     platshallare: "Skriv ett meddelande…",
     annat: "Annat",
@@ -297,10 +297,10 @@ const TEXT = {
     rubrik: "Chat with Camilla at Stodona",
     namn: "Camilla",
     underrubrik: "Stodona's digital assistant",
-    valkommen: "Welcome to Stodona! I'm Camilla, the assistant here at Stodona. How can I help you? 🤍✨",
+    valkommen: "Welcome to Stodona! I'm Camilla and I'm happy to help – whether you're new and have questions, or already a customer and need help with your bookings, invoices or anything else. What can I help you with? 🤍✨",
     skriver: "Camilla is typing…",
     forslag: ["Book a cleaning", "Change, reschedule or cancel", "Invoice questions", "What's included?"],
-    inbjudan: "I can help you book – or answer any questions you have.",
+    inbjudan: "Happy to help – with questions if you're new, or with your bookings and invoices.",
     stangInbjudan: "Close",
     platshallare: "Type a message…",
     annat: "Other",

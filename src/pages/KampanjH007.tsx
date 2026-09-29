@@ -23,7 +23,9 @@ import HeroVideo from "../components/HeroVideo";
 // 31 december 2026 23:59:59 svensk tid (CET = UTC+1).
 const KAMPANJ_SLUT_ISO = "2026-12-31T23:59:59+01:00";
 const KAMPANJ_SLUT = new Date(KAMPANJ_SLUT_ISO);
-const KOD = "H007";
+// Koden var H007 fram till 2026-09-28. Bytt eftersom 0 och O går att
+// förväxla. H007 fungerar fortfarande för länkar som redan delats.
+const KOD = "TRETTI";
 
 // Räknat med bokningsmodulens prismotor 2026-09-23: 70 kvm, varannan vecka,
 // efter RUT-avdrag, vardag. Visas uttryckligen som ett exempel.
@@ -36,7 +38,7 @@ const GALLER = [
   "Hemstädning som abonnemang – varje vecka, varannan, var tredje eller var fjärde vecka",
   "Bindningstid på 6 eller 12 månader",
   "30 % rabatt på varje städning till och med 31 december 2026",
-  "Rabattkoden H007 följer med automatiskt när du bokar härifrån",
+  "Rabattkoden TRETTI följer med automatiskt när du bokar härifrån",
 ];
 
 const GALLER_INTE = [
@@ -47,7 +49,7 @@ const GALLER_INTE = [
 
 const STEG = [
   {
-    rubrik: "Boka med koden H007",
+    rubrik: "Boka med koden TRETTI",
     text: "Välj hur ofta du vill ha städning och 6 eller 12 månaders bindning. Koden följer med automatiskt från den här sidan.",
   },
   {
@@ -102,7 +104,7 @@ const erbjudandeSchema = {
   "@type": "Offer",
   name: "30 % rabatt på städabonnemang året ut",
   description:
-    "30 % rabatt på varje hemstädning till och med 31 december 2026 vid städabonnemang med 6 eller 12 månaders bindning. Gäller med rabattkoden H007.",
+    "30 % rabatt på varje hemstädning till och med 31 december 2026 vid städabonnemang med 6 eller 12 månaders bindning. Gäller med rabattkoden TRETTI.",
   url: "https://stodona.se/kampanj",
   priceCurrency: "SEK",
   availability: "https://schema.org/InStock",
@@ -135,7 +137,7 @@ const brodsmulaSchema = {
   itemListElement: [
     { "@type": "ListItem", position: 1, name: "Hem", item: "https://stodona.se/" },
     { "@type": "ListItem", position: 2, name: "Städabonnemang", item: "https://stodona.se/stadabonnemang" },
-    { "@type": "ListItem", position: 3, name: "Kampanj H007", item: "https://stodona.se/kampanj" },
+    { "@type": "ListItem", position: 3, name: "Kampanj TRETTI", item: "https://stodona.se/kampanj" },
   ],
 };
 
@@ -175,13 +177,13 @@ export default function KampanjH007() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>30 % på städabonnemang året ut – kod H007 | Stodona Stockholm</title>
+        <title>30 % på städabonnemang året ut – kod TRETTI | Stodona Stockholm</title>
         <meta
           name="description"
-          content="30 % rabatt på varje hemstädning till och med 31 december 2026 när du tecknar städabonnemang med 6 eller 12 månaders bindning. Kod H007. Samma team varje gång, 100 % nöjdgaranti."
+          content="30 % rabatt på varje hemstädning till och med 31 december 2026 när du tecknar städabonnemang med 6 eller 12 månaders bindning. Kod TRETTI. Samma team varje gång, 100 % nöjdgaranti."
         />
         <link rel="canonical" href="https://stodona.se/kampanj" />
-        <meta property="og:title" content="30 % på städabonnemang året ut – kod H007" />
+        <meta property="og:title" content="30 % på städabonnemang året ut – kod TRETTI" />
         <meta
           property="og:description"
           content="Teckna städabonnemang med 6 eller 12 månaders bindning och få 30 % rabatt på varje städning till och med 31 december."
@@ -191,7 +193,7 @@ export default function KampanjH007() {
         <meta property="og:image" content="https://stodona.se/stodona-stad.jpg" />
         <meta property="og:locale" content="sv_SE" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="30 % på städabonnemang året ut – kod H007" />
+        <meta name="twitter:title" content="30 % på städabonnemang året ut – kod TRETTI" />
         <meta name="twitter:image" content="https://stodona.se/stodona-stad.jpg" />
         <script type="application/ld+json">{JSON.stringify(erbjudandeSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(fragorSchema)}</script>

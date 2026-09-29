@@ -136,6 +136,7 @@ export default function App() {
               själv vidare till /stadabonnemang. */}
           <Route path="/kampanj" element={<KampanjH007 />} />
           <Route path="/h007" element={<KampanjH007 />} />
+          <Route path="/tretti" element={<KampanjH007 />} />
           <Route path="/abo25" element={<Kampanj />} />
           {/* Dold influencer-sida – lösenordsskyddad (middleware), ej länkad, noindex */}
           {/* Min partnersida – grindad i middleware.ts. Lägg ALDRIG till en ny

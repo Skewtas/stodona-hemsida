@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X, Send, Paperclip, Video, Loader2, ArrowDown, FlaskConical, ChevronDown } from "lucide-react";
+import { kampanjAktiv } from "../data/kampanj";
 import { useLanguage } from "../context/LanguageContext";
 import { track } from "../utils/analytics";
 
@@ -269,6 +270,7 @@ const TEXT = {
     forslag: ["Boka städning", "Ändra, boka om eller av", "Fakturafrågor", "Vad ingår?"],
     // Visas bredvid chattknappen en stund efter att sidan öppnats.
     inbjudan: "Jag hjälper dig gärna – med frågor som ny kund, eller med dina bokningar och fakturor.",
+    inbjudanKampanj: "Just nu: 30 % på städningen året ut. Vill du att jag hjälper dig boka?",
     stangInbjudan: "Stäng",
     platshallare: "Skriv ett meddelande…",
     annat: "Annat",
@@ -301,6 +303,7 @@ const TEXT = {
     skriver: "Camilla is typing…",
     forslag: ["Book a cleaning", "Change, reschedule or cancel", "Invoice questions", "What's included?"],
     inbjudan: "Happy to help – with questions if you're new, or with your bookings and invoices.",
+    inbjudanKampanj: "Right now: 30% off cleaning for the rest of the year. Want me to help you book?",
     stangInbjudan: "Close",
     platshallare: "Type a message…",
     annat: "Other",
@@ -1125,7 +1128,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
               className="text-left"
             >
               <span className="block text-xs font-bold mb-0.5">Camilla</span>
-              {s.inbjudan}
+              {kampanjAktiv() ? s.inbjudanKampanj : s.inbjudan}
             </button>
             <button
               type="button"

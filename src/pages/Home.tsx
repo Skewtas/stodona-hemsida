@@ -20,6 +20,8 @@ import { useSearchParams } from "react-router-dom";
 import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 import HeroVideo from "../components/HeroVideo";
+import KampanjKort from "../components/KampanjKort";
+import { KAMPANJ, useKampanj } from "../data/kampanj";
 
 // Värdena måste stavas exakt som tjänsterna heter i bokningssystemet – de
 // skickas som ?service= och matchas mot SERVICES där. Etiketten översätts,
@@ -37,6 +39,9 @@ export default function Home() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [heroSqm, setHeroSqm] = useState("");
   const [heroService, setHeroService] = useState<string>(HERO_SERVICES[0].value);
+  const kampanj = useKampanj();
+  // Kampanjen gäller hemstädning (städabonnemang) – då följer koden med in i bokningen.
+  const medKampanj = kampanj.aktiv && heroService === "Hemstädning";
   const [showToast, setShowToast] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -55,7 +60,7 @@ export default function Home() {
     const giltig = Number.isFinite(sqm) && sqm >= 10 && sqm <= 500;
     track("booking_start", { source: "hero_sqm", service: heroService, sqm: giltig ? sqm : undefined });
     // Tjänsten följer alltid med; ytan bara när den är rimlig.
-    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}) });
+    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}), ...(medKampanj ? { discountCode: KAMPANJ.kod } : {}) });
   }
 
   return (
@@ -103,7 +108,11 @@ export default function Home() {
             lg ligger rutorna kvar i den vanliga spalten. */}
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-4 sm:pt-8 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            {/* Kampanjen 30 % året ut. På mobil först av allt, före filmen;
+                från lg högst upp i bokningskortet (nedan). */}
+            <KampanjKort className="order-first lg:hidden" />
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
+              <KampanjKort className="hidden lg:block mb-7" />
               <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
                 <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
               </span>
@@ -149,6 +158,14 @@ export default function Home() {
                     );
                   })}
                 </div>
+                {medKampanj && (
+                  <div className="flex items-start gap-2.5 bg-accent/15 text-text-primary rounded-xl px-3.5 py-3 -mt-1 mb-5 text-sm leading-relaxed">
+                    <span className="shrink-0 bg-accent text-white rounded px-1.5 py-0.5 text-xs font-bold">−{KAMPANJ.procent} %</span>
+                    <span>
+                      <strong>Året ut på hemstädning</strong> med städabonnemang. Koden {KAMPANJ.kod} läggs in åt dig när du bokar.
+                    </span>
+                  </div>
+                )}
                 <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
                   {t('home.hero.sqmLabel', lang)}
                 </label>

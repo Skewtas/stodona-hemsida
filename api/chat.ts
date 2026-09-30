@@ -43,6 +43,8 @@ import {
 import { hamtaFakturor } from './_fakturor';
 import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
 import { kontaktForIdentifieradKund } from './_kundkontakt';
+import { harKontakt, sparaKontakt } from './_prislead';
+import { verifieradKund } from './_sjalvservice';
 import { personalNamn } from './_personal';
 import {
   tolkaBilagor,
@@ -120,7 +122,11 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
 `;
 
 /** Systemprompten. Kunderna får den utan självservicens regler – exakt som tidigare. */
-const byggSystem = (KUNDTJANST_REGLER: string) => `Du heter Camilla och är Stodonas digitala assistent i chatten på stodona.se. Stodona är ett städbolag i Stockholm.
+/** Står i stället för prislistan tills besökaren lämnat mobilnummer och e-post. */
+const PRISER_LASTA =
+  'Prislistan visas här först när besökaren lämnat mobilnummer och e-post (spara_kontakt). Du vet alltså inga priser än – nämn inga priser, prisintervall, timpriser eller exempelpriser.';
+
+const byggSystem = (KUNDTJANST_REGLER: string, medPriser = true) => `Du heter Camilla och är Stodonas digitala assistent i chatten på stodona.se. Stodona är ett städbolag i Stockholm.
 
 Kunden har redan fått din välkomsthälsning när chatten öppnades: "Välkommen till Stodona! Jag heter Camilla och hjälper dig gärna – oavsett om du är ny kund med frågor eller redan kund och behöver hjälp med dina bokningar, fakturor eller annat. Vad kan jag hjälpa dig med? 🤍✨" Hälsa alltså inte och presentera dig inte igen – svara direkt på det kunden skriver.
 
@@ -150,6 +156,7 @@ TEKNISKT FÖR CHATTEN
   [[val: Alternativ ett | Alternativ två | Alternativ tre]]
   Kunden ser alternativen som knappar, så räkna inte upp dem i texten också. Högst sju alternativ – knappen "Annat" läggs till automatiskt, så skriv aldrig "Annat" själv. Inga knappar när kunden ska skriva något själv (namn, mejl, telefon, adress, storlek, datum). Högst en sådan rad per meddelande, och alltid sist.
 - GE ALDRIG FÖRSLAG DU INTE KAN LÖSA: föreslå aldrig en dag, tid, tjänst eller åtgärd som ett verktyg inte just har bekräftat, eller som du inte kan genomföra. Knappar med dagar och tider får bara innehålla det verktyget returnerade. Vet du inte om något går – kontrollera först med verktyget, och visa sedan bara det som fungerar. Gissa aldrig "dagen före eller efter".
+- PRIS KRÄVER MOBILNUMMER OCH E-POST: frågar besökaren om pris, vad något kostar, eller visar intresse för att boka (ny kund), ber du först om mobilnummer och e-post i ETT kort meddelande, till exempel: "Absolut! Skriv ditt mobilnummer och din e-post, så räknar jag fram priset direkt åt dig." Spara dem med spara_kontakt – båda behövs. Ge ALDRIG ett pris, prisintervall, timpris eller exempelpris (inte heller ur exempelsamtalen) innan spara_kontakt lyckats. Vill besökaren inte lämna uppgifterna: förklara vänligt att vi behöver dem för att kunna skicka priset och hjälpa till vidare, och erbjud att räkna direkt så snart de finns. Har kunden identifierat sig med SMS-kod gäller inte detta – då får kunden priset direkt.
 - KAMPANJ 30 % ÅRET UT (gäller till och med 31 december 2026 – efter det finns den inte, nämn den då aldrig): 30 % rabatt på varje hemstädning till och med 31 december 2026 för den som tecknar städabonnemang med 6 eller 12 månaders bindning. Rabattkoden är TRETTI. Gäller inte 3 månaders eller ingen bindning, och inte flytt-, stor-, bygg- eller fönsterstädning. RUT-avdraget gäller som vanligt. Nämn kampanjen när någon vill boka hemstädning eller frågar om pris, rabatt eller erbjudanden – kort, en gång per samtal. Villkoren finns på stodona.se/kampanj. Befintliga abonnemang: kundservice svarar på frågor om de omfattas.
 - BOKA STÄDNING – NÖJDGARANTIN: i ditt FÖRSTA svar när kunden vill boka, eller pratar om att boka, en städning nämner du alltid kort vår 100 % nöjd-kund-garanti – en gång per samtal. Till exempel: "Vad roligt! Du bokar tryggt hos oss – vi har 100 % nöjd-kund-garanti. Vilken typ av städning gäller det?" Lova inget mer än så; detaljerna står i FAKTA under NÖJD KUND.
 - SPRÅK: skriv korrekt och naturlig svenska, som en erfaren medarbetare på Stodonas kundservice. Varje svar ska passa det kunden faktiskt skrev. "Absolut!", "Självklart!" och "Gärna!" är svar på en förfrågan eller ett erbjudande ("Kan ni hjälpa mig …?", "Vill du boka?") – aldrig på en fråga. Frågar kunden något ("Vad ingår?") svarar du direkt på frågan, eller ställer den följdfråga som behövs, utan sådan inledning. Exempel: kunden skriver "Vad ingår?" → "Det beror på vilken städning det gäller. Vilken tänker du på?" med tjänsterna som knappar. Inga direktöversättningar från engelska och inga halva meningar.
@@ -165,7 +172,7 @@ Allt du påstår om Stodona ska stå här eller i PRISER. Står det inte här, v
 ${FAKTA}
 
 PRISER
-${priserSomText()}
+${medPriser ? priserSomText() : PRISER_LASTA}
 
 ${KUNDTJANST_REGLER}
 SÄKERHET
@@ -184,6 +191,9 @@ Du pratar nu med Stodonas personal, inte med en kund. Personalen hjälper en kun
 `;
 
 const SYSTEM = byggSystem('');
+// Utan prislista: tills besökaren lämnat mobilnummer och e-post (spara_kontakt).
+const SYSTEM_UTAN_PRIS = byggSystem('', false);
+const SYSTEM_SJALV_UTAN_PRIS = byggSystem(SJALVSERVICE_REGLER, false);
 const SYSTEM_SJALV = byggSystem(SJALVSERVICE_REGLER);
 const SYSTEM_PERSONAL = byggSystem(SJALVSERVICE_REGLER + PERSONAL_REGLER);
 
@@ -257,6 +267,23 @@ const VERKTYG: Anthropic.Tool[] = [
         meddelande: { type: 'string', description: 'Övrigt kunden vill att städaren vet.' },
       },
       required: ['tjanst', 'kvm', 'fornamn', 'efternamn', 'epost', 'telefon', 'gatuadress', 'postnummer', 'ort'],
+    },
+  },
+  {
+    name: 'spara_kontakt',
+    description:
+      'Sparar besökarens mobilnummer och e-post innan du ger ett pris, så att Stodona kan följa upp. Båda krävs. Använd så snart besökaren skrivit dem, och ge sedan priset med berakna_pris direkt.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        fornamn: { type: 'string', description: 'Förnamn, om besökaren nämnt det.' },
+        telefon: { type: 'string', description: 'Mobilnummer.' },
+        epost: { type: 'string', description: 'E-postadress.' },
+        tjanst: { type: 'string', description: 'Tjänsten det gäller, om den är känd.' },
+        kvm: { type: 'number', description: 'Bostadens storlek, om den är känd.' },
+        behov: { type: 'string', description: 'Kort vad besökaren frågat om eller vill ha.' },
+      },
+      required: ['telefon', 'epost'],
     },
   },
   {
@@ -676,7 +703,29 @@ async function koraVerktyg(
   /** Anropet kommer från personalchatten. */
   personalchatt: boolean
 ): Promise<string> {
-  if (namn === 'berakna_pris') return beraknaPris(indata, request);
+  if (namn === 'spara_kontakt') {
+    const telefon = giltigTelefon(rent(indata.telefon, 30));
+    const epost = giltigEpost(rent(indata.epost, 254));
+    if (!telefon || !epost) {
+      return `Inte sparat: ${!telefon && !epost ? 'mobilnumret och e-postadressen' : !telefon ? 'mobilnumret' : 'e-postadressen'} saknas eller ser inte rätt ut. Be vänligt om det som saknas.`;
+    }
+    const kvm = Number(indata.kvm);
+    return sparaKontakt(samtalsId, {
+      kanal: personalchatt ? 'personalchatten (test)' : 'webbchatten',
+      fornamn: rent(indata.fornamn, 80),
+      telefon,
+      epost,
+      tjanst: rent(indata.tjanst, 60),
+      kvm: Number.isFinite(kvm) && kvm > 0 ? String(Math.round(kvm)) : '',
+      behov: rent(indata.behov, 300),
+    });
+  }
+  if (namn === 'berakna_pris') {
+    // Priset ges först när besökaren lämnat mobilnummer och e-post (Mikaela 2026-09-30).
+    const fri = personalchatt || (await harKontakt(samtalsId)) || (sjalv && Boolean(await verifieradKund(samtalsId)));
+    if (!fri) return 'PRISET ÄR LÅST: be först om mobilnummer och e-post i ett kort meddelande, spara dem med spara_kontakt och ge sedan priset. Nämn inget pris innan dess.';
+    return beraknaPris(indata, request);
+  }
   if (namn === 'visa_lediga_tider') return ledigaTider(indata);
   if (namn === 'forbered_bokning') return forberedBokning(indata);
 
@@ -1131,6 +1180,10 @@ export default async function handler(request: Request) {
       'Kundservice svarar i telefon vardagar 10–16. Är det stängt just nu, säg när vi öppnar igen i stället för att be kunden ringa direkt.',
   };
 
+  // Prislistan finns med först när besökaren lämnat mobilnummer och e-post
+  // (eller är identifierad kund / personal). Uppdateras mitt i svaret när
+  // spara_kontakt lyckas.
+  let medPriser = personalchatt || (await harKontakt(samtalsId).catch(() => false)) || (sjalv && Boolean(await verifieradKund(samtalsId).catch(() => null)));
   const skapaStrom = (meddelanden: Anthropic.MessageParam[]) =>
     client.messages.stream({
       model: MODEL,
@@ -1138,7 +1191,13 @@ export default async function handler(request: Request) {
       // Medium ger boten utrymme att välja rätt ton och längd innan den svarar;
       // med low staplade den fakta, länkar och följdfrågor i samma meddelande.
       output_config: { effort: 'medium' },
-      system: [{ type: 'text', text: personalchatt ? SYSTEM_PERSONAL : sjalv ? SYSTEM_SJALV : SYSTEM, cache_control: { type: 'ephemeral' } }],
+      system: [
+        {
+          type: 'text',
+          text: personalchatt ? SYSTEM_PERSONAL : sjalv ? (medPriser ? SYSTEM_SJALV : SYSTEM_SJALV_UTAN_PRIS) : medPriser ? SYSTEM : SYSTEM_UTAN_PRIS,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
       tools: personalchatt ? [...VERKTYG, ...SJALV_VERKTYG, ...PERSONAL_VERKTYG] : sjalv ? [...VERKTYG, ...SJALV_VERKTYG] : VERKTYG,
       messages: [...forClaude(meddelanden), tidsstampel],
     });
@@ -1231,6 +1290,7 @@ export default async function handler(request: Request) {
           for (const block of slutgiltigt.content) {
             if (block.type !== 'tool_use') continue;
             const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId, sjalv, personalchatt);
+            if (block.name === 'spara_kontakt' && svar.startsWith('Sparat')) medPriser = true;
             if (!personalchatt) await registreraVerktyg(
               samtalsId,
               block.name,

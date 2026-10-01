@@ -192,7 +192,8 @@ export default function Foretagsstadning() {
                   <div>
                     <h4 className="font-bold text-lg mb-1">Fastigheter & BRF</h4>
                     <p className="text-text-secondary text-sm">
-                      Trappstädning och underhåll av allmänna utrymmen för fastighetsägare och bostadsrättsföreningar.
+                      Trappstädning och underhåll av allmänna utrymmen för fastighetsägare och bostadsrättsföreningar.{" "}
+                      <Link to="/fastigheter-brf" className="text-cta-hover hover:underline">Läs mer</Link>
                     </p>
                   </div>
                 </li>

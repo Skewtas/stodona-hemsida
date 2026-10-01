@@ -59,6 +59,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         { to: "/fonsterputsning", label: t("nav.fonsterputsning", lang) },
         { to: "/flyttstadning", label: t("nav.flyttstadning", lang) },
         { to: "/foretagsstadning", label: t("nav.foretagsstadning", lang) },
+        { to: "/fastigheter-brf", label: t("nav.fastigheter", lang) },
       ];
 
   return (

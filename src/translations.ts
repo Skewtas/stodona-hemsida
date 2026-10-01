@@ -9,6 +9,7 @@ const translations: TranslationMap = {
     'nav.fonsterputsning': { SV: 'Fönsterputsning', EN: 'Window Cleaning' },
     'nav.flyttstadning': { SV: 'Flyttstädning', EN: 'Move-Out Cleaning' },
     'nav.foretagsstadning': { SV: 'Företagsstädning', EN: 'Office Cleaning' },
+    'nav.fastigheter': { SV: 'Fastigheter & BRF', EN: 'Properties & Housing Associations' },
     'nav.boka': { SV: 'Boka städning', EN: 'Book cleaning' },
 
     // ─── LAYOUT: Footer columns ────────────────────────────────────────

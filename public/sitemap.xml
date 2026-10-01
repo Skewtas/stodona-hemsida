@@ -49,6 +49,12 @@
     <priority>0.8</priority>
   </url>
 <url>
+    <loc>https://stodona.se/fastigheter-brf</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+<url>
     <loc>https://stodona.se/bodstadning</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>

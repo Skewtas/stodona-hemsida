@@ -24,6 +24,7 @@ export default function Sitemap() {
     { name: "Kontakt", path: "/kontakt", icon: Phone },
     { name: "Boka städning", path: "/boka-stadning", icon: Sparkles },
     { name: "Städabonnemang", path: "/stadabonnemang", icon: Sparkles },
+    { name: "Fastigheter & BRF", path: "/fastigheter-brf", icon: Home },
     { name: "Barnpassning", path: "/barnpassning", icon: Home },
     { name: "Barnpassning för företag", path: "/barnpassning-foretag", icon: Info },
     { name: "Jobba som barnvakt", path: "/barnvakt-jobb", icon: Star },

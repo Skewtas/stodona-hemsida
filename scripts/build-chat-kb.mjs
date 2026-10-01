@@ -26,6 +26,7 @@ const SIDOR = [
   ["/foretagsstadning", "Företagsstädning"],
   ["/byggstadning", "Byggstädning"],
   ["/trappstadning", "Trappstädning"],
+  ["/fastigheter-brf", "Fastigheter och BRF"],
   ["/bodstadning", "Bodstädning"],
   ["/barnpassning", "Barnpassning"],
   ["/priser", "Priser"],

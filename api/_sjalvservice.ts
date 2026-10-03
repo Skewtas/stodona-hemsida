@@ -773,7 +773,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
       `Hej! Din städning är ombokad till ${nyTid} med ${f.efter.stadare.namn}.` +
       (f.avgiftKr > 0 ? ` Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '') +
       (nasta && !nasta.includes(nyTid) ? ` ${nasta}` : '') +
-      ' Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona';
+      ' Frågor? Skriv till oss i chatten på www.stodona.se. Hälsningar Stodona';
     // SMS i första hand, annars mejl – varje ändring i schemat ska bekräftas.
     const kvitto = await bekraftaTillKund(
       sys,

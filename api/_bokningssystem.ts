@@ -85,6 +85,17 @@ export interface Faktura {
   kreditfaktura: boolean;
   ocr: string;
   bankgiro: string;
+  /** Vad fakturan gäller – tjänst, utförandedag och belopp före RUT-avdrag. */
+  rader: { tjanst: string; datum: string; timmar: string; beloppKr: number; beskrivning: string }[];
+}
+
+/** En redan utförd städning – det kunden annars ser i kundportalen. */
+export interface UtfordStadning {
+  datum: string;
+  start: string;
+  slut: string;
+  tjanst: string;
+  stadare: string;
 }
 
 export type Skrivresultat =
@@ -140,6 +151,8 @@ export interface Bokningssystem {
   skapaEkonomianteckning?(kundId: string, rubrik: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }>;
   /** Kundens senaste fakturor, nyast först – bara för den legitimerade kunden. */
   hamtaFakturor?(kundId: string): Promise<Faktura[]>;
+  /** Kundens senast utförda städningar, nyast först. */
+  hamtaUtforda?(kundId: string): Promise<UtfordStadning[]>;
   /** Kundens mobilnummer (+467…) ur kundregistret, för bekräftelse-SMS. null om det saknas eller är en platshållare. */
   kundensMobil?(kundId: string): Promise<string | null>;
   /** Kundens e-postadress, för bekräftelse när SMS inte går. null om den saknas. */

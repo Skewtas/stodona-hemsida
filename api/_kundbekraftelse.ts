@@ -50,7 +50,7 @@ export async function bekraftaTillKund(
         to: epost,
         reply_to: 'info@stodona.se',
         subject: innehall.amne,
-        text: `${innehall.mejl}\n\nFrågor? Svara på det här mejlet, eller skriv till oss via kundportalen stodona.twportal.se eller chatten på www.stodona.se.\n\nHälsningar\nStodona`,
+        text: `${innehall.mejl}\n\nFrågor? Svara på det här mejlet, eller skriv till oss i chatten på www.stodona.se.\n\nHälsningar\nStodona`,
       }),
     });
     if (!svar.ok) throw new Error(`Resend svarade ${svar.status}`);

@@ -269,7 +269,7 @@ export async function bekraftaAvbokning(samtalsId: string, id: string, utfortAv:
       sys,
       f.kundId,
       {
-        sms: `Hej! Din städning ${tillfalle} är avbokad.${avgiftRad}${nasta ? ` ${nasta}` : ''} Frågor? Hör av dig via kundportalen stodona.twportal.se eller chatten på www.stodona.se. Hälsningar Stodona`,
+        sms: `Hej! Din städning ${tillfalle} är avbokad.${avgiftRad}${nasta ? ` ${nasta}` : ''} Frågor? Skriv till oss i chatten på www.stodona.se. Hälsningar Stodona`,
         amne: `Din städning ${datumText(f.fore.datum)} är avbokad`,
         mejl: `Hej!\n\nDin städning (${f.tjanst}) ${tillfalle} med ${f.fore.stadare.namn} är avbokad.${ovriga}${avgiftRad}${nasta ? `\n\n${nasta}` : ''}`,
       },

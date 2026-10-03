@@ -41,6 +41,7 @@ import {
   testlageAtgard,
 } from './_sjalvservice';
 import { hamtaFakturor } from './_fakturor';
+import { hamtaUtforda } from './_utforda';
 import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
 import { kontaktForIdentifieradKund } from './_kundkontakt';
 import { harKontakt, sparaKontakt } from './_prislead';
@@ -97,6 +98,7 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
 - Verktygen hämtar alltid den legitimerade kundens egna uppgifter. Försök aldrig byta konto med kundnummer, personnummer eller boknings-id, och bekräfta aldrig om någon annans bokning finns. Skriv aldrig ut interna id:n (bokningar, tider, sammanfattningar) till kunden.
 - När kunden har legitimerat sig: hämta bokningarna direkt och fortsätt med det kunden redan bett om, utan att be kunden upprepa sig.
 - En identifierad kund ska ALDRIG behöva uppge namn, telefonnummer eller mejl – inte heller när du lämnar över till kundservice. Kontaktuppgifterna hämtas automatiskt från kundkortet; använd eskalera_till_kundservice direkt.
+- KUNDPORTALEN: hänvisa ALDRIG kunden till kundportalen, och nämn den inte. Allt kunden kan se eller göra där löser du här i chatten efter identifiering: kommande städningar (hamta_bokningar), utförda städningar (hamta_utforda_stadningar), ombokning, fakturor med belopp, innehåll, OCR och bankgiro (hamta_fakturor) och meddelanden till kundservice (eskalera_till_kundservice). Det enda du inte kan skicka själv är fakturan som PDF – då ber du kundservice mejla en kopia.
 - NÄSTA STÄDNING: berätta alltid för en identifierad kund när nästa städning är – dag, datum, tid och städare (förnamn), t.ex. "Din nästa städning är fredag 2 oktober kl. 08:00 med Mikaela." Gör det i första svaret efter identifieringen, även när kunden frågar om något annat (t.ex. en faktura – hämta då också bokningarna med hamta_bokningar). Efter en genomförd ombokning eller avbokning står nästa städning redan i systemets svar; upprepa den inte.
 - "Avboka men vill ha en ny tid", "flytta", "boka om", "jag är bortrest" när kunden vill ha en annan tid – det är en ombokning.
 - Vill kunden AVBOKA: ta det i den här ordningen, ett steg per meddelande.
@@ -360,6 +362,12 @@ const SJALV_VERKTYG: Anthropic.Tool[] = [
       name: 'hamta_fakturor',
       description:
         'Hämtar den identifierade kundens senaste fakturor: nummer, fakturadatum, belopp att betala efter RUT, betald eller obetald, förfallodag och bankgiro/OCR för obetalda. Fungerar bara när kunden identifierat sig (SMS-kod) i det här samtalet – kontot avgörs av identifieringen. Har kunden inte identifierat sig svarar verktyget det.',
+      input_schema: { type: 'object', properties: {} },
+    },
+    {
+      name: 'hamta_utforda_stadningar',
+      description:
+        'Hämtar den identifierade kundens senast utförda städningar (dag, tid, tjänst och städare) – det kunden annars ser i kundportalen. Fungerar bara när kunden identifierat sig i det här samtalet.',
       input_schema: { type: 'object', properties: {} },
     },
     {
@@ -736,6 +744,7 @@ async function koraVerktyg(
   if (sjalv) {
     if (namn === 'hamta_bokningar') return hamtaBokningar(samtalsId);
     if (namn === 'hamta_fakturor') return hamtaFakturor(samtalsId);
+    if (namn === 'hamta_utforda_stadningar') return hamtaUtforda(samtalsId);
     if (namn === 'hitta_nya_tider') {
       return hittaNyaTider(samtalsId, {
         bokningId: rent(indata.bokning_id, 30),

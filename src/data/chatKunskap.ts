@@ -249,7 +249,7 @@ J. Klagomål och missade saker löses alltid enligt villkoren som kunden godkän
 export const FAKTA = `FÖRETAGET
 Stodona AB, org.nr 559201-1059, Sommarvägen 5 i Solna (bara bokade besök). Grundat 2019, omkring 50 anställda, 4,9 av 5 i snittbetyg. Ansvarsförsäkrat, F-skattsedel, städarna är anställda hos Stodona.
 Kundservice: 010-178 01 50, vardagar 10–16. Mejl: info@stodona.se – svar oftast inom 48 timmar på vardagar.
-Bokning: boka.stodona.se. Kundportal: stodona.twportal.se – registrera dig med samma mejl som fakturorna går till; där syns kommande och utförda städningar och man kan skicka meddelanden. Tider ändras via telefon eller mejl.
+Bokning: boka.stodona.se. Befintliga kunder får hjälp direkt här i chatten efter identifiering med SMS-kod: se kommande och utförda städningar, boka om, se fakturor (belopp, vad de avser, OCR och bankgiro) och skicka meddelanden till kundservice. Hänvisa aldrig till kundportalen – allt kunden kan göra där löser du här.
 
 OMRÅDEN
 Hela Stockholmsområdet, bland annat innerstaden, Solna, Sundbyberg, Bromma, Lidingö, Ekerö, Nacka, Täby, Danderyd, Sollentuna, Järfälla, Huddinge och Haninge. Bor man strax utanför: hör av dig.
@@ -280,7 +280,7 @@ Privatpersoner betalar 50 % av arbetskostnaden. Stodona drar av det direkt på f
 
 BETALNING OCH FAKTURA
 Privatpersoner 10 dagars betalningsvillkor, företag 30 dagar. RUT-avdraget är redan avdraget på fakturan.
-E-faktura: kunden anmäler Stodona AB som e-fakturaUTSTÄLLARE (Stodona skickar fakturan – kunden är mottagaren) i sin internetbank, med sitt kundnummer och den mejladress fakturan går till i dag, och mejlar sedan info@stodona.se att det är gjort. Kundnumret står överst på fakturan eller i kundportalen. Guide: stodona.se/e-faktura
+E-faktura: kunden anmäler Stodona AB som e-fakturaUTSTÄLLARE (Stodona skickar fakturan – kunden är mottagaren) i sin internetbank, med sitt kundnummer och den mejladress fakturan går till i dag, och mejlar sedan info@stodona.se att det är gjort. Kundnumret står överst på fakturan – är kunden identifierad i chatten kan du ta fram fakturan. Guide: stodona.se/e-faktura
 
 NÖJD KUND
 Kunden godkänner Stodonas allmänna villkor när hen bokar. I dem ingår vår 100 % nöjd-kund-garanti: det som ingår i beställningen och inte blev bra ska Stodona i första hand få åtgärda. Enligt villkoren på stodona.se/villkor ska anmärkningar komma inom 24 timmar efter avslutad städning, gärna med bilder, och Stodona följer Allmänna reklamationsnämndens riktlinjer. Vad som händer i det enskilda ärendet bestämmer kundservice – lova inget själv.

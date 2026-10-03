@@ -476,8 +476,17 @@ export function testsystem(samtalsId: string): Bokningssystem {
       // Påhittade fakturor – bara i testvärlden.
       if (!testkund(kundId)) return [];
       return [
-        { nummer: '10488', datum: '2026-09-15', forfallodatum: '2026-09-25', beloppKr: 1255, rutKr: 1255, betald: false, betaldDatum: null, kreditfaktura: false, ocr: '104887', bankgiro: '123-4567' },
-        { nummer: '10452', datum: '2026-09-01', forfallodatum: '2026-09-11', beloppKr: 1255, rutKr: 1255, betald: true, betaldDatum: '2026-09-09', kreditfaktura: false, ocr: '104521', bankgiro: '123-4567' },
+        { nummer: '10488', datum: '2026-09-15', forfallodatum: '2026-09-25', beloppKr: 1255, rutKr: 1255, betald: false, betaldDatum: null, kreditfaktura: false, ocr: '104887', bankgiro: '123-4567', rader: [{ tjanst: 'Hemstädning', datum: '2026-09-11', timmar: '03:00', beloppKr: 2510, beskrivning: '' }] },
+        { nummer: '10452', datum: '2026-09-01', forfallodatum: '2026-09-11', beloppKr: 1255, rutKr: 1255, betald: true, betaldDatum: '2026-09-09', kreditfaktura: false, ocr: '104521', bankgiro: '123-4567', rader: [{ tjanst: 'Hemstädning', datum: '2026-08-28', timmar: '03:00', beloppKr: 2510, beskrivning: '' }] },
+      ];
+    },
+
+    async hamtaUtforda(kundId) {
+      // Påhittad historik – bara i testvärlden.
+      if (!testkund(kundId)) return [];
+      return [
+        { datum: '2026-09-11', start: '08:00', slut: '11:00', tjanst: 'Hemstädning', stadare: 'Maria' },
+        { datum: '2026-08-28', start: '08:00', slut: '11:00', tjanst: 'Hemstädning', stadare: 'Maria' },
       ];
     },
 

@@ -547,15 +547,32 @@ export function timewaveSystem(): Bokningssystem {
       type TwFaktura = {
         number?: string; invoice_date?: string; due_date?: string; total?: string | number; taxreduction?: string | number;
         payed?: string | number | boolean; payed_date?: string | null; deleted?: boolean | number; credit_of_id?: number | null;
-        credited?: boolean | number; ocr?: string; company_bg?: string; client_id?: number;
+        credited?: boolean | number; ocr?: string; company_bg?: string; client_id?: number; id?: number | string;
       };
+      type TwFakturarad = { invoice_id?: string | number; service_name?: string; delivery_date?: string; hours?: string; total_including_vat?: string | number; description?: string };
       const rader = await twGetAlla<TwFaktura>(`/invoices?filter[client_id]=${k.id}`);
-      return rader
+      const egna = rader
         // Dubbelkolla att fakturan verkligen är kundens, och hoppa över raderade.
         .filter((f) => Number(f.client_id) === Number(k.id) && !Number(f.deleted) && f.number)
         .sort((a, b) => String(b.invoice_date).localeCompare(String(a.invoice_date)))
-        .slice(0, 6)
+        .slice(0, 6);
+      // Fakturaraderna hämtas på TimeWaves INTERNA faktura-id (inte fakturanumret –
+      // samma siffra kan vara en annan kunds faktura), och bara för kundens egna fakturor.
+      const egnaId = egna.map((f) => String(f.id ?? '')).filter((id) => /^\d+$/.test(id));
+      const fakturarader = egnaId.length
+        ? await twGetAlla<TwFakturarad>(`/invoicelines?invoice_ids=${egnaId.join(',')}`).catch(() => [] as TwFakturarad[])
+        : [];
+      return egna
         .map((f) => ({
+          rader: fakturarader
+            .filter((r) => egnaId.includes(String(r.invoice_id)) && String(r.invoice_id) === String(f.id))
+            .map((r) => ({
+              tjanst: String(r.service_name ?? 'Tjänst'),
+              datum: String(r.delivery_date ?? '').slice(0, 10),
+              timmar: String(r.hours ?? '').slice(0, 5),
+              beloppKr: Math.round(Number(r.total_including_vat ?? 0)),
+              beskrivning: String(r.description ?? '').slice(0, 120),
+            })),
           nummer: String(f.number),
           datum: String(f.invoice_date ?? '').slice(0, 10),
           forfallodatum: String(f.due_date ?? '').slice(0, 10),
@@ -567,6 +584,24 @@ export function timewaveSystem(): Bokningssystem {
           ocr: String(f.ocr ?? ''),
           bankgiro: String(f.company_bg ?? ''),
         }));
+    },
+
+    async hamtaUtforda(kundId) {
+      const k = await klientForNummer(kundId);
+      if (!k) return [];
+      const idag = idagSthlm();
+      const missions = await twGetAlla<TwMission>(`/missions?filter[client_id]=${k.id}&filter[startdate]=${laggTillDagar(idag, -120)}&filter[enddate]=${idag}`);
+      const nu = Date.now();
+      const utforda = [];
+      for (const m of missions) {
+        if (String(m.client?.number) !== String(k.number)) continue;
+        for (const rad of m.employees ?? []) {
+          if (rad.cancelled || !rad.startdate || sthlmTidpunkt(rad.startdate, hhmm(rad.endtime)) > nu) continue;
+          const utan = !rad.id || /^utan\b/i.test(String(rad.name ?? '').trim());
+          utforda.push({ datum: rad.startdate, start: hhmm(rad.starttime), slut: hhmm(rad.endtime), tjanst: m.services?.[0]?.name ?? 'Städning', stadare: utan ? '' : fornamn(rad.name) });
+        }
+      }
+      return utforda.sort((a, b) => `${b.datum}${b.start}`.localeCompare(`${a.datum}${a.start}`)).slice(0, 10);
     },
 
     async kundensMobil(kundId) {

@@ -1,9 +1,10 @@
 // Fakturainformation i chatten för den legitimerade kunden (SMS-kod).
 //
 // Läser kundens senaste fakturor ur bokningssystemet (TimeWave /invoices,
-// filtrerat på kunden och kontrollerat en gång till). Chatten ändrar aldrig
-// något på en faktura – frågor om belopp, avgifter eller krediteringar går
-// till kundservice.
+// filtrerat på kunden och kontrollerat en gång till) med fakturarader, OCR och
+// bankgiro – allt kunden annars letar upp i kundportalen. Chatten hänvisar
+// aldrig dit (Mikaela 2026-10-03). Den ändrar aldrig något på en faktura –
+// frågor om belopp, avgifter eller krediteringar går till kundservice.
 
 import { verifieradKund } from './_sjalvservice';
 import { timewaveSystem } from './_timewaveSystem';
@@ -25,17 +26,28 @@ function dag(datum: string, idag: string): string {
   return datum.slice(0, 4) === idag.slice(0, 4) ? datumText(datum) : `${datumText(datum)} ${datum.slice(0, 4)}`;
 }
 
+/** Vad fakturan gäller: tjänst, utförandedag, timmar och belopp före RUT. */
+function innehall(f: Faktura, idag: string): string {
+  if (!f.rader.length) return '';
+  const rader = f.rader.map((r) => {
+    const timmar = /^\d{2}:\d{2}$/.test(r.timmar) && r.timmar !== '00:00' ? `, ${Number(r.timmar.slice(0, 2)) + Number(r.timmar.slice(3)) / 60} tim`.replace('.', ',') : '';
+    return `${r.tjanst}${r.datum ? ` ${dag(r.datum, idag)}` : ''}${timmar}, ${kr(Math.abs(r.beloppKr))} före RUT${r.beskrivning ? ` (${r.beskrivning})` : ''}`;
+  });
+  return ` · avser: ${rader.join('; ')}`;
+}
+
 function rad(f: Faktura, idag: string): string {
   if (f.kreditfaktura) {
-    return `Kreditfaktura ${f.nummer} · ${dag(f.datum, idag)} · kreditering ${kr(Math.abs(f.beloppKr))} (ett avdrag – kunden ska inte betala något)`;
+    return `Kreditfaktura ${f.nummer} · ${dag(f.datum, idag)} · kreditering ${kr(Math.abs(f.beloppKr))} (ett avdrag – kunden ska inte betala något)${innehall(f, idag)}`;
   }
   const status = f.betald
     ? `betald${f.betaldDatum ? ` ${dag(f.betaldDatum, idag)}` : ''}`
     : f.forfallodatum && f.forfallodatum < idag
       ? `OBETALD – FÖRFALLEN ${dag(f.forfallodatum, idag)}`
       : `obetald – förfaller ${dag(f.forfallodatum, idag)}`;
-  const betala = !f.betald && f.ocr && f.bankgiro ? ` · betalas till bankgiro ${f.bankgiro} med OCR ${f.ocr}` : '';
-  return `Faktura ${f.nummer} · fakturerad ${dag(f.datum, idag)} · att betala ${kr(f.beloppKr)}${f.rutKr > 0 ? ` (efter RUT-avdrag ${kr(f.rutKr)})` : ''} · ${status}${betala}`;
+  // OCR och bankgiro står med även på betalda fakturor – kunden kan fråga efter dem.
+  const betala = f.ocr && f.bankgiro ? ` · bankgiro ${f.bankgiro}, OCR ${f.ocr}${f.betald ? ' (redan betald – ska inte betalas igen)' : ''}` : '';
+  return `Faktura ${f.nummer} · fakturerad ${dag(f.datum, idag)} · att betala ${kr(f.beloppKr)}${f.rutKr > 0 ? ` (efter RUT-avdrag ${kr(f.rutKr)})` : ''} · ${status}${betala}${innehall(f, idag)}`;
 }
 
 /** Verktyget hamta_fakturor: kundens senaste fakturor, som text till Camilla. */
@@ -43,23 +55,23 @@ export async function hamtaFakturor(samtalsId: string): Promise<string> {
   const kund = await verifieradKund(samtalsId);
   if (!kund) return EJ_LEGITIMERAD;
   const sys = SYSTEM === 'timewave' ? timewaveSystem() : testsystem(samtalsId);
-  if (!sys.hamtaFakturor) return 'Fakturorna går inte att visa i chatten just nu. Hänvisa till kundportalen stodona.twportal.se.';
+  if (!sys.hamtaFakturor) return 'Fakturorna går inte att visa i chatten just nu. Säg det och erbjud att kundservice mejlar uppgifterna (eskalera_till_kundservice). Hänvisa inte till kundportalen.';
 
   let fakturor: Faktura[];
   try {
     fakturor = await sys.hamtaFakturor(kund.kundId);
   } catch (fel) {
     console.error('fakturor: kunde inte hämtas', fel);
-    return 'Fakturorna gick inte att hämta just nu. Säg det och hänvisa till kundportalen stodona.twportal.se, där alla fakturor finns.';
+    return 'Fakturorna gick inte att hämta just nu. Säg det och erbjud att försöka igen om en stund, eller att kundservice mejlar uppgifterna (eskalera_till_kundservice). Hänvisa inte till kundportalen.';
   }
   if (!fakturor.length) return `Identifierad kund: ${kund.namn}. Kunden har inga fakturor hos oss.`;
 
   const idag = idagSthlm();
   return [
-    `Identifierad kund: ${kund.namn}. Senaste fakturorna, nyast först:`,
+    `Identifierad kund: ${kund.namn} (kundnummer ${kund.kundId}). Senaste fakturorna, nyast först:`,
     ...fakturor.map((f) => rad(f, idag)),
     'Svara bara på det kunden frågar om – oftast den senaste eller en obetald faktura. Skriv belopp, datum, bankgiro och OCR exakt som ovan; hitta aldrig på eller räkna om något.',
-    'Kopia på fakturan (PDF) finns i kundportalen stodona.twportal.se. E-faktura: stodona.se/e-faktura.',
+    'Allt som står på fakturan kan du ge här: belopp, RUT-avdrag, vad den avser, datum, bankgiro och OCR. Hänvisa ALDRIG till kundportalen. Vill kunden ha själva fakturan som PDF: säg att du ber kundservice mejla en kopia och lämna över med eskalera_till_kundservice (ange fakturanumret) – kunden behöver inte uppge mejl. E-faktura: stodona.se/e-faktura.',
     'Frågor om ett belopp, en avgift, en kreditering eller en betalning som inte syns: säg att kundservice kontrollerar det och lämna över med eskalera_till_kundservice. Lova aldrig att något ändras.',
   ].join('\n');
 }

@@ -60,6 +60,7 @@ const SKRIVNING_AV = 'SKRIVNING AVSTÄNGD: chatten skriver inte till TimeWave (S
 const SKRIVER = process.env.SJALVSERVICE_TW_SKRIV === 'true';
 /** Byte av städare (verifierat live 2026-09-25). Kan stängas av med SJALVSERVICE_BYT_STADARE=false. */
 const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE !== 'false';
+const FORTUR = process.env.SJALVSERVICE_FORTUR === 'true';
 
 /**
  * Ett ENGÅNGSUPPDRAG i TimeWave: typen "single" (flyttstädning, storstädning,
@@ -314,7 +315,11 @@ function prova(anstalld: TwAnstalld, upptaget: Upptaget[], datum: string, start:
 
 /** Förtur: en återkommande kund får tider där en annan kund har ett engångsuppdrag. */
 function harFortur(bokning: Bokning): boolean {
-  return bokning.aterkommande;
+  // AV tills vidare (2026-10-03): TimeWave svarar 500 på PUT bookinglines med
+  // employee 0, så engångsuppdraget går inte att sätta till "Utan anställd" via
+  // API:et. Utan det skulle kunden få förslag som sedan misslyckas vid bekräftelsen.
+  // Slå på med SJALVSERVICE_FORTUR=true när ett fungerande anrop finns.
+  return FORTUR && bokning.aterkommande;
 }
 
 /** Lediga tider för en städare: högst två per dag, minst tre timmar emellan – önskat klockslag först. */

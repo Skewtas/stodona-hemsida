@@ -60,7 +60,7 @@ const SKRIVNING_AV = 'SKRIVNING AVSTÄNGD: chatten skriver inte till TimeWave (S
 const SKRIVER = process.env.SJALVSERVICE_TW_SKRIV === 'true';
 /** Byte av städare (verifierat live 2026-09-25). Kan stängas av med SJALVSERVICE_BYT_STADARE=false. */
 const BYT_STADARE = process.env.SJALVSERVICE_BYT_STADARE !== 'false';
-const FORTUR = process.env.SJALVSERVICE_FORTUR === 'true';
+const FORTUR = process.env.SJALVSERVICE_FORTUR !== 'false';
 
 /**
  * Ett ENGÅNGSUPPDRAG i TimeWave: typen "single" (flyttstädning, storstädning,
@@ -315,10 +315,8 @@ function prova(anstalld: TwAnstalld, upptaget: Upptaget[], datum: string, start:
 
 /** Förtur: en återkommande kund får tider där en annan kund har ett engångsuppdrag. */
 function harFortur(bokning: Bokning): boolean {
-  // AV tills vidare (2026-10-03): TimeWave svarar 500 på PUT bookinglines med
-  // employee 0, så engångsuppdraget går inte att sätta till "Utan anställd" via
-  // API:et. Utan det skulle kunden få förslag som sedan misslyckas vid bekräftelsen.
-  // Slå på med SJALVSERVICE_FORTUR=true när ett fungerande anrop finns.
+  // Engångsuppdraget flyttas till en ledig kollega (lossaAnstalld). Stängs av
+  // med SJALVSERVICE_FORTUR=false.
   return FORTUR && bokning.aterkommande;
 }
 
@@ -367,13 +365,54 @@ async function hamtaMission(missionId: number): Promise<TwMission | null> {
   return (Array.isArray(svar.data) ? svar.data[0] : svar.data) ?? null;
 }
 
-/** Bokningsraden för ett engångsuppdrag, id "M{mission}-B{rad}@{datum}". */
-async function engangsrad(uppdragId: string): Promise<TwMissionAnstalld | null> {
+/** Uppdraget och bokningsraden för ett engångsuppdrag, id "M{mission}-B{rad}@{datum}". */
+export async function engangsuppdrag(uppdragId: string): Promise<{ mission: TwMission; rad: TwMissionAnstalld } | null> {
   const t = /^M(\d{1,10})-B(\d{1,10})@(\d{4}-\d{2}-\d{2})$/.exec(uppdragId);
   if (!t) return null;
   const rader = await twGetAlla<TwMission>(`/missions?filter[id]=${t[1]}&filter[startdate]=${t[3]}&filter[enddate]=${t[3]}`);
-  const m = rader.find((x) => String(x.id) === t[1]);
-  return m?.employees?.find((e) => String(e.bookingline_id) === t[2] && !e.cancelled) ?? null;
+  const mission = rader.find((x) => String(x.id) === t[1]);
+  const rad = mission?.employees?.find((e) => String(e.bookingline_id) === t[2] && !e.cancelled);
+  return mission && rad ? { mission, rad } : null;
+}
+
+async function engangsrad(uppdragId: string): Promise<TwMissionAnstalld | null> {
+  return (await engangsuppdrag(uppdragId))?.rad ?? null;
+}
+
+/**
+ * En kollega som kan ta över ett engångsuppdrag: aktiv, har tjänsten i
+ * TimeWave, arbetar den tiden och är helt ledig (med restid) – aldrig någon som
+ * redan står på samma uppdrag, och aldrig genom att tränga undan något annat.
+ */
+export async function hittaErsattare(mission: TwMission, rad: TwMissionAnstalld): Promise<{ id: string; namn: string } | null> {
+  const tjanstId = mission.services?.[0]?.id;
+  if (!tjanstId) return null;
+  const redanPa = new Set((mission.employees ?? []).map((e) => String(e.id)));
+  const kandidater = (await twGetAlla<TwAnstalld>(`/employees?filter[service_id]=${encodeURIComponent(String(tjanstId))}&filter[status]=active`))
+    .filter((a) => !redanPa.has(String(a.id)) && (a.availability ?? []).length > 0)
+    .slice(0, MAX_KOLLEGOR);
+  if (!kandidater.length) return null;
+  const start = minuter(hhmm(rad.starttime));
+  const slut = minuter(hhmm(rad.endtime));
+  const rader = await raderIPeriod(rad.startdate, rad.startdate);
+  for (let i = 0; i < kandidater.length; i += 4) {
+    const omgang = await Promise.all(
+      kandidater.slice(i, i + 4).map(async (k) => {
+        try {
+          const { anstalld, upptaget } = await schema(String(k.id), rad.startdate, rad.startdate, rader);
+          const utfall = prova(anstalld, upptaget, rad.startdate, start, slut, '', false);
+          if (utfall.ledig === false) return null;
+          const namn = [anstalld.first_name, anstalld.last_name].filter(Boolean).join(' ') || 'kollega';
+          return { id: String(k.id), namn: fornamn(namn) };
+        } catch {
+          return null;
+        }
+      })
+    );
+    const traff = omgang.find((x) => x !== null);
+    if (traff) return traff;
+  }
+  return null;
 }
 
 // ─── Gränssnittet ────────────────────────────────────────────────────────────
@@ -468,7 +507,14 @@ export function timewaveSystem(): Bokningssystem {
       const { anstalld, upptaget } = await schema(lucka.stadare.id, lucka.datum, lucka.datum);
       // En kollega måste fortfarande kunna utföra tjänsten.
       if (lucka.stadare.id !== bokning.stadare.id && !kanUtfora(anstalld, bokning.tjanstId)) return { ledig: false };
-      return prova(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id, harFortur(bokning));
+      const utfall = prova(anstalld, upptaget, lucka.datum, minuter(lucka.start), minuter(lucka.slut), bokning.id, harFortur(bokning));
+      if (utfall.ledig === false || !utfall.lossas.length) return utfall;
+      // Förtur: varje engångsuppdrag som ska lämna plats måste ha en ledig kollega som kan ta det.
+      for (const e of utfall.lossas) {
+        const traff = await engangsuppdrag(e.id);
+        if (!traff || !(await hittaErsattare(traff.mission, traff.rad))) return { ledig: false };
+      }
+      return utfall;
     },
 
     async flyttaTillfalle(bokning, lucka, notering) {
@@ -505,14 +551,19 @@ export function timewaveSystem(): Bokningssystem {
       return { ok: true, referens: 'TimeWave-avvikelse' };
     },
 
-    // Förtursregeln: engångsuppdraget sätts till "Utan anställd" (anställd 0) på
-    // just den bokningsraden. Kontrolleras efteråt med anstalldPa.
+    // Förtursregeln (Mikaela 2026-10-03): engångsuppdraget flyttas till en ledig
+    // kollega som kan utföra tjänsten. "Utan anställd" går inte att sätta via
+    // API:et (employee 0 ger 500), men byte till en annan städare fungerar.
+    // Anroparen kontrollerar efteråt med anstalldPa.
     async lossaAnstalld(uppdragId) {
       if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };
-      const rad = await engangsrad(uppdragId);
-      if (!rad) return { ok: false, fel: `Engångsuppdraget ${uppdragId} hittades inte.` };
-      const svar = await twBytAnstalld({ bokningsrad: rad.bookingline_id, datum: rad.startdate, start: hhmm(rad.starttime), slut: hhmm(rad.endtime), nyAnstalldId: 0 });
-      return svar.ok === true ? { ok: true, referens: 'TimeWave: utan anställd' } : svar;
+      const traff = await engangsuppdrag(uppdragId);
+      if (!traff) return { ok: false, fel: `Engångsuppdraget ${uppdragId} hittades inte.` };
+      const { rad, mission } = traff;
+      const ny = await hittaErsattare(mission, rad);
+      if (!ny) return { ok: false, fel: `Ingen ledig kollega kan ta engångsuppdraget ${uppdragId}.` };
+      const svar = await twBytAnstalld({ bokningsrad: rad.bookingline_id, datum: rad.startdate, start: hhmm(rad.starttime), slut: hhmm(rad.endtime), nyAnstalldId: Number(ny.id) });
+      return svar.ok === true ? { ok: true, referens: `ny städare: ${ny.namn} (${ny.id})` } : svar;
     },
     async avbokaTillfalle(bokning) {
       if (!SKRIVER) return { ok: false, fel: SKRIVNING_AV };

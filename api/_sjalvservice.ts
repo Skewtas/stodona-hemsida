@@ -671,6 +671,8 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
     // 4a. Förtursregeln: engångsuppdragen blir "Utan anställd" – och kontrolleras.
     const lossade: Engangsuppdrag[] = [];
+    /** Vem som tog över varje engångsuppdrag, t.ex. "ny städare: Sara (156)". */
+    const overtaget = new Map<string, string>();
     const backa = async (): Promise<string[]> => {
       const kvar: string[] = [];
       for (const e of lossade) {
@@ -691,12 +693,16 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
     for (const e of kontroll.lossas) {
       const r = await sys.lossaAnstalld(e.id);
-      if (r.ok === false || (await sys.anstalldPa(e.id)) !== null) {
+      // Engångsuppdraget ska ha lämnat städaren: flyttat till en kollega
+      // (TimeWave) eller utan anställd (testvärlden). undefined = hittades inte.
+      const nu = r.ok === false ? undefined : await sys.anstalldPa(e.id);
+      if (r.ok === false || nu === undefined || nu === e.stadare.id) {
         const info = await backaOchMeddela(`kunde inte lossa ${e.id}`);
         return avsluta('SYSTEMFEL', `Jag kunde tyvärr inte genomföra ändringen just nu. Din bokning är oförändrad: ${ursprunglig}. Vill du att kundservice hjälper dig?\n${KUNDSERVICE_VAL}`, `förtur: kunde inte lossa ${e.id}: ${r.ok === false ? r.fel : 'anställd låg kvar'}.${info}`, false, true);
       }
       lossade.push(e);
-      extra.forturUtanAnstalld.push(e.id);
+      overtaget.set(e.id, r.referens ?? '');
+      extra.forturUtanAnstalld.push(`${e.id}${r.referens ? ` (${r.referens})` : ''}`);
     }
 
     // 4b. Flytta kundens tillfälle.
@@ -731,8 +737,8 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
     // 6. Förtur: kundservice får veta vilka engångsuppdrag som behöver en ny städare.
     if (lossade.length) {
-      const text = `En återkommande kund har bokat om i chatten och fått förtur hos sin ordinarie städare. Följande engångsuppdrag står nu som "Utan anställd" och behöver en ny städare:\n${lossade.map(engangsrad).join('\n')}\n\nOmbokningen: ${ombokning}`;
-      extra.mejl = await mejlaKundservice(`Engångsuppdrag utan anställd – ${lossade.map((e) => e.id).join(', ')} (chatten)`, text).catch((fel) => {
+      const text = `En återkommande kund har bokat om i chatten och fått förtur hos sin ordinarie städare. Följande engångsuppdrag har därför flyttats till en ledig kollega (står det ingen ny städare är uppdraget utan anställd och behöver en) – kontrollera att bytet passar:\n${lossade.map((e) => `${engangsrad(e)}${overtaget.get(e.id) ? ` → ${overtaget.get(e.id)}` : ''}`).join('\n')}\n\nOmbokningen: ${ombokning}`;
+      extra.mejl = await mejlaKundservice(`Engångsuppdrag flyttat till kollega – ${lossade.map((e) => e.id).join(', ')} (chatten)`, text).catch((fel) => {
         console.error('självservice: mejlet om förtur gick inte iväg', fel);
         return `MEJLET MISSLYCKADES: ${String(fel)}`;
       });

@@ -70,8 +70,8 @@ export async function hamtaFakturor(samtalsId: string): Promise<string> {
   return [
     `Identifierad kund: ${kund.namn} (kundnummer ${kund.kundId}). Senaste fakturorna, nyast först:`,
     ...fakturor.map((f) => rad(f, idag)),
-    'Svara bara på det kunden frågar om – oftast den senaste eller en obetald faktura. Skriv belopp, datum, bankgiro och OCR exakt som ovan; hitta aldrig på eller räkna om något.',
-    'Allt som står på fakturan kan du ge här: belopp, RUT-avdrag, vad den avser, datum, bankgiro och OCR. Hänvisa ALDRIG till kundportalen. Vill kunden ha själva fakturan som PDF: säg att du ber kundservice mejla en kopia och lämna över med eskalera_till_kundservice (ange fakturanumret) – kunden behöver inte uppge mejl. E-faktura: stodona.se/e-faktura.',
+    'Frågar kunden om en viss uppgift (t.ex. OCR eller om den är betald): svara på just det. Ber kunden om "fakturan", "en kopia" eller "fakturainformation": ge ALL information om den fakturan direkt – fakturanummer, fakturadatum, vad den avser (raderna), belopp att betala, RUT-avdrag, förfallodag, om den är betald, bankgiro och OCR – och fråga sedan om det räcker eller om kunden vill ha själva fakturan som PDF. Skriv belopp, datum, bankgiro och OCR exakt som ovan; hitta aldrig på eller räkna om något.',
+    'Vill kunden ändå ha fakturan som PDF: säg att du lägger ett ärende så mejlar kundservice den, och lämna över med eskalera_till_kundservice (ange fakturanumret) – kunden behöver inte uppge mejl. Säg ALDRIG att du "inte kan", och nämn aldrig system, API eller tekniska skäl. Hänvisa inte till kundportalen. E-faktura: stodona.se/e-faktura.',
     'Frågor om ett belopp, en avgift, en kreditering eller en betalning som inte syns: säg att kundservice kontrollerar det och lämna över med eskalera_till_kundservice. Lova aldrig att något ändras.',
   ].join('\n');
 }

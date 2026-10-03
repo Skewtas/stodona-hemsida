@@ -11,8 +11,9 @@
 //     ekonomianteckning vid avgift och bekräftar till kunden (SMS, annars mejl)
 //     och till info@stodona.se. Först då säger chatten "Klart".
 //
-// Avbokningen är avstängd tills SJALVSERVICE_AVBOKNING=true är satt (och alltid
-// på i den lokala testvärlden). Avstängd lämnar Camilla över till kundservice.
+// Påslagen sedan 2026-10-03, efter test mot riktiga TimeWave (kund 15259: bara
+// det valda tillfället avbokades, övriga låg kvar, SMS gick iväg). Stängs av
+// med SJALVSERVICE_AVBOKNING=false – då lämnar Camilla över till kundservice.
 
 import * as lagring from './_lagring';
 import { bedom } from './_avbokningsregler';
@@ -30,7 +31,7 @@ import {
   type Utfall,
 } from './_sjalvservice';
 
-const PA = process.env.SJALVSERVICE_AVBOKNING === 'true';
+const PA = process.env.SJALVSERVICE_AVBOKNING !== 'false';
 
 function avbokningPa(samtalsId: string): boolean {
   const sys = system(samtalsId);

@@ -12,9 +12,9 @@ export default function VarvaEnVan() {
     <div className="flex flex-col">
       <Helmet>
         <title>Värva en vän – Få 50% rabatt | Stodona</title>
-        <meta name="description" content="Värva en vän till Stodona och få 50% rabatt på en faktura – för er båda! Tipsa om vår hemstädning och spara pengar tillsammans." />
+        <meta name="description" content="Värva en vän till Stodona: din vän får 15 % rabatt på sitt städabonnemang och du får 50 % rabatt på en faktura." />
         <meta property="og:title" content="Värva en vän – Få 50% rabatt | Stodona" />
-        <meta property="og:description" content="Tipsa en vän om Stodona och få 50% rabatt på en faktura – för er båda!" />
+        <meta property="og:description" content="Ge din personliga kod till en vän. Din vän får 15 % rabatt och du får 50 % rabatt på en faktura." />
         <link rel="canonical" href="https://stodona.se/varva-en-van" />
       </Helmet>
       {/* Hero Section */}
@@ -45,7 +45,7 @@ export default function VarvaEnVan() {
               <span className="italic font-normal text-cta-hover">{lang === 'SV' ? '50% rabatt' : '50% discount'}</span>
             </h1>
             <p className="text-lg md:text-xl text-text-light/80 leading-relaxed mb-8">
-              {lang === 'SV' ? 'Vem känner du som behöver hjälp med städningen hemma? En vän, kollega eller granne? Just nu har vi en riktigt bra värvningskampanj som ger er båda 50% rabatt på en faktura när du rekommenderar Stodona.' : 'Do you know someone who needs help with cleaning at home? A friend, colleague or neighbor? Right now we have a great referral campaign that gives you both 50% discount on an invoice when you recommend Stodona.'}
+              {lang === 'SV' ? 'Vem känner du som behöver hjälp med städningen hemma? En vän, kollega eller granne? Som abonnemangskund har du en personlig värvningskod. Din vän får 15 % rabatt på sitt städabonnemang, och du får 50 % rabatt på en hel faktura.' : 'Do you know someone who needs help with cleaning at home? A friend, colleague or neighbor? As a subscription customer you have a personal referral code. Your friend gets 15% off their cleaning subscription, and you get 50% off a full invoice.'}
             </p>
           </motion.div>
         </div>
@@ -65,9 +65,9 @@ export default function VarvaEnVan() {
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm text-xl font-bold text-cta-hover">
                 1
               </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Tipsa om Stodona' : 'Recommend Stodona'}</h3>
+              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Skicka din kod' : 'Share your code'}</h3>
               <p className="text-text-secondary">
-                {lang === 'SV' ? 'Du tipsar din vän om hemstädning med Stodona. Din vän anger ditt namn som referens i sin bokning.' : 'You recommend Stodona to your friend. Your friend enters your name as a reference in their booking.'}
+                {lang === 'SV' ? 'Din personliga värvningskod står i mejlen du får från oss. Skicka den till en vän – som SMS, på WhatsApp eller i ett mejl.' : 'Your personal referral code is in the emails you get from us. Send it to a friend – by text, WhatsApp or email.'}
               </p>
             </motion.div>
 
@@ -81,9 +81,9 @@ export default function VarvaEnVan() {
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm text-xl font-bold text-cta-hover">
                 2
               </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Bokning' : 'Booking'}</h3>
+              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Din vän får 15 %' : 'Your friend gets 15%'}</h3>
               <p className="text-text-secondary">
-                {lang === 'SV' ? 'Vi registrerar bokningen på dig som befintlig kund och även på din vän som du tipsat.' : 'We register the booking for you as an existing customer and also for your friend.'}
+                {lang === 'SV' ? 'Din vän bokar ett städabonnemang med koden – direkt på hemsidan eller via en offert – och får 15 % rabatt på alla sina städningar.' : 'Your friend books a cleaning subscription with the code – on the website or through a quote – and gets 15% off all their cleanings.'}
               </p>
             </motion.div>
 
@@ -97,9 +97,9 @@ export default function VarvaEnVan() {
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm text-xl font-bold text-cta-hover">
                 3
               </div>
-              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? '50% rabatt' : '50% discount'}</h3>
+              <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Du får 50 %' : 'You get 50%'}</h3>
               <p className="text-text-secondary">
-                {lang === 'SV' ? 'Den andra månaden får ni båda 50% rabatt på fakturan. Enkelt och smidigt!' : 'The second month you both get 50% discount on the invoice. Easy and smooth!'}
+                {lang === 'SV' ? 'När din vän har fått sin andra faktura får du 50 % rabatt på en hel faktura. Vi drar av det åt dig – du behöver inte göra något.' : 'When your friend has received their second invoice, you get 50% off a full invoice. We deduct it for you – you do not need to do anything.'}
               </p>
             </motion.div>
           </div>
@@ -120,23 +120,23 @@ export default function VarvaEnVan() {
             <ul className="space-y-4">
               <li className="flex gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{lang === 'SV' ? 'För att erhålla erbjudandet måste din vän vara kund hos oss i minst 2 månader.' : 'To receive the offer, your friend must be a customer with us for at least 2 months.'}</span>
+                <span className="text-text-secondary">{lang === 'SV' ? 'Du får din rabatt när din vän har fått sin andra faktura och har kvar sitt abonnemang.' : 'You get your discount when your friend has received their second invoice and still has their subscription.'}</span>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{lang === 'SV' ? 'Din vän får inte ha haft löpande städning med oss på minst 2 månader.' : 'Your friend must not have had regular cleaning with us for at least 2 months.'}</span>
+                <span className="text-text-secondary">{lang === 'SV' ? 'Din vän får inte ha haft en städning hos oss de senaste 2 månaderna.' : 'Your friend must not have had a cleaning with us in the last 2 months.'}</span>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{lang === 'SV' ? 'För att du och din vän ska få ta del av erbjudandet måste din vän ange dig som referens vid bokning.' : 'For you and your friend to take part in the offer, your friend must enter you as a reference when booking.'}</span>
+                <span className="text-text-secondary">{lang === 'SV' ? 'Du behöver själv ha varit kund hos oss i minst 2 månader och ha kvar ditt abonnemang när rabatten ges.' : 'You need to have been a customer with us for at least 2 months yourself, and still have your subscription when the discount is given.'}</span>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{lang === 'SV' ? 'Vännen kan inte i efterhand använda sig av erbjudandet.' : 'The friend cannot use the offer retroactively.'}</span>
+                <span className="text-text-secondary">{lang === 'SV' ? 'Din vän måste ange din kod när hen bokar ett städabonnemang. Koden kan inte läggas till i efterhand.' : 'Your friend must enter your code when booking a cleaning subscription. The code cannot be added afterwards.'}</span>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" />
-                <span className="text-text-secondary">{lang === 'SV' ? 'Erbjudandet går ej att kombinera med andra erbjudanden eller rabatter. (Har du som befintlig kund redan ett rabatterat pris så är det maximalt 50% rabatt du kan erhålla).' : 'The offer cannot be combined with other offers or discounts. (If you as an existing customer already have a discounted price, the maximum discount you can receive is 50%).'}</span>
+                <span className="text-text-secondary">{lang === 'SV' ? 'Rabatten på 50 % gäller ordinarie pris på en faktura. Erbjudandet går ej att kombinera med andra erbjudanden eller rabatter. (Har du som befintlig kund redan ett rabatterat pris så är det maximalt 50 % rabatt du kan erhålla).' : 'The 50% discount applies to the regular price on one invoice. The offer cannot be combined with other offers or discounts. (If you as an existing customer already have a discounted price, the maximum discount you can receive is 50%).'}</span>
               </li>
             </ul>
           </div>

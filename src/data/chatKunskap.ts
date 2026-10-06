@@ -286,7 +286,7 @@ NÖJD KUND
 Kunden godkänner Stodonas allmänna villkor när hen bokar. I dem ingår vår 100 % nöjd-kund-garanti: det som ingår i beställningen och inte blev bra ska Stodona i första hand få åtgärda. Enligt villkoren på stodona.se/villkor ska anmärkningar komma inom 24 timmar efter avslutad städning, gärna med bilder, och Stodona följer Allmänna reklamationsnämndens riktlinjer. Vad som händer i det enskilda ärendet bestämmer kundservice – lova inget själv.
 
 VÄRVA EN VÄN
-Tipsa en vän om hemstädning; vännen anger dig som referens när hen bokar. Ni får båda 50 % rabatt på en faktura. Vännen ska vara kund i minst två månader och inte ha haft löpande städning hos oss de senaste två månaderna. Går inte att kombinera med andra rabatter. Mer på stodona.se/varva-en-van
+Varje abonnemangskund har en personlig värvningskod, som står i mejlen från Stodona. Kunden ger koden till en vän. Vännen bokar ett städabonnemang med koden (på hemsidan eller via offert) och får 15 % rabatt på alla sina städningar. Den som värvar får 50 % rabatt på en hel faktura när vännen har fått sin andra faktura. Krav: vännen får inte ha haft en städning hos oss de senaste två månaderna, och den som värvar ska själv ha varit kund i minst två månader och ha kvar sitt abonnemang. Vännen får inte 50 %, bara 15 %. Går inte att kombinera med andra rabatter. Du kan inte se eller lämna ut någons kod – hänvisa till mejlen eller kundservice. Mer på stodona.se/varva-en-van
 
 PRESENTKORT
 Gäller hemstädning, flyttstädning, storstädning och fönsterputs, och levereras digitalt via mejl. Giltighetstiden vet du inte – lämna över om någon frågar. Mer på stodona.se/presentkort

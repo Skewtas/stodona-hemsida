@@ -143,21 +143,21 @@ const STEG = [
     ikon: Heart,
     siffra: '15%',
     rubrik: ['Din vän får 15%', 'Your friend gets 15%'],
-    text: ['Din vän får 15% rabatt på sin första bokning.', 'Your friend gets 15% off their first booking.'],
+    text: ['Din vän får 15% rabatt på hela sitt städabonnemang.', 'Your friend gets 15% off their entire cleaning subscription.'],
   },
   {
     ikon: Gift,
     siffra: '50%',
     rubrik: ['Du får 50% 🎉', 'You get 50% 🎉'],
-    text: ['När din vän har genomfört sin bokning får du 50% rabatt på en hel faktura.', 'Once your friend has completed their booking, you get 50% off a full invoice.'],
+    text: ['När din vän har fått sin andra faktura får du 50% rabatt på en hel faktura.', 'Once your friend has received their second invoice, you get 50% off a full invoice.'],
     beloning: true,
   },
 ];
 
 const VILLKOR: [string, string][] = [
-  ['Vännen måste vara ny kund hos Stodona.', 'Your friend must be a new Stodona customer.'],
-  ['Vännen får 15% rabatt på sin första bokning.', 'Your friend gets 15% off their first booking.'],
-  ['Din 50% rabatt aktiveras när vännen genomfört och betalat sin första bokning.', 'Your 50% discount is activated once your friend has completed and paid for their first booking.'],
+  ['Vännen måste vara ny kund – ingen städning hos oss de senaste två månaderna.', 'Your friend must be a new customer – no cleaning with us in the last two months.'],
+  ['Vännen får 15% rabatt på hela sitt städabonnemang.', 'Your friend gets 15% off their entire cleaning subscription.'],
+  ['Din 50% rabatt aktiveras när vännen har fått sin andra faktura.', 'Your 50% discount is activated once your friend has received their second invoice.'],
   ['Rabatten gäller på en hel faktura.', 'The discount applies to one full invoice.'],
   ['En värvning = en 50%-rabatt.', 'One referral = one 50% discount.'],
   ['Värvningskoden måste användas vid bokning.', 'The referral code must be used when booking.'],
@@ -172,7 +172,7 @@ export default function VarvaEnVan() {
     <div className="flex flex-col">
       <Helmet>
         <title>Värva en vän – få 50% rabatt | Stodona</title>
-        <meta name="description" content="Värva en vän till Stodona: din vän får 15% rabatt på sin första bokning och du får 50% rabatt på en hel faktura." />
+        <meta name="description" content="Värva en vän till Stodona: din vän får 15% rabatt på hela sitt städabonnemang och du får 50% rabatt på en hel faktura." />
         <meta property="og:title" content="Värva en vän – få 50% rabatt | Stodona" />
         <meta property="og:description" content="Dela din värvningskod: din vän får 15% rabatt och du får 50% rabatt på en hel faktura." />
         <link rel="canonical" href="https://stodona.se/varva-en-van" />

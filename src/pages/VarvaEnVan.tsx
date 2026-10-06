@@ -1,10 +1,103 @@
 import { Helmet } from "../seo";
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Gift, CheckCircle2 } from 'lucide-react';
+import { Gift, CheckCircle2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { bookingUrl } from "../utils/bookingUrl";
+
+const BOKIS_ORIGIN = 'https://boka.stodona.se';
+
+/**
+ * "Hämta min kod". Kunden skriver mobilnumret eller e-postadressen som står
+ * på kundkortet, och Bokis skickar koden DIT — som SMS eller mejl. Koden
+ * visas aldrig här: då hade vem som helst kunnat slå upp någon annans nummer.
+ * Svaret är därför detsamma vare sig uppgiften finns hos oss eller inte.
+ */
+function HamtaMinKod({ sv }: { sv: boolean }) {
+  const [kontakt, setKontakt] = useState('');
+  const [lage, setLage] = useState<'vila' | 'skickar' | 'klar'>('vila');
+  const [kanal, setKanal] = useState<'sms' | 'mejl'>('sms');
+  const [fel, setFel] = useState('');
+
+  async function skicka(e: React.FormEvent) {
+    e.preventDefault();
+    if (!kontakt.trim() || lage === 'skickar') return;
+    setLage('skickar'); setFel('');
+    try {
+      const r = await fetch(`${BOKIS_ORIGIN}/api/kundvarvning/min-kod`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kontakt: kontakt.trim() }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 400 || r.status === 429) {
+        setFel(sv ? (data?.error || 'Kontrollera uppgiften och försök igen.') : 'Please check what you entered and try again.');
+        setLage('vila');
+        return;
+      }
+      if (!r.ok) throw new Error();
+      setKanal(data?.kanal === 'mejl' ? 'mejl' : 'sms');
+      setLage('klar');
+    } catch {
+      setFel(sv ? 'Det gick inte just nu. Försök igen om en stund.' : 'That did not work right now. Please try again shortly.');
+      setLage('vila');
+    }
+  }
+
+  return (
+    <section id="min-kod" className="section-spacing bg-bg-primary scroll-mt-24">
+      <div className="container-custom">
+        <div className="max-w-2xl mx-auto card-rounded bg-white p-8 md:p-12 shadow-sm text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">{sv ? 'Hämta din värvningskod' : 'Get your referral code'}</h2>
+          {lage !== 'klar' ? (
+            <>
+              <p className="text-text-secondary mb-6">
+                {sv
+                  ? 'Är du abonnemangskund? Skriv ditt mobilnummer eller din e-postadress – samma som du har hos oss – så skickar vi din personliga kod dit direkt.'
+                  : 'Are you a subscription customer? Enter your mobile number or email address – the one you have with us – and we will send your personal code there right away.'}
+              </p>
+              <form onSubmit={skicka} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                <input
+                  type="text"
+                  required
+                  autoComplete="tel"
+                  value={kontakt}
+                  onChange={(e) => setKontakt(e.target.value)}
+                  placeholder={sv ? 'Mobilnummer eller e-post' : 'Mobile number or email'}
+                  aria-label={sv ? 'Mobilnummer eller e-post' : 'Mobile number or email'}
+                  className="flex-1 px-4 py-3 rounded-2xl border border-text-primary/10 bg-bg-primary/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cta-hover/60 transition-all"
+                />
+                <button type="submit" disabled={lage === 'skickar'} className="btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-60">
+                  {lage === 'skickar' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {sv ? 'Hämta min kod' : 'Get my code'}
+                </button>
+              </form>
+              {fel && <p className="text-sm text-red-700 mt-4" role="alert">{fel}</p>}
+            </>
+          ) : (
+            <div role="status">
+              <CheckCircle2 className="w-10 h-10 text-cta-hover mx-auto mb-4" />
+              <p className="text-lg font-bold mb-2">
+                {sv
+                  ? (kanal === 'sms' ? 'Kolla dina SMS!' : 'Kolla din inkorg!')
+                  : (kanal === 'sms' ? 'Check your texts!' : 'Check your inbox!')}
+              </p>
+              <p className="text-text-secondary">
+                {sv
+                  ? `Om ${kanal === 'sms' ? 'numret' : 'adressen'} finns på ditt kundkort och du har ett löpande abonnemang har vi skickat din kod dit. Kom det inget inom några minuter? Mejla info@stodona.se så hjälper vi dig.`
+                  : `If that ${kanal === 'sms' ? 'number' : 'address'} is on your customer record and you have an ongoing subscription, we have sent your code there. Nothing within a few minutes? Email info@stodona.se and we will help.`}
+              </p>
+              <button type="button" onClick={() => { setLage('vila'); setKontakt(''); }} className="mt-5 text-sm underline text-text-secondary">
+                {sv ? 'Försök med en annan uppgift' : 'Try something else'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function VarvaEnVan() {
   const { lang } = useLanguage();
@@ -67,7 +160,7 @@ export default function VarvaEnVan() {
               </div>
               <h3 className="text-xl font-bold mb-4">{lang === 'SV' ? 'Skicka din kod' : 'Share your code'}</h3>
               <p className="text-text-secondary">
-                {lang === 'SV' ? 'Din personliga värvningskod står i mejlen du får från oss. Skicka den till en vän – som SMS, på WhatsApp eller i ett mejl.' : 'Your personal referral code is in the emails you get from us. Send it to a friend – by text, WhatsApp or email.'}
+                {lang === 'SV' ? 'Din personliga värvningskod står i mejlen du får från oss – eller hämta den här nedanför. Skicka den till en vän som SMS, på WhatsApp eller i ett mejl.' : 'Your personal referral code is in the emails you get from us – or get it below. Send it to a friend by text, WhatsApp or email.'}
               </p>
             </motion.div>
 
@@ -112,10 +205,12 @@ export default function VarvaEnVan() {
         </div>
       </section>
 
+      <HamtaMinKod sv={lang === 'SV'} />
+
       {/* Conditions */}
-      <section className="section-spacing bg-bg-primary">
+      <section className="section-spacing bg-white">
         <div className="container-custom">
-          <div className="max-w-3xl mx-auto card-rounded bg-white p-8 md:p-12 shadow-sm">
+          <div className="max-w-3xl mx-auto card-rounded bg-bg-primary p-8 md:p-12">
             <h2 className="text-2xl font-bold mb-6">{lang === 'SV' ? 'Följande villkor gäller' : 'The following terms apply'}</h2>
             <ul className="space-y-4">
               <li className="flex gap-3">

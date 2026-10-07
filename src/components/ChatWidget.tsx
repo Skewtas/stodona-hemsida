@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { X, Send, Paperclip, Video, Loader2, ArrowDown, FlaskConical, ChevronDown } from "lucide-react";
 import { kampanjAktiv } from "../data/kampanj";
@@ -37,6 +38,8 @@ const LAGRINGSNYCKEL = "stodona-chat";
 const IDNYCKEL = "stodona-chat-id";
 /** Camilla på Stodonas kundservice. Kvadratisk beskärning, 192 px för skarpa retinaskärmar. */
 const AVATAR = "/camilla.webp";
+/** Elementet på kundportalsidan där chatten ritas i stället för i hörnet. */
+export const CHATTPLATS_ID = "stodona-chattplats";
 
 // Tidtagning som liknar en människa. Först "läser" Camilla en stund utan att
 // något syns, sedan visas att hon skriver, och sedan kommer texten i ungefär 35
@@ -621,6 +624,19 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   const s = TEXT[lang === "EN" ? "EN" : "SV"];
   // Personalchatten öppnas direkt.
   const [oppen, setOppen] = useState(lage === "personal");
+  // Kundportalen (stodona.se/kundportal) har en egen plats för chatten. Finns
+  // den ritas samtalet där, alltid öppet, och bubblan i hörnet göms.
+  const [plats, setPlats] = useState<HTMLElement | null>(null);
+  const platsRef = useRef(plats);
+  platsRef.current = plats;
+  useEffect(() => {
+    if (lage === "personal") return;
+    setPlats(document.getElementById(CHATTPLATS_ID));
+    const byt = (e: Event) => setPlats((e as CustomEvent<{ plats: HTMLElement | null }>).detail?.plats ?? null);
+    window.addEventListener("stodona:chatt-plats", byt);
+    return () => window.removeEventListener("stodona:chatt-plats", byt);
+  }, [lage]);
+  const visas = oppen || Boolean(plats);
   /** Inbjudan bredvid chattknappen – en gång per besök, och aldrig i personalchatten. */
   const [inbjudan, setInbjudan] = useState(false);
   /** Kunden tryckte "Annat" – textfältet får en tydligare uppmaning. */
@@ -630,7 +646,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     let visad = false;
     try { visad = sessionStorage.getItem("stodona-chat-inbjudan") === "1"; } catch { /* strunt i det */ }
     if (visad) return;
-    const id = window.setTimeout(() => setInbjudan(true), 3500);
+    const id = window.setTimeout(() => !platsRef.current && setInbjudan(true), 3500);
     return () => window.clearTimeout(id);
   }, [lage]);
   const stangInbjudan = () => {
@@ -758,9 +774,9 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     setTestlage(lage?.testlage ? lage : null);
   };
   useEffect(() => {
-    if (oppen) uppdateraTestlage();
+    if (visas) uppdateraTestlage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oppen]);
+  }, [visas]);
 
   useEffect(() => {
     if (!oppen) return;
@@ -929,8 +945,8 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     const oppna = (e: Event) => {
       const fraga = (e as CustomEvent<{ fraga?: string }>).detail?.fraga;
       stangInbjudan();
-      setOppen(true);
-      track("chat_open", { kalla: "chattsidan" });
+      if (!platsRef.current) setOppen(true);
+      track("chat_open", { kalla: platsRef.current ? "kundportalen" : "chattsidan" });
       if (fraga) window.setTimeout(() => skickaRef.current(fraga), 350);
     };
     window.addEventListener("stodona:chatt", oppna);
@@ -1105,95 +1121,19 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     sjalvservicePa && sista && sista.roll === "assistant" && !skriver && delaUppVal(sista.text).bankid && !bankidOppen
   );
 
-  return (
-    <>
-      {/* Bubblan sitter ovanför den mobila bokningsremsan (z-9990) men under
-          cookiebannern (z-9999). Stängd visar den Camilla, öppen ett kryss. */}
-      <AnimatePresence>
-        {inbjudan && !oppen && (
+  const panel = (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.25 }}
-            className={`fixed ${cookiesBesvarade ? "bottom-40 md:bottom-24" : "bottom-80 md:bottom-60"} right-4 md:right-8 z-[9995] max-w-[260px] rounded-2xl rounded-br-sm bg-white shadow-xl ring-1 ring-text-primary/10 pl-4 pr-8 py-3 text-sm text-text-primary`}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                stangInbjudan();
-                setOppen(true);
-                track("chat_open", { kalla: "inbjudan" });
-              }}
-              className="text-left"
-            >
-              <span className="block text-xs font-bold mb-0.5">Camilla</span>
-              {kampanjAktiv() ? s.inbjudanKampanj : s.inbjudan}
-            </button>
-            <button
-              type="button"
-              onClick={stangInbjudan}
-              aria-label={s.stangInbjudan}
-              className="absolute top-2 right-2 text-text-secondary hover:text-text-primary"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <button
-        onClick={() => {
-          stangInbjudan();
-          setOppen((v) => {
-            if (!v) track("chat_open", {});
-            return !v;
-          });
-        }}
-        aria-label={oppen ? s.stang : s.oppna}
-        aria-expanded={oppen}
-        className={`fixed ${cookiesBesvarade ? "bottom-24 md:bottom-8" : "bottom-64 md:bottom-44"} right-4 md:right-8 z-[9995] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-colors ${
-          oppen
-            ? "bg-bg-dark text-text-light hover:bg-accent hover:text-text-primary"
-            : "bg-bg-primary ring-2 ring-white hover:ring-accent"
-        }`}
-      >
-        {oppen ? (
-          <X className="w-6 h-6" />
-        ) : (
-          <>
-            <img src={AVATAR} alt="" className="w-full h-full rounded-full object-cover" />
-            <span className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white" aria-hidden="true" />
-          </>
-        )}
-      </button>
-
-      {/* Mobil: sidan bakom tonas ner när chatten är öppen. Ett tryck utanför stänger. */}
-      <AnimatePresence>
-        {oppen && lage !== "personal" && (
-          <motion.div
-            key="bakgrund"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={() => setOppen(false)}
-            aria-hidden="true"
-            className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-[2px] md:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {oppen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            initial={plats ? false : { opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            role="dialog"
+            role={plats ? "region" : "dialog"}
             aria-label={s.rubrik}
-            className="fixed z-[10000] bg-white shadow-2xl flex flex-col overflow-hidden inset-x-3 bottom-40 top-20 rounded-3xl md:inset-x-auto md:top-auto md:right-8 md:bottom-28 md:w-[400px] md:h-[min(560px,calc(100vh-9rem))]"
+            className={
+              plats
+                ? "relative h-full w-full bg-white flex flex-col overflow-hidden rounded-[inherit]"
+                : "fixed z-[10000] bg-white shadow-2xl flex flex-col overflow-hidden inset-x-3 bottom-40 top-20 rounded-3xl md:inset-x-auto md:top-auto md:right-8 md:bottom-28 md:w-[400px] md:h-[min(560px,calc(100vh-9rem))]"
+            }
           >
             <div className="bg-bg-dark text-text-light px-4 py-3 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">
@@ -1206,9 +1146,11 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                   <p className="text-text-light/60 text-xs mt-0.5">{s.underrubrik}</p>
                 </div>
               </div>
-              <button onClick={() => setOppen(false)} aria-label={s.stang} className="text-text-light/60 hover:text-text-light">
-                <X className="w-5 h-5" />
-              </button>
+              {!plats && (
+                <button onClick={() => setOppen(false)} aria-label={s.stang} className="text-text-light/60 hover:text-text-light">
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             {testlage && testlage.lage !== "kund" && <TestlageBanderoll lage={testlage} uppdatera={setTestlage} />}
@@ -1581,8 +1523,91 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
               </div>
             </form>
           </motion.div>
+  );
+
+  // I kundportalen ligger samtalet i sidan – ingen bubbla, inget att stänga.
+  if (plats) return createPortal(panel, plats);
+
+  return (
+    <>
+      {/* Bubblan sitter ovanför den mobila bokningsremsan (z-9990) men under
+          cookiebannern (z-9999). Stängd visar den Camilla, öppen ett kryss. */}
+      <AnimatePresence>
+        {inbjudan && !oppen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.25 }}
+            className={`fixed ${cookiesBesvarade ? "bottom-40 md:bottom-24" : "bottom-80 md:bottom-60"} right-4 md:right-8 z-[9995] max-w-[260px] rounded-2xl rounded-br-sm bg-white shadow-xl ring-1 ring-text-primary/10 pl-4 pr-8 py-3 text-sm text-text-primary`}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                stangInbjudan();
+                setOppen(true);
+                track("chat_open", { kalla: "inbjudan" });
+              }}
+              className="text-left"
+            >
+              <span className="block text-xs font-bold mb-0.5">Camilla</span>
+              {kampanjAktiv() ? s.inbjudanKampanj : s.inbjudan}
+            </button>
+            <button
+              type="button"
+              onClick={stangInbjudan}
+              aria-label={s.stangInbjudan}
+              className="absolute top-2 right-2 text-text-secondary hover:text-text-primary"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
+
+      <button
+        onClick={() => {
+          stangInbjudan();
+          setOppen((v) => {
+            if (!v) track("chat_open", {});
+            return !v;
+          });
+        }}
+        aria-label={oppen ? s.stang : s.oppna}
+        aria-expanded={oppen}
+        className={`fixed ${cookiesBesvarade ? "bottom-24 md:bottom-8" : "bottom-64 md:bottom-44"} right-4 md:right-8 z-[9995] w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-colors ${
+          oppen
+            ? "bg-bg-dark text-text-light hover:bg-accent hover:text-text-primary"
+            : "bg-bg-primary ring-2 ring-white hover:ring-accent"
+        }`}
+      >
+        {oppen ? (
+          <X className="w-6 h-6" />
+        ) : (
+          <>
+            <img src={AVATAR} alt="" className="w-full h-full rounded-full object-cover" />
+            <span className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white" aria-hidden="true" />
+          </>
+        )}
+      </button>
+
+      {/* Mobil: sidan bakom tonas ner när chatten är öppen. Ett tryck utanför stänger. */}
+      <AnimatePresence>
+        {oppen && lage !== "personal" && (
+          <motion.div
+            key="bakgrund"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setOppen(false)}
+            aria-hidden="true"
+            className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-[2px] md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>{oppen && panel}</AnimatePresence>
     </>
   );
 }

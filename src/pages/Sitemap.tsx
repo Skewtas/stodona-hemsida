@@ -31,7 +31,7 @@ export default function Sitemap() {
     { name: "Byta städbolag", path: "/byta-stadbolag", icon: ShieldCheck },
     { name: "Presentkort", path: "/presentkort", icon: Sparkles },
     { name: "Jobba hos oss", path: "/jobba-hos-oss", icon: Star },
-    { name: "Kundportalen", path: "/kundportalen", icon: ShieldCheck },
+    { name: "Kundportal", path: "/kundportal", icon: ShieldCheck },
     { name: "E-faktura", path: "/e-faktura", icon: FileText },
     { name: "Blogg", path: "/blogg", icon: BookOpen },
     { name: "FAQ", path: "/faq", icon: HelpCircle },

@@ -3,6 +3,7 @@
   "buildCommand": "bun run build:ssg",
   "outputDirectory": "dist",
   "redirects": [
+    { "source": "/kundportalen", "destination": "/kundportal", "permanent": true },
     { "source": "/hemstadning-stockholm", "destination": "/hemstadning", "permanent": true },
     { "source": "/flyttstadning-stockholm", "destination": "/flyttstadning", "permanent": true },
     { "source": "/storstadning-stockholm", "destination": "/storstadning", "permanent": true },

@@ -94,15 +94,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <Mail className="w-4 h-4" />
               </a>
-              <a
-                href="https://stodona.twportal.se/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/kundportal"
                 className="text-text-secondary hover:text-cta-hover transition-colors flex items-center gap-2"
-                title="Kundportal"
+                title={lang === 'SV' ? 'Kundportal' : 'Customer portal'}
+                aria-label={lang === 'SV' ? 'Kundportal' : 'Customer portal'}
               >
                 <User className="w-4 h-4" />
-              </a>
+              </Link>
               <div className="flex items-center gap-1 text-xs font-semibold pl-4 border-l border-text-primary/10">
                 <button
                   onClick={() => setLang('SV')}
@@ -179,15 +178,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <Mail className="w-5 h-5" />
               </a>
-              <a
-                href="https://stodona.twportal.se/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/kundportal"
                 className="text-text-secondary hover:text-cta-hover transition-colors flex items-center gap-2"
-                title="Kundportal"
+                title={lang === 'SV' ? 'Kundportal' : 'Customer portal'}
+                aria-label={lang === 'SV' ? 'Kundportal' : 'Customer portal'}
               >
                 <User className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
 
             {isBabysittingPage ? (
@@ -380,7 +378,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li>
-                <Link to="/kundportalen" className="hover:text-cta-hover transition-colors">
+                <Link to="/kundportal" className="hover:text-cta-hover transition-colors">
                   {t('footer.kundportalen', lang)}
                 </Link>
               </li>
@@ -441,9 +439,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">
                   <User className="w-4 h-4 text-cta-hover" />
                 </div>
-                <a href="https://stodona.twportal.se/" target="_blank" rel="noopener noreferrer" className="hover:text-cta-hover transition-colors">
+                <Link to="/kundportal" className="hover:text-cta-hover transition-colors">
                   {t('footer.kundportal', lang)}
-                </a>
+                </Link>
               </li>
             </ul>
             <div className="mt-6">

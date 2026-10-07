@@ -26,10 +26,10 @@ const translations: TranslationMap = {
     'footer.jobba': { SV: 'Jobba hos oss', EN: 'Careers' },
     'footer.priser': { SV: 'Priser', EN: 'Pricing' },
     'footer.kontakt': { SV: 'Kontakt', EN: 'Contact' },
-    'footer.kundportalen': { SV: 'Kundportalen', EN: 'Customer Portal' },
+    'footer.kundportalen': { SV: 'Kundportal', EN: 'Customer portal' },
     'footer.varvaenvan': { SV: 'Värva en vän', EN: 'Refer a Friend' },
     'footer.visselblasning': { SV: 'Visselblåsning', EN: 'Whistleblowing' },
-    'footer.kundportal': { SV: 'Kundportal', EN: 'Customer Portal' },
+    'footer.kundportal': { SV: 'Chatta med Camilla', EN: 'Chat with Camilla' },
     'footer.description': {
         SV: 'Professionell hemstädning i Stockholm med strukturerad metod, kvalitetskontroller och nöjda återkommande kunder.',
         EN: 'Professional home cleaning in Stockholm with a structured method, quality controls, and satisfied returning customers.',
@@ -54,7 +54,7 @@ const translations: TranslationMap = {
     'home.hero.bullet1': { SV: '100 % nöjdgaranti', EN: '100% satisfaction guarantee' },
     'home.hero.bullet2': { SV: 'Abonnemang för bättre priser', EN: 'Subscriptions for better prices' },
     'home.hero.bullet3': { SV: 'Samma team som lär känna ert hem', EN: 'The same team, who get to know your home' },
-    'home.hero.bullet4': { SV: 'Kundportal', EN: 'Customer portal' },
+    'home.hero.bullet4': { SV: 'Hjälp direkt i chatten', EN: 'Help right in the chat' },
 
     // ─── HOME: Booking section ─────────────────────────────────────────
     'home.book.badge': { SV: 'Snabbt & Enkelt', EN: 'Fast & Easy' },
@@ -413,8 +413,6 @@ const translations: TranslationMap = {
     // ─── KONTAKT ────────────────────────────────────────────────────────
     'kontakt.hero.title': { SV: 'Kontakta oss', EN: 'Contact us' },
 
-    // ─── KUNDPORTAL ─────────────────────────────────────────────────────
-    'kundportal.title': { SV: 'Kundportalen', EN: 'Customer Portal' },
 
     // ─── VÄRVA EN VÄN ───────────────────────────────────────────────────
     'varva.title': { SV: 'Värva en vän', EN: 'Refer a friend' },

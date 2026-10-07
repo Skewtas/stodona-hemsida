@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import { LanguageProvider } from "./context/LanguageContext";
 import PlaceholderPage from "./components/PlaceholderPage";
@@ -164,7 +164,8 @@ export default function App() {
           <Route path="/ansok-barnvakt" element={<BarnvaktAnsokan />} />
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/chatt" element={<Chatt />} />
-          <Route path="/kundportalen" element={<Kundportal />} />
+          <Route path="/kundportal" element={<Kundportal />} />
+          <Route path="/kundportalen" element={<Navigate to="/kundportal" replace />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
           <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />
           <Route path="/samarbeta" element={<Samarbeta />} />

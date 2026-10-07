@@ -10,9 +10,6 @@ import {
   ArrowUpRight,
   ArrowDown,
   Check,
-  Smartphone,
-  Clock,
-  KeyRound,
 } from "lucide-react";
 import { CHATTPLATS_ID } from "../components/ChatWidget";
 
@@ -41,11 +38,7 @@ const CHATTEN_KAN = [
   "Bekräftar ändringen med SMS direkt",
 ];
 
-const LOFTEN = [
-  { ikon: KeyRound, text: "Inget lösenord att komma ihåg" },
-  { ikon: Smartphone, text: "SMS-kod till mobilnumret på ditt kundkort" },
-  { ikon: Clock, text: "Öppet dygnet runt" },
-];
+const LOFTEN = ["Inget lösenord", "SMS-kod till mobilnumret på ditt kundkort", "Öppet dygnet runt"];
 
 export default function Kundportal() {
   const plats = useRef<HTMLDivElement>(null);
@@ -93,7 +86,7 @@ export default function Kundportal() {
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-14">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-text-primary ring-1 ring-text-primary/10 backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
               Kundportal
             </p>
             <h1 className="mt-5 text-4xl leading-[1.08] text-text-primary sm:text-5xl lg:text-[3.5rem]">
@@ -107,7 +100,7 @@ export default function Kundportal() {
             <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
               {CHATTEN_KAN.map((text) => (
                 <li key={text} className="flex items-start gap-2.5 text-[15px] leading-snug text-text-primary">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-deep">
                     <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
                   </span>
                   {text}
@@ -125,7 +118,7 @@ export default function Kundportal() {
               <ArrowDown className="h-5 w-5 animate-bounce" aria-hidden="true" />
             </button>
 
-            <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-text-secondary">Eller välj ett ärende</p>
+            <p className="mt-9 text-xs font-semibold uppercase tracking-widest text-text-primary">Eller välj ett ärende</p>
 
             <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4">
               {VAL.map(({ ikon: Ikon, rubrik, text, fraga }) => (
@@ -133,15 +126,15 @@ export default function Kundportal() {
                   <button
                     type="button"
                     onClick={() => starta(fraga)}
-                    className="group relative flex h-full w-full flex-col rounded-2xl bg-white p-4 text-left ring-1 ring-text-primary/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-text-primary/10 hover:ring-text-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:p-5"
+                    className="group relative flex h-full w-full items-center gap-3 rounded-2xl bg-white p-3.5 text-left sm:flex-col sm:items-start sm:gap-0 ring-1 ring-text-primary/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-text-primary/10 hover:ring-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:p-5"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-bg-primary text-text-primary transition-colors duration-300 group-hover:bg-bg-dark group-hover:text-text-light">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-deep transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
                       <Ikon className="h-5 w-5" aria-hidden="true" />
                     </span>
-                    <span className="mt-4 block font-semibold text-text-primary">{rubrik}</span>
+                    <span className="block text-[15px] font-semibold leading-tight text-text-primary sm:mt-4 sm:text-base">{rubrik}</span>
                     <span className="mt-1 hidden text-sm leading-snug text-text-secondary sm:block">{text}</span>
                     <ArrowUpRight
-                      className="absolute right-4 top-4 h-4 w-4 text-text-primary/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-deep"
+                      className="absolute right-4 top-4 hidden h-4 w-4 text-text-primary/25 sm:block transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-deep"
                       aria-hidden="true"
                     />
                   </button>
@@ -149,14 +142,14 @@ export default function Kundportal() {
               ))}
             </ul>
 
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2.5 border-t border-text-primary/10 pt-6 text-sm text-text-secondary">
-              {LOFTEN.map(({ ikon: Ikon, text }) => (
-                <li key={text} className="flex items-center gap-2">
-                  <Ikon className="h-4 w-4 text-accent-deep" aria-hidden="true" />
+            <p className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
+              {LOFTEN.map((text) => (
+                <span key={text} className="flex items-center gap-2.5">
+                  <span className="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
                   {text}
-                </li>
+                </span>
               ))}
-            </ul>
+            </p>
           </div>
 
           {/* Chatten, med en pil som visar var frågan ska skrivas. */}
@@ -168,7 +161,7 @@ export default function Kundportal() {
                 <path d="M23 36l11 12 9-14" />
               </svg>
             </div>
-          <div className="relative h-[min(640px,74svh)] rounded-[28px] bg-white shadow-2xl shadow-text-primary/15 ring-2 ring-accent/40 lg:h-[min(640px,calc(100vh-14rem))]">
+          <div className="relative h-[min(640px,74svh)] rounded-[28px] bg-white shadow-2xl shadow-text-primary/15 ring-1 ring-accent/40 lg:h-[min(640px,calc(100vh-14rem))]">
             <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
               <div className="flex items-center gap-3 bg-bg-dark px-4 py-3 text-text-light">
                 <img src="/camilla.webp" alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />

@@ -220,9 +220,10 @@ export default function VarvaEnVan() {
       {/* Så funkar det – tre kort. Siffrorna bär budskapet; 50 % är belöningen
           och får därför den mörka rutan och den största siffran. */}
       <section className="py-14 md:py-20 bg-bg-primary">
-        <div className="container-custom">
+        {/* Korten går över hela skärmens bredd, inte i sidans vanliga spalt. */}
+        <div className="w-full px-5 sm:px-6 lg:px-10 xl:px-14">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-14">{sv ? 'Så funkar det' : 'How it works'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto md:items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 lg:gap-8 md:items-stretch">
             {STEG.map((steg, n) => {
               const Ikon = steg.ikon;
               return (
@@ -233,7 +234,7 @@ export default function VarvaEnVan() {
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: n * 0.12 }}
                   whileHover={{ y: -6 }}
-                  className={`relative rounded-3xl p-7 md:p-8 text-center flex flex-col items-center overflow-hidden ${
+                  className={`relative rounded-3xl p-7 md:p-8 lg:py-12 text-center flex flex-col items-center overflow-hidden ${
                     steg.beloning
                       ? 'bg-bg-dark text-text-light shadow-2xl shadow-text-primary/25 md:scale-[1.04]'
                       : 'bg-white shadow-sm'

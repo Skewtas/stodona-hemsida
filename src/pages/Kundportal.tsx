@@ -8,7 +8,8 @@ import {
   ReceiptText,
   History,
   ArrowUpRight,
-  MessageCircle,
+  ArrowDown,
+  Check,
   Smartphone,
   Clock,
   KeyRound,
@@ -30,6 +31,14 @@ const VAL = [
   { ikon: History, rubrik: "Utförda städningar", text: "Vilka städningar som är gjorda, och av vem.", fraga: "Jag vill se mina utförda städningar" },
   { ikon: CalendarX, rubrik: "Avboka", text: "Behöver du ställa in ett tillfälle? Camilla hjälper dig.", fraga: "Jag vill avboka min städning" },
   { ikon: CalendarPlus, rubrik: "Boka ny städning", text: "Storstädning, fönsterputs eller något annat.", fraga: "Jag vill boka städning" },
+];
+
+/** Det Camilla löser direkt i chatten – bara sådant som faktiskt fungerar. */
+const CHATTEN_KAN = [
+  "Berättar när din nästa städning är, och vem som kommer",
+  "Bokar om eller avbokar åt dig",
+  "Tar fram dina fakturor – belopp, OCR och bankgiro",
+  "Bekräftar ändringen med SMS direkt",
 ];
 
 const LOFTEN = [
@@ -56,7 +65,7 @@ export default function Kundportal() {
     // På mobilen ligger chatten under korten – ta kunden dit.
     if (!window.matchMedia("(min-width: 1024px)").matches) ram.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (fraga) window.dispatchEvent(new CustomEvent("stodona:chatt", { detail: { fraga } }));
-    else window.setTimeout(() => ram.current?.querySelector<HTMLInputElement>("form input:not([type=file])")?.focus(), 400);
+    else window.setTimeout(() => ram.current?.querySelector<HTMLInputElement>("form input:not([type=file])")?.focus({ preventScroll: true }), 500);
   }
 
   return (
@@ -91,10 +100,34 @@ export default function Kundportal() {
               Allt om din städning, <span className="italic text-accent-deep">på ett ställe.</span>
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-text-secondary">
-              Se dina bokningar, boka om och hitta dina fakturor. Välj vad du vill göra, så hjälper Camilla dig direkt.
+              <strong className="font-semibold text-text-primary">Fråga Camilla i chatten, så får du hjälp direkt.</strong> Du slipper
+              mejla, ringa och vänta på svar.
             </p>
 
-            <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+            <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
+              {CHATTEN_KAN.map((text) => (
+                <li key={text} className="flex items-start gap-2.5 text-[15px] leading-snug text-text-primary">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                    <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                  </span>
+                  {text}
+                </li>
+              ))}
+            </ul>
+
+            {/* Mobil: chatten ligger längre ner – en tydlig knapp dit. */}
+            <button
+              type="button"
+              onClick={() => starta()}
+              className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3.5 font-semibold text-white shadow-lg shadow-accent/30 transition-colors hover:bg-accent-deep lg:hidden"
+            >
+              Ställ din fråga direkt
+              <ArrowDown className="h-5 w-5 animate-bounce" aria-hidden="true" />
+            </button>
+
+            <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-text-secondary">Eller välj ett ärende</p>
+
+            <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4">
               {VAL.map(({ ikon: Ikon, rubrik, text, fraga }) => (
                 <li key={rubrik}>
                   <button
@@ -116,15 +149,6 @@ export default function Kundportal() {
               ))}
             </ul>
 
-            <button
-              type="button"
-              onClick={() => starta()}
-              className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-text-primary underline decoration-text-primary/30 underline-offset-4 transition-colors hover:text-accent-deep hover:decoration-accent-deep"
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Något annat? Skriv din fråga till Camilla
-            </button>
-
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2.5 border-t border-text-primary/10 pt-6 text-sm text-text-secondary">
               {LOFTEN.map(({ ikon: Ikon, text }) => (
                 <li key={text} className="flex items-center gap-2">
@@ -135,11 +159,16 @@ export default function Kundportal() {
             </ul>
           </div>
 
-          {/* Chatten. Tom ram med Camillas huvud tills ChatWidget ritat samtalet i den. */}
-          <div
-            ref={ram}
-            className="relative h-[min(640px,78svh)] scroll-mt-24 rounded-[28px] bg-white shadow-2xl shadow-text-primary/15 ring-1 ring-text-primary/10 lg:sticky lg:top-40 lg:h-[min(660px,calc(100vh-11.5rem))]"
-          >
+          {/* Chatten, med en pil som visar var frågan ska skrivas. */}
+          <div ref={ram} className="scroll-mt-24 lg:sticky lg:top-36">
+            <div className="mb-3 flex items-end justify-center gap-2 lg:justify-start lg:pl-6">
+              <p className="font-display text-[1.35rem] italic leading-tight text-accent-deep lg:whitespace-nowrap">Ställ din fråga här – få hjälp direkt</p>
+              <svg viewBox="0 0 48 56" className="kundportal-pil h-12 w-10 shrink-0 translate-y-3 text-accent-deep" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 6c20 0 30 12 28 40" />
+                <path d="M23 36l11 12 9-14" />
+              </svg>
+            </div>
+          <div className="relative h-[min(640px,74svh)] rounded-[28px] bg-white shadow-2xl shadow-text-primary/15 ring-2 ring-accent/40 lg:h-[min(640px,calc(100vh-14rem))]">
             <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
               <div className="flex items-center gap-3 bg-bg-dark px-4 py-3 text-text-light">
                 <img src="/camilla.webp" alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
@@ -150,6 +179,7 @@ export default function Kundportal() {
               </div>
             </div>
             <div id={CHATTPLATS_ID} ref={plats} className="absolute inset-0 rounded-[inherit]" />
+          </div>
           </div>
         </div>
       </section>

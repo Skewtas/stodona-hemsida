@@ -42,6 +42,7 @@
 //    bara när huvudbrytaren SJALVSERVICE_KUNDER=true är på.
 
 import * as lagring from './_lagring';
+import { kontrolleraKod } from './_smskod';
 import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
 import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
@@ -175,11 +176,25 @@ export async function kollaSignering(
 
 // ─── Personalchatten: välj kund på namn ──────────────────────────────────────
 
-/** Namnen på kontona som delar ett mobilnummer – visas för den som angett rätt SMS-kod. */
+/**
+ * Kontona som delar ett mobilnummer eller en e-postadress – för den som angett
+ * rätt kod. Har något av kundkorten kommande städningar räknas bara de: gamla
+ * dubbletter utan bokningar ska kunden aldrig behöva välja bland (Mikaela
+ * 2026-10-07). Ett enda kvar loggas in direkt, annars väljer kunden.
+ */
 export async function kontonForVal(samtalsId: string, nummer: string[]): Promise<{ nummer: string; namn: string }[]> {
   const sys = system(samtalsId);
-  const konton = await Promise.all(nummer.map(async (nr) => ({ nummer: nr, namn: (await sys.hamtaKund(nr).catch(() => null))?.namn ?? '' })));
-  return konton.filter((k) => k.namn);
+  const konton = (
+    await Promise.all(
+      nummer.map(async (nr) => ({
+        nummer: nr,
+        namn: (await sys.hamtaKund(nr).catch(() => null))?.namn ?? '',
+        aktiv: (await sys.hamtaBokningar(nr).catch(() => [])).length > 0,
+      }))
+    )
+  ).filter((k) => k.namn);
+  const aktiva = konton.filter((k) => k.aktiv);
+  return (aktiva.length > 0 ? aktiva : konton).map(({ nummer, namn }) => ({ nummer, namn }));
 }
 
 /** Kopplar samtalet till kunden (personalens val, eller en godkänd SMS-kod). */
@@ -193,6 +208,47 @@ export async function valjKundFor(samtalsId: string, kundnummer: string): Promis
     VERIFIERING_MINUTER * 60
   );
   return kund;
+}
+
+// ─── Inloggning med SMS-kod (alla kanaler) ───────────────────────────────────
+
+export type SmsInloggning =
+  | { status: 'klar'; namn: string; kundnummer: string }
+  | { status: 'valj'; konton: { nummer: string; namn: string }[] }
+  | { fel: string };
+
+/**
+ * Kontrollerar SMS-koden och kopplar samtalet till kunden. Står numret på
+ * flera konton får den som har telefonen välja konto (valjSmsKonto). Samma
+ * steg för webbchatten (api/kund-bankid.ts) och Instagram (api/_instagram.ts).
+ */
+export async function loggaInMedKod(samtalsId: string, kod: string): Promise<SmsInloggning> {
+  const svar = await kontrolleraKod(samtalsId, kod);
+  if ('fel' in svar) return { fel: svar.fel };
+  let kundnummer = svar.kundnummer[0];
+  if (svar.kundnummer.length > 1) {
+    const konton = await kontonForVal(samtalsId, svar.kundnummer);
+    if (konton.length > 1) {
+      await lagring.spara(`sjalv:smsval:${samtalsId}`, konton.map((k) => k.nummer), 600);
+      return { status: 'valj', konton };
+    }
+    // Bara ett av kundkorten har kommande städningar: det är kundens.
+    if (konton.length === 1) kundnummer = konton[0].nummer;
+  }
+  const kund = await valjKundFor(samtalsId, kundnummer);
+  if (!kund) return { fel: 'Inloggningen gick inte igenom. Skriv till oss här i chatten så hjälper vi dig.' };
+  return { status: 'klar', namn: kund.namn, kundnummer: kund.id };
+}
+
+/** Bara ett av kontona som just verifierats med SMS-koden i det här samtalet. */
+export async function valjSmsKonto(samtalsId: string, kundnummer: string): Promise<Exclude<SmsInloggning, { status: 'valj' }>> {
+  const tillatna = await lagring.hamta<string[]>(`sjalv:smsval:${samtalsId}`);
+  const valt = String(kundnummer ?? '').replace(/\D/g, '');
+  if (!tillatna?.includes(valt)) return { fel: 'Valet har gått ut. Be om en ny kod.' };
+  await lagring.taBort(`sjalv:smsval:${samtalsId}`);
+  const kund = await valjKundFor(samtalsId, valt);
+  if (!kund) return { fel: 'Inloggningen gick inte igenom. Be om en ny kod.' };
+  return { status: 'klar', namn: kund.namn, kundnummer: kund.id };
 }
 
 /**

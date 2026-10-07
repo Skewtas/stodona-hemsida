@@ -8,6 +8,8 @@
 //    mottagare på egen hand. Står numret på flera konton (dubbletter, en
 //    familj) får den som har telefonen välja konto EFTER rätt kod – högst
 //    MAX_KONTON; fler än så räknas som ett fel i registret och ger ingen kod.
+//  * Fungerar inte mobilnumret kan kunden skriva sin e-postadress i stället.
+//    Samma regel: koden mejlas bara till en adress som redan står på kunden.
 //  * Svaret är alltid detsamma ("om numret finns hos oss har vi skickat en
 //    kod"), så chatten avslöjar aldrig vem som är kund.
 //  * 6 siffror, gäller 10 minuter, högst 5 försök. Koden sparas bara som
@@ -40,6 +42,12 @@ export function mobilnummer(text: string): string | null {
   if (/^\+467\d{8}$/.test(t)) return t;
   if (/^00467\d{8}$/.test(t)) return `+${t.slice(2)}`;
   return null;
+}
+
+/** E-postadress med små bokstäver, eller null. */
+export function epostadress(text: string): string | null {
+  const t = String(text ?? '').trim().toLowerCase();
+  return t.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) ? t : null;
 }
 
 /**
@@ -81,11 +89,12 @@ export async function skickaSms(mobil: string, text: string, origin: string): Pr
  * (fyra anrop à 1 000) och hålls i minnet i tio minuter – bara kundnummer och
  * mobilnummer, aldrig sparat.
  */
-let register: { hamtat: number; kunder: { nummer: string; mobiler: string[] }[] } | null = null;
+let register: { hamtat: number; kunder: { nummer: string; mobiler: string[]; epost: string | null }[] } | null = null;
 
-async function kunderMedNummer(mobil: string): Promise<string[]> {
+/** @param sokt mobilnummer (+467…) eller e-postadress, redan normaliserat */
+async function kunderMed(sokt: string): Promise<string[]> {
   if (!register || Date.now() - register.hamtat > 10 * 60 * 1000) {
-    type Rad = TwKlient & { mobile?: string; phone?: string };
+    type Rad = TwKlient & { mobile?: string; phone?: string; email?: string };
     const forsta = await twGet<{ data?: Rad[]; last_page?: number }>('/clients?page[size]=1000&page[number]=1');
     const sidor = Math.min(Number(forsta.last_page ?? 1), 20);
     const resten = await Promise.all(
@@ -97,10 +106,26 @@ async function kunderMedNummer(mobil: string): Promise<string[]> {
       hamtat: Date.now(),
       kunder: [...(forsta.data ?? []), ...resten.flat()]
         .filter((k) => !k.deleted && k.status === 'active' && k.number)
-        .map((k) => ({ nummer: String(k.number), mobiler: [k.mobile, k.phone].map((n) => mobilnummer(n ?? '')).filter((n): n is string => Boolean(n)) })),
+        .map((k) => ({ nummer: String(k.number), mobiler: [k.mobile, k.phone].map((n) => mobilnummer(n ?? '')).filter((n): n is string => Boolean(n)), epost: epostadress(k.email ?? '') })),
     };
   }
-  return register.kunder.filter((k) => k.mobiler.includes(mobil)).map((k) => k.nummer);
+  return register.kunder.filter((k) => (sokt.includes('@') ? k.epost === sokt : k.mobiler.includes(sokt))).map((k) => k.nummer);
+}
+
+/** Mejlar koden från info@stodona.se (Resend – samma avsändare som bekräftelserna). */
+async function skickaMejl(epost: string, amne: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }> {
+  const nyckel = process.env.RESEND_API_KEY;
+  if (!nyckel) return { ok: false, fel: 'RESEND_API_KEY saknas' };
+  try {
+    const svar = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${nyckel}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: 'Stodona <info@stodona.se>', to: epost, reply_to: 'info@stodona.se', subject: amne, text }),
+    });
+    return svar.ok ? { ok: true } : { ok: false, fel: `Resend svarade ${svar.status}` };
+  } catch (fel) {
+    return { ok: false, fel: `Resend gick inte att nå: ${String(fel).slice(0, 100)}` };
+  }
 }
 
 // ─── Spärrar ─────────────────────────────────────────────────────────────────
@@ -131,15 +156,27 @@ interface Vantande {
 }
 
 export const GENERISKT_SVAR = 'Om numret finns hos oss har vi skickat en kod med SMS. Skriv in den här.';
+const GENERISKT_SVAR_MEJL = 'Om adressen finns hos oss har vi mejlat en kod dit. Skriv in den här. Titta i skräpposten om den dröjer.';
 
 /**
  * Startar inloggningen. Svarar alltid samma sak utåt – vare sig numret finns
  * eller inte – utom när något av skydden slår till.
  */
-export async function skickaKod(samtalsId: string, text: string, ip: string, origin: string): Promise<{ ok: true; meddelande: string } | { fel: string }> {
-  const mobil = mobilnummer(text);
+export async function skickaKod(
+  samtalsId: string,
+  text: string,
+  ip: string,
+  origin: string,
+  /** Var kunden skriver in koden – styr bara texten i SMS:et. */
+  kanal: 'webb' | 'instagram' = 'webb'
+): Promise<{ ok: true; meddelande: string } | { fel: string }> {
+  // Kunden kan skriva sin e-postadress i stället för mobilnumret.
+  const epost = text.includes('@') ? epostadress(text) : null;
+  if (text.includes('@') && !epost) return { fel: 'Skriv e-postadressen som finns på ditt kundkort, till exempel namn@exempel.se.' };
+  const mobil = epost ?? mobilnummer(text);
   if (!mobil) return { fel: 'Skriv ett svenskt mobilnummer, till exempel 070-123 45 67.' };
   if (!smsKonfigurerat()) return { fel: 'Inloggning med SMS är inte påslagen.' };
+  const generiskt = epost ? GENERISKT_SVAR_MEJL : GENERISKT_SVAR;
 
   if (
     (await overTaket(`sjalv:sms:samtal:${samtalsId}`, MAX_PER_SAMTAL)) ||
@@ -149,24 +186,32 @@ export async function skickaKod(samtalsId: string, text: string, ip: string, ori
     return { fel: 'För många försök. Vänta en kvart och försök igen.' };
   }
 
-  const traffar = platshallare(mobil) ? [] : await kunderMedNummer(mobil);
+  // Våra egna adresser står som platshållare på vissa kundkort – aldrig någon kod dit.
+  const pahittad = epost ? /@stodona\.se$/.test(epost) : platshallare(mobil);
+  const traffar = pahittad ? [] : await kunderMed(mobil);
   if (traffar.length === 0 || traffar.length > MAX_KONTON) {
     // Ingen kund, eller orimligt många konton med numret: skicka ingenting, men svara som vanligt.
     if (traffar.length > MAX_KONTON) console.warn(`smskod: numret hör till ${traffar.length} kunder – ingen kod skickad`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);
-    return { ok: true, meddelande: GENERISKT_SVAR };
+    return { ok: true, meddelande: generiskt };
   }
 
   const kod = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
   await lagring.spara(`sjalv:smskod:${samtalsId}`, { kundnummer: traffar, hash: await hash(`${samtalsId}:${kod}`), forsok: 0 } satisfies Vantande, KOD_SEKUNDER);
 
-  const skickat = await skickaSms(mobil, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`, origin);
+  const smstext =
+    kanal === 'instagram'
+      ? `${kod} är din kod till Stodonas chatt på Instagram. Skriv den bara i din DM-tråd med Stodona. Den gäller i 10 minuter.`
+      : `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`;
+  const skickat = epost
+    ? await skickaMejl(epost, `${kod} är din kod till Stodonas chatt`, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter.\n\nDela den aldrig – Stodona frågar aldrig efter den. Har du inte bett om någon kod kan du bortse från det här mejlet.\n\nHälsningar\nStodona`)
+    : await skickaSms(mobil, smstext, origin);
   if (skickat.ok === false) {
     console.error(`smskod: ${skickat.fel}`);
     await lagring.taBort(`sjalv:smskod:${samtalsId}`);
-    return { fel: 'SMS:et kunde inte skickas just nu. Försök igen om en stund.' };
+    return { fel: epost ? 'Mejlet kunde inte skickas just nu. Försök igen om en stund.' : 'SMS:et kunde inte skickas just nu. Försök igen om en stund.' };
   }
-  return { ok: true, meddelande: GENERISKT_SVAR };
+  return { ok: true, meddelande: generiskt };
 }
 
 /** Kontrollerar koden. Rätt kod ger kundnumret – en gång. */

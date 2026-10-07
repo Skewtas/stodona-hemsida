@@ -683,6 +683,8 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
   /** Inloggning med engångskod via SMS. */
   const [smsFinns, setSmsFinns] = useState(false);
   const [smsTelefon, setSmsTelefon] = useState("");
+  /** Kunden får koden med mejl i stället – när mobilnumret inte fungerar. */
+  const [smsMedMejl, setSmsMedMejl] = useState(false);
   const [smsKod, setSmsKod] = useState("");
   const [smsSkickad, setSmsSkickad] = useState(false);
   const [smsInfo, setSmsInfo] = useState("");
@@ -898,6 +900,15 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     }
   }
 
+  /** Byter mellan mobilnummer och e-postadress, och börjar om från fältet. */
+  function bytIdentifiering(mejl: boolean) {
+    setSmsMedMejl(mejl);
+    setSmsTelefon("");
+    setSmsSkickad(false);
+    setSmsKod("");
+    setBankidFel("");
+  }
+
   async function kontrolleraSmsKod() {
     if (bankidVantar || smsKod.length < 6) return;
     setBankidFel("");
@@ -961,6 +972,7 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     setSmsSkickad(false);
     setSmsKod("");
     setSmsTelefon("");
+    setSmsMedMejl(false);
     setSmsInfo("");
     uppdateraTestlage();
     skicka("Jag har legitimerat mig nu.");
@@ -1313,11 +1325,15 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                 {smsFinns && (
                   <div className="mt-3 space-y-2">
                     <p className="text-[11px] text-text-secondary">
-                      {smsSkickad ? smsInfo : "Skriv mobilnumret som finns på ditt kundkort hos oss – dit skickar vi en kod med SMS."}
+                      {smsSkickad
+                        ? smsInfo
+                        : smsMedMejl
+                          ? "Skriv e-postadressen som finns på ditt kundkort hos oss – dit mejlar vi en kod."
+                          : "Skriv mobilnumret som finns på ditt kundkort hos oss – dit skickar vi en kod med SMS."}
                     </p>
                     {smsKonton.length > 0 ? (
                       <div className="flex flex-col gap-2">
-                        <p className="text-[11px] text-text-primary">Numret finns på flera konton. Vilket gäller det?</p>
+                        <p className="text-[11px] text-text-primary">Du har flera kundkort hos oss. Vilket gäller det?</p>
                         {smsKonton.map((k) => (
                           <button
                             key={k.nummer}
@@ -1331,16 +1347,18 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                         ))}
                       </div>
                     ) : !smsSkickad ? (
+                      <>
                       <div className="flex items-center gap-2">
                         <input
+                          key={smsMedMejl ? "mejl" : "mobil"}
                           value={smsTelefon}
-                          onChange={(e) => setSmsTelefon(e.target.value.slice(0, 20))}
+                          onChange={(e) => setSmsTelefon(e.target.value.slice(0, smsMedMejl ? 120 : 20))}
                           onKeyDown={(e) => e.key === "Enter" && skickaSmsKod()}
-                          placeholder="Mobilnummer på ditt kundkort"
+                          placeholder={smsMedMejl ? "E-postadress på ditt kundkort" : "Mobilnummer på ditt kundkort"}
                           autoFocus
-                          type="tel"
-                          inputMode="tel"
-                          autoComplete="tel"
+                          type={smsMedMejl ? "email" : "tel"}
+                          inputMode={smsMedMejl ? "email" : "tel"}
+                          autoComplete={smsMedMejl ? "email" : "tel"}
                           disabled={bankidVantar}
                           className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white border border-text-primary/15 text-sm outline-none focus:ring-2 focus:ring-accent/40"
                         />
@@ -1353,6 +1371,10 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                           Skicka kod
                         </button>
                       </div>
+                      <button type="button" onClick={() => bytIdentifiering(!smsMedMejl)} className="text-[11px] text-text-secondary underline">
+                        {smsMedMejl ? "Använd mobilnummer i stället" : "Fungerar inte mobilnumret? Använd din e-postadress"}
+                      </button>
+                      </>
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
@@ -1384,8 +1406,13 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                           }}
                           className="text-[11px] text-text-secondary underline"
                         >
-                          Fel nummer eller ingen kod? Försök igen
+                          {smsMedMejl ? "Fel adress eller ingen kod? Försök igen" : "Fel nummer eller ingen kod? Försök igen"}
                         </button>
+                        {!smsMedMejl && (
+                          <button type="button" onClick={() => bytIdentifiering(true)} className="block text-[11px] text-text-secondary underline">
+                            Får du inget SMS? Få koden till din e-postadress
+                          </button>
+                        )}
                       </>
                     )}
                   </div>

@@ -125,7 +125,7 @@ export const SIDINNEHALL: Sidavsnitt[] = [
   {
     "rutt": "/varva-en-van",
     "titel": "Värva en vän",
-    "text": "Värva en vän –\nfå 50% rabatt\nÄr du befintlig kund? Hämta din värvningskod och få 50% rabatt på en hel faktura.\nHämta din värvningskod\nSå funkar det\nSTEG 1\nDela din kod\nSkicka din personliga kod till en vän.\nSTEG 2\n15%\nDin vän får 15%\nDin vän får 15% rabatt på hela sitt städabonnemang.\nSTEG 3\n50%\nDu får 50% 🎉\nNär din vän har fått sin andra faktura får du 50% rabatt på en hel faktura.\nBoka städning\nHar du fått en kod av en vän? Ange den när du bokar.\nEnkelt och rättvist\nVillkor"
+    "text": "Värva en vän –\nfå 50% rabatt\nÄr du befintlig kund? Hämta din värvningskod och få 50% rabatt på en hel faktura.\nHämta din värvningskod\nSå funkar det\nSTEG 1\nDela din kod\nSkicka din personliga kod till en vän.\nSTEG 2\n15%\nDin vän får 15%\nDin vän får 15% rabatt på hela sitt städabonnemang – och 50% på en faktura.\nSTEG 3\n50%\nDu får 50% 🎉\nNär din vän har fått sin andra faktura får du 50% rabatt på en hel faktura.\nBoka städning\nHar du fått en kod av en vän? Ange den när du bokar.\nEnkelt och rättvist\nVillkor"
   },
   {
     "rutt": "/presentkort",

@@ -143,7 +143,7 @@ const STEG = [
     ikon: Heart,
     siffra: '15%',
     rubrik: ['Din vän får 15%', 'Your friend gets 15%'],
-    text: ['Din vän får 15% rabatt på hela sitt städabonnemang.', 'Your friend gets 15% off their entire cleaning subscription.'],
+    text: ['Din vän får 15% rabatt på hela sitt städabonnemang – och 50% på en faktura.', 'Your friend gets 15% off their entire cleaning subscription – and 50% off one invoice.'],
   },
   {
     ikon: Gift,
@@ -156,12 +156,15 @@ const STEG = [
 
 const VILLKOR: [string, string][] = [
   ['Vännen måste vara ny kund – ingen städning hos oss de senaste två månaderna.', 'Your friend must be a new customer – no cleaning with us in the last two months.'],
-  ['Vännen får 15% rabatt på hela sitt städabonnemang.', 'Your friend gets 15% off their entire cleaning subscription.'],
-  ['Din 50% rabatt aktiveras när vännen har fått sin andra faktura.', 'Your 50% discount is activated once your friend has received their second invoice.'],
+  ['Vännen får 15% rabatt på hela sitt städabonnemang och 50% rabatt på en faktura.', 'Your friend gets 15% off their entire cleaning subscription and 50% off one invoice.'],
+  ['50%-rabatterna aktiveras när vännen har fått sin andra faktura och har kvar sitt abonnemang.', 'The 50% discounts are activated once your friend has received their second invoice and still has their subscription.'],
+  ['Du behöver själv ha varit kund i minst två månader och ha kvar ditt abonnemang.', 'You need to have been a customer for at least two months yourself and still have your subscription.'],
   ['Rabatten gäller på en hel faktura.', 'The discount applies to one full invoice.'],
-  ['En värvning = en 50%-rabatt.', 'One referral = one 50% discount.'],
+  ['En värvning = en 50%-rabatt var.', 'One referral = one 50% discount each.'],
   ['Värvningskoden måste användas vid bokning.', 'The referral code must be used when booking.'],
   ['Erbjudandet kan inte kombineras med andra rabatter.', 'The offer cannot be combined with other discounts.'],
+  ['Företag kan också värva och bli värvade. Ett företag som bokar med en kod får 50% rabatt på en faktura (i stället för 15%), och den som värvade får också 50% på en faktura.', 'Companies can refer and be referred too. A company that books with a code gets 50% off one invoice (instead of 15%), and the referrer also gets 50% off one invoice.'],
+  ['Ett företag som värvar en privatperson får ingen egen rabatt – då är det privatpersonen som får 15% och 50%.', 'A company that refers a private individual gets no discount of its own – the individual gets the 15% and the 50%.'],
 ];
 
 export default function VarvaEnVan() {
@@ -172,7 +175,7 @@ export default function VarvaEnVan() {
     <div className="flex flex-col">
       <Helmet>
         <title>Värva en vän – få 50% rabatt | Stodona</title>
-        <meta name="description" content="Värva en vän till Stodona: din vän får 15% rabatt på hela sitt städabonnemang och du får 50% rabatt på en hel faktura." />
+        <meta name="description" content="Värva en vän till Stodona: din vän får 15% rabatt på sitt städabonnemang och 50% på en faktura, och du får 50% rabatt på en hel faktura." />
         <meta property="og:title" content="Värva en vän – få 50% rabatt | Stodona" />
         <meta property="og:description" content="Dela din värvningskod: din vän får 15% rabatt och du får 50% rabatt på en hel faktura." />
         <link rel="canonical" href="https://stodona.se/varva-en-van" />

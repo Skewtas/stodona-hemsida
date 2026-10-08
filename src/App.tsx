@@ -35,6 +35,8 @@ const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
 const VarvaEnVan = React.lazy(() => import("./pages/VarvaEnVan"));
+// Sidan en värvad vän landar på (noindex, ej i meny/sitemap) – nås via kundens delningslänk.
+const VanValkommen = React.lazy(() => import("./pages/VanValkommen"));
 const Samarbeta = React.lazy(() => import("./pages/Samarbeta"));
 const Kundportal = React.lazy(() => import("./pages/Kundportal"));
 const Visselblasning = React.lazy(() => import("./pages/Visselblasning"));
@@ -167,6 +169,7 @@ export default function App() {
           <Route path="/kundportal" element={<Kundportal />} />
           <Route path="/kundportalen" element={<Navigate to="/kundportal" replace />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
+          <Route path="/valkommen" element={<VanValkommen />} />
           <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />
           <Route path="/samarbeta" element={<Samarbeta />} />
           <Route path="/samarbete" element={<Samarbeta />} />

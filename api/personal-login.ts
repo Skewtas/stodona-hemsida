@@ -7,6 +7,8 @@ import * as lagring from './_lagring';
 /** Spärr mot gissning av lösenordet: högst 10 fel per IP-adress och 15 minuter. */
 const MAX_FEL = 10;
 const SPARR_SEKUNDER = 15 * 60;
+/** Högst så många misslyckade inloggningar per timme, oavsett avsändare. */
+const MAX_FEL_ALLA = 30;
 
 export const config = { runtime: 'edge' };
 
@@ -28,12 +30,17 @@ export default async function handler(request: Request): Promise<Response> {
   const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'okand';
   const felNyckel = `personal:loginfel:${ip}`;
   const antalFel = (await lagring.hamta<number>(felNyckel).catch(() => null)) ?? 0;
-  if (antalFel >= MAX_FEL) {
-    return new Response('För många försök. Vänta 15 minuter och försök igen.', { status: 429, headers: { 'Cache-Control': 'no-store' } });
+  // Spärr för ALLA: byter någon IP-adress mellan gissningarna räcker inte spärren per adress.
+  const allaNyckel = `personal:loginfel:alla:${Math.floor(Date.now() / 3600000)}`;
+  const allaFel = (await lagring.hamta<number>(allaNyckel).catch(() => null)) ?? 0;
+  if (antalFel >= MAX_FEL || allaFel >= MAX_FEL_ALLA) {
+    return new Response('För många försök. Vänta en stund och försök igen.', { status: 429, headers: { 'Cache-Control': 'no-store' } });
   }
 
   if (!namn || !lika(losenord, process.env.PERSONAL_PW ?? '')) {
     await lagring.spara(felNyckel, antalFel + 1, SPARR_SEKUNDER).catch(() => undefined);
+    await lagring.spara(allaNyckel, allaFel + 1, 3700).catch(() => undefined);
+    console.warn(`personal-login: misslyckat försök ${allaFel + 1} den här timmen (ip ${ip})`);
     return new Response(null, { status: 303, headers: { Location: `${PERSONALCHATT_SIDA}?fel=1`, 'Cache-Control': 'no-store' } });
   }
   return new Response(null, {

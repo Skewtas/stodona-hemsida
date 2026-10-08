@@ -11,7 +11,11 @@
 // Namnet följer med i självservicens logg och i kommentaren på varje flytt
 // i TimeWave, så att det syns vem som gjort vad.
 //
-// Kakan: "<namn i base64url>.<HMAC-SHA256(PERSONAL_PW, namn)>", HttpOnly, 12 h.
+// Kakan: "<namn i base64url>.<utgång>.<HMAC-SHA256(servernyckel, namn + utgång)>",
+// HttpOnly, 12 h. Signeras med en lång servernyckel – ALDRIG med lösenordet
+// ensamt: då kunde den som gissat lösenordet tillverka en kaka själv, förbi
+// inloggningens spärr (säkerhetsgenomgång 2026-10-08). Utgången kontrolleras
+// på servern, så en gammal kaka slutar gälla.
 
 /** Adressen till den gömda sidan. Måste stämma med routen i src/App.tsx. */
 export const PERSONALCHATT_SIDA = '/personalchatt';
@@ -24,8 +28,18 @@ export function personalchattPa(): boolean {
 export const PERSONAL_KAKA = 'stodona_personal';
 const GILTIG_SEKUNDER = 12 * 3600;
 
+/**
+ * Nyckeln kakan signeras med: PERSONAL_KAKNYCKEL om den finns, annars sajtens
+ * interna nyckel (SMS_INTERN_NYCKEL, lång och slumpad) – blandad med lösenordet,
+ * så att ett lösenordsbyte loggar ut alla.
+ */
+function kaknyckel(): string {
+  const hemlig = process.env.PERSONAL_KAKNYCKEL || process.env.SMS_INTERN_NYCKEL || '';
+  return `${hemlig}:${process.env.PERSONAL_PW ?? ''}`;
+}
+
 async function signera(text: string): Promise<string> {
-  const nyckel = await crypto.subtle.importKey('raw', new TextEncoder().encode(process.env.PERSONAL_PW ?? ''), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const nyckel = await crypto.subtle.importKey('raw', new TextEncoder().encode(kaknyckel()), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', nyckel, new TextEncoder().encode(text));
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
@@ -52,18 +66,20 @@ export function lika(a: string, b: string): boolean {
 export async function personalNamn(request: Request): Promise<string | null> {
   if (!process.env.PERSONAL_PW) return null;
   const varde = new RegExp(`(?:^|;\\s*)${PERSONAL_KAKA}=([^;]+)`).exec(request.headers.get('cookie') ?? '')?.[1];
-  const [namnDel, sig] = (varde ?? '').split('.');
-  if (!namnDel || !sig) return null;
+  const [namnDel, utgang, sig] = (varde ?? '').split('.');
+  if (!namnDel || !utgang || !sig) return null;
   try {
     const namn = franBase64url(namnDel);
-    return lika(sig, await signera(namn)) ? namn : null;
+    if (!/^\d{10,13}$/.test(utgang) || Date.now() > Number(utgang)) return null;
+    return lika(sig, await signera(`${namn}.${utgang}`)) ? namn : null;
   } catch {
     return null;
   }
 }
 
 export async function personalKaka(namn: string): Promise<string> {
-  return `${PERSONAL_KAKA}=${base64url(namn)}.${await signera(namn)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${GILTIG_SEKUNDER}`;
+  const utgang = String(Date.now() + GILTIG_SEKUNDER * 1000);
+  return `${PERSONAL_KAKA}=${base64url(namn)}.${utgang}.${await signera(`${namn}.${utgang}`)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${GILTIG_SEKUNDER}`;
 }
 
 /** Inloggningssidan för personalen. Skickas i stället för sajten till den som inte loggat in. */

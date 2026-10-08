@@ -1,38 +1,32 @@
-import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { KAMPANJ, useKampanj } from "../data/kampanj";
+import { ERBJUDANDE } from "../data/kampanj";
 import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 
 /**
- * Kampanjkortet högst upp på startsidan: "30 % på varje städning året ut".
- * Knappen tar besökaren till bokningen med hemstädning och koden ifylld.
+ * Erbjudanderutan i startsidans hero: "Testa oss med 15 % rabatt".
+ * En kompakt ruta i accentfärgen med procentsatsen stort och rabattkoden
+ * utskriven. Knappen tar besökaren till bokningen med koden ifylld.
  */
 export default function KampanjKort({ className = "" }: { className?: string }) {
-  const { aktiv, dagar } = useKampanj();
-  if (!aktiv) return null;
   return (
-    <div className={`bg-bg-dark text-text-light rounded-2xl p-5 sm:p-6 ${className}`}>
-      <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-cta-hover mb-2">
-        Kampanj{dagar !== null && ` · ${dagar} ${dagar === 1 ? "dag" : "dagar"} kvar`}
+    <div className={`bg-accent-deep text-white rounded-xl p-5 w-full max-w-[19rem] self-start ${className}`}>
+      <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-white/85">Testa oss med</p>
+      <p className="mt-1.5 font-display tracking-tight text-[2.75rem] font-bold leading-none whitespace-nowrap">
+        {ERBJUDANDE.procent} % <em className="font-normal">rabatt</em>
       </p>
-      <p className="font-display tracking-tight text-[1.75rem] sm:text-3xl font-bold leading-[1.1]">
-        {KAMPANJ.procent} % på varje städning <em className="font-normal text-accent">året ut.</em>
-      </p>
-      <p className="mt-2.5 mb-4 text-sm text-text-light/80 leading-relaxed">
-        Städabonnemang med 6 eller 12 månaders bindning. Samma städare varje gång, 100 % nöjd-kund-garanti.
-      </p>
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="mt-4 flex items-stretch gap-2">
+        <p className="flex-1 flex flex-col justify-center border-2 border-dashed border-white/70 rounded-lg px-3 py-1.5">
+          <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-white/85">Rabattkod</span>
+          <span className="text-xl font-bold tracking-[0.12em] leading-tight">{ERBJUDANDE.kod}</span>
+        </p>
         <a
-          href={bookingUrl({ service: "Hemstädning", discountCode: KAMPANJ.kod })}
-          onClick={() => track("booking_start", { source: "kampanjkort", service: "Hemstädning" })}
-          className="inline-flex items-center gap-2 bg-white text-text-primary rounded-full px-5 py-3 text-sm font-bold hover:bg-cta-hover transition-colors"
+          href={bookingUrl({ discountCode: ERBJUDANDE.kod })}
+          onClick={() => track("booking_start", { source: "erbjudandekort" })}
+          className="shrink-0 inline-flex items-center gap-1.5 bg-white text-text-primary rounded-lg px-4 text-sm font-bold hover:bg-bg-primary transition-colors"
         >
-          Boka med koden {KAMPANJ.kod} <ArrowRight className="w-4 h-4" />
+          Boka <ArrowRight className="w-4 h-4" />
         </a>
-        <Link to={KAMPANJ.sida} className="text-sm text-text-light/80 underline underline-offset-4 hover:text-text-light">
-          Villkor
-        </Link>
       </div>
     </div>
   );

@@ -4,14 +4,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
 import { bookingUrl } from "../utils/bookingUrl";
 import { useActiveOverlay } from '../utils/overlays';
-import { KAMPANJ, useKampanj } from '../data/kampanj';
+import { KAMPANJ, ERBJUDANDE } from '../data/kampanj';
 
 export default function StickyCTA() {
   const activeOverlay = useActiveOverlay();
-  // Under kampanjen (30 % året ut) lovar knappen kampanjen i stället för den
-  // allmänna rabatten, och tar med koden in i bokningen. På kampanjsidan alltid.
+  // Knappen lovar det stående erbjudandet (15 %) och tar med koden in i
+  // bokningen. Bara på 30 %-kampanjens egna sidor lovar den kampanjen.
   const { pathname } = useLocation();
-  const kampanj = useKampanj().aktiv || pathname === '/kampanj' || pathname === '/h007' || pathname === '/tretti';
+  const kampanj = pathname === '/kampanj' || pathname === '/h007' || pathname === '/tretti';
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,10 +47,10 @@ export default function StickyCTA() {
         {!showInput ? (
           <>
             <a
-              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: KAMPANJ.kod }) : bookingUrl()}
+              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: KAMPANJ.kod }) : bookingUrl({ discountCode: ERBJUDANDE.kod })}
               className={`flex-1 py-3 font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all ${kampanj ? 'bg-accent text-white' : 'bg-cta-hover text-text-primary'}`}
             >
-              {kampanj ? `Boka nu – ${KAMPANJ.procent} % året ut` : 'Boka nu – 15% rabatt'}
+              {kampanj ? `Boka nu – ${KAMPANJ.procent} % året ut` : `Boka nu – ${ERBJUDANDE.procent} % rabatt`}
             </a>
             <button
               onClick={() => setShowInput(true)}

@@ -21,7 +21,7 @@ import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 import HeroVideo from "../components/HeroVideo";
 import KampanjKort from "../components/KampanjKort";
-import { KAMPANJ, useKampanj } from "../data/kampanj";
+import { ERBJUDANDE } from "../data/kampanj";
 
 // Värdena måste stavas exakt som tjänsterna heter i bokningssystemet – de
 // skickas som ?service= och matchas mot SERVICES där. Etiketten översätts,
@@ -39,9 +39,6 @@ export default function Home() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [heroSqm, setHeroSqm] = useState("");
   const [heroService, setHeroService] = useState<string>(HERO_SERVICES[0].value);
-  const kampanj = useKampanj();
-  // Kampanjen gäller hemstädning (städabonnemang) – då följer koden med in i bokningen.
-  const medKampanj = kampanj.aktiv && heroService === "Hemstädning";
   const [showToast, setShowToast] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -59,8 +56,8 @@ export default function Home() {
     const sqm = parseInt(heroSqm, 10);
     const giltig = Number.isFinite(sqm) && sqm >= 10 && sqm <= 500;
     track("booking_start", { source: "hero_sqm", service: heroService, sqm: giltig ? sqm : undefined });
-    // Tjänsten följer alltid med; ytan bara när den är rimlig.
-    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}), ...(medKampanj ? { discountCode: KAMPANJ.kod } : {}) });
+    // Tjänsten och rabattkoden följer alltid med; ytan bara när den är rimlig.
+    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}), discountCode: ERBJUDANDE.kod });
   }
 
   return (
@@ -108,14 +105,12 @@ export default function Home() {
             lg ligger rutorna kvar i den vanliga spalten. */}
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-4 sm:pt-8 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
-            {/* Kampanjen 30 % året ut. På mobil först av allt, före filmen;
-                från lg högst upp i bokningskortet (nedan). */}
+            {/* Erbjudandet "Testa oss med 15 % rabatt" – en kompakt ruta, och det
+                enda stället i heron där det nämns. På mobil först av allt, före filmen; från
+                lg högst upp i bokningskortet (nedan). */}
             <KampanjKort className="order-first lg:hidden" />
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              <KampanjKort className="hidden lg:block mb-7" />
-              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
-                <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
-              </span>
+              <KampanjKort className="hidden lg:block mb-9" />
 
                 {/* Graden följer KORTETS bredd (cqw) och inte fönstrets, eftersom
                   kortet bara är en halv skärm brett i tvåspaltsläget. Frågan
@@ -158,14 +153,6 @@ export default function Home() {
                     );
                   })}
                 </div>
-                {medKampanj && (
-                  <div className="flex items-start gap-2.5 bg-accent/15 text-text-primary rounded-xl px-3.5 py-3 -mt-1 mb-5 text-sm leading-relaxed">
-                    <span className="shrink-0 bg-accent text-white rounded px-1.5 py-0.5 text-xs font-bold">−{KAMPANJ.procent} %</span>
-                    <span>
-                      <strong>Året ut på hemstädning</strong> med städabonnemang. Koden {KAMPANJ.kod} läggs in åt dig när du bokar.
-                    </span>
-                  </div>
-                )}
                 <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
                   {t('home.hero.sqmLabel', lang)}
                 </label>
@@ -195,13 +182,16 @@ export default function Home() {
                 </div>
               </form>
 
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-8">
                 <button
                   onClick={() => setIsContactOpen(true)}
                   className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
                 >
                   {t('home.hero.cta2', lang)}
                 </button>
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+                  <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
+                </span>
               </div>
 
               <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
@@ -239,9 +229,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Kundlöftet – samma två rutor som heron, fast spegelvända: bilden
-             till vänster och löftet till höger. Måtten är hämtade rakt av från
-             heron så att de två sektionerna läser som ett par. */}
+      {/* 2. Insikten om städbråken – samma två rutor som heron, fast
+             spegelvända: bilden till vänster och texten till höger. Måtten är
+             hämtade rakt av från heron så att de två sektionerna läser som ett
+             par. (Här stod tidigare kundlöftet.) */}
       <section className="relative overflow-hidden">
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
@@ -261,35 +252,21 @@ export default function Home() {
             </div>
 
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
-                <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                {t('home.promise.badge', lang)}
-              </span>
-
               {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
                   inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
               <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
-                {t('home.promise.title1', lang)}
-                <br />
-                <span className="italic font-normal text-accent-deep">
-                  {t('home.promise.title2', lang)}
-                </span>
+                {t('home.insight.title', lang)}
               </h2>
 
-              <ul className="flex flex-col gap-4 mb-10 border-t border-text-primary/10 pt-8">
-                {[1, 2, 3].map((n) => (
-                  <li key={n} className="flex items-start gap-3 text-base sm:text-lg text-text-secondary">
-                    <CheckCircle2 className="w-5 h-5 text-accent shrink-0 mt-1" />
-                    <span>{t(`home.promise.bullet${n}`, lang)}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-base sm:text-lg text-text-secondary leading-relaxed mb-10 border-t border-text-primary/10 pt-8">
+                {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
+              </p>
 
               <a
                 href={bookingUrl()}
                 className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
               >
-                {t('home.promise.cta', lang)} <ArrowRight className="w-4 h-4" />
+                {t('home.insight.cta', lang)} <ArrowRight className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -401,55 +378,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 1.5. Insight Section - Apple Style */}
+      {/* Bokningsrutan. Texten om städbråken som stod bredvid ligger nu
+          direkt under heron, så rutan står ensam och centrerad. */}
       <section className="py-14 sm:py-20 md:py-24 bg-bg-primary overflow-hidden">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-            {/* Vänster: bokningsrutan. Den låg tidigare i en egen sektion
-                ovanför – här står den i stället bredvid texten om varför
-                städningen ställer till det, så argumentet och handlingen
-                möts på samma skärm. */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative"
-            >
-              <QuickBookingWidget />
-            </motion.div>
-
-            {/* Right: Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="flex flex-col items-start text-left"
-            >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-8">
-                {t('home.insight.badge', lang)}
-              </span>
-              <h2 className="text-4xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-tight text-text-primary">
-                {t('home.insight.title', lang)}
-              </h2>
-              <div className="text-lg md:text-xl text-text-secondary leading-relaxed space-y-4">
-                <p>
-                  {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
-                </p>
-              </div>
-
-              <div className="mt-12">
-                <a
-                  href={bookingUrl()}
-                  className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg inline-flex items-center gap-2"
-                >
-                  {t('home.insight.cta', lang)}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mx-auto max-w-2xl"
+          >
+            <QuickBookingWidget />
+          </motion.div>
         </div>
       </section>
 

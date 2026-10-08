@@ -16,6 +16,16 @@ export const KAMPANJ = {
   sida: "/kampanj",
 } as const;
 
+/**
+ * Det stående erbjudandet på startsidan och i den fasta bokningsknappen:
+ * "Testa oss med 15 % rabatt". Det har ersatt 30 %-kampanjen där – den finns
+ * kvar på sin egen sida (/kampanj) men lyfts inte längre fram på sajten.
+ */
+export const ERBJUDANDE = {
+  kod: "TEST15",
+  procent: 15,
+} as const;
+
 function idagSthlm(nu: Date): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit" }).format(nu);
 }

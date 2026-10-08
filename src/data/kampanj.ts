@@ -22,7 +22,7 @@ export const KAMPANJ = {
  * kvar på sin egen sida (/kampanj) men lyfts inte längre fram på sajten.
  */
 export const ERBJUDANDE = {
-  kod: "TEST15",
+  kod: "STÄD15",
   procent: 15,
 } as const;
 

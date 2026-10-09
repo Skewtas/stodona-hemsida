@@ -176,7 +176,10 @@ function prisFor(m: TwMission, start: string, slut: string): number {
   if (!tjanst?.price) return 0;
   const timmar = (minuter(slut) - minuter(start)) / 60;
   const antal = Number(tjanst.quantity ?? 1);
-  return Math.round(tjanst.price * antal * (/tim/i.test(tjanst.unit ?? '') ? timmar : 1));
+  // Kundens rabatt i procent på tjänsteraden (t.ex. 50) ska med – annars blir
+  // både priset och avgiften vid sen ändring räknade på fullpris.
+  const rabatt = Math.min(100, Math.max(0, Number(tjanst.discount ?? 0) || 0));
+  return Math.round(tjanst.price * antal * (/tim/i.test(tjanst.unit ?? '') ? timmar : 1) * (1 - rabatt / 100));
 }
 
 /** Bokningens id: mission och bokningsrad – ett tillfälle. */

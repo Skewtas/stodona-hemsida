@@ -319,7 +319,7 @@ function langdText(b: { start: string; slut: string }): string {
 function bokningsrad(b: Bokning): string {
   return `${b.id} · ${datumText(b.datum)} (${b.datum}) kl. ${b.start}–${b.slut} · ${b.tjanst}, ${langdText(b)} · ${b.adress} · städare ${b.stadare.namn}${
     b.aterkommande ? ' · del av en återkommande serie (en ändring gäller bara det här tillfället)' : ' · enstaka bokning'
-  }`;
+  }${b.prisKr > 0 ? ` · pris enligt bokningen ${b.prisKr} kr före RUT-avdrag (${Math.round(b.prisKr / 2)} kr efter RUT, om kunden har RUT-avdrag), rabatt inräknad` : ' · pris saknas i bokningen'}`;
 }
 
 function villkorsText(b: Bokning): string {
@@ -461,6 +461,68 @@ interface Forslag {
   skapad: number;
   status: 'vantar' | 'klar' | 'misslyckad';
   svar?: Bekraftelse;
+  /** Satt när förslaget ÅNGRAR en nyss genomförd ombokning (flyttar tillbaka, utan avgift). */
+  angrar?: { forslagId: string; avgiftKr: number };
+}
+
+/** Så länge efter en genomförd ombokning kan kunden själv flytta tillbaka den, utan avgift. */
+const ANGER_MINUTER = 15;
+
+interface Senaste {
+  forslagId: string;
+  kundId: string;
+  bokningId: string;
+  fore: Forslag['fore'];
+  efter: Lucka;
+  avgiftKr: number;
+  tid: number;
+}
+
+/**
+ * Verktyget angra_ombokning: kunden ångrar sig direkt efter en ombokning
+ * (Mikaela 2026-10-09 – en kund såg avgiften först efteråt). Tar fram en
+ * sammanfattning som flyttar tillbaka städningen till den ursprungliga tiden,
+ * utan avgift. Ändrar ingenting förrän kunden bekräftar i kortet.
+ */
+export async function forberedAngra(samtalsId: string): Promise<string> {
+  const kund = await verifieradKund(samtalsId);
+  if (!kund) return EJ_LEGITIMERAD;
+  const senaste = await lagring.hamta<Senaste>(`sjalv:senaste:${samtalsId}`).catch(() => null);
+  const OVERLAMNA = 'Lämna över till kundservice med eskalera_till_kundservice och skriv att kunden ångrar ombokningen och vill ha tillbaka sin ursprungliga tid.';
+  if (!senaste || senaste.kundId !== kund.kundId || Date.now() - senaste.tid > ANGER_MINUTER * 60000) {
+    return `Det finns ingen ombokning att ångra här: det går bara inom ${ANGER_MINUTER} minuter efter ombokningen, i samma samtal. ${OVERLAMNA}`;
+  }
+  const sys = system(samtalsId);
+  const bokning = await sys.hamtaBokning(senaste.bokningId);
+  if (!bokning || bokning.kundId !== kund.kundId) return `Bokningen går inte att läsa just nu. ${OVERLAMNA}`;
+  const tillbaka: Lucka = { datum: senaste.fore.datum, start: senaste.fore.start, slut: senaste.fore.slut, stadare: senaste.fore.stadare };
+  const kontroll = await sys.kontrolleraLucka(bokning, tillbaka);
+  if (kontroll.ledig === false || kontroll.lossas.length) {
+    return `Den ursprungliga tiden (${datumText(tillbaka.datum)} kl. ${tillbaka.start}) hann bli upptagen eller har passerat, så den går inte att ta tillbaka här. Säg det vänligt. ${OVERLAMNA}`;
+  }
+  const forslag: Forslag = {
+    id: slumpId('OF'),
+    samtalsId,
+    kundId: kund.kundId,
+    bokningId: bokning.id,
+    tjanst: bokning.tjanst,
+    aterkommande: bokning.aterkommande,
+    fore: { datum: bokning.datum, start: bokning.start, slut: bokning.slut, stadare: bokning.stadare },
+    efter: tillbaka,
+    avtryck: avtryck(bokning),
+    regel: `anger-${ANGER_MINUTER}min`,
+    avgiftKr: 0,
+    timmarKvar: 0,
+    skapad: Date.now(),
+    status: 'vantar',
+    angrar: { forslagId: senaste.forslagId, avgiftKr: senaste.avgiftKr },
+  };
+  await lagring.spara(`sjalv:forslag:${forslag.id}`, forslag, 24 * 3600);
+  return [
+    `Ombokningen går att ångra: städningen flyttas tillbaka till ${datumText(tillbaka.datum)} kl. ${tillbaka.start}–${tillbaka.slut} med ${tillbaka.stadare.namn}.${senaste.avgiftKr > 0 ? ` Avgiften på ${senaste.avgiftKr} kr stryks då.` : ''}`,
+    `Skriv EN kort mening, till exempel "Inga problem – tryck Bekräfta ombokning så ligger din städning kvar på ${datumText(tillbaka.datum)} kl. ${tillbaka.start}${senaste.avgiftKr > 0 ? ', utan avgift' : ''}." och avsluta med den här raden exakt: [[bekrafta:${forslag.id}]]`,
+    'Du kan INTE flytta tillbaka den själv. Det sker först när kunden trycker på knappen. Säg aldrig att det är klart innan systemet svarat.',
+  ].join('\n');
 }
 
 export async function forberedOmbokning(samtalsId: string, indata: { bokningId: string; tidId: string }): Promise<string> {
@@ -708,7 +770,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
     // 2. Samma villkor som kunden såg. Har fristen passerats sedan dess ska kunden se den nya avgiften.
     const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), bokning.prisKr);
-    if (bed.avgiftKr !== f.avgiftKr) {
+    if (!f.angrar && bed.avgiftKr !== f.avgiftKr) {
       return avsluta('VILLKOR_ANDRADE', `Villkoren hann ändras medan du tittade: ändringen kostar nu ${bed.avgiftKr} kr enligt avbokningsreglerna. Ingenting är ändrat.\n[[val: Visa ny sammanfattning | Behåll min bokning]]`, `ingen skrivning: avgift ${f.avgiftKr} → ${bed.avgiftKr}`, false, true);
     }
 
@@ -873,16 +935,32 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
 
     const byte = f.efter.stadare.id !== f.fore.stadare.id;
     const text = [
-      'Klart! ✓ Din städning är ombokad.',
+      f.angrar ? 'Klart! ✓ Din städning ligger kvar på sin ursprungliga tid.' : 'Klart! ✓ Din städning är ombokad.',
       `${datumText(f.efter.datum).replace(/^./, (c) => c.toUpperCase())} kl. ${f.efter.start}–${f.efter.slut}`,
       byte ? `${f.efter.stadare.namn} kommer den gången.` : `${f.efter.stadare.namn} kommer som vanligt.`,
       f.aterkommande ? 'Dina övriga städningar är oförändrade.' : '',
       f.avgiftKr > 0 ? `Enligt villkoren debiteras ${f.avgiftKr} kr för ändringen.` : '',
+      f.angrar && f.angrar.avgiftKr > 0 ? 'Ingen avgift debiteras.' : '',
       nasta && !nasta.includes(nyTid) ? nasta : '',
       kvitto.kanal === 'sms' ? 'Du får också en bekräftelse med SMS.' : kvitto.kanal === 'mejl' ? 'Du får också en bekräftelse med mejl.' : '',
     ]
       .filter(Boolean)
       .join('\n');
+    if (f.angrar) {
+      // Ångrad ombokning: avgiften ska inte faktureras – anteckning i TimeWave och mejl till kundservice.
+      await lagring.taBort(`sjalv:senaste:${samtalsId}`).catch(() => undefined);
+      if (f.angrar.avgiftKr > 0) {
+        const rubrik = `Avgift ${f.angrar.avgiftKr} kr ska INTE faktureras – ombokningen ångrades`;
+        const besked = `Kunden ${kund.namn} (kund ${f.kundId}) ångrade sin ombokning i chatten inom ${ANGER_MINUTER} minuter. Städningen ligger kvar ${nyTid}. Den tidigare ekonomianteckningen om ${f.angrar.avgiftKr} kr gäller inte – ta bort den.`;
+        const not = sys.skapaEkonomianteckning ? await sys.skapaEkonomianteckning(f.kundId, rubrik, besked).catch(() => ({ ok: false as const, fel: 'fel' })) : { ok: false as const, fel: 'saknas' };
+        await mejlaKundservice(`ÅNGRAD ombokning – stryk avgiften ${f.angrar.avgiftKr} kr (kund ${f.kundId})`, `${besked}\nAnteckning i TimeWave: ${not.ok === true ? 'skapad' : 'kunde inte skapas'}.`).catch(() => undefined);
+      }
+    } else {
+      // Kunden kan ångra ombokningen en kort stund efteråt (angra_ombokning).
+      await lagring
+        .spara(`sjalv:senaste:${samtalsId}`, { forslagId: f.id, kundId: f.kundId, bokningId: f.bokningId, fore: f.fore, efter: f.efter, avgiftKr: f.avgiftKr, tid: Date.now() } satisfies Senaste, ANGER_MINUTER * 60)
+        .catch(() => undefined);
+    }
     return avsluta('SUCCESS', text, `OK ${skrivning.referens}`, true, true);
   } catch (fel) {
     console.error('självservice: ombokningen avbröts', fel);

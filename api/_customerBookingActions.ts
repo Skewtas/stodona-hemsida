@@ -1,5 +1,5 @@
 import * as storage from './_lagring';
-import { avtryck, sthlmTidpunkt, type Bokningssystem, type Bokning, type Lucka, type Skrivresultat } from './_bokningssystem';
+import { kundensKostnad, avtryck, sthlmTidpunkt, type Bokningssystem, type Bokning, type Lucka, type Skrivresultat } from './_bokningssystem';
 import { bedom } from './_avbokningsregler';
 import { timewaveSystem } from './_timewaveSystem';
 
@@ -145,7 +145,7 @@ export function protectBookingActions(system: Bokningssystem, store: Storage = s
 
 export function customerBookingActions(options: { mail?: boolean } = {}): Bokningssystem {
   return protectBookingActions(timewaveSystem(), storage, options.mail ? booking => {
-    const fee = bedom(booking.tjanst, sthlmTidpunkt(booking.datum, booking.start), booking.prisKr);
+    const fee = bedom(booking.tjanst, sthlmTidpunkt(booking.datum, booking.start), kundensKostnad(booking));
     return !Number.isFinite(fee.timmarKvar) || fee.inomFrist ? 'Ändringen kan innebära avgift. Ella behöver ta över.' : null;
   } : undefined);
 }

@@ -30,8 +30,10 @@ export interface Bokning {
   stadare: Anstalld;
   adress: string;
   omrade: string;
-  /** Kundens kostnad för tillfället, ur bokningssystemet. Grund för avgiften. */
+  /** Tillfällets pris ur bokningssystemet, FÖRE RUT-avdrag, kundens rabatt inräknad. */
   prisKr: number;
+  /** Sant för privatkunder, som har RUT-avdrag – de betalar hälften av prisKr. */
+  rut?: boolean;
   aterkommande: boolean;
   /** Tjänstens id i bokningssystemet – för att hitta kollegor som kan utföra den. */
   tjanstId?: string;
@@ -72,6 +74,15 @@ export type Kontroll =
   | { ledig: true; lossas: Engangsuppdrag[] };
 
 /** En faktura som kunden får se i chatten. Bara det som behövs för att förstå och betala den. */
+/**
+ * Det kunden faktiskt betalar för tillfället: efter RUT-avdrag för privatkunder,
+ * hela priset för företag. Grunden för avgiften vid sen av- eller ombokning
+ * (Mikaela 2026-10-09: 50 % av det kunden faktiskt betalar efter RUT).
+ */
+export function kundensKostnad(b: { prisKr: number; rut?: boolean }): number {
+  return b.rut ? Math.round(b.prisKr / 2) : b.prisKr;
+}
+
 export interface Faktura {
   nummer: string;
   datum: string;

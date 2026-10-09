@@ -2,7 +2,7 @@ import { customerBookingActions } from './_customerBookingActions';
 import { twGetAlla, type TwKlient } from './_timewave';
 import * as store from './_lagring';
 import { bedom } from './_avbokningsregler';
-import { avtryck, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt, type Bokning, type Lucka } from './_bokningssystem';
+import { kundensKostnad, avtryck, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt, type Bokning, type Lucka } from './_bokningssystem';
 
 export const config = { runtime: 'edge' };
 type Offer = { id: string; threadId: string; email: string; before: Bokning; target: Lucka; createdAt: number };
@@ -50,7 +50,7 @@ export default async function handler(request: Request): Promise<Response> {
       if (Date.now() - offer.createdAt > 7 * 86400000) return reply({ status: 'search_again', reason: 'Erbjudandet har gått ut.' });
       const current = await system.hamtaBokning(offer.before.id);
       if (!current || current.kundId !== customer.id || avtryck(current) !== avtryck(offer.before)) return manual('Ursprungsbokningen har ändrats.');
-      const fee = bedom(current.tjanst, sthlmTidpunkt(current.datum, current.start), current.prisKr);
+      const fee = bedom(current.tjanst, sthlmTidpunkt(current.datum, current.start), kundensKostnad(current));
       if (!Number.isFinite(fee.timmarKvar) || fee.inomFrist) return manual('Ändringen kan innebära avgift eller annan ekonomisk konsekvens.');
       const check = await system.kontrolleraLucka(current, offer.target);
       if (!check.ledig || check.lossas.length) return reply({ status: 'search_again', reason: 'Tiden hann bli upptagen.' });
@@ -68,7 +68,7 @@ export default async function handler(request: Request): Promise<Response> {
     if (!validDate(data.from) || !validDate(data.to) || data.to < data.from || data.to > laggTillDagar(data.from, 13)) return reply({ error: 'Invalid search range (maximum 14 days)' }, 400);
     if (data.from < idagSthlm()) return reply({ status: 'search_again', reason: 'Sökperioden har passerat. Ange en aktuell period.' });
     if ((data.after && !validTime(data.after)) || (data.before && !validTime(data.before))) return reply({ error: 'Invalid time' }, 400);
-    const fee = bedom(b.tjanst, sthlmTidpunkt(b.datum, b.start), b.prisKr);
+    const fee = bedom(b.tjanst, sthlmTidpunkt(b.datum, b.start), kundensKostnad(b));
     if (!Number.isFinite(fee.timmarKvar) || fee.inomFrist) return manual('Ändringen kan innebära avgift eller annan ekonomisk konsekvens.');
     const slots = (await system.ledigaLuckor(b, data.from, data.to, b.stadare, data.after || undefined))
       .filter(t => !t.fortur && (!data.after || t.start >= data.after) && (!data.before || t.start <= data.before))

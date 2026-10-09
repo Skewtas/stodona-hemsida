@@ -3,7 +3,9 @@
 // Beslutade av Mikaela 2026-09-24:
 //  * Kostnadsfri av- eller ombokning fram till 48 timmar före start.
 //  * Storstädning, flyttstädning och byggstädning: 5 dagar före start.
-//  * Senare än så debiteras 50 % av bokningens kostnad.
+//  * Senare än så debiteras 50 % av det kunden faktiskt betalar för tillfället:
+//    efter RUT-avdrag och rabatt för privatkunder, hela priset för företag
+//    (förtydligat av Mikaela 2026-10-09).
 //
 // AI:n ser bara resultatet härifrån. Den räknar aldrig själv och får aldrig
 // antyda att avgiften kan strykas.
@@ -20,14 +22,14 @@ const STANDARD: Regel = {
   id: 'standard-48h-50',
   fristTimmar: 48,
   avgiftProcent: 50,
-  beskrivning: 'kostnadsfritt fram till 48 timmar före start, därefter 50 % av kostnaden',
+  beskrivning: 'kostnadsfritt fram till 48 timmar före start, därefter 50 % av det kunden betalar för städningen (efter RUT-avdrag)',
 };
 
 const STORA_UPPDRAG: Regel = {
   id: 'stora-uppdrag-5d-50',
   fristTimmar: 5 * 24,
   avgiftProcent: 50,
-  beskrivning: 'kostnadsfritt fram till 5 dagar före start, därefter 50 % av kostnaden',
+  beskrivning: 'kostnadsfritt fram till 5 dagar före start, därefter 50 % av det kunden betalar för städningen (efter RUT-avdrag)',
 };
 
 const LANG_FRIST = ['storstädning', 'flyttstädning', 'byggstädning'];
@@ -47,7 +49,7 @@ export interface Bedomning {
 /**
  * Bedömer en ändring av en bokning just nu.
  * @param startTid bokningens start som tidpunkt (ms)
- * @param prisKr bokningens kostnad för kunden, från bokningssystemet
+ * @param prisKr det kunden faktiskt betalar för tillfället (kundensKostnad): efter RUT för privatkunder
  */
 export function bedom(tjanst: string, startTid: number, prisKr: number, nu = Date.now()): Bedomning {
   const regel = regelFor(tjanst);

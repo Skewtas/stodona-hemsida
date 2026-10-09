@@ -17,7 +17,7 @@
 
 import * as lagring from './_lagring';
 import { bedom } from './_avbokningsregler';
-import { avtryck, datumText, sthlmTidpunkt, type Bokning } from './_bokningssystem';
+import { kundensKostnad, avtryck, datumText, sthlmTidpunkt, type Bokning } from './_bokningssystem';
 import { bekraftaTillKund, nastaStadning } from './_kundbekraftelse';
 import {
   FORSLAG_MINUTER,
@@ -76,7 +76,7 @@ export async function forberedAvbokning(samtalsId: string, indata: { bokningId: 
     return `Det här tillfället kan inte avbokas i chatten (${bokning.ejAndringsbar}). Säg det vänligt och lämna över till kundservice.`;
   }
 
-  const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), bokning.prisKr);
+  const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), kundensKostnad(bokning));
   if (!Number.isFinite(bed.timmarKvar) || bed.timmarKvar <= 0) {
     return 'Städningen har redan börjat eller passerat och kan inte avbokas i chatten. Lämna över till kundservice.';
   }
@@ -224,7 +224,7 @@ export async function bekraftaAvbokning(samtalsId: string, id: string, utfortAv:
       return avsluta('BOKNINGEN_ANDRAD', 'Bokningen har ändrats sedan jag tog fram sammanfattningen, så jag har inte avbokat något. Jag hämtar dina bokningar igen.', 'ingen skrivning: avtrycket skilde sig', false);
     }
     // 2. Samma avgift som kunden såg.
-    const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), bokning.prisKr);
+    const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), kundensKostnad(bokning));
     if (bed.avgiftKr !== f.avgiftKr) {
       return avsluta('VILLKOR_ANDRADE', `Villkoren hann ändras medan du tittade: avbokningen kostar nu ${bed.avgiftKr} kr enligt avbokningsreglerna. Ingenting är ändrat.\n[[val: Visa ny sammanfattning | Behåll min bokning]]`, `ingen skrivning: avgift ${f.avgiftKr} → ${bed.avgiftKr}`, false);
     }
@@ -249,7 +249,7 @@ export async function bekraftaAvbokning(samtalsId: string, id: string, utfortAv:
         `Kund: ${kund.namn} (kund ${f.kundId}).`,
         `Tillfälle: ${f.tjanst}, ${tillfalle} med ${f.fore.stadare.namn} – avbokat.`,
         `Avbokningen gjordes ${Math.max(0, Math.floor(f.timmarKvar))} timmar före start, inom avbokningsfristen (regel ${f.regel}).`,
-        `Avgift enligt villkoren: ${f.avgiftKr} kr (50 % av tillfällets kostnad). Kunden informerades och bekräftade i chatten ${bekraftadTid.slice(0, 16).replace('T', ' ')} UTC.`,
+        `Avgift enligt villkoren: ${f.avgiftKr} kr (50 % av det kunden betalar för tillfället – efter RUT-avdrag för privatkunder). Kunden informerades och bekräftade i chatten ${bekraftadTid.slice(0, 16).replace('T', ' ')} UTC.`,
       ].join('\n');
       const anteckning = sys.skapaEkonomianteckning
         ? await sys.skapaEkonomianteckning(f.kundId, rubrik, text).catch((fel) => ({ ok: false as const, fel: String(fel) }))

@@ -45,7 +45,7 @@ import * as lagring from './_lagring';
 import { kontrolleraKod } from './_smskod';
 import { personalchattPa } from './_personal';
 import { bedom } from './_avbokningsregler';
-import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
+import { type Bokning, type Bokningssystem, type Engangsuppdrag, type Kund, type Lucka, avtryck, datumText, idagSthlm, kundensKostnad, laggTillDagar, minuter, sthlmTidpunkt } from './_bokningssystem';
 import { testsystem, testkund, hamtaSimulering, sattSimulering, aterstallVarld, SIMULERINGAR, TESTKUNDLISTA as TESTVARLDENS_KUNDER, type Simulering } from './_testBokningssystem';
 import { sokKunderPaNamn, type Kundtraff } from './_timewaveSystem';
 import { customerBookingActions } from './_customerBookingActions';
@@ -319,11 +319,11 @@ function langdText(b: { start: string; slut: string }): string {
 function bokningsrad(b: Bokning): string {
   return `${b.id} · ${datumText(b.datum)} (${b.datum}) kl. ${b.start}–${b.slut} · ${b.tjanst}, ${langdText(b)} · ${b.adress} · städare ${b.stadare.namn}${
     b.aterkommande ? ' · del av en återkommande serie (en ändring gäller bara det här tillfället)' : ' · enstaka bokning'
-  }${b.prisKr > 0 ? ` · pris enligt bokningen ${b.prisKr} kr före RUT-avdrag (${Math.round(b.prisKr / 2)} kr efter RUT, om kunden har RUT-avdrag), rabatt inräknad` : ' · pris saknas i bokningen'}`;
+  }${b.prisKr > 0 ? (b.rut ? ` · pris enligt bokningen: kunden betalar ${kundensKostnad(b)} kr efter RUT-avdrag (${b.prisKr} kr före RUT), rabatt inräknad` : ` · pris enligt bokningen ${b.prisKr} kr (företag, inget RUT-avdrag), rabatt inräknad`) : ' · pris saknas i bokningen'}`;
 }
 
 function villkorsText(b: Bokning): string {
-  const bed = bedom(b.tjanst, sthlmTidpunkt(b.datum, b.start), b.prisKr);
+  const bed = bedom(b.tjanst, sthlmTidpunkt(b.datum, b.start), kundensKostnad(b));
   const timmar = Math.max(0, Math.floor(bed.timmarKvar));
   return bed.inomFrist
     ? `VILLKOR (${b.id}): städningen börjar om ${timmar} timmar och ligger inom avbokningsfristen (${bed.regel.beskrivning}). En ändring kostar därför ${bed.avgiftKr} kr enligt villkoren. Nämn INTE avgiften nu – den visas i sammanfattningen i slutet, innan kunden bekräftar. Antyd aldrig att avgiften kan strykas.`
@@ -536,7 +536,7 @@ export async function forberedOmbokning(samtalsId: string, indata: { bokningId: 
   const bokning = await system(samtalsId).hamtaBokning(indata.bokningId);
   if (!bokning || bokning.kundId !== kund.kundId) return 'Bokningen finns inte bland kundens bokningar. Hämta kundens bokningar igen.';
 
-  const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), bokning.prisKr);
+  const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), kundensKostnad(bokning));
   const forslag: Forslag = {
     id: slumpId('OF'),
     samtalsId,
@@ -769,7 +769,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
     }
 
     // 2. Samma villkor som kunden såg. Har fristen passerats sedan dess ska kunden se den nya avgiften.
-    const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), bokning.prisKr);
+    const bed = bedom(bokning.tjanst, sthlmTidpunkt(bokning.datum, bokning.start), kundensKostnad(bokning));
     if (!f.angrar && bed.avgiftKr !== f.avgiftKr) {
       return avsluta('VILLKOR_ANDRADE', `Villkoren hann ändras medan du tittade: ändringen kostar nu ${bed.avgiftKr} kr enligt avbokningsreglerna. Ingenting är ändrat.\n[[val: Visa ny sammanfattning | Behåll min bokning]]`, `ingen skrivning: avgift ${f.avgiftKr} → ${bed.avgiftKr}`, false, true);
     }
@@ -873,7 +873,7 @@ export async function bekraftaOmbokning(samtalsId: string, forslagId: string, ut
         `Kund: ${kund.namn} (kund ${f.kundId}).`,
         `Tillfälle: ${f.tjanst}, ${datumText(f.fore.datum)} ${f.fore.start}–${f.fore.slut} → flyttat till ${datumText(f.efter.datum)} ${f.efter.start}–${f.efter.slut}.`,
         `Ombokningen gjordes ${Math.max(0, Math.floor(f.timmarKvar))} timmar före start, inom avbokningsfristen (regel ${f.regel}).`,
-        `Avgift enligt villkoren: ${f.avgiftKr} kr (50 % av tillfällets kostnad). Kunden informerades och bekräftade i chatten ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC.`,
+        `Avgift enligt villkoren: ${f.avgiftKr} kr (50 % av det kunden betalar för tillfället – efter RUT-avdrag för privatkunder). Kunden informerades och bekräftade i chatten ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC.`,
       ].join('\n');
       const anteckning = sys.skapaEkonomianteckning
         ? await sys.skapaEkonomianteckning(f.kundId, rubrik, text).catch((fel) => ({ ok: false as const, fel: String(fel) }))

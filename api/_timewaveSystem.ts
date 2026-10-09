@@ -201,6 +201,8 @@ function tillBokning(m: TwMission, rad: TwMissionAnstalld): Bokning {
     adress: [k?.address, [k?.postal_code, k?.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
     omrade: k?.workarea_name ?? '',
     prisKr: prisFor(m, start, slut),
+    // Kundtyp 1 = privatperson (RUT-avdrag), 2 = företag.
+    rut: Number(k?.type) === 1,
     aterkommande: !arEngang(m),
     ...(utanStadare ? { ejAndringsbar: 'Ingen städare är tilldelad än, så kundservice behöver hjälpa till med ändringen.' } : {}),
   };

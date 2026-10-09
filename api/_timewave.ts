@@ -283,7 +283,7 @@ export interface TwMission {
   id: number;
   type: string;
   recurrencyinterval_id: number | null;
-  client?: { id: number; number: string; name?: string; address?: string; postal_code?: string; city?: string; workarea_name?: string | null };
+  client?: { id: number; number: string; type?: number | string; name?: string; address?: string; postal_code?: string; city?: string; workarea_name?: string | null };
   services?: { id: number; name: string; quantity?: number; price?: number; unit?: string; discount?: number | string }[];
   employees?: TwMissionAnstalld[];
 }

@@ -280,6 +280,7 @@ function tillBokning(p: Pass): Bokning {
     adress: p.adress ?? '',
     omrade: p.omrade ?? '',
     prisKr: p.prisKr ?? 0,
+    rut: true,
     aterkommande: Boolean(p.aterkommande),
   };
 }

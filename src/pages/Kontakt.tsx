@@ -96,8 +96,8 @@ const CONTACT_FAQS = [
     en: { q: "Which areas do you serve?", a: "We clean across the Stockholm area, including Solna, Sundbyberg, Bromma, Lidingö, Ekerö, Nacka, Täby, Danderyd, Sollentuna, Järfälla, Huddinge, Haninge and the inner city. If you live just outside – get in touch, we keep expanding." },
   },
   {
-    sv: { q: "Jag är redan kund – var hanterar jag mina bokningar?", a: "I kundportalen ser du dina kommande och utförda städningar. Ändringar av tider gör du enklast genom att ringa eller mejla oss." },
-    en: { q: "I am already a customer – where do I manage my bookings?", a: "In the customer portal you can see your upcoming and completed cleanings. Changes to times are easiest to make by calling or emailing us." },
+    sv: { q: "Jag är redan kund – var hanterar jag mina bokningar?", a: "Hantera det enkelt i chatten på Stodona.se. Där hjälper vår digitala kollega Camilla dig att se dina bokningar, boka om, avboka och få hjälp med fakturor." },
+    en: { q: "I am already a customer – where do I manage my bookings?", a: "Manage it easily in the chat on Stodona.se. Our digital colleague Camilla helps you see your bookings, reschedule, cancel and get help with invoices." },
   },
   {
     sv: { q: "Är ni försäkrade och har F-skatt?", a: "Ja. Stodona AB (org.nr 559201-1059) är fullt ansvarsförsäkrat, har F-skattsedel och alla städare är anställda hos oss med kollektivavtalsenliga villkor." },
@@ -270,13 +270,13 @@ export default function Kontakt() {
                       <User className="w-6 h-6 text-text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg">{lang === 'SV' ? 'Kundportal' : 'Customer Portal'}</h3>
+                      <h3 className="font-bold text-lg">{lang === 'SV' ? 'Redan kund?' : 'Already a customer?'}</h3>
                       <p className="text-text-secondary">
                         {lang === 'SV' 
-                          ? 'Är du redan kund hos oss? Logga in för att hantera dina bokningar. ' 
-                          : 'Are you already a customer? Log in to manage your bookings. '}<br />
-                        <Link to="/kundportalen" className="text-cta-hover font-medium hover:underline inline-flex items-center gap-1 mt-1">
-                          {lang === 'SV' ? 'Gå till kundportalen' : 'Go to customer portal'}
+                          ? 'Boka om, avboka, se dina bokningar och få hjälp med fakturor – enkelt i chatten med vår digitala kollega Camilla. ' 
+                          : 'Reschedule, cancel, see your bookings and get help with invoices – easily in the chat with our digital colleague Camilla. '}<br />
+                        <Link to="/chatt" className="text-cta-hover font-medium hover:underline inline-flex items-center gap-1 mt-1">
+                          {lang === 'SV' ? 'Öppna chatten' : 'Open the chat'}
                         </Link>
                       </p>
                     </div>
@@ -587,8 +587,8 @@ export default function Kontakt() {
             <Link to="/om-oss" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
               <span className="font-medium text-sm">{lang === 'SV' ? 'Om oss' : 'About us'}</span>
             </Link>
-            <Link to="/kundportalen" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
-              <span className="font-medium text-sm">{lang === 'SV' ? 'Kundportal' : 'Customer Portal'}</span>
+            <Link to="/chatt" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
+              <span className="font-medium text-sm">{lang === 'SV' ? 'Chatten' : 'Chat'}</span>
             </Link>
             <Link to="/recensioner" className="p-4 bg-white rounded-xl text-center hover:shadow-md transition-all hover:-translate-y-1">
               <span className="font-medium text-sm">{lang === 'SV' ? 'Recensioner' : 'Reviews'}</span>

@@ -111,8 +111,11 @@ export async function lasa(nyckel: string, ttlSekunder: number): Promise<boolean
   return (await kv(['SET', nyckel, '1', 'NX', 'EX', String(ttlSekunder)])) === 'OK';
 }
 
-/** Lägger en post först i en lista som aldrig går ut av sig själv (loggen). */
-export async function laggTillILista(nyckel: string, post: unknown, maxAntal: number): Promise<void> {
+/**
+ * Lägger en post först i en lista. Utan ttl går listan aldrig ut av sig själv
+ * (självservicens logg); med ttl förnyas utgången vid varje ny post.
+ */
+export async function laggTillILista(nyckel: string, post: unknown, maxAntal: number, ttlSekunder?: number): Promise<void> {
   const text = JSON.stringify(post);
   if (LOKAL) {
     const lista = minneslistor.get(nyckel) ?? [];
@@ -122,6 +125,7 @@ export async function laggTillILista(nyckel: string, post: unknown, maxAntal: nu
   }
   await kv(['LPUSH', nyckel, text]);
   await kv(['LTRIM', nyckel, '0', String(maxAntal - 1)]);
+  if (ttlSekunder) await kv(['EXPIRE', nyckel, String(ttlSekunder)]);
 }
 
 export async function lasLista<T>(nyckel: string, antal: number): Promise<T[]> {
@@ -134,4 +138,58 @@ export async function lasLista<T>(nyckel: string, antal: number): Promise<T[]> {
       return [];
     }
   });
+}
+
+// ─── Sorterat index (inkorgen) ───────────────────────────────────────────────
+
+const minnesindex = new Map<string, Map<string, number>>();
+
+/** Sätter en medlems poäng i ett sorterat index, t.ex. senaste aktivitet per samtal. */
+export async function indexera(nyckel: string, medlem: string, poang: number): Promise<void> {
+  if (LOKAL) {
+    const index = minnesindex.get(nyckel) ?? new Map<string, number>();
+    index.set(medlem, poang);
+    minnesindex.set(nyckel, index);
+    return;
+  }
+  await kv(['ZADD', nyckel, String(poang), medlem]);
+}
+
+/** De senaste medlemmarna i indexet, högst poäng först. */
+export async function senasteIIndex(nyckel: string, antal: number): Promise<string[]> {
+  if (LOKAL) {
+    return [...(minnesindex.get(nyckel) ?? new Map<string, number>()).entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, antal)
+      .map(([m]) => m);
+  }
+  const rader = await kv(['ZREVRANGE', nyckel, '0', String(antal - 1)]);
+  return Array.isArray(rader) ? rader.map(String) : [];
+}
+
+/** Rensar bort medlemmar med lägre poäng än gränsen (gamla samtal). */
+export async function rensaIndex(nyckel: string, underPoang: number): Promise<void> {
+  if (LOKAL) {
+    const index = minnesindex.get(nyckel);
+    index?.forEach((p, m) => p < underPoang && index.delete(m));
+    return;
+  }
+  await kv(['ZREMRANGEBYSCORE', nyckel, '-inf', `(${underPoang}`]);
+}
+
+/** Tar ut den äldsta posten ur en lista som fylls med laggTillILista – atomiskt, så två arbetare aldrig får samma post. */
+export async function plockaAldsta<T>(nyckel: string): Promise<T | null> {
+  let rad: unknown;
+  if (LOKAL) {
+    const lista = minneslistor.get(nyckel) ?? [];
+    rad = lista.pop() ?? null;
+  } else {
+    rad = await kv(['RPOP', nyckel]);
+  }
+  if (typeof rad !== 'string') return null;
+  try {
+    return JSON.parse(rad) as T;
+  } catch {
+    return null;
+  }
 }

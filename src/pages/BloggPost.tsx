@@ -4,14 +4,22 @@ import { motion } from 'motion/react';
 import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { blogPosts } from '../blogData';
-import { areaBlogPosts } from '../areaBlogData';
+import { SERVICE_AREAS } from '../constants';
 import BlogLeadMagnet from '../components/BlogLeadMagnet';
 import { bookingUrl } from "../utils/bookingUrl";
 
 export default function BloggPost() {
   const { slug } = useParams<{ slug: string }>();
-  const allPosts = [...blogPosts, ...areaBlogPosts];
+  const allPosts = blogPosts;
   const post = allPosts.find(p => p.slug === slug);
+
+  // De tidigare ortsartiklarna (t.ex. /blogg/hemstadning-bromma) var samma text
+  // med ortsnamnet utbytt och konkurrerade med ortssidorna. De 301:as i
+  // vercel.json; det här fångar klientnavigering till gamla länkar.
+  const ort = slug?.match(/^(hemstadning|flyttstadning|fonsterputsning)-(.+)$/);
+  if (!post && ort && SERVICE_AREAS.some(a => a.path === ort[2])) {
+    return <Navigate to={`/${ort[2]}`} replace />;
+  }
 
   if (!post) {
     return <Navigate to="/blogg" replace />;

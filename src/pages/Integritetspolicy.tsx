@@ -50,7 +50,6 @@ export default function Integritetspolicy() {
             <ul className="list-disc pl-6 space-y-2 mb-8 text-text-secondary">
               <li>Bokar en städning eller begär offert</li>
               <li>Kontaktar oss via formulär, e-post eller telefon</li>
-              <li>Använder vår kundportal</li>
               <li>Anmäler dig till vårt nyhetsbrev</li>
               <li>Chattar med Camilla, vår digitala assistent på webbplatsen</li>
             </ul>

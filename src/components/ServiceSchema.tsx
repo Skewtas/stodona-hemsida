@@ -7,6 +7,8 @@ interface ServiceSchemaProps {
   url: string;
   image?: string;
   areaServed?: string;
+  /** Egen sidtitel. Behövs för företagstjänster, som inte ger rätt till RUT-avdrag. */
+  title?: string;
 }
 
 export default function ServiceSchema({
@@ -16,6 +18,7 @@ export default function ServiceSchema({
   url,
   image = 'https://stodona.se/stodona-stad.jpg',
   areaServed = 'Stockholm',
+  title,
 }: ServiceSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
@@ -67,7 +70,7 @@ export default function ServiceSchema({
 
   return (
     <Helmet>
-      <title>{serviceName} Stockholm | Stodona – RUT-avdrag 50%</title>
+      <title>{title || `${serviceName} Stockholm | Stodona – RUT-avdrag 50%`}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={`https://stodona.se${url}`} />
       <meta property="og:title" content={`${serviceName} Stockholm | Stodona`} />

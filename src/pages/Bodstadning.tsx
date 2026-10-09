@@ -27,6 +27,7 @@ export default function Bodstadning() {
         <link rel="canonical" href="https://stodona.se/bodstadning" />
       </Helmet>
       <ServiceSchema
+        title="Bodstädning & etableringsstädning i Stockholm | Stodona"
         serviceName="Bodstädning"
         serviceType="CommercialCleaningService"
         description="Professionell bodstädning och städning av etableringsytor i Stockholm."

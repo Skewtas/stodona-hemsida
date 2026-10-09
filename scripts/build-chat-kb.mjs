@@ -37,7 +37,6 @@ const SIDOR = [
   ["/villkor", "Villkor"],
   ["/sa-arbetar-vi", "Så arbetar vi"],
   ["/kvalitet-och-trygghet", "Kvalitet och trygghet"],
-  ["/kundportalen", "Kundportalen"],
   ["/byta-stadbolag", "Byta städbolag"],
   ["/om-oss", "Om oss"],
   ["/kontakt", "Kontakt"],

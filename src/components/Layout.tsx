@@ -252,7 +252,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/jobba-som-barnvakt" className="hover:text-cta-hover transition-colors">
+                    <Link to="/barnvakt-jobb" className="hover:text-cta-hover transition-colors">
                       Jobba som barnvakt
                     </Link>
                   </li>

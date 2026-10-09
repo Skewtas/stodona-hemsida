@@ -69,7 +69,7 @@ const faqCategories: FaqCategory[] = [
       },
       {
         q: 'Har ni bindningstid?',
-        a: 'Nej, vi har ingen bindningstid. Du kan pausa eller avsluta ditt abonnemang när som helst. Vi tror på att behålla kunder genom kvalitet, inte kontrakt.',
+        a: "Du väljer själv. Du kan boka helt utan bindningstid, eller binda dig i 3, 6 eller 12 månader och få lägre pris per städning. Uppsägningstiden är en kalendermånad.",
       },
     ],
   },
@@ -149,7 +149,7 @@ const faqCategories: FaqCategory[] = [
       },
       {
         q: 'Vad gäller vid avbokning?',
-        a: 'Vi ber dig meddela oss <strong>senast kl. 12:00 vardagen innan</strong> planerad städning om du behöver ändra eller avboka. Vid sen avbokning eller om vi inte släpps in debiteras kostnaden för det bokade tillfället. Kontakta oss via telefon på <a href="tel:0101780150">010-178 01 50</a> eller mejla <a href="mailto:info@stodona.se">info@stodona.se</a>.',
+        a: 'Avboka eller omboka <strong>kostnadsfritt senast 48 timmar</strong> innan städtillfället börjar. Vid senare avbokning, eller om vi inte släpps in, debiteras <strong>50 % av kostnaden</strong>. Flyttstädning ska avbokas senast 5 dagar innan. Kontakta oss via telefon på <a href="tel:0101780150">010-178 01 50</a> eller mejla <a href="mailto:info@stodona.se">info@stodona.se</a>.',
       },
       {
         q: 'Hur snabbt kan ni komma?',

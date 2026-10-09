@@ -191,7 +191,7 @@ export default function Sitemap() {
               {SERVICE_AREAS.map((area) => (
                 <div key={area.path} className="bg-bg-primary rounded-xl p-5 hover:shadow-md transition-shadow">
                   <Link 
-                    to={`/stadning-${area.path}`}
+                    to={`/${area.path}`}
                     className="flex items-center gap-2 text-text-primary hover:text-cta-hover transition-colors group font-bold text-sm mb-3"
                   >
                     <MapPin className="w-4 h-4 text-cta-hover shrink-0" />

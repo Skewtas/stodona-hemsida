@@ -35,6 +35,8 @@ const Kontakt = React.lazy(() => import("./pages/Kontakt"));
 const Boka = React.lazy(() => import("./pages/Boka"));
 const BokaStadning = React.lazy(() => import("./pages/BokaStadning"));
 const VarvaEnVan = React.lazy(() => import("./pages/VarvaEnVan"));
+// Sidan en värvad vän landar på (noindex, ej i meny/sitemap) – nås via kundens delningslänk.
+const VanValkommen = React.lazy(() => import("./pages/VanValkommen"));
 const Samarbeta = React.lazy(() => import("./pages/Samarbeta"));
 const Kundportal = React.lazy(() => import("./pages/Kundportal"));
 const Visselblasning = React.lazy(() => import("./pages/Visselblasning"));
@@ -43,7 +45,6 @@ const Integritetspolicy = React.lazy(() => import("./pages/Integritetspolicy"));
 const Villkor = React.lazy(() => import("./pages/Villkor"));
 const Sitemap = React.lazy(() => import("./pages/Sitemap"));
 const LocalSeoPage = React.lazy(() => import("./pages/LocalSeoPage"));
-const StadningArea = React.lazy(() => import("./pages/StadningArea"));
 const Blogg = React.lazy(() => import("./pages/Blogg"));
 const BloggPost = React.lazy(() => import("./pages/BloggPost"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
@@ -167,6 +168,7 @@ export default function App() {
           <Route path="/kundportal" element={<Kundportal />} />
           <Route path="/kundportalen" element={<Navigate to="/kundportal" replace />} />
           <Route path="/varva-en-van" element={<VarvaEnVan />} />
+          <Route path="/valkommen" element={<VanValkommen />} />
           <Route path="/samarbeten-och-affiliate" element={<Samarbeta />} />
           <Route path="/samarbeta" element={<Samarbeta />} />
           <Route path="/samarbete" element={<Samarbeta />} />
@@ -204,17 +206,10 @@ export default function App() {
                 }
               />
 
-              {/* Hub page — e.g. /stadning-ekero */}
-              <Route
-                path={`/stadning-${area.path}`}
-                element={
-                  <StadningArea
-                    areaName={area.name}
-                    heroImage={area.heroImage}
-                    subAreas={getSubAreasForService(area.path, 'hemstadning')}
-                  />
-                }
-              />
+              {/* /stadning-ekero var en egen navsida, identisk för alla orter.
+                  Den är sammanslagen med ortssidan (301 i vercel.json); detta
+                  fångar klientnavigering till gamla länkar. */}
+              <Route path={`/stadning-${area.path}`} element={<Navigate to={`/${area.path}`} replace />} />
 
               {/* All service types — e.g. /hemstadning-ekero, /fonsterputsning-lidingo */}
               {ALL_SERVICES.map((service) => (

@@ -3,38 +3,385 @@
   "buildCommand": "bun run build:ssg",
   "outputDirectory": "dist",
   "redirects": [
-    { "source": "/kundportalen", "destination": "/kundportal", "permanent": true },
-    { "source": "/hemstadning-stockholm", "destination": "/hemstadning", "permanent": true },
-    { "source": "/flyttstadning-stockholm", "destination": "/flyttstadning", "permanent": true },
-    { "source": "/storstadning-stockholm", "destination": "/storstadning", "permanent": true },
-    { "source": "/fonsterputsning-stockholm", "destination": "/fonsterputsning", "permanent": true },
-    { "source": "/foretagsstadning-stockholm", "destination": "/foretagsstadning", "permanent": true },
-    { "source": "/byggstadning-stockholm", "destination": "/byggstadning", "permanent": true },
-    { "source": "/trappstadning-stockholm", "destination": "/trappstadning", "permanent": true },
-    { "source": "/stadning-stockholm", "destination": "/", "permanent": true },
-    { "source": "/stockholm", "destination": "/", "permanent": true },
-    { "source": "/abonnemang", "destination": "/stadabonnemang", "permanent": true },
-    { "source": "/stadabonemang", "destination": "/stadabonnemang", "permanent": true }
+    {
+      "source": "/kundportalen",
+      "destination": "/kundportal",
+      "permanent": true
+    },
+    {
+      "source": "/hemstadning-stockholm",
+      "destination": "/hemstadning",
+      "permanent": true
+    },
+    {
+      "source": "/flyttstadning-stockholm",
+      "destination": "/flyttstadning",
+      "permanent": true
+    },
+    {
+      "source": "/storstadning-stockholm",
+      "destination": "/storstadning",
+      "permanent": true
+    },
+    {
+      "source": "/fonsterputsning-stockholm",
+      "destination": "/fonsterputsning",
+      "permanent": true
+    },
+    {
+      "source": "/foretagsstadning-stockholm",
+      "destination": "/foretagsstadning",
+      "permanent": true
+    },
+    {
+      "source": "/byggstadning-stockholm",
+      "destination": "/byggstadning",
+      "permanent": true
+    },
+    {
+      "source": "/trappstadning-stockholm",
+      "destination": "/trappstadning",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-stockholm",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/stockholm",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/abonnemang",
+      "destination": "/stadabonnemang",
+      "permanent": true
+    },
+    {
+      "source": "/stadabonemang",
+      "destination": "/stadabonnemang",
+      "permanent": true
+    },
+    {
+      "source": "/nanny",
+      "destination": "/barnpassning",
+      "permanent": true
+    },
+    {
+      "source": "/vanliga-fragor",
+      "destination": "/faq",
+      "permanent": true
+    },
+    {
+      "source": "/julklapp",
+      "destination": "/julklapp-stadning",
+      "permanent": true
+    },
+    {
+      "source": "/efaktura",
+      "destination": "/e-faktura",
+      "permanent": true
+    },
+    {
+      "source": "/byta-till-stodona",
+      "destination": "/byta-stadbolag",
+      "permanent": true
+    },
+    {
+      "source": "/samarbeta",
+      "destination": "/samarbeten-och-affiliate",
+      "permanent": true
+    },
+    {
+      "source": "/samarbete",
+      "destination": "/samarbeten-och-affiliate",
+      "permanent": true
+    },
+    {
+      "source": "/affiliate",
+      "destination": "/samarbeten-och-affiliate",
+      "permanent": true
+    },
+    {
+      "source": "/influencer",
+      "destination": "/samarbeten-och-affiliate",
+      "permanent": true
+    },
+    {
+      "source": "/foretag-barnpassning",
+      "destination": "/barnpassning-foretag",
+      "permanent": true
+    },
+    {
+      "source": "/jobba-som-barnvakt",
+      "destination": "/barnvakt-jobb",
+      "permanent": true
+    },
+    {
+      "source": "/bokning",
+      "destination": "/boka-stadning",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-bromma",
+      "destination": "/bromma",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-lidingo",
+      "destination": "/lidingo",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-nacka",
+      "destination": "/nacka",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-ekero",
+      "destination": "/ekero",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-sundbyberg",
+      "destination": "/sundbyberg",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-solna",
+      "destination": "/solna",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-danderyd",
+      "destination": "/danderyd",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-taby",
+      "destination": "/taby",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-sollentuna",
+      "destination": "/sollentuna",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-huddinge",
+      "destination": "/huddinge",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-haninge",
+      "destination": "/haninge",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-jarfalla",
+      "destination": "/jarfalla",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-ostermalm",
+      "destination": "/ostermalm",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-sodermalm",
+      "destination": "/sodermalm",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-vasastan",
+      "destination": "/vasastan",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-djursholm",
+      "destination": "/djursholm",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/fonsterputsning-vaxholm",
+      "destination": "/vaxholm",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/flyttstadning-upplands-vasby",
+      "destination": "/upplands-vasby",
+      "permanent": true
+    },
+    {
+      "source": "/blogg/hemstadning-torsplan",
+      "destination": "/torsplan",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-ekero",
+      "destination": "/ekero",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-lidingo",
+      "destination": "/lidingo",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-nacka",
+      "destination": "/nacka",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-sundbyberg",
+      "destination": "/sundbyberg",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-solna",
+      "destination": "/solna",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-ostermalm",
+      "destination": "/ostermalm",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-vasastan",
+      "destination": "/vasastan",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-torsplan",
+      "destination": "/torsplan",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-sodermalm",
+      "destination": "/sodermalm",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-haninge",
+      "destination": "/haninge",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-huddinge",
+      "destination": "/huddinge",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-bromma",
+      "destination": "/bromma",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-djursholm",
+      "destination": "/djursholm",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-taby",
+      "destination": "/taby",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-danderyd",
+      "destination": "/danderyd",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-jarfalla",
+      "destination": "/jarfalla",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-tyreso",
+      "destination": "/tyreso",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-sollentuna",
+      "destination": "/sollentuna",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-vaxholm",
+      "destination": "/vaxholm",
+      "permanent": true
+    },
+    {
+      "source": "/stadning-upplands-vasby",
+      "destination": "/upplands-vasby",
+      "permanent": true
+    }
   ],
   "headers": [
     {
       "source": "/sitemap.xml",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml" }
+        {
+          "key": "Content-Type",
+          "value": "application/xml"
+        }
       ]
     },
     {
       "source": "/robots.txt",
       "headers": [
-        { "key": "Content-Type", "value": "text/plain" }
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        }
+      ]
+    },
+    {
+      "source": "/mail-identifiering.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/app.html" }
+    {
+      "source": "/mail-identifiering.html",
+      "destination": "/mail-identifiering.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/app.html"
+    }
   ],
   "crons": [
-    { "path": "/api/chat-bilagor", "schedule": "15 3 * * *" }
+    {
+      "path": "/api/chat-bilagor",
+      "schedule": "15 3 * * *"
+    },
+    {
+      "path": "/api/instagram",
+      "schedule": "30 4 * * 1"
+    }
   ]
 }

@@ -29,6 +29,7 @@ export default function Foretagsstadning() {
         <link rel="canonical" href="https://stodona.se/foretagsstadning" />
       </Helmet>
       <ServiceSchema
+        title="Företagsstädning & kontorsstädning i Stockholm | Stodona"
         serviceName="Företagsstädning"
         serviceType="Företagsstädning"
         description="Professionell kontorsstädning och företagsstädning i Stockholm. Anpassad efter era behov. Skräddarsydda lösningar för kontor, butiker och fastigheter."

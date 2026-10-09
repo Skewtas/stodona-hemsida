@@ -349,7 +349,7 @@ export default function BarnvaktAnsokan() {
 
           <p className="text-center mt-10 text-text-secondary">
             Vill du veta mer först?{" "}
-            <Link to="/jobba-som-barnvakt" className="text-cta-hover font-medium hover:underline">Läs om att jobba som barnvakt</Link>
+            <Link to="/barnvakt-jobb" className="text-cta-hover font-medium hover:underline">Läs om att jobba som barnvakt</Link>
           </p>
         </div>
       </section>

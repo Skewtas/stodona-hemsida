@@ -127,22 +127,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-ekero</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/lidingo</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-lidingo</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/nacka</loc>
@@ -151,22 +139,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-nacka</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/sundbyberg</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-sundbyberg</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/solna</loc>
@@ -175,22 +151,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-solna</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/ostermalm</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-ostermalm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/vasastan</loc>
@@ -199,22 +163,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-vasastan</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/torsplan</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-torsplan</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/sodermalm</loc>
@@ -223,22 +175,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-sodermalm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/haninge</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-haninge</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/huddinge</loc>
@@ -247,22 +187,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-huddinge</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/bromma</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-bromma</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/djursholm</loc>
@@ -271,22 +199,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-djursholm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/taby</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-taby</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/danderyd</loc>
@@ -295,22 +211,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-danderyd</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/jarfalla</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-jarfalla</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/tyreso</loc>
@@ -319,22 +223,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-tyreso</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/sollentuna</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-sollentuna</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/vaxholm</loc>
@@ -343,22 +235,10 @@
     <priority>0.7</priority>
   </url>
 <url>
-    <loc>https://stodona.se/stadning-vaxholm</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-<url>
     <loc>https://stodona.se/upplands-vasby</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/stadning-upplands-vasby</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
 <url>
     <loc>https://stodona.se/faq</loc>
@@ -431,120 +311,6 @@
     <lastmod>2026-03-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-bromma</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-lidingo</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-nacka</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-ekero</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-sundbyberg</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-solna</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-danderyd</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-taby</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-sollentuna</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-huddinge</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-haninge</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-jarfalla</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-ostermalm</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-sodermalm</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-vasastan</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-djursholm</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/fonsterputsning-vaxholm</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/flyttstadning-upplands-vasby</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<url>
-    <loc>https://stodona.se/blogg/hemstadning-torsplan</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 <url>
     <loc>https://stodona.se/byta-stadbolag</loc>

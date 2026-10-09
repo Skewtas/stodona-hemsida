@@ -690,7 +690,7 @@ export default function Barnpassning() {
               Vi söker varma, ansvarsfulla personer som älskar barn. Bli en del av Stodona.
             </p>
           </div>
-          <Link to="/jobba-som-barnvakt" className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4 shrink-0">
+          <Link to="/barnvakt-jobb" className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4 shrink-0">
             Sök jobb som barnvakt
           </Link>
         </div>

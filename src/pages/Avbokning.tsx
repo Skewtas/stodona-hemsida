@@ -32,7 +32,7 @@ export default function Avbokning() {
         },
       ]}
       faq={[
-        { q: "Hur sent kan jag avboka en städning?", a: "Kostnadsfritt senast 48 timmar innan städtillfället börjar. Vid senare avbokning kan vi behöva debitera för den reserverade tiden." },
+        { q: "Hur sent kan jag avboka en städning?", a: "Kostnadsfritt senast 48 timmar innan städtillfället börjar. Vid senare avbokning debiteras 50 % av kostnaden." },
         { q: "Har ni bindningstid?", a: "Nej, våra abonnemang är helt obundna. Uppsägning sker med en kalendermånads varsel." },
         { q: "Kan jag pausa min städning?", a: "Ja, du kan pausa din återkommande städning, till exempel under semestern. Hör av dig i god tid så löser vi det." },
       ]}

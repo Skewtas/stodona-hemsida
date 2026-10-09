@@ -28,6 +28,7 @@ export default function Trappstadning() {
         <link rel="canonical" href="https://stodona.se/trappstadning" />
       </Helmet>
       <ServiceSchema
+        title="Trappstädning Stockholm – för BRF & fastighetsägare | Stodona"
         serviceName="Trappstädning"
         serviceType="Trappstädning"
         description="Professionell trappstädning i Stockholm. Regelbunden städning av trapphus för BRF och fastighetsägare. Kontakta oss för offert."

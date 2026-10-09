@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>Stodona – Professionell städning i Stockholm | Hemstädning med RUT-avdrag</title>
+        <title>Städbolag i Stockholm – hemstädning med RUT-avdrag | Stodona</title>
         <meta name="description" content="Stodona erbjuder hemstädning, fönsterputsning, flyttstädning och storstädning i Stockholm. Samma team varje gång. RUT-avdrag – betala bara 50%. Boka online!" />
         <link rel="canonical" href="https://stodona.se/" />
         <meta property="og:title" content="Stodona – Professionell städning i Stockholm" />
@@ -108,21 +108,16 @@ export default function Home() {
             lg ligger rutorna kvar i den vanliga spalten. */}
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-4 sm:pt-8 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
-            {/* Kampanjen 30 % året ut. På mobil först av allt, före filmen;
-                från lg högst upp i bokningskortet (nedan). */}
-            <KampanjKort className="order-first lg:hidden" />
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              <KampanjKort className="hidden lg:block mb-7" />
-              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
-                <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
-              </span>
-
                 {/* Graden följer KORTETS bredd (cqw) och inte fönstrets, eftersom
                   kortet bara är en halv skärm brett i tvåspaltsläget. Frågan
                   är en hel mening och får brytas över två rader. */}
               <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-6">
                 {t('home.hero.title', lang)}
               </h1>
+
+              {/* Kampanjen 30 % året ut – direkt under rubriken, före tjänstevalet. */}
+              <KampanjKort className="mb-7" />
 
               {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
                   boka.stodona.se som ?service= och ?sqm=, så besökaren slipper
@@ -158,14 +153,6 @@ export default function Home() {
                     );
                   })}
                 </div>
-                {medKampanj && (
-                  <div className="flex items-start gap-2.5 bg-accent/15 text-text-primary rounded-xl px-3.5 py-3 -mt-1 mb-5 text-sm leading-relaxed">
-                    <span className="shrink-0 bg-accent text-white rounded px-1.5 py-0.5 text-xs font-bold">−{KAMPANJ.procent} %</span>
-                    <span>
-                      <strong>Året ut på hemstädning</strong> med städabonnemang. Koden {KAMPANJ.kod} läggs in åt dig när du bokar.
-                    </span>
-                  </div>
-                )}
                 <label htmlFor="hero-sqm" className="block text-text-secondary text-base sm:text-lg mb-3">
                   {t('home.hero.sqmLabel', lang)}
                 </label>
@@ -234,63 +221,6 @@ export default function Home() {
                 poster="/hero-poster.webp"
                 alt="Nystädat sovrum med uppbäddad säng"
               />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Kundlöftet – samma två rutor som heron, fast spegelvända: bilden
-             till vänster och löftet till höger. Måtten är hämtade rakt av från
-             heron så att de två sektionerna läser som ett par. */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pb-0">
-          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
-            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
-              {/* Samma mötesbild som ligger på e-fakturasidan, men som WebP:
-                  174 kB i stället för 263 kB. Rutan är kvadratisk på desktop,
-                  så bilden beskärs av CSS – object-position styr vilken del av
-                  det liggande fotot som får synas. */}
-              <img
-                src="/kundlofte-mote.webp"
-                alt={t('home.promise.imageAlt', lang)}
-                className="absolute inset-0 w-full h-full object-cover object-center"
-                loading="lazy"
-                width={1536}
-                height={1024}
-              />
-            </div>
-
-            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              <span className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-cta-hover/35 text-text-primary text-[11px] font-bold tracking-widest uppercase mb-5">
-                <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                {t('home.promise.badge', lang)}
-              </span>
-
-              {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
-                  inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
-              <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
-                {t('home.promise.title1', lang)}
-                <br />
-                <span className="italic font-normal text-accent-deep">
-                  {t('home.promise.title2', lang)}
-                </span>
-              </h2>
-
-              <ul className="flex flex-col gap-4 mb-10 border-t border-text-primary/10 pt-8">
-                {[1, 2, 3].map((n) => (
-                  <li key={n} className="flex items-start gap-3 text-base sm:text-lg text-text-secondary">
-                    <CheckCircle2 className="w-5 h-5 text-accent shrink-0 mt-1" />
-                    <span>{t(`home.promise.bullet${n}`, lang)}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href={bookingUrl()}
-                className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
-              >
-                {t('home.promise.cta', lang)} <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           </div>
         </div>

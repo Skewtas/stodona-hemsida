@@ -6,6 +6,15 @@ import { MapPin, ArrowRight, HelpCircle, CheckCircle2, ShieldCheck } from 'lucid
 import WhyStodona from '../components/WhyStodona';
 import { useLanguage } from '../context/LanguageContext';
 import { bookingUrl } from "../utils/bookingUrl";
+import { OMRADESPROFILER } from '../data/omraden';
+import { prisFor } from '../data/prices.generated';
+import { SERVICE_AREAS } from '../constants';
+
+// Tjänster som bokningsmodulen känner igen i ?service= – övriga går till offert.
+const BOKNINGSBARA = ['Hemstädning', 'Flyttstädning', 'Storstädning', 'Fönsterputsning', 'Företagsstädning'];
+// Företagstjänster ger inte rätt till RUT-avdrag.
+const UTAN_RUT = ['foretagsstadning', 'trappstadning', 'bodstadning'];
+const kr = (n: number) => `${n.toLocaleString('sv-SE')} kr`;
 
 interface LocalSeoPageProps {
   baseService: string;
@@ -78,17 +87,17 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       { title: 'Bod/etablering', items: ['Dammsugning och moppning av golv', 'Avtorkning av bord, bänkar och ytor', 'Rengöring av köksutrustning och pentry', 'Rengöring av toaletter och duschrum', 'Tömning av papperskorgar'] },
     ],
     stadfirma: [
-      { title: 'Vad vi erbjuder', items: ['Hemstädning för en smidigare vardag', 'Professionell storstädning och djuprengöring', 'Flyttstädning med 100% kvalitetsgaranti', 'Fönsterputsning för rändfria glas'] },
-      { title: 'Varför Stodona som städbolag?', items: ['Vi städar med egna checklistor för garanterat resultat', 'Samma städteam vid varje löpande städning', 'Fast pris utan dolda avgifter', 'All personal är kollektivansluten och ansvarsförsäkrad'] },
+      { title: 'Vad vi erbjuder', items: ['Hemstädning för en smidigare vardag', 'Professionell storstädning och djuprengöring', 'Flyttstädning med 14 dagars garanti', 'Fönsterputsning för rändfria glas'] },
+      { title: 'Varför Stodona som städbolag?', items: ['Vi städar med egna checklistor för garanterat resultat', 'Vi strävar efter samma städare vid varje löpande städning', 'Fast pris utan dolda avgifter', 'Städarna är anställda hos Stodona och vi är ansvarsförsäkrade'] },
     ],
   };
 
   // Service-specific FAQs
   const serviceFaqs: Record<string, { q: string; a: string }[]> = {
     hemstadning: [
-      { q: 'Har ni med er eget städmaterial?', a: 'Ja, vi tar med oss allt städmaterial och alla rengöringsprodukter som behövs. Vi använder miljövänliga och professionella produkter för bästa resultat. Det enda du behöver tillhandahålla är en fungerande dammsugare.' },
+      { q: 'Har ni med er eget städmaterial?', a: 'Vid hemstädning använder vi som standard ditt städmaterial: dammsugare, mopp och hink, mikrofiberdukar, svamp och rengöringsmedel. Vill du hellre att vi tar med allt går det att lägga till mot en tilläggskostnad.' },
       { q: 'Är det samma person som städar varje gång?', a: 'Vi strävar alltid efter att det ska vara samma städare eller team som kommer till dig vid regelbunden städning. Vid sjukdom eller ledighet skickar vi en vikarie för att din städning inte ska bli inställd.' },
-      { q: 'Har ni någon bindningstid?', a: 'Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.' },
+      { q: 'Har ni någon bindningstid?', a: 'Du väljer själv. Du kan boka helt utan bindningstid, eller binda dig i 3, 6 eller 12 månader och få lägre pris per städning. Uppsägningstiden är en kalendermånad.' },
       { q: 'Vad händer om något går sönder?', a: 'Vi är fullt ansvarsförsäkrade. Skulle olyckan vara framme och något går sönder under städningen hör du av dig till kundservice, som tar hand om ärendet och gör en bedömning tillsammans med försäkringen.' },
       { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura, och vi ansöker om resten från Skatteverket.' },
       { q: 'Måste jag vara hemma när ni städar?', a: 'Nej, du behöver inte vara hemma. De flesta av våra kunder ger oss en nyckel eller kod så att vi kan städa medan de är på jobbet.' },
@@ -108,7 +117,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
       { q: 'Hur fungerar RUT-avdraget?', a: 'Vi sköter all administration kring RUT-avdraget. Du betalar endast 50% av arbetskostnaden på din faktura.' },
     ],
     stadfirma: [
-      { q: 'Erbjuder ni städning i mitt område?', a: 'Ja! Vi har lokala team som städar dagligen och vi har oftast lediga tider redan samma vecka.' },
+      { q: 'Erbjuder ni städning i mitt område?', a: 'Vi städar i hela Storstockholm. Lediga tider ser du direkt i bokningen.' },
       { q: 'Är ni ansvarsförsäkrade?', a: 'Självklart. Vi är fullt ansvarsförsäkrade så att du alltid kan känna dig helt trygg när vi städar.' },
       { q: 'Hur fungerar RUT-avdraget när jag bokar ett städbolag?', a: 'Vi sköter all administration. Du betalar bara 50% av kostnaden och RUT dras automatiskt direkt på din faktura.' },
     ],
@@ -119,19 +128,30 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
 
   // Service-specific intro text
   const serviceIntroTexts: Record<string, string> = {
-    hemstadning: `När du anlitar Stodona, ditt lokala städbolag, för professionell ${displayBaseService.toLowerCase()} ${prep} ${displayAreaName} kan du alltid förvänta dig ett skinande rent hem. Vår erfarna städpersonal följer en noggrann checklista för bäst hemstädning varje gång.`,
-    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt. Som det främsta städbolaget för fönsterputsning ${prep} ${displayAreaName} har vi utrustningen som krävs för att ge dig skinande och helt rändfria fönster.`,
-    storstadning: `Vår professionella storstädning ${prep} ${displayAreaName} är en djupgående rengöring för dig som vill ha marknadens bästa städhjälp. Perfekt för en ordentlig djuprengöring av hela bostaden.`,
-    flyttstadning: `Vårt städbolag erbjuder marknadens bästa flyttstädning ${prep} ${displayAreaName}. Vi tillämpar en noggrann checklista för flyttstäd som säkerställer att din bostad blir godkänd med flyttstädningsgaranti.`,
-    foretagsstadning: `Vi är ett rekommenderat städbolag som erbjuder skräddarsydd kontorsstädning och företagsstädning ${prep} ${displayAreaName}. Låt våra städexperter skapa en ren och trivsam arbetsmiljö för ert företag.`,
+    hemstadning: `Hemstädning ${prep} ${displayAreaName} följer samma checklista varje gång, och vi strävar efter att samma städare kommer hem till dig. Så här ser en vanlig städning ut.`,
+    fonsterputsning: `Att putsa fönster kan vara både tidskrävande och svårt. Vi putsar fönster ${prep} ${displayAreaName} och tar med all utrustning som behövs för rändfria fönster.`,
+    storstadning: `Vår professionella storstädning ${prep} ${displayAreaName} är en djupgående rengöring av hela bostaden – bakom och under möbler, lister, köksluckor, ugn och fläkt.`,
+    flyttstadning: `Flyttstädning ${prep} ${displayAreaName} enligt besiktnings- och mäklarstandard, med fönsterputs och 14 dagars garanti: har du eller nästa boende anmärkningar kommer vi tillbaka och åtgärdar dem kostnadsfritt.`,
+    foretagsstadning: `Kontorsstädning och företagsstädning ${prep} ${displayAreaName}, upplagd efter era lokaler och tider. Så här kan ett upplägg se ut.`,
     byggstadning: `Efter renovering eller nybygge behövs en rejäl grovstädning. Vi erbjuder professionell byggstädning ${prep} ${displayAreaName}. Från byggdamm till finstädning – vi är städbolaget som gör lokalen inflyttningsklar.`,
-    trappstadning: `Håll ert trapphus välkomnande med marknadens mest prisvärda trappstädning ${prep} ${displayAreaName}. Vårt städbolag underhåller BRF:er och fastigheter med högsta städkvalitet.`,
+    trappstadning: `Regelbunden trappstädning ${prep} ${displayAreaName} för bostadsrättsföreningar och fastighetsägare.`,
     bodstadning: `Vi är städbolaget för professionell bodstädning ${prep} ${displayAreaName}. Oavsett hur många etableringsytor eller manskapsbodar ni har, erbjuder vi löpande och noggrann byggbodstädning för en ren arbetsmiljö.`,
-    stadfirma: `Letar du efter ett tryggt och pålitligt städbolag ${prep} ${displayAreaName}? Vi städar redan hos många nöjda kunder i närområdet varje vecka. Oavsett om du behöver veckostädning, en rejäl storstädning eller hjälp inför flytten så finns vårt team redo att leverera ett skinande rent resultat.`
+    stadfirma: `Letar du efter ett tryggt och pålitligt städbolag ${prep} ${displayAreaName}? Oavsett om du behöver veckostädning, en rejäl storstädning eller hjälp inför flytten så finns vårt team redo att leverera ett skinande rent resultat.`
   };
   const introText = serviceIntroTexts[baseService.toLowerCase()] || serviceIntroTexts.hemstadning;
 
   const areaSlug = displayAreaName.toLowerCase().replace(/å/g, 'a').replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/\s+/g, '-');
+
+  const tjanstNyckel = baseService.toLowerCase();
+  const harRut = !UTAN_RUT.includes(tjanstNyckel);
+  const bokaHref = BOKNINGSBARA.includes(displayBaseService) ? bookingUrl({ service: displayBaseService }) : bookingUrl();
+  // Lokal profil visas bara på ortssidan för hemstädning (t.ex. /solna).
+  const profil = tjanstNyckel === 'hemstadning' ? OMRADESPROFILER[areaSlug] : undefined;
+  const prisrader = profil ? profil.sqm.map((sqm) => prisFor(sqm)) : [];
+  const grannar = profil ? SERVICE_AREAS.filter((a) => profil.grannar.includes(a.path)) : [];
+  const metaDescription = profil
+    ? `Hemstädning ${prep} ${displayAreaName} från ${kr(prisrader[0].m12)} per gång efter RUT-avdrag (${prisrader[0].sqm} kvm, varannan vecka). Se pris och lediga tider direkt och boka online.`
+    : `${displayBaseService} ${prep} ${displayAreaName}. Se pris och lediga tider direkt och boka online hos Stodona – städbolag i Stockholm med 4,9 av 5 i snittbetyg.`;
 
   const faqSchema = {
     '@context': 'https://schema.org',
@@ -148,7 +168,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     '@type': 'LocalBusiness',
     name: 'Stodona',
     description: `${displayBaseService} ${prep} ${displayAreaName}. Professionell städning med RUT-avdrag.`,
-    url: `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`,
+    url: canonical || `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`,
     areaServed: { '@type': 'Place', name: displayAreaName },
     priceRange: '$$',
   };
@@ -159,15 +179,15 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stodona.se/' },
       { '@type': 'ListItem', position: 2, name: displayBaseService, item: `https://stodona.se/${baseService.toLowerCase()}` },
-      { '@type': 'ListItem', position: 3, name: `${displayBaseService} ${prep} ${displayAreaName}`, item: `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}` },
+      { '@type': 'ListItem', position: 3, name: `${displayBaseService} ${prep} ${displayAreaName}`, item: canonical || `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}` },
     ],
   };
 
   return (
     <div className="flex flex-col">
       <Helmet>
-        <title>{displayBaseService} {prep} {displayAreaName} | Stodona – Boka med RUT-avdrag</title>
-        <meta name="description" content={`${displayBaseService} ${prep} ${displayAreaName}. ${introText.substring(0, 150)}... Boka enkelt online – Stodona.`} />
+        <title>{`${displayBaseService} ${prep} ${displayAreaName} – pris och bokning | Stodona`}</title>
+        <meta name="description" content={metaDescription} />
         <link rel="canonical" href={canonical || `https://stodona.se/${baseService.toLowerCase()}-${areaSlug}`} />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
@@ -204,7 +224,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-full mb-8 border border-white/20 text-white font-medium shadow-lg hover:bg-white/15 transition-all">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0" />
-                <span className="text-sm md:text-base tracking-wide">Vi städar redan {prep} {displayAreaName} varje vecka. Lediga tider finns!</span>
+                <span className="text-sm md:text-base tracking-wide">4,9 av 5 i snittbetyg · se pris och lediga tider direkt</span>
               </div>
             </div>
 
@@ -214,7 +234,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             <p className="text-lg md:text-xl text-text-light/90 leading-relaxed mb-8 drop-shadow-md">
               {description}
             </p>
-            <a href={bookingUrl()} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
+            <a href={bokaHref} className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg">
               Boka {displayBaseService.toLowerCase()} {prep} {displayAreaName}
             </a>
           </motion.div>
@@ -224,6 +244,62 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
 
 
 
+
+      {/* Lokalt: bostäder, prisexempel och närliggande orter – unikt per ort */}
+      {profil && (
+        <section className="py-14 sm:py-20 bg-bg-primary">
+          <div className="container-custom max-w-4xl">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Vad kostar hemstädning {prep} {displayAreaName}?
+            </h2>
+            <p className="text-lg text-text-secondary leading-relaxed mb-4">{profil.bostader}</p>
+            <p className="text-lg text-text-secondary leading-relaxed mb-8">
+              Priset styrs av bostadens yta och hur ofta vi kommer – inte av var i Stockholmsområdet du bor.
+              Så här ser det ut för två vanliga bostadsstorlekar {prep} {displayAreaName}, per städning varannan vecka
+              och efter RUT-avdrag:
+            </p>
+            <div className="overflow-x-auto mb-4">
+              <table className="w-full text-left bg-white">
+                <thead>
+                  <tr className="border-b border-text-primary/10">
+                    <th scope="col" className="py-3 px-4 font-medium text-text-secondary">Boyta</th>
+                    <th scope="col" className="py-3 px-4 font-medium text-text-secondary">12 mån bindning</th>
+                    <th scope="col" className="py-3 px-4 font-medium text-text-secondary">Utan bindning</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prisrader.map((rad, i) => (
+                    <tr key={i} className="border-b border-text-primary/10">
+                      <th scope="row" className="py-3 px-4 font-medium">{profil.sqm[i]} kvm</th>
+                      <td className="py-3 px-4 font-bold">{kr(rad.m12)}</td>
+                      <td className="py-3 px-4">{kr(rad.utanBindning)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm text-text-secondary mb-8">
+              Pris per städtillfälle inklusive moms. <Link to="/stadabonnemang" className="underline underline-offset-4 hover:text-text-primary">Så fungerar bindningstiden</Link>{" · "}
+              <Link to="/priser" className="underline underline-offset-4 hover:text-text-primary">Alla priser</Link>
+            </p>
+            <h3 className="text-xl font-bold mb-3">Bra att veta</h3>
+            <p className="text-lg text-text-secondary leading-relaxed mb-8">{profil.tips}</p>
+            <a href={bokaHref} className="btn-primary">Se ditt pris och lediga tider</a>
+            {grannar.length > 0 && (
+              <p className="text-text-secondary mt-8">
+                Vi städar också i närheten:{" "}
+                {grannar.map((g, i) => (
+                  <React.Fragment key={g.path}>
+                    {i > 0 && ", "}
+                    <Link to={`/${g.path}`} className="underline underline-offset-4 hover:text-text-primary">{g.name}</Link>
+                  </React.Fragment>
+                ))}
+                .
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Content Section - What's included */}
       <section className="section-spacing bg-white">
@@ -257,10 +333,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   Vill du ha ett skinande rent hem {prep} {displayAreaName}?
                 </h3>
                 <p className="mb-6 text-text-secondary">
-                  Vi har lediga tider i ditt område. Boka nu och få
-                  hotellkänsla hemma.
+                  Du ser pris och lediga tider direkt i bokningen.
                 </p>
-                <a href={bookingUrl()} className="btn-primary">
+                <a href={bokaHref} className="btn-primary">
                   Boka {displayBaseService.toLowerCase()} direkt
                 </a>
               </div>
@@ -280,6 +355,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                 vår miljö.
               </p>
 
+              {harRut && (<>
               <h2 className="text-3xl font-bold mt-16 mb-6">
                 RUT-avdrag för {displayBaseService.toLowerCase()}
               </h2>
@@ -289,6 +365,7 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                 sköter all administration och drar av beloppet direkt på din
                 faktura. Smidigt och enkelt!
               </p>
+              </>)}
             </div>
 
             {/* Sidebar */}
@@ -301,9 +378,9 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
                   </div>
                   <ul className="space-y-3 text-sm">
                     <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Fullt ansvarsförsäkrade</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> RUT-avdrag – du betalar bara 50%</li>
+                    {harRut && <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> RUT-avdrag – du betalar bara 50%</li>}
                     <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Nöjd-kund-garanti</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Ingen bindningstid</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-cta-hover shrink-0 mt-0.5" /> Boka med eller utan bindningstid</li>
                   </ul>
                 </div>
 
@@ -439,13 +516,13 @@ export default function LocalSeoPage({ baseService, areaName, description, heroI
             Boka din städning snabbt och enkelt. Njut av mer fritid och ett skinande rent resultat.
           </p>
           <a
-            href={bookingUrl()}
+            href={bokaHref}
             className="btn-primary bg-white text-cta-hover hover:bg-bg-primary hover:text-white text-lg px-8 py-4"
           >
             Boka {displayBaseService.toLowerCase()} nu
           </a>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium opacity-90 text-white">
-            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Ingen bindningstid</div>
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Med eller utan bindningstid</div>
             <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Full ansvarsförsäkring</div>
             <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Kvalitetsgaranti</div>
           </div>

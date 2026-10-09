@@ -40,7 +40,7 @@ export default function Hemstadning() {
     },
     {
       q: "Har ni någon bindningstid?",
-      a: "Nej, vi har ingen bindningstid på våra abonnemang. Du kan när som helst säga upp eller pausa din städning med 14 dagars varsel.",
+      a: "Du väljer själv. Du kan boka helt utan bindningstid, eller binda dig i 3, 6 eller 12 månader och få lägre pris per städning. Uppsägningstiden är en kalendermånad.",
     },
     {
       q: "Vad händer om något går sönder?",

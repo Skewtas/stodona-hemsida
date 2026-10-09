@@ -47,7 +47,7 @@ export default function EFaktura() {
               <dl className="space-y-4 text-base">
                 <div>
                   <dt className="font-bold text-text-primary">Kundnummer</dt>
-                  <dd className="text-text-secondary">Står överst på din senaste faktura från oss. Du ser det också när du loggar in i <Link to="/kundportalen" className="underline hover:text-text-primary">kundportalen</Link>.</dd>
+                  <dd className="text-text-secondary">Står överst på din senaste faktura från oss. Du kan också få det i <Link to="/chatt" className="underline hover:text-text-primary">chatten på Stodona.se</Link>.</dd>
                 </div>
                 <div>
                   <dt className="font-bold text-text-primary">Fakturamejladress</dt>
@@ -85,14 +85,14 @@ export default function EFaktura() {
         },
       ]}
       faq={[
-        { q: "Var hittar jag mitt kundnummer?", a: "Överst på din senaste faktura från oss, eller när du loggar in i kundportalen på stodona.twportal.se. Hittar du det ändå inte – mejla info@stodona.se så letar vi upp det." },
+        { q: "Var hittar jag mitt kundnummer?", a: "Överst på din senaste faktura från oss, eller fråga i chatten på Stodona.se. Hittar du det ändå inte – mejla info@stodona.se så letar vi upp det." },
         { q: "Vilken mejladress ska jag ange?", a: "Den adress du får dina fakturor på i dag. Det är den vi hittar rätt kund med i faktureringssystemet." },
         { q: "Varför måste jag bekräfta när jag redan anmält mig i banken?", a: "För att vi byter betalsätt manuellt i vårt faktureringssystem. Utan din bekräftelse fortsätter fakturan gå ut på det gamla sättet." },
         { q: "Kostar e-faktura något?", a: "Nej, det är kostnadsfritt." },
         { q: "När börjar det gälla?", a: "Från nästa faktura efter att du bekräftat till oss." },
       ]}
       related={[
-        { label: "Kundportalen", to: "/kundportalen" },
+        { label: "Chatta med oss", to: "/chatt" },
         { label: "Villkor", to: "/villkor" },
         { label: "RUT-avdrag", to: "/rut-avdrag" },
         { label: "Kontakt", to: "/kontakt" },

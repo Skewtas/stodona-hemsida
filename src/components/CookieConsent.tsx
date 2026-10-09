@@ -9,11 +9,54 @@ declare global {
   }
 }
 
+/**
+ * Valet delas med boka.stodona.se genom en kaka på `.stodona.se`, så att
+ * besökaren bara får frågan en gång. Bokningsmodulen läser och skriver samma
+ * kaka (src/utils/consent.ts där) — namn och värden måste vara identiska.
+ * localStorage behålls, eftersom partnerRef, overlays och chatten läser där.
+ */
+const CONSENT_KEY = 'cookie-consent';
+const CONSENT_COOKIE = 'stodona_consent';
+
+type ConsentChoice = 'accepted' | 'declined';
+const isChoice = (v: unknown): v is ConsentChoice => v === 'accepted' || v === 'declined';
+
+function readSharedConsent(): ConsentChoice | null {
+  try {
+    const value = document.cookie.split('; ').find((c) => c.startsWith(`${CONSENT_COOKIE}=`))?.split('=')[1];
+    return isChoice(value) ? value : null;
+  } catch { return null; }
+}
+
+function writeSharedConsent(choice: ConsentChoice): void {
+  try {
+    const domain = window.location.hostname.endsWith('stodona.se') ? '; domain=.stodona.se' : '';
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${CONSENT_COOKIE}=${choice}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax${domain}${secure}`;
+  } catch { /* kakor avstängda */ }
+}
+
+/** Läser valet och håller kakan och localStorage i takt. Den delade kakan vinner. */
+function syncConsent(): ConsentChoice | null {
+  const shared = readSharedConsent();
+  const local = localStorage.getItem(CONSENT_KEY);
+  if (shared) {
+    if (local !== shared) localStorage.setItem(CONSENT_KEY, shared);
+    return shared;
+  }
+  if (isChoice(local)) {
+    // Besökare som svarat före den delade kakan fanns.
+    writeSharedConsent(local);
+    return local;
+  }
+  return null;
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent');
+    const consent = syncConsent();
     if (!consent) {
       // Show banner after 1 second
       const timer = setTimeout(() => setVisible(true), 1000);
@@ -41,13 +84,15 @@ export default function CookieConsent() {
   }
 
   function handleAccept() {
-    localStorage.setItem('cookie-consent', 'accepted');
+    localStorage.setItem(CONSENT_KEY, 'accepted');
+    writeSharedConsent('accepted');
     enableAnalytics();
     setVisible(false);
   }
 
   function handleDecline() {
-    localStorage.setItem('cookie-consent', 'declined');
+    localStorage.setItem(CONSENT_KEY, 'declined');
+    writeSharedConsent('declined');
     disableAnalytics();
     setVisible(false);
   }

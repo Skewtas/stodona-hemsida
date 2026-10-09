@@ -14,6 +14,7 @@ import WhyStodona from "../components/WhyStodona";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import BrfOffertForm from "../components/BrfOffertForm";
 import AnswerFirst from "../components/AnswerFirst";
 
 const ytor = [
@@ -167,12 +168,12 @@ export default function FastigheterBrf() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/kontakt"
+              <a
+                href="#offert"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 Begär offert
-              </Link>
+              </a>
               <a
                 href="tel:0101780150"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
@@ -289,9 +290,9 @@ export default function FastigheterBrf() {
                   Vi kommer gärna förbi, går igenom huset tillsammans med er och återkommer med en offert. Besöket kostar ingenting och ni förbinder er inte till något.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Link to="/kontakt" className="btn-primary">
+                  <a href="#offert" className="btn-primary">
                     Begär offert
-                  </Link>
+                  </a>
                   <a href="mailto:info@stodona.se" className="btn-secondary border-bg-dark text-bg-dark hover:bg-bg-dark hover:text-text-light px-6 py-3 rounded-full font-bold">
                     Mejla info@stodona.se
                   </a>
@@ -309,15 +310,28 @@ export default function FastigheterBrf() {
                   <p className="text-sm mb-4 text-text-primary/80">
                     Berätta kort om huset så hör vi av oss och bokar in ett kostnadsfritt besök.
                   </p>
-                  <Link to="/kontakt" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
+                  <a href="#offert" className="btn-primary w-full bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary transition-all shadow-md">
                     Begär offert
-                  </Link>
+                  </a>
                 </div>
 
                 <WhyStodona />
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Offertformulär – hit leder alla "Begär offert"-knappar och nyhetsbrevet till BRF:er */}
+      <section className="section-spacing bg-bg-dark text-text-light">
+        <div className="container-custom max-w-xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Begär offert för er förening</h2>
+            <p className="text-lg text-text-light/85">
+              Fyll i fyra uppgifter, så hör vi av oss och bokar in ett kostnadsfritt besök. Testa oss helt obundet i 3 månader.
+            </p>
+          </div>
+          <BrfOffertForm sida="/fastigheter-brf" />
         </div>
       </section>
 
@@ -351,12 +365,12 @@ export default function FastigheterBrf() {
             Så tar ni resten av dagordningen.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/kontakt"
+            <a
+              href="#offert"
               className="btn-primary bg-text-primary text-bg-primary hover:bg-white hover:text-text-primary text-lg px-8 py-4"
             >
               Begär offert
-            </Link>
+            </a>
           </div>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm font-medium opacity-90">
             <div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Fast kontaktperson</div>

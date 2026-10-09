@@ -261,7 +261,8 @@ export default async function handler(request: Request) {
             // resend._domainkey.stodona.se och send.stodona.se pekar mot
             // Resend, så avsändaren nedan är signerad på riktigt.
             from: 'Stodona Leads <info@stodona.se>',
-            to: 'info@stodona.se',
+            // Offertförfrågningar från föreningar går direkt till Mikaela.
+            to: lead.source === 'brf_offert' ? 'mikaela.wigert@stodona.se' : 'info@stodona.se',
             // Svara-till sätts till kunden, så ett svar ur inkorgen går direkt
             // till hen. Vid "Ring mig" finns bara ett telefonnummer – då
             // utelämnas fältet hellre än att peka tillbaka på oss själva.

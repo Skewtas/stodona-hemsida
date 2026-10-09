@@ -13,6 +13,7 @@ import { t } from "../translations";
 import ServiceSchema from "../components/ServiceSchema";
 
 import { Helmet } from "../seo";
+import BrfOffertForm from "../components/BrfOffertForm";
 import AnswerFirst from "../components/AnswerFirst";
 import { bookingUrl } from "../utils/bookingUrl";
 
@@ -78,12 +79,12 @@ export default function Trappstadning() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <Link
-                to="/kontakt"
+              <a
+                href="#offert"
                 className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4"
               >
                 {t('trapp.hero.cta1', lang)}
-              </Link>
+              </a>
               <Link
                 to="/priser"
                 className="btn-secondary border-text-light text-text-light hover:bg-text-light hover:text-bg-dark text-lg px-8 py-4"
@@ -163,9 +164,9 @@ export default function Trappstadning() {
                   <a href={bookingUrl()} className="btn-primary">
                     {lang === 'SV' ? 'Boka städning nu' : 'Book cleaning now'}
                   </a>
-                  <Link to="/kontakt" className="btn-secondary border-bg-dark text-bg-dark hover:bg-bg-dark hover:text-text-light px-6 py-3 rounded-full font-bold">
+                  <a href="#offert" className="btn-secondary border-bg-dark text-bg-dark hover:bg-bg-dark hover:text-text-light px-6 py-3 rounded-full font-bold">
                     {t('trapp.hero.cta1', lang)}
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
@@ -192,6 +193,19 @@ export default function Trappstadning() {
       </section>
 
       {/* End CTA */}
+      {/* Offertformulär för föreningar och fastighetsägare */}
+      <section className="section-spacing bg-bg-dark text-text-light">
+        <div className="container-custom max-w-xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Begär offert för er fastighet</h2>
+            <p className="text-lg text-text-light/85">
+              Fyll i fyra uppgifter, så hör vi av oss och bokar in ett kostnadsfritt besök.
+            </p>
+          </div>
+          <BrfOffertForm sida="/trappstadning" />
+        </div>
+      </section>
+
       <section className="py-24 bg-cta-hover text-text-primary relative overflow-hidden">
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-bold mb-6">

@@ -21,7 +21,7 @@ import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 import HeroVideo from "../components/HeroVideo";
 import KampanjKort from "../components/KampanjKort";
-import { KAMPANJ, useKampanj } from "../data/kampanj";
+import { ERBJUDANDE } from "../data/kampanj";
 
 // Värdena måste stavas exakt som tjänsterna heter i bokningssystemet – de
 // skickas som ?service= och matchas mot SERVICES där. Etiketten översätts,
@@ -39,9 +39,6 @@ export default function Home() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [heroSqm, setHeroSqm] = useState("");
   const [heroService, setHeroService] = useState<string>(HERO_SERVICES[0].value);
-  const kampanj = useKampanj();
-  // Kampanjen gäller hemstädning (städabonnemang) – då följer koden med in i bokningen.
-  const medKampanj = kampanj.aktiv && heroService === "Hemstädning";
   const [showToast, setShowToast] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -59,8 +56,8 @@ export default function Home() {
     const sqm = parseInt(heroSqm, 10);
     const giltig = Number.isFinite(sqm) && sqm >= 10 && sqm <= 500;
     track("booking_start", { source: "hero_sqm", service: heroService, sqm: giltig ? sqm : undefined });
-    // Tjänsten följer alltid med; ytan bara när den är rimlig.
-    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}), ...(medKampanj ? { discountCode: KAMPANJ.kod } : {}) });
+    // Tjänsten och rabattkoden följer alltid med; ytan bara när den är rimlig.
+    window.location.href = bookingUrl({ service: heroService, ...(giltig ? { sqm } : {}), discountCode: ERBJUDANDE.kod });
   }
 
   return (
@@ -115,9 +112,6 @@ export default function Home() {
               <h1 className="text-[clamp(1rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-6">
                 {t('home.hero.title', lang)}
               </h1>
-
-              {/* Kampanjen 30 % året ut – direkt under rubriken, före tjänstevalet. */}
-              <KampanjKort className="mb-7" />
 
               {/* Bokningen påbörjas här. Tjänst och kvadratmetrar följer med till
                   boka.stodona.se som ?service= och ?sqm=, så besökaren slipper
@@ -182,13 +176,16 @@ export default function Home() {
                 </div>
               </form>
 
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-8">
                 <button
                   onClick={() => setIsContactOpen(true)}
                   className="text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4"
                 >
                   {t('home.hero.cta2', lang)}
                 </button>
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+                  <Star className="w-3.5 h-3.5 fill-current text-accent" /> 4,9 av 5 i snittbetyg
+                </span>
               </div>
 
               <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
@@ -221,12 +218,17 @@ export default function Home() {
                 poster="/hero-poster.webp"
                 alt="Nystädat sovrum med uppbäddad säng"
               />
+              {/* Erbjudandet "Testa oss – 15 % rabatt" ligger ovanpå filmen, i
+                  nedre vänstra hörnet: chattknappen sitter till höger, och
+                  bokningskortet bredvid får vara rent. Det enda stället i
+                  heron där erbjudandet nämns. */}
+              <KampanjKort className="absolute left-3 bottom-3 sm:left-6 sm:bottom-6 lg:left-10 lg:bottom-10 z-10" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Tjänstekort – fullbredd, direkt under heron */}
+      {/* 2. Tjänstekort – fullbredd, direkt under heron */}
       <section className="relative bg-white py-16 sm:py-24">
         <div className="container-custom mb-10 sm:mb-14">
           <motion.div
@@ -289,6 +291,50 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 3. Insikten om städbråken – samma två rutor som heron, fast
+             spegelvända: bilden till vänster och texten till höger. Måtten är
+             hämtade rakt av från heron så att de två sektionerna läser som ett
+             par. (Här stod tidigare kundlöftet.) */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-10 sm:pt-14 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              {/* Samma mötesbild som ligger på e-fakturasidan, men som WebP:
+                  174 kB i stället för 263 kB. Rutan är kvadratisk på desktop,
+                  så bilden beskärs av CSS – object-position styr vilken del av
+                  det liggande fotot som får synas. */}
+              <img
+                src="/kundlofte-mote.webp"
+                alt={t('home.promise.imageAlt', lang)}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                loading="lazy"
+                width={1536}
+                height={1024}
+              />
+            </div>
+
+            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
+              {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
+                  inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
+              <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
+                {t('home.insight.title', lang)}
+              </h2>
+
+              <p className="text-base sm:text-lg text-text-secondary leading-relaxed mb-10 border-t border-text-primary/10 pt-8">
+                {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
+              </p>
+
+              <a
+                href={bookingUrl()}
+                className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+              >
+                {t('home.insight.cta', lang)} <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 5b. Barnpassning – egen tjänstegren, länkad från startsidan så att både
            besökare och sökrobotar hittar dit. */}
       <section className="bg-bg-dark text-text-light py-14 sm:py-20">
@@ -331,55 +377,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 1.5. Insight Section - Apple Style */}
+      {/* Bokningsrutan. Texten om städbråken som stod bredvid ligger nu
+          direkt under heron, så rutan står ensam och centrerad. */}
       <section className="py-14 sm:py-20 md:py-24 bg-bg-primary overflow-hidden">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-            {/* Vänster: bokningsrutan. Den låg tidigare i en egen sektion
-                ovanför – här står den i stället bredvid texten om varför
-                städningen ställer till det, så argumentet och handlingen
-                möts på samma skärm. */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative"
-            >
-              <QuickBookingWidget />
-            </motion.div>
-
-            {/* Right: Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="flex flex-col items-start text-left"
-            >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-bg-primary text-text-secondary text-xs font-bold tracking-widest uppercase mb-8">
-                {t('home.insight.badge', lang)}
-              </span>
-              <h2 className="text-4xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-tight text-text-primary">
-                {t('home.insight.title', lang)}
-              </h2>
-              <div className="text-lg md:text-xl text-text-secondary leading-relaxed space-y-4">
-                <p>
-                  {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
-                </p>
-              </div>
-
-              <div className="mt-12">
-                <a
-                  href={bookingUrl()}
-                  className="btn-primary bg-cta-hover text-text-primary hover:bg-white text-lg px-8 py-4 shadow-lg inline-flex items-center gap-2"
-                >
-                  {t('home.insight.cta', lang)}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mx-auto max-w-2xl"
+          >
+            <QuickBookingWidget />
+          </motion.div>
         </div>
       </section>
 

@@ -7,8 +7,10 @@ export interface LeadData {
   email: string;
   phone?: string;
   name?: string;
-  source: 'welcome_popup' | 'exit_intent' | 'footer_newsletter' | 'blog_lead_magnet' | 'sticky_cta' | 'fastpris' | 'byta_stadbolag';
+  source: 'welcome_popup' | 'exit_intent' | 'footer_newsletter' | 'blog_lead_magnet' | 'sticky_cta' | 'fastpris' | 'byta_stadbolag' | 'brf_offert';
   page?: string;
+  /** Fritext som följer med i notismejlet, t.ex. föreningens namn. */
+  notes?: string;
 }
 
 const API_ENDPOINT = '/api/lead';

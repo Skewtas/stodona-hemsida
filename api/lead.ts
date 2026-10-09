@@ -132,6 +132,7 @@ export default async function handler(request: Request) {
       sticky_cta: '📱 Ring mig',
       fastpris: '💰 Fast pris-förfrågan',
       byta_stadbolag: '🔄 Byta städbolag',
+      brf_offert: '🏢 BRF – begär offert',
       chat_lead: '💬 Chatten – vill bli kontaktad',
       chat_eskalering: '🆘 Chatten – behöver kundservice',
       instagram_lead: '📸 Instagram – vill bli kontaktad',

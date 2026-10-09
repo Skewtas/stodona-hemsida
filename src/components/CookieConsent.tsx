@@ -9,11 +9,58 @@ declare global {
   }
 }
 
+/**
+ * Valet delas med boka.stodona.se genom en kaka på `.stodona.se`, så att
+ * besökaren bara får frågan en gång. Bokningsmodulen läser och skriver samma
+ * kaka (src/utils/consent.ts där) — namn och värden måste vara identiska.
+ * localStorage behålls, eftersom partnerRef, overlays och chatten läser där.
+ */
+const CONSENT_KEY = 'cookie-consent';
+const CONSENT_COOKIE = 'stodona_consent';
+
+type ConsentChoice = 'accepted' | 'declined';
+const isChoice = (v: unknown): v is ConsentChoice => v === 'accepted' || v === 'declined';
+
+function readSharedConsent(): ConsentChoice | null {
+  try {
+    const value = document.cookie.split('; ').find((c) => c.startsWith(`${CONSENT_COOKIE}=`))?.split('=')[1];
+    return isChoice(value) ? value : null;
+  } catch { return null; }
+}
+
+function writeSharedConsent(choice: ConsentChoice): void {
+  try {
+    const domain = window.location.hostname.endsWith('stodona.se') ? '; domain=.stodona.se' : '';
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${CONSENT_COOKIE}=${choice}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax${domain}${secure}`;
+  } catch { /* kakor avstängda */ }
+}
+
+/** Läser valet och håller kakan och localStorage i takt. Den delade kakan vinner. */
+function syncConsent(): ConsentChoice | null {
+  const shared = readSharedConsent();
+  // localStorage kan vara avstängt eller fullt — valet ska gälla ändå.
+  let local: string | null = null;
+  try { local = localStorage.getItem(CONSENT_KEY); } catch { /* privat läge */ }
+  if (shared) {
+    if (local !== shared) {
+      try { localStorage.setItem(CONSENT_KEY, shared); } catch { /* fullt eller avstängt */ }
+    }
+    return shared;
+  }
+  if (isChoice(local)) {
+    // Besökare som svarat före den delade kakan fanns.
+    writeSharedConsent(local);
+    return local;
+  }
+  return null;
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent');
+    const consent = syncConsent();
     if (!consent) {
       // Show banner after 1 second
       const timer = setTimeout(() => setVisible(true), 1000);
@@ -41,13 +88,15 @@ export default function CookieConsent() {
   }
 
   function handleAccept() {
-    localStorage.setItem('cookie-consent', 'accepted');
+    try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch { /* fullt eller avstängt */ }
+    writeSharedConsent('accepted');
     enableAnalytics();
     setVisible(false);
   }
 
   function handleDecline() {
-    localStorage.setItem('cookie-consent', 'declined');
+    try { localStorage.setItem(CONSENT_KEY, 'declined'); } catch { /* fullt eller avstängt */ }
+    writeSharedConsent('declined');
     disableAnalytics();
     setVisible(false);
   }

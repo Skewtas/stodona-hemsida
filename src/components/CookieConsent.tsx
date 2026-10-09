@@ -39,9 +39,13 @@ function writeSharedConsent(choice: ConsentChoice): void {
 /** Läser valet och håller kakan och localStorage i takt. Den delade kakan vinner. */
 function syncConsent(): ConsentChoice | null {
   const shared = readSharedConsent();
-  const local = localStorage.getItem(CONSENT_KEY);
+  // localStorage kan vara avstängt eller fullt — valet ska gälla ändå.
+  let local: string | null = null;
+  try { local = localStorage.getItem(CONSENT_KEY); } catch { /* privat läge */ }
   if (shared) {
-    if (local !== shared) localStorage.setItem(CONSENT_KEY, shared);
+    if (local !== shared) {
+      try { localStorage.setItem(CONSENT_KEY, shared); } catch { /* fullt eller avstängt */ }
+    }
     return shared;
   }
   if (isChoice(local)) {
@@ -84,14 +88,14 @@ export default function CookieConsent() {
   }
 
   function handleAccept() {
-    localStorage.setItem(CONSENT_KEY, 'accepted');
+    try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch { /* fullt eller avstängt */ }
     writeSharedConsent('accepted');
     enableAnalytics();
     setVisible(false);
   }
 
   function handleDecline() {
-    localStorage.setItem(CONSENT_KEY, 'declined');
+    try { localStorage.setItem(CONSENT_KEY, 'declined'); } catch { /* fullt eller avstängt */ }
     writeSharedConsent('declined');
     disableAnalytics();
     setVisible(false);

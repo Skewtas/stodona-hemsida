@@ -228,51 +228,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Insikten om städbråken – samma två rutor som heron, fast
-             spegelvända: bilden till vänster och texten till höger. Måtten är
-             hämtade rakt av från heron så att de två sektionerna läser som ett
-             par. (Här stod tidigare kundlöftet.) */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pb-0">
-          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
-            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
-              {/* Samma mötesbild som ligger på e-fakturasidan, men som WebP:
-                  174 kB i stället för 263 kB. Rutan är kvadratisk på desktop,
-                  så bilden beskärs av CSS – object-position styr vilken del av
-                  det liggande fotot som får synas. */}
-              <img
-                src="/kundlofte-mote.webp"
-                alt={t('home.promise.imageAlt', lang)}
-                className="absolute inset-0 w-full h-full object-cover object-center"
-                loading="lazy"
-                width={1536}
-                height={1024}
-              />
-            </div>
-
-            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
-                  inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
-              <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
-                {t('home.insight.title', lang)}
-              </h2>
-
-              <p className="text-base sm:text-lg text-text-secondary leading-relaxed mb-10 border-t border-text-primary/10 pt-8">
-                {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
-              </p>
-
-              <a
-                href={bookingUrl()}
-                className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
-              >
-                {t('home.insight.cta', lang)} <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Tjänstekort – fullbredd, direkt under heron */}
+      {/* 2. Tjänstekort – fullbredd, direkt under heron */}
       <section className="relative bg-white py-16 sm:py-24">
         <div className="container-custom mb-10 sm:mb-14">
           <motion.div
@@ -332,6 +288,50 @@ export default function Home() {
               </Link>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* 3. Insikten om städbråken – samma två rutor som heron, fast
+             spegelvända: bilden till vänster och texten till höger. Måtten är
+             hämtade rakt av från heron så att de två sektionerna läser som ett
+             par. (Här stod tidigare kundlöftet.) */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-10 sm:pt-14 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
+            <div className="relative overflow-hidden shadow-2xl lg:shadow-none aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full">
+              {/* Samma mötesbild som ligger på e-fakturasidan, men som WebP:
+                  174 kB i stället för 263 kB. Rutan är kvadratisk på desktop,
+                  så bilden beskärs av CSS – object-position styr vilken del av
+                  det liggande fotot som får synas. */}
+              <img
+                src="/kundlofte-mote.webp"
+                alt={t('home.promise.imageAlt', lang)}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                loading="lazy"
+                width={1536}
+                height={1024}
+              />
+            </div>
+
+            <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
+              {/* Samma flytande grad som heron: den följer rutans bredd (cqw),
+                  inte fönstrets, eftersom rutan är en halv skärm på desktop. */}
+              <h2 className="text-[clamp(1.5rem,7cqw,2.75rem)] font-bold leading-[1.15] text-text-primary mb-8">
+                {t('home.insight.title', lang)}
+              </h2>
+
+              <p className="text-base sm:text-lg text-text-secondary leading-relaxed mb-10 border-t border-text-primary/10 pt-8">
+                {t('home.insight.p1', lang)} {t('home.insight.p2', lang)} {t('home.insight.p3', lang)}
+              </p>
+
+              <a
+                href={bookingUrl()}
+                className="inline-flex self-start items-center justify-center gap-2 bg-text-primary text-bg-primary px-8 py-4 font-bold tracking-wide uppercase text-sm hover:bg-accent-deep transition-colors"
+              >
+                {t('home.insight.cta', lang)} <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

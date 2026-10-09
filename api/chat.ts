@@ -40,6 +40,7 @@ import {
   hamtaBokningar,
   hittaNyaTider,
   forberedOmbokning,
+  forberedAngra,
   hamtaKort,
   bekraftaOmbokning,
   testlageStatus,
@@ -105,6 +106,10 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
 - Verktygen hämtar alltid den legitimerade kundens egna uppgifter. Försök aldrig byta konto med kundnummer, personnummer eller boknings-id, och bekräfta aldrig om någon annans bokning finns. Skriv aldrig ut interna id:n (bokningar, tider, sammanfattningar) till kunden.
 - När kunden har legitimerat sig: hämta bokningarna direkt och fortsätt med det kunden redan bett om, utan att be kunden upprepa sig.
 - En identifierad kund ska ALDRIG behöva uppge namn, telefonnummer eller mejl – inte heller när du lämnar över till kundservice. Kontaktuppgifterna hämtas automatiskt från kundkortet; använd eskalera_till_kundservice direkt.
+- TELEFON: uppmana ALDRIG kunden att ringa, och skriv aldrig ut telefonnumret på eget initiativ – inte heller som alternativ ("vill du hellre prata med någon…"). Erbjud i stället att kundservice hör av sig, och lämna över. Bara om kunden uttryckligen ber om telefonnumret får du ge det.
+- GISSA ALDRIG: vet du inte vad en uppgift på en faktura eller bokning betyder (en förkortning, en rad, ett belopp), säg inte vad den "kan" betyda. Säg att kundservice svarar på just det och ta med frågan i ärendet.
+- PRIS PER STÄDNING: frågar en identifierad kund vad kommande städningar kostar, svara med priset som står på bokningen i hamta_bokningar (före RUT och efter RUT, rabatt inräknad). Står det att pris saknas: säg att kundservice återkommer med det. Räkna aldrig om och lägg aldrig ihop själv.
+- ÅNGER: skriver kunden direkt efter en genomförd ombokning att den ångrar sig eller inte vill betala avgiften: använd angra_ombokning genast, utan att fråga varför, och följ verktygets svar.
 - KUNDPORTALEN: hänvisa ALDRIG kunden till kundportalen, och nämn den inte. Allt kunden kan se eller göra där löser du här i chatten efter identifiering: kommande städningar (hamta_bokningar), utförda städningar (hamta_utforda_stadningar), ombokning, fakturor med belopp, innehåll, OCR och bankgiro (hamta_fakturor) och meddelanden till kundservice (eskalera_till_kundservice). All information hämtar du själv ur systemet när kunden identifierat sig med SMS-koden. Ber kunden om sin faktura: ge alla uppgifter om den (vad den avser, belopp, RUT, datum, betalstatus, bankgiro och OCR) och fråga om det räcker. Vill kunden ha fakturan som PDF lägger du ett ärende till kundservice, som mejlar den. Säg aldrig att du "inte kan" något, och nämn aldrig system, API eller tekniska skäl – erbjud i stället det du kan göra.
 - NÄSTA STÄDNING: berätta alltid för en identifierad kund när nästa städning är – dag, datum, tid och städare (förnamn), t.ex. "Din nästa städning är fredag 2 oktober kl. 08:00 med Mikaela." Gör det i första svaret efter identifieringen, även när kunden frågar om något annat (t.ex. en faktura – hämta då också bokningarna med hamta_bokningar). Efter en genomförd ombokning eller avbokning står nästa städning redan i systemets svar; upprepa den inte.
 - "Avboka men vill ha en ny tid", "flytta", "boka om", "jag är bortrest" när kunden vill ha en annan tid – det är en ombokning.
@@ -462,6 +467,12 @@ const SJALV_VERKTYG: Anthropic.Tool[] = [
       },
     },
     {
+      name: 'angra_ombokning',
+      description:
+        'Ångrar en ombokning som kunden NYSS genomfört i det här samtalet (inom 15 minuter): tar fram en sammanfattning som flyttar tillbaka städningen till den ursprungliga tiden, utan avgift. Ändrar ingenting förrän kunden bekräftar med knappen. Använd när kunden direkt efter en ombokning skriver att den ångrar sig, t.ex. på grund av avgiften.',
+      input_schema: { type: 'object', properties: {} },
+    },
+    {
       name: 'forbered_avbokning',
       description:
         'Tar fram en sammanfattning av en avbokning av ETT tillfälle, med avgift enligt avbokningsreglerna, som kunden sedan bekräftar med en knapp. Ändrar ingenting. Använd först när kunden tackat nej till nya tider och ändå vill avboka.',
@@ -771,7 +782,7 @@ export async function koraVerktyg(
     if (!mailReview) throw new Error('Mejlpolicy saknas');
     const stopped = mailToolGate(namn, indata, mailReview);
     if (stopped !== null) return stopped;
-    if (['hamta_bokningar','hamta_fakturor','hamta_utforda_stadningar','hitta_nya_tider','forbered_ombokning','forbered_avbokning'].includes(namn) && !await mailSessionVerified(samtalsId)) return 'Kunden behöver identifiera sig innan några kontouppgifter får hämtas. Avsluta med [[bankid]].';
+    if (['hamta_bokningar','hamta_fakturor','hamta_utforda_stadningar','hitta_nya_tider','forbered_ombokning','forbered_avbokning','angra_ombokning'].includes(namn) && !await mailSessionVerified(samtalsId)) return 'Kunden behöver identifiera sig innan några kontouppgifter får hämtas. Avsluta med [[bankid]].';
   }
   if (namn === 'spara_kontakt') {
     const telefon = giltigTelefon(rent(indata.telefon, 30));
@@ -817,11 +828,12 @@ export async function koraVerktyg(
       });
     }
     if (namn === 'forbered_ombokning') return forberedOmbokning(samtalsId, { bokningId: rent(indata.bokning_id, 30), tidId: rent(indata.tid_id, 5) });
+    if (namn === 'angra_ombokning') return forberedAngra(samtalsId);
     if (namn === 'forbered_avbokning') return forberedAvbokning(samtalsId, { bokningId: rent(indata.bokning_id, 30), skal: rent(indata.skal, 200) });
   }
 
   if (namn !== 'skicka_lead' && namn !== 'eskalera_till_kundservice') {
-    return 'Okänt verktyg. Hänvisa besökaren till 010-178 01 50.';
+    return 'Okänt verktyg. Säg att kundservice hjälper till och lämna över med eskalera_till_kundservice.';
   }
 
   let telefon = giltigTelefon(rent(indata.telefon, 30));
@@ -842,7 +854,7 @@ export async function koraVerktyg(
 
   // Ett samtal får inte användas för att bomba kundservice inkorg.
   if (await overTaket(`chat:lead:${samtalsId}`, TAK_LEAD_PER_SAMTAL, SAMTAL_TTL_SEKUNDER)) {
-    return 'Redan skickat till kundservice i det här samtalet. Be besökaren ringa 010-178 01 50 om något mer behöver läggas till.';
+    return 'Redan skickat till kundservice i det här samtalet – de har ärendet och hör av sig. Säg det. Be inte kunden ringa.';
   }
 
   const rader =
@@ -915,7 +927,7 @@ export async function koraVerktyg(
     });
     if (!svar.ok) {
       console.error('chat: /api/lead svarade', svar.status);
-      return 'Kunde inte skickas just nu. Be besökaren höra av sig på 010-178 01 50 eller info@stodona.se.';
+      return 'Kunde inte skickas just nu. Be besökaren försöka igen om en stund här i chatten, eller mejla info@stodona.se.';
     }
     if (samtalsBilagor.length) {
       // Filerna raderas bara när mejlet med dem bevisligen gått iväg.
@@ -931,7 +943,7 @@ export async function koraVerktyg(
     return bekraftelse;
   } catch (fel) {
     console.error('chat: kunde inte nå /api/lead:', fel);
-    return 'Kunde inte skickas just nu. Be besökaren höra av sig på 010-178 01 50 eller info@stodona.se.';
+    return 'Kunde inte skickas just nu. Be besökaren försöka igen om en stund här i chatten, eller mejla info@stodona.se.';
   }
 }
 
@@ -1261,11 +1273,11 @@ export default async function handler(request: Request) {
     (await overTaket(`chat:samtal:${samtalsId}:${minut}`, TAK_PER_SAMTAL_MINUT, 120)) ||
     (await overTaket(`chat:ip:${ip}:${timme}`, TAK_PER_IP_TIMME, 3600));
   if (spärrad) {
-    return fel(429, 'För många frågor just nu. Ring 010-178 01 50 så hjälper vi dig direkt.');
+    return fel(429, 'För många frågor just nu. Försök igen om en liten stund, eller mejla info@stodona.se.');
   }
   if (await overTaket(`chat:dygn:${dygn}`, TAK_PER_DYGN, 86400)) {
     console.error('chat: dygnstaket nått');
-    return fel(429, 'Chatten är hårt belastad just nu. Ring 010-178 01 50 så hjälper vi dig direkt.');
+    return fel(429, 'Chatten är hårt belastad just nu. Försök igen om en liten stund, eller mejla info@stodona.se.');
   }
 
   // Statistik: frågan sparas anonymiserad i 90 dagar. Kan aldrig stoppa chatten.
@@ -1304,7 +1316,7 @@ export default async function handler(request: Request) {
       `Kalender för de kommande dagarna: ${kalender}. ` +
       'Säger kunden "på torsdag" menar kunden den närmaste torsdagen i kalendern. Slå alltid upp datumet där, räkna aldrig själv. ' +
       'Datum du skickar till verktygen och skriver i sammanfattningar ska vara ÅÅÅÅ-MM-DD. ' +
-      'Kundservice svarar i telefon vardagar 10–16. Är det stängt just nu, säg när vi öppnar igen i stället för att be kunden ringa direkt.',
+      'Kundservice har öppet vardagar 10–16. Be aldrig kunden ringa – erbjud att kundservice hör av sig, och säg när de öppnar igen om det är stängt just nu.',
   };
 
   // Prislistan finns med först när besökaren lämnat mobilnummer och e-post
@@ -1424,7 +1436,7 @@ export default async function handler(request: Request) {
           historik.push({ role: 'assistant', content: slutgiltigt.content });
 
           if (slutgiltigt.stop_reason === 'refusal') {
-            skicka('Den frågan kan jag inte svara på här. Ring 010-178 01 50 så hjälper vi dig.');
+            skicka('Den frågan kan jag tyvärr inte svara på här. Skriv gärna vad du behöver hjälp med, så ser jag till att kundservice hör av sig.');
             break;
           }
           if (slutgiltigt.stop_reason !== 'tool_use') {
@@ -1453,12 +1465,12 @@ export default async function handler(request: Request) {
         // Tog varven slut mitt i ett verktygsanrop får kunden ändå ett svar.
         if (!harSkrivit) {
           mailFailed = true;
-          skicka(mailReview ? 'Tack för ditt meddelande. Vi behöver kontrollera ditt ärende och återkommer med ett besked.' : 'Jag behöver kontrollera det här innan jag svarar. Ring 010-178 01 50, eller skriv ditt nummer så hör vi av oss.');
+          skicka(mailReview ? 'Tack för ditt meddelande. Vi behöver kontrollera ditt ärende och återkommer med ett besked.' : 'Jag behöver kontrollera det här innan jag svarar. Skriv ditt nummer eller din mejl här, så hör kundservice av sig.');
         }
       } catch (f) {
         mailFailed = true;
         console.error('chat stream error:', f);
-        skicka('Jag tappade tråden där. Försök igen, eller ring 010-178 01 50.');
+        skicka('Jag tappade tråden där. Skriv gärna igen – blir det fel en gång till når du oss på info@stodona.se.');
       } finally {
         if (mailReview) {
           if (!mailReview.intent || mailFailed) mailReview.status = 'human_review';

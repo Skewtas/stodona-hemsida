@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, CheckCircle2 } from 'lucide-react';
 import { submitLead } from '../utils/leadCapture';
+import { Link } from 'react-router-dom';
 
 export default function FooterNewsletter() {
   const [email, setEmail] = useState('');
@@ -55,6 +56,10 @@ export default function FooterNewsletter() {
           {loading ? '...' : 'Prenumerera'}
         </button>
       </form>
+      <p className="text-[11px] text-text-light/50 mt-2">
+        Du kan avsluta prenumerationen när du vill.{" "}
+        <Link to="/integritetspolicy" className="underline underline-offset-2 hover:text-text-light">Så hanterar vi dina uppgifter</Link>
+      </p>
     </div>
   );
 }

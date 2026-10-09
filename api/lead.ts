@@ -165,10 +165,17 @@ export default async function handler(request: Request) {
       }
     }
 
-    // Vidarebefordra e-post till nyhetsbrevssystemen (headof + Marketing).
+    // Vidarebefordra nyhetsbrevsanmälningar till head-of
+    // (POST /api/newsletter/subscribe). Marketing läser samma lista därifrån,
+    // så NEWSLETTER_MARKETING_URL behövs bara om Marketing får en egen mottagare.
     // Aktiveras genom att sätta miljövariablerna nedan i Vercel. Endpoints
     // förväntas ta emot JSON { email, name, phone, source, page }.
-    if (email) {
+    //
+    // Bara formulär där besökaren uttryckligen bett om nyhetsbrevet skickas
+    // vidare. Den som begär pris, laddar ner checklistan eller skriver i
+    // chatten har inte samtyckt till utskick.
+    const NYHETSBREVSKALLOR = ['footer_newsletter'];
+    if (email && NYHETSBREVSKALLOR.includes(lead.source)) {
       const newsletterTargets = [
         { name: 'headof', url: process.env.NEWSLETTER_HEADOF_URL, token: process.env.NEWSLETTER_HEADOF_TOKEN },
         { name: 'marketing', url: process.env.NEWSLETTER_MARKETING_URL, token: process.env.NEWSLETTER_MARKETING_TOKEN },
@@ -177,7 +184,7 @@ export default async function handler(request: Request) {
         newsletterTargets.map(async (tgt) => {
           if (!tgt.url) return;
           try {
-            await fetch(tgt.url, {
+            const svar = await fetch(tgt.url, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -191,6 +198,7 @@ export default async function handler(request: Request) {
                 page: lead.page,
               }),
             });
+            if (!svar.ok) console.error(`Newsletter forward (${tgt.name}) svarade ${svar.status}`);
           } catch (err) {
             console.error(`Newsletter forward (${tgt.name}) error:`, err);
           }

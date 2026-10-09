@@ -41,7 +41,7 @@ const translations: TranslationMap = {
     'footer.sidkarta': { SV: 'Sidkarta', EN: 'Sitemap' },
 
     // ─── HOME: Hero ────────────────────────────────────────────────────
-    'home.hero.title': { SV: 'Vilken typ av städning behöver du hjälp med?', EN: 'What type of cleaning do you need help with?' },
+    'home.hero.title': { SV: 'Behöver du hjälp med städningen?', EN: 'Need help with the cleaning?' },
     'home.hero.subtitle': {
         SV: 'Vi är ett professionellt städbolag som erbjuder allt från hemstädning och flyttstädning till storstädning i Stockholm. Alltid rent när du kommer hem - så att du kan ägna tiden åt det som betyder något. Samma team varje gång.',
         EN: 'We create time for what truly matters. With our professional cleaning, your home won\'t just look clean – it will feel like a five-star hotel.',

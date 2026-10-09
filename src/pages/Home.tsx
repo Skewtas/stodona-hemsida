@@ -105,13 +105,7 @@ export default function Home() {
             lg ligger rutorna kvar i den vanliga spalten. */}
         <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-6 pt-4 sm:pt-8 pb-16 sm:pb-20 lg:max-w-none lg:px-0 lg:pt-0 lg:pb-0">
           <div className="grid lg:grid-cols-2 gap-5 lg:gap-0 items-stretch lg:min-h-[calc(100vh-186px)]">
-            {/* Erbjudandet "Testa oss med 15 % rabatt" – en kompakt ruta, och det
-                enda stället i heron där det nämns. På mobil först av allt, före filmen; från
-                lg högst upp i bokningskortet (nedan). */}
-            <KampanjKort className="order-first lg:hidden" />
             <div className="bg-white p-5 sm:p-10 md:p-12 lg:px-12 xl:px-20 shadow-2xl lg:shadow-none flex flex-col justify-center [container-type:inline-size]">
-              <KampanjKort className="hidden lg:block mb-9" />
-
                 {/* Graden följer KORTETS bredd (cqw) och inte fönstrets, eftersom
                   kortet bara är en halv skärm brett i tvåspaltsläget. Frågan
                   är en hel mening och får brytas över två rader. */}
@@ -224,6 +218,11 @@ export default function Home() {
                 poster="/hero-poster.webp"
                 alt="Nystädat sovrum med uppbäddad säng"
               />
+              {/* Erbjudandet "Testa oss – 15 % rabatt" ligger ovanpå filmen, i
+                  nedre vänstra hörnet: chattknappen sitter till höger, och
+                  bokningskortet bredvid får vara rent. Det enda stället i
+                  heron där erbjudandet nämns. */}
+              <KampanjKort className="absolute left-3 bottom-3 sm:left-6 sm:bottom-6 lg:left-10 lg:bottom-10 z-10" />
             </div>
           </div>
         </div>

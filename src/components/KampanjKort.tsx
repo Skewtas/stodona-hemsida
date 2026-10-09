@@ -4,26 +4,25 @@ import { bookingUrl } from "../utils/bookingUrl";
 import { track } from "../utils/analytics";
 
 /**
- * Erbjudanderutan i startsidans hero: "Testa oss med 15 % rabatt".
- * En kompakt ruta i accentfärgen med procentsatsen stort och rabattkoden
- * utskriven. Knappen tar besökaren till bokningen med koden ifylld.
+ * Erbjudanderutan i startsidans hero: "Testa oss – 15 % rabatt".
+ * Ligger ovanpå filmen, så den är en tät ruta i accentfärgen med skugga.
+ * "Testa oss" är rubriken; rabattkoden står utskriven och knappen tar
+ * besökaren till bokningen med koden ifylld.
  */
 export default function KampanjKort({ className = "" }: { className?: string }) {
   return (
-    <div className={`bg-accent-deep text-white rounded-xl p-5 w-full max-w-[19rem] self-start ${className}`}>
-      <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-white/85">Testa oss med</p>
-      <p className="mt-1.5 font-display tracking-tight text-[2.75rem] font-bold leading-none whitespace-nowrap">
-        {ERBJUDANDE.procent} % <em className="font-normal">rabatt</em>
-      </p>
-      <div className="mt-4 flex items-stretch gap-2">
+    <div className={`bg-accent-deep text-white rounded-2xl p-4 sm:p-6 w-[15.5rem] sm:w-[19rem] shadow-2xl ${className}`}>
+      <p className="font-display tracking-tight text-[2rem] sm:text-[2.75rem] font-black leading-none">Testa oss</p>
+      <p className="mt-1.5 sm:mt-2 text-base sm:text-xl font-bold leading-snug">med {ERBJUDANDE.procent} % rabatt</p>
+      <div className="mt-3 sm:mt-5 flex items-stretch gap-2">
         <p className="flex-1 flex flex-col justify-center border-2 border-dashed border-white/70 rounded-lg px-3 py-1.5">
           <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-white/85">Rabattkod</span>
-          <span className="text-xl font-bold tracking-[0.12em] leading-tight">{ERBJUDANDE.kod}</span>
+          <span className="text-lg sm:text-xl font-bold tracking-[0.12em] leading-tight">{ERBJUDANDE.kod}</span>
         </p>
         <a
           href={bookingUrl({ discountCode: ERBJUDANDE.kod })}
           onClick={() => track("booking_start", { source: "erbjudandekort" })}
-          className="shrink-0 inline-flex items-center gap-1.5 bg-white text-text-primary rounded-lg px-4 text-sm font-bold hover:bg-bg-primary transition-colors"
+          className="shrink-0 inline-flex items-center gap-1.5 bg-white text-text-primary rounded-lg px-3 sm:px-4 text-sm font-bold hover:bg-bg-primary transition-colors"
         >
           Boka <ArrowRight className="w-4 h-4" />
         </a>

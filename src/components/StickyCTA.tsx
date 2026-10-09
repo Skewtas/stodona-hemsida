@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Phone, CheckCircle2 } from 'lucide-react';
+import { Phone, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { submitLead } from '../utils/leadCapture';
 import { bookingUrl } from "../utils/bookingUrl";
@@ -30,9 +30,13 @@ export default function StickyCTA() {
   // Ligg lågt medan rabattpopupen täcker skärmen.
   if (activeOverlay === 'discount') return null;
 
+  // En svävande kapsel i stället för en list kant i kant: mörkt glas med
+  // skugga, erbjudandet till vänster och en tydlig bokningsknapp till höger.
+  const kapsel = "fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-[9990] md:hidden rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.35)]";
+
   if (submitted) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-[9990] md:hidden bg-green-500 text-white py-3 px-4 text-center">
+      <div className={`${kapsel} bg-green-600 text-white py-4 px-5`}>
         <div className="flex items-center justify-center gap-2 text-sm font-medium">
           <CheckCircle2 className="w-4 h-4" />
           Tack! Vi ringer dig snart.
@@ -41,27 +45,40 @@ export default function StickyCTA() {
     );
   }
 
+  const procent = kampanj ? KAMPANJ.procent : ERBJUDANDE.procent;
+  const kod = kampanj ? KAMPANJ.kod : ERBJUDANDE.kod;
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[9990] md:hidden bg-bg-dark border-t border-white/10 safe-area-bottom">
-      <div className="flex items-center gap-2 p-3">
+    <div className={`${kapsel} bg-bg-dark/90 backdrop-blur-md ring-1 ring-white/10 p-1.5`}>
+      <div className="flex items-center gap-1.5">
         {!showInput ? (
           <>
-            <a
-              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: KAMPANJ.kod }) : bookingUrl({ discountCode: ERBJUDANDE.kod })}
-              className={`flex-1 py-3 font-bold rounded-xl text-center text-sm hover:brightness-110 transition-all ${kampanj ? 'bg-accent text-white' : 'bg-cta-hover text-text-primary'}`}
-            >
-              {kampanj ? `Boka nu – ${KAMPANJ.procent} % året ut` : `Boka nu – ${ERBJUDANDE.procent} % rabatt`}
-            </a>
             <button
               onClick={() => setShowInput(true)}
-              className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-text-light hover:bg-white/20 transition-colors"
+              className="shrink-0 w-11 h-11 bg-white/10 rounded-full flex items-center justify-center text-text-light hover:bg-white/20 transition-colors"
               aria-label="Ring mig"
             >
-              <Phone className="w-5 h-5" />
+              <Phone className="w-[18px] h-[18px]" />
             </button>
+            <a
+              href={kampanj ? bookingUrl({ service: 'Hemstädning', discountCode: KAMPANJ.kod }) : bookingUrl({ discountCode: ERBJUDANDE.kod })}
+              className="group flex-1 min-w-0 flex items-center justify-between gap-3 pl-2"
+            >
+              <span className="min-w-0 leading-tight">
+                <span className="block text-text-light text-[15px] font-bold whitespace-nowrap">
+                  {procent} % {kampanj ? 'året ut' : 'rabatt'}
+                </span>
+                <span className="block text-text-light/60 text-[11px] font-medium tracking-[0.08em] uppercase whitespace-nowrap">
+                  Kod {kod}
+                </span>
+              </span>
+              <span className="shrink-0 inline-flex items-center gap-1.5 h-11 px-5 rounded-full bg-accent text-white text-[15px] font-bold group-active:scale-95 transition-transform">
+                Boka nu <ArrowRight className="w-4 h-4" />
+              </span>
+            </a>
           </>
         ) : (
-          <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full">
+          <form onSubmit={handleSubmit} className="flex items-center gap-1.5 w-full">
             <input
               type="tel"
               value={phone}
@@ -69,19 +86,20 @@ export default function StickyCTA() {
               placeholder="Ditt telefonnummer"
               required
               autoFocus
-              className="flex-1 px-3 py-3 rounded-xl bg-white/10 border border-white/10 text-text-light placeholder:text-text-light/40 focus:outline-none focus:ring-2 focus:ring-cta-hover/50 text-sm"
+              className="flex-1 min-w-0 h-11 px-4 rounded-full bg-white/10 border border-white/10 text-text-light placeholder:text-text-light/40 focus:outline-none focus:ring-2 focus:ring-accent/60 text-sm"
             />
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-3 bg-cta-hover text-text-primary font-bold rounded-xl text-sm whitespace-nowrap disabled:opacity-50"
+              className="shrink-0 h-11 px-5 bg-accent text-white font-bold rounded-full text-sm whitespace-nowrap disabled:opacity-50"
             >
               {loading ? '...' : 'Ring mig'}
             </button>
             <button
               type="button"
               onClick={() => setShowInput(false)}
-              className="text-text-light/50 text-xs"
+              aria-label="Stäng"
+              className="shrink-0 w-9 h-11 text-text-light/60 text-sm"
             >
               ✕
             </button>

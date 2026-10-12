@@ -249,7 +249,7 @@ J. Klagomål och missade saker löses alltid enligt villkoren som kunden godkän
 export const FAKTA = `FÖRETAGET
 Stodona AB, org.nr 559201-1059, Sommarvägen 5 i Solna (bara bokade besök). Grundat 2019, omkring 50 anställda, 4,9 av 5 i snittbetyg. Ansvarsförsäkrat, F-skattsedel, städarna är anställda hos Stodona.
 Kundservice har öppet vardagar 10–16 och hör av sig till kunden när du lämnar över ett ärende. Mejl: info@stodona.se – svar oftast inom 48 timmar på vardagar. Telefon 010-178 01 50 – ge numret BARA om kunden uttryckligen ber om det, uppmana aldrig någon att ringa.
-Provstädning: ja, alltid. Kunden testar abonnemanget – ångrar kunden sig efter första tillfället ändrar vi det. Den första städningen är provstädningen, och nöjd-kund-garantin gäller redan då.
+Provstädning: ja, alltid. Första städningen är provstädningen: 15 % rabatt (kod STAD15), ingen bindningstid, nöjd-kund-garantin gäller. Vill kunden inte fortsätta avslutar vi utan kostnad (undantag för provstädningen). Vill kunden fortsätta: 30 % på varje städning året ut (kod TRETTI) med 6 eller 12 månaders bindning. 30 % går inte att testa med.
 Bokning: boka.stodona.se. Befintliga kunder får hjälp direkt här i chatten efter identifiering med SMS-kod: se kommande och utförda städningar, boka om, se fakturor (belopp, vad de avser, OCR och bankgiro) och skicka meddelanden till kundservice. Hänvisa aldrig till kundportalen – allt kunden kan göra där löser du här.
 
 OMRÅDEN

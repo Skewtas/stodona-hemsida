@@ -42,7 +42,7 @@ export default function CookiePolicy() {
           <div className="max-w-4xl mx-auto prose prose-lg prose-slate">
             <div className="flex items-center gap-3 mb-8 p-4 bg-bg-primary rounded-2xl border border-text-primary/5">
               <Cookie className="w-8 h-8 text-cta-hover" />
-              <p className="m-0 font-medium text-text-primary">Senast uppdaterad: 27 februari 2026</p>
+              <p className="m-0 font-medium text-text-primary">Senast uppdaterad: 12 oktober 2026</p>
             </div>
 
             <h2 className="text-3xl font-bold mb-6">Vad är cookies?</h2>
@@ -74,6 +74,13 @@ export default function CookiePolicy() {
                 <div>
                   <strong className="text-text-primary block mb-1">Funktionella cookies</strong>
                   <p className="text-text-secondary m-0">Dessa gör det möjligt för webbplatsen att tillhandahålla förbättrad funktionalitet och personlig anpassning, till exempel genom att komma ihåg val du gjort tidigare.</p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Info className="w-6 h-6 text-cta-hover shrink-0 mt-1" />
+                <div>
+                  <strong className="text-text-primary block mb-1">Marknadsföringscookies</strong>
+                  <p className="text-text-secondary m-0">Används bara om du väljer "Acceptera alla" i cookie-rutan på boka.stodona.se. Då laddas Meta-pixeln (Meta Platforms Ireland Ltd), som sätter kakorna _fbp och _fbc och berättar för Meta att du har besökt bokningen, påbörjat en bokning eller bokat en städning. Vi använder det för att mäta hur våra annonser på Facebook och Instagram fungerar. Väljer du "Bara statistik" eller "Bara nödvändiga" hämtas ingenting från Meta.</p>
                 </div>
               </li>
             </ul>

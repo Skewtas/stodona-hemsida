@@ -11,6 +11,7 @@ interface Lead {
   id: string;
   skapad: number;
   kanal: string;
+  kalla?: string;
   fornamn: string;
   telefon: string;
   epost: string;
@@ -111,7 +112,7 @@ export default function ChattLeads({ losenord }: { losenord: string }) {
                   </button>
                   <div className="text-text-secondary">{l.telefon}</div>
                   <div className="text-text-secondary">{l.epost}</div>
-                  <div className="text-xs text-text-secondary/70 mt-1">{tid(l.skapad)} · {l.kanal}</div>
+                  <div className="text-xs text-text-secondary/70 mt-1">{tid(l.skapad)} · {l.kanal}{l.kalla ? ` · ${l.kalla}` : ''}</div>
                 </td>
                 <td className="px-4 py-3">
                   <div>{l.tjanst || "–"}{l.kvm ? `, ${l.kvm} kvm` : ""}</div>

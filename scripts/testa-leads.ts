@@ -5,6 +5,13 @@
 
 import { skapaLead, noteraPris, noteraAktivitet, sattStatus, sattPaus, avregistrera, hamtaLead, korUppfoljningar, smsText, dagtid, type Lead } from '../api/_leads';
 
+// Utan flaggan skriver testet i den riktiga lagringen (bun läser .env.local av sig själv)
+// och test-leaden hamnar i kön för riktiga SMS. Det hände 2026-10-13 – därför stoppet.
+if (process.env.STODONA_LOKAL !== 'true') {
+  console.error('Avbrutet: kör med STODONA_LOKAL=true, annars skrivs test-leads i produktionens lagring.');
+  process.exit(1);
+}
+
 const TIMME = 3600_000;
 // Måndag 2026-10-12 kl. 10:00 svensk tid (UTC+2).
 const T0 = Date.UTC(2026, 9, 12, 8, 0, 0);

@@ -31,6 +31,8 @@ export interface Lead {
   skapad: number;
   senastAktiv: number;
   kanal: string;
+  /** Annons, länk eller story som samtalet kom från (Instagram, Messenger) – för attributionen. */
+  kalla?: string;
   fornamn: string;
   telefon: string;
   epost: string;
@@ -90,7 +92,7 @@ function planera(l: Lead) {
 /** Skapar leadet när kunden lämnat mobil och e-post (eller kompletterar ett som finns). */
 export async function skapaLead(
   id: string,
-  uppgifter: Pick<Lead, 'kanal' | 'fornamn' | 'telefon' | 'epost' | 'tjanst' | 'kvm' | 'behov'> & { samtycke: boolean },
+  uppgifter: Pick<Lead, 'kanal' | 'kalla' | 'fornamn' | 'telefon' | 'epost' | 'tjanst' | 'kvm' | 'behov'> & { samtycke: boolean },
   nu = Date.now()
 ): Promise<Lead> {
   const fanns = await hamtaLead(id);
@@ -98,7 +100,7 @@ export async function skapaLead(
     ? { ...fanns, ...uppgifter, samtycke: fanns.samtycke || uppgifter.samtycke, senastAktiv: nu }
     : { id, kod: slumpkod(), skapad: nu, senastAktiv: nu, prisKr: null, status: 'ny', pausad: false, steg: 0, nasta: null, handelser: [], ...uppgifter };
   if (!fanns) {
-    handelse(l, `Lämnade kontaktuppgifter (${l.kanal})`, nu);
+    handelse(l, `Lämnade kontaktuppgifter (${l.kanal}${l.kalla ? `, ${l.kalla}` : ''})`, nu);
     await lagring.spara(`lead:kod:${l.kod}`, id, LEAD_TTL);
   }
   if (AKTIVA.includes(l.status)) planera(l);

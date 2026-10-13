@@ -20,10 +20,10 @@
 import * as lagring from './_lagring';
 import { lika } from './_personal';
 
-export type Kanal = 'webb' | 'instagram' | 'mail';
-export const EXTERNA_KANALER: readonly Kanal[] = ['instagram', 'mail'];
+export type Kanal = 'webb' | 'instagram' | 'messenger' | 'mail';
+export const EXTERNA_KANALER: readonly Kanal[] = ['instagram', 'messenger', 'mail'];
 
-const KANAL_NAMN: Record<Kanal, string> = { webb: 'Webbchatten', instagram: 'Instagram', mail: 'Outlook-mejl' };
+const KANAL_NAMN: Record<Kanal, string> = { webb: 'Webbchatten', instagram: 'Instagram', messenger: 'Messenger', mail: 'Outlook-mejl' };
 export const kanalNamn = (k: Kanal) => KANAL_NAMN[k] ?? k;
 
 /** Samma livslängd som samtalen i api/chat.ts. */
@@ -33,6 +33,31 @@ const INKORG = 'kanal:inkorg';
 export const PAUS_EFTER_PERSONAL_TIMMAR = 12;
 /** Så länge AI:n håller tyst efter att den själv lämnat över till kundservice. */
 export const PAUS_EFTER_OVERLAMNING_TIMMAR = 48;
+
+/** Metas meddelandefönster: Camilla får bara skriva inom 24 timmar från kundens senaste meddelande. */
+export const META_FONSTER_TIMMAR = 24;
+
+/**
+ * Varifrån samtalet kom (Camilla 2.0, fas 4). Ämnet är alltid ett av våra egna
+ * – aldrig fri text från en länk – så att det tryggt kan visas för Camilla.
+ */
+export interface Kalla {
+  typ: 'annons' | 'lank' | 'story' | 'organisk';
+  /** Tjänsten annonsen eller länken handlade om, om den gick att känna igen. */
+  amne: string;
+  /** Annonsens id hos Meta, för attributionen. */
+  annonsId: string;
+  /** ref-parametern (m.me/…?ref=, ig.me/…?ref=), rensad. */
+  ref: string;
+  tid: number;
+}
+
+/** Källan i klartext, för leadet och kundservice. */
+export function beskrivKalla(k: Kalla | null | undefined): string {
+  if (!k) return '';
+  const typ = k.typ === 'annons' ? 'annons' : k.typ === 'lank' ? 'länk' : k.typ === 'story' ? 'story' : 'organiskt';
+  return [typ, k.amne, k.annonsId && `annons-id ${k.annonsId}`, k.ref && `ref ${k.ref}`].filter(Boolean).join(' · ');
+}
 
 /** Identifieringen på kanaler utan widgetens inloggningsruta. */
 export interface Identifiering {
@@ -60,8 +85,14 @@ export interface Samtalsinfo {
   /** TimeWave-kunden, när personen identifierat sig med SMS-kod. */
   kund: { nummer: string; namn: string } | null;
   identifiering: Identifiering | null;
-  /** Ombokningsförslaget som väntar på kundens bekräftelse (OF-…). */
+  /** Ombokningen (OF-…) eller avbokningen (AV-…) som väntar på kundens bekräftelse. */
   vantandeForslag: string | null;
+  /** Varifrån samtalet kom: annons, länk, story eller organiskt. Sätts en gång. */
+  kalla?: Kalla | null;
+  /** Källan har berättats för Camilla (görs med kundens första meddelande). */
+  kallaBerattad?: boolean;
+  /** När kunden senast skrev – styr Metas 24-timmarsfönster. */
+  kundSenast?: number;
   senaste: { fran: 'kund' | 'ai' | 'personal'; text: string; tid: number } | null;
   skapad: number;
 }
@@ -281,14 +312,14 @@ export interface TolkatSvar {
   val: string[];
   /** [[bankid]] – kunden ska identifiera sig. */
   identifiera: boolean;
-  /** [[bekrafta:OF-…]] – en ombokning väntar på kundens bekräftelse. */
+  /** [[bekrafta:OF-…]] eller [[bekrafta:AV-…]] – en ombokning eller avbokning väntar på kundens bekräftelse. */
   bekrafta: string | null;
 }
 
 /** Samma markeringar som widgeten tolkar (delaUppVal i src/components/ChatWidget.tsx). */
 export function tolkaSvar(radtext: string): TolkatSvar {
   let text = radtext;
-  const kort = text.match(/\[\[\s*bekrafta\s*:\s*(OF-[A-Z0-9]{8})\s*\]\]/i);
+  const kort = text.match(/\[\[\s*bekrafta\s*:\s*((?:OF|AV)-[A-Z0-9]{8})\s*\]\]/i);
   text = text.replace(/\[\[\s*bekrafta\s*:[^\]]*\]\]/gi, '');
   const identifiera = /\[\[\s*bankid\s*\]\]/i.test(text);
   text = text.replace(/\[\[\s*bankid\s*\]\]/gi, '');

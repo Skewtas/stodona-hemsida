@@ -20,6 +20,8 @@ export interface Prislead {
   tid: string;
   samtalsId: string;
   kanal: string;
+  /** Annons, länk eller story som samtalet kom från (Instagram, Messenger). */
+  kalla?: string;
   fornamn: string;
   telefon: string;
   epost: string;
@@ -45,6 +47,7 @@ async function mejla(lead: Prislead): Promise<string> {
     `Storlek: ${lead.kvm ? `${lead.kvm} kvm` : '–'}`,
     `Vad hen frågade om: ${lead.behov || '–'}`,
     `Kanal: ${lead.kanal}`,
+    ...(lead.kalla ? [`Källa: ${lead.kalla}`] : []),
     `Tid: ${new Date(lead.tid).toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' })}`,
     `Samtal: ${lead.samtalsId}`,
   ].join('\n');
@@ -77,7 +80,7 @@ export async function sparaKontakt(samtalsId: string, lead: Omit<Prislead, 'tid'
   // och SMS-uppföljning förutsätter ett svenskt mobilnummer.
   if (!lead.kanal.startsWith('personalchatten')) {
     const mobil = mobilnummer(lead.telefon);
-    await skapaLead(samtalsId, { kanal: lead.kanal, fornamn: lead.fornamn, telefon: mobil ?? lead.telefon, epost: lead.epost, tjanst: lead.tjanst, kvm: lead.kvm, behov: lead.behov, samtycke: Boolean(mobil) }).catch((fel) =>
+    await skapaLead(samtalsId, { kanal: lead.kanal, kalla: lead.kalla || undefined, fornamn: lead.fornamn, telefon: mobil ?? lead.telefon, epost: lead.epost, tjanst: lead.tjanst, kvm: lead.kvm, behov: lead.behov, samtycke: Boolean(mobil) }).catch((fel) =>
       console.error('prislead: leadet kunde inte sparas', fel)
     );
   }

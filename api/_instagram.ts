@@ -1,4 +1,8 @@
-// Instagram som kanal till Camilla.
+// Instagram-DM och Facebook Messenger som kanaler till Camilla.
+//
+// Båda går genom Metas Messenger-plattform och ser nästan likadana ut, så de
+// delar den här adaptern. Det som skiljer (adress, token, hemlighet, gränser)
+// står i PLATTFORM nedan; webhookarna är api/instagram.ts och api/messenger.ts.
 //
 // Det här är en ADAPTER, inte en egen chattbot. Den tar emot Instagram-DM,
 // skickar dem till samma Camilla som webbchatten (api/chat.ts via
@@ -10,9 +14,16 @@
 //                         (samma kod och kontroll som webbchatten, api/_smskod.ts).
 //                         Numret och koden når aldrig modellen.
 //   [[bekrafta:OF-…]]   → sammanfattningen (hämtas från servern, inte från
-//                         modellen) med snabbsvaret "Bekräfta ombokning". Bara
-//                         det – eller ett tydligt "ja" direkt efter – genomför
-//                         ändringen, via samma bekraftaOmbokning som webben.
+//   [[bekrafta:AV-…]]     modellen) med snabbsvaret "Bekräfta ombokning" eller
+//                         "Bekräfta avbokning". Bara det – eller ett tydligt
+//                         "ja" direkt efter – genomför ändringen, via samma
+//                         kod som webbchattens knapp.
+//
+// KÄLLA (annons, länk, story)
+// Kommer kunden från en annons eller en länk med ?ref= sparas källan på
+// samtalet. Ämnet känns igen mot våra egna tjänster – fri text från länken når
+// aldrig Camilla – och hon får veta det med kundens första meddelande, så att
+// öppningen handlar om det annonsen handlade om.
 //
 // MÄNNISKA ELLER AI
 // Svarar någon i personalen i tråden (i Instagram-appen eller Meta Business
@@ -22,14 +33,17 @@
 // pausar sig också själv när hon lämnat över till kundservice. Före varje
 // svar kontrolleras pausen igen, så AI och personal svarar aldrig samtidigt.
 //
-// Meta: Instagram API med Instagram-inloggning (graph.instagram.com).
-// Svar får bara skickas inom 24 timmar från kundens senaste meddelande –
-// Camilla svarar alltid direkt, så det gäller bara personalen.
+// Meta: Instagram API med Instagram-inloggning (graph.instagram.com) och
+// Messenger-plattformen för Facebook-sidan (graph.facebook.com).
+// Svar får bara skickas inom 24 timmar från kundens senaste meddelande.
+// Camilla svarar alltid direkt, men spärren i skickaTillKund gäller ändå:
+// utanför fönstret skickas ingenting, vad som än har bett om det.
 
 import * as lagring from './_lagring';
 import { skickaKod, mobilnummer } from './_smskod';
 import { loggaInMedKod, valjSmsKonto, type SmsInloggning } from './_sjalvservice';
 import type { Kort, Bekraftelse } from './_sjalvservice';
+import type { Avbokningskort } from './_avbokning';
 import {
   samtalFor,
   hamtaInfo,
@@ -42,14 +56,46 @@ import {
   tolkaSvar,
   markeraKraverAtgard,
   PAUS_EFTER_PERSONAL_TIMMAR,
+  META_FONSTER_TIMMAR,
+  kanalNamn,
+  type Kalla,
   type Samtalsinfo,
   type CamillaSvar,
 } from './_kanaler';
 
-const GRAPH = (process.env.IG_GRAPH_BAS || 'https://graph.instagram.com').replace(/\/+$/, '');
+export type MetaKanal = 'instagram' | 'messenger';
+
+interface Plattform {
+  graph: string;
+  /** Prefix för kanalens egna nycklar i lagringen. */
+  pre: 'ig' | 'fb';
+  /** Högst så många byte text per meddelande (Instagram 1000, Messenger 2000 tecken). */
+  maxByte: number;
+  hemlighet: () => string | undefined;
+  lage: () => string | undefined;
+  testare: () => string | undefined;
+}
+
 const VERSION = process.env.IG_GRAPH_VERSION || 'v25.0';
-/** Instagram tar högst 1000 byte text per meddelande. */
-const MAX_BYTE = 950;
+const PLATTFORM: Record<MetaKanal, Plattform> = {
+  instagram: {
+    graph: (process.env.IG_GRAPH_BAS || 'https://graph.instagram.com').replace(/\/+$/, ''),
+    pre: 'ig',
+    maxByte: 950,
+    hemlighet: () => process.env.IG_APP_SECRET,
+    lage: () => process.env.INSTAGRAM_CHAT,
+    testare: () => process.env.IG_TESTARE,
+  },
+  messenger: {
+    graph: (process.env.FB_GRAPH_BAS || 'https://graph.facebook.com').replace(/\/+$/, ''),
+    pre: 'fb',
+    maxByte: 1900,
+    hemlighet: () => process.env.FB_APP_SECRET,
+    lage: () => process.env.MESSENGER_CHAT,
+    testare: () => process.env.FB_TESTARE,
+  },
+};
+const plattform = (kanal: string): Plattform => PLATTFORM[kanal === 'messenger' ? 'messenger' : 'instagram'];
 const MAX_SNABBSVAR = 13;
 const MAX_TITEL = 20;
 /** En identifiering som inte avslutats glöms efter en kvart. */
@@ -62,7 +108,7 @@ const EGET_TTL = 15 * 60;
  * Svaren skrivs ut i terminalen och sparas i utkorgen nedan.
  */
 const LOKAL = process.env.STODONA_LOKAL === 'true';
-export const lokalUtkorg: { till: string; text: string; snabbsvar: string[] }[] = [];
+export const lokalUtkorg: { till: string; text: string; snabbsvar: string[]; kanal?: string; samtalsId?: string }[] = [];
 
 /** Snabbsvar som styr systemet i stället för att gå till Camilla. */
 const SYS = 'STODONA:';
@@ -70,21 +116,23 @@ const SYS = 'STODONA:';
 // ─── Påslaget ────────────────────────────────────────────────────────────────
 
 /**
- * INSTAGRAM_CHAT:
+ * INSTAGRAM_CHAT respektive MESSENGER_CHAT:
  *   av   (standard) – webhooken tar emot men Camilla svarar aldrig
- *   test – Camilla svarar bara Instagram-kontona i IG_TESTARE (IGSID, kommaseparerade)
+ *   test – Camilla svarar bara kontona i IG_TESTARE / FB_TESTARE (id:n, kommaseparerade)
  *   pa   – Camilla svarar alla
  */
-export function instagramLage(): 'av' | 'test' | 'pa' {
-  const v = (process.env.INSTAGRAM_CHAT ?? '').trim().toLowerCase();
+export function kanalLage(kanal: MetaKanal): 'av' | 'test' | 'pa' {
+  const v = (plattform(kanal).lage() ?? '').trim().toLowerCase();
   return v === 'pa' || v === 'test' ? v : 'av';
 }
 
-export function arTestare(igsid: string): boolean {
-  return (process.env.IG_TESTARE ?? '')
+export const instagramLage = () => kanalLage('instagram');
+
+export function arTestare(id: string, kanal: MetaKanal = 'instagram'): boolean {
+  return (plattform(kanal).testare() ?? '')
     .split(',')
     .map((s) => s.trim())
-    .includes(igsid);
+    .includes(id);
 }
 
 // ─── Meta: signatur, token, utskick ──────────────────────────────────────────
@@ -101,8 +149,8 @@ async function sha(text: string): Promise<string> {
 }
 
 /** X-Hub-Signature-256 = sha256=HMAC(appens hemlighet, rå kropp). Utan giltig signatur behandlas ingenting. */
-export async function giltigSignatur(radKropp: string, header: string | null): Promise<boolean> {
-  const hemlighet = process.env.IG_APP_SECRET;
+export async function giltigSignatur(radKropp: string, header: string | null, kanal: MetaKanal = 'instagram'): Promise<boolean> {
+  const hemlighet = plattform(kanal).hemlighet();
   if (!hemlighet || !header?.startsWith('sha256=')) return false;
   const vantat = await hmacHex(hemlighet, radKropp);
   const given = header.slice(7).toLowerCase();
@@ -111,8 +159,12 @@ export async function giltigSignatur(radKropp: string, header: string | null): P
   return diff === 0;
 }
 
-/** Den förnyade token (se fornyaToken) går före den i miljön. */
-async function token(): Promise<string | null> {
+/**
+ * Instagram: den förnyade token (se fornyaToken) går före den i miljön.
+ * Messenger: sidans token (FB_PAGE_TOKEN) går inte ut och förnyas inte.
+ */
+async function token(kanal: string = 'instagram'): Promise<string | null> {
+  if (kanal === 'messenger') return process.env.FB_PAGE_TOKEN || null;
   const fornyad = await lagring.hamta<{ token: string }>('ig:token').catch(() => null);
   return fornyad?.token || process.env.IG_ACCESS_TOKEN || null;
 }
@@ -124,7 +176,7 @@ async function token(): Promise<string | null> {
 export async function fornyaToken(): Promise<{ ok: boolean; detaljer: string }> {
   const nu = await token();
   if (!nu) return { ok: false, detaljer: 'IG_ACCESS_TOKEN saknas' };
-  const svar = await fetch(`${GRAPH}/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(nu)}`);
+  const svar = await fetch(`${PLATTFORM.instagram.graph}/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(nu)}`);
   const data = (await svar.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; error?: { message?: string } };
   if (!svar.ok || !data.access_token) return { ok: false, detaljer: data.error?.message ?? `svarade ${svar.status}` };
   const dagar = Math.floor((data.expires_in ?? 60 * 86400) / 86400);
@@ -132,10 +184,10 @@ export async function fornyaToken(): Promise<{ ok: boolean; detaljer: string }> 
   return { ok: true, detaljer: `förnyad, gäller ${dagar} dagar` };
 }
 
-async function graph(sokvag: string, kropp: unknown): Promise<{ ok: boolean; data: Record<string, unknown> }> {
-  const t = await token();
-  if (!t) return { ok: false, data: { error: 'IG_ACCESS_TOKEN saknas' } };
-  const svar = await fetch(`${GRAPH}/${VERSION}${sokvag}`, {
+async function graph(kanal: string, sokvag: string, kropp: unknown): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  const t = await token(kanal);
+  if (!t) return { ok: false, data: { error: kanal === 'messenger' ? 'FB_PAGE_TOKEN saknas' : 'IG_ACCESS_TOKEN saknas' } };
+  const svar = await fetch(`${plattform(kanal).graph}/${VERSION}${sokvag}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(kropp),
@@ -145,8 +197,8 @@ async function graph(sokvag: string, kropp: unknown): Promise<{ ok: boolean; dat
   return { ok: svar.ok, data };
 }
 
-/** Delar upp text som är för lång för ett Instagram-meddelande, helst vid meningsslut. */
-function delaUpp(text: string): string[] {
+/** Delar upp text som är för lång för ett meddelande i kanalen, helst vid meningsslut. */
+function delaUpp(text: string, MAX_BYTE: number): string[] {
   const kodare = new TextEncoder();
   const delar: string[] = [];
   let kvar = text.trim();
@@ -173,26 +225,42 @@ export interface Snabbsval {
 const snabbsvar = (val: string[]): Snabbsval[] =>
   val.slice(0, MAX_SNABBSVAR).map((v) => ({ titel: v.length > MAX_TITEL ? `${v.slice(0, MAX_TITEL - 1).trimEnd()}…` : v, payload: v.slice(0, 900) }));
 
-/** Skickar ett svar till kunden. Snabbsvaren hamnar på sista delen. Varje utskick märks så att ekot känns igen. */
-async function skickaTillKund(igsid: string, samtalsId: string, text: string, val: Snabbsval[] = []): Promise<boolean> {
-  const delar = delaUpp(text || (val.length ? 'Välj ett alternativ:' : ''));
+/** Är Metas fönster öppet, dvs. har kunden skrivit de senaste 24 timmarna? */
+export function inomFonstret(info: Pick<Samtalsinfo, 'kundSenast'>, nu = Date.now()): boolean {
+  return typeof info.kundSenast === 'number' && nu - info.kundSenast < META_FONSTER_TIMMAR * 3600 * 1000;
+}
+
+/**
+ * Skickar ett svar till kunden. Snabbsvaren hamnar på sista delen. Varje utskick märks så att ekot känns igen.
+ * Utanför Metas 24-timmarsfönster skickas ingenting – då får kundservice ta det (de har andra regler).
+ */
+async function skickaTillKund(mal: Samtalsinfo, text: string, val: Snabbsval[] = []): Promise<boolean> {
+  const { externId: igsid, samtalsId, kanal } = mal;
+  const pf = plattform(kanal);
+  // Uppgiften kan vara läst före kundens senaste meddelande – läs om innan något stoppas.
+  if (!inomFonstret(mal) && !inomFonstret((await hamtaInfo(samtalsId)) ?? mal)) {
+    await logga(samtalsId, 'INTE skickat', `utanför Metas ${META_FONSTER_TIMMAR}-timmarsfönster: ${text.slice(0, 120)}`);
+    await markeraKraverAtgard(samtalsId, `Camilla fick inte svara – mer än ${META_FONSTER_TIMMAR} timmar sedan kunden skrev`);
+    return false;
+  }
+  const delar = delaUpp(text || (val.length ? 'Välj ett alternativ:' : ''), pf.maxByte);
   for (const [i, del] of delar.entries()) {
-    await lagring.spara(`ig:eget:${await sha(`${igsid}:${del}`)}`, 1, EGET_TTL);
+    await lagring.spara(`${pf.pre}:eget:${await sha(`${igsid}:${del}`)}`, 1, EGET_TTL);
     const sista = i === delar.length - 1;
     const meddelande: Record<string, unknown> = { text: del };
     if (sista && val.length) meddelande.quick_replies = val.map((v) => ({ content_type: 'text', title: v.titel, payload: v.payload }));
     if (LOKAL) {
       const snabb = sista ? val.map((v) => `${v.titel} → ${v.payload}`) : [];
-      lokalUtkorg.push({ till: igsid, text: del, snabbsvar: snabb });
-      console.log(`\n[lokal instagram] till ${igsid}:\n${del}${snabb.length ? `\n  snabbsvar: ${snabb.join(' | ')}` : ''}\n`);
+      lokalUtkorg.push({ till: igsid, text: del, snabbsvar: snabb, kanal, samtalsId });
+      console.log(`\n[lokal ${kanal}] till ${igsid}:\n${del}${snabb.length ? `\n  snabbsvar: ${snabb.join(' | ')}` : ''}\n`);
       continue;
     }
-    const svar = await graph('/me/messages', { recipient: { id: igsid }, message: meddelande });
+    const svar = await graph(kanal, '/me/messages', { recipient: { id: igsid }, ...(kanal === 'messenger' ? { messaging_type: 'RESPONSE' } : {}), message: meddelande });
     if (!svar.ok) {
       await logga(samtalsId, 'FEL utskick', JSON.stringify(svar.data).slice(0, 300));
       return false;
     }
-    if (typeof svar.data.message_id === 'string') await lagring.spara(`ig:eget:mid:${svar.data.message_id}`, 1, EGET_TTL);
+    if (typeof svar.data.message_id === 'string') await lagring.spara(`${pf.pre}:eget:mid:${svar.data.message_id}`, 1, EGET_TTL);
   }
   await noteraMeddelande(samtalsId, 'ai', text);
   await logga(samtalsId, 'svar skickat', `${text.slice(0, 200)}${val.length ? ` [snabbsvar: ${val.map((v) => v.titel).join(' | ')}]` : ''}`);
@@ -200,22 +268,24 @@ async function skickaTillKund(igsid: string, samtalsId: string, text: string, va
 }
 
 /** "Skriver …" medan Camilla tänker. Får aldrig stoppa något. */
-async function skriver(igsid: string): Promise<void> {
-  if (LOKAL) return;
-  await graph('/me/messages', { recipient: { id: igsid }, sender_action: 'typing_on' }).catch(() => undefined);
+async function skriver(mal: Samtalsinfo): Promise<void> {
+  if (LOKAL || !inomFonstret(mal)) return;
+  await graph(mal.kanal, '/me/messages', { recipient: { id: mal.externId }, sender_action: 'typing_on' }).catch(() => undefined);
 }
 
-/** @användarnamn för personalens skull (inkorgen, mejlen till kundservice). */
-async function hamtaAnvandarnamn(igsid: string): Promise<string> {
-  if (LOKAL) return `@test_${igsid.slice(-4)}`;
-  const t = await token();
+/** @användarnamn (Instagram) eller namnet (Messenger) för personalens skull (inkorgen, mejlen till kundservice). */
+async function hamtaAnvandarnamn(kanal: MetaKanal, igsid: string): Promise<string> {
+  if (LOKAL) return kanal === 'messenger' ? `Test ${igsid.slice(-4)}` : `@test_${igsid.slice(-4)}`;
+  const t = await token(kanal);
   if (!t) return '';
   try {
-    const svar = await fetch(`${GRAPH}/${VERSION}/${encodeURIComponent(igsid)}?fields=username,name`, {
+    const falt = kanal === 'messenger' ? 'first_name,last_name' : 'username,name';
+    const svar = await fetch(`${plattform(kanal).graph}/${VERSION}/${encodeURIComponent(igsid)}?fields=${falt}`, {
       headers: { Authorization: `Bearer ${t}` },
       signal: AbortSignal.timeout(5000),
     });
-    const d = (await svar.json().catch(() => ({}))) as { username?: string; name?: string };
+    const d = (await svar.json().catch(() => ({}))) as { username?: string; name?: string; first_name?: string; last_name?: string };
+    if (kanal === 'messenger') return [d.first_name, d.last_name].filter(Boolean).join(' ').slice(0, 80);
     return d.username ? `@${d.username}${d.name ? ` (${d.name})` : ''}` : '';
   } catch {
     return '';
@@ -234,9 +304,96 @@ export interface Inkommande {
   bilagor: string[];
 }
 
+// ─── Källa: annons, länk, story ──────────────────────────────────────────────
+
+/** Det Meta skickar med när kunden kommer från en annons eller en länk med ?ref=. */
+export interface Referral {
+  ref?: string;
+  source?: string;
+  type?: string;
+  ad_id?: string;
+  ads_context_data?: { ad_title?: string };
+}
+
+const AMNEN: [RegExp, string][] = [
+  [/flytt/, 'Flyttstädning'],
+  [/f[oö]nster|puts/, 'Fönsterputsning'],
+  [/storst[aä]d/, 'Storstädning'],
+  [/bygg/, 'Byggstädning'],
+  [/kontor|f[oö]retag/, 'Företagsstädning'],
+  [/hemst[aä]d|st[aä]dabonnemang|abonnemang|st[aä]dhj[aä]lp|veckost[aä]d/, 'Hemstädning'],
+];
+
+/** Tjänsten en annonsrubrik eller ref-kod handlar om – en av våra egna, eller ingen. */
+export function amneFor(text: string): string {
+  const t = text.toLowerCase();
+  return AMNEN.find(([m]) => m.test(t))?.[1] ?? '';
+}
+
+/** Gör om Metas referral till vår källa. Fri text (rubrik, ref) sparas rensad och når aldrig Camilla. */
+export function tolkaKalla(r: Referral | null | undefined, story = false): Kalla | null {
+  if (!r && !story) return null;
+  const ref = String(r?.ref ?? '').replace(/[^A-Za-z0-9_\-.]/g, '').slice(0, 60);
+  const annonsId = String(r?.ad_id ?? '').replace(/\D/g, '').slice(0, 30);
+  const annons = Boolean(annonsId) || String(r?.source ?? '').toUpperCase() === 'ADS';
+  if (!annons && !ref && !story) return null;
+  return {
+    typ: annons ? 'annons' : ref ? 'lank' : 'story',
+    amne: amneFor(`${r?.ads_context_data?.ad_title ?? ''} ${ref}`),
+    annonsId,
+    ref,
+    tid: Date.now(),
+  };
+}
+
+/** Sparar källan på samtalet. Den första källan gäller – en annons går ändå före en länk eller story. */
+async function noteraKalla(info: Samtalsinfo, kalla: Kalla | null): Promise<Samtalsinfo> {
+  if (!kalla || (info.kalla && !(kalla.typ === 'annons' && info.kalla.typ !== 'annons'))) return info;
+  await logga(info.samtalsId, 'källa', `${kalla.typ}${kalla.amne ? ` · ${kalla.amne}` : ''}${kalla.annonsId ? ` · annons ${kalla.annonsId}` : ''}${kalla.ref ? ` · ref ${kalla.ref}` : ''}`);
+  return (
+    (await uppdatera(info.samtalsId, (i) => {
+      i.kalla = kalla;
+      i.kallaBerattad = false;
+    })) ?? info
+  );
+}
+
+/** Det Camilla får veta om källan, en gång. Bara typ och ämne ur vår egen lista. */
+function kallaTillCamilla(k: Kalla, kanal: string): string {
+  const fran = k.typ === 'annons' ? 'en av Stodonas annonser' : k.typ === 'story' ? 'en av Stodonas stories' : 'en av Stodonas länkar';
+  return k.amne
+    ? `[Kunden kom till ${kanalNamn(kanal as MetaKanal)} från ${fran} om ${k.amne.toLowerCase()}. Knyt an till det direkt i ditt svar och erbjud dig att räkna på ett upplägg – fråga inte vilken tjänst det gäller.]`
+    : `[Kunden kom till ${kanalNamn(kanal as MetaKanal)} från ${fran}.]`;
+}
+
+const OPPNING: Record<string, string> = {
+  Hemstädning: 'Hej! Vad kul att du är intresserad av hemstädning. Vill du att jag hjälper dig räkna på ett upplägg för ditt hem?',
+  Flyttstädning: 'Hej! Vad kul att du är intresserad av flyttstädning. Vill du att jag räknar på vad det skulle kosta för din bostad?',
+  Storstädning: 'Hej! Vad kul att du är intresserad av storstädning. Vill du att jag räknar på vad det skulle kosta hemma hos dig?',
+  Fönsterputsning: 'Hej! Vad kul att du är intresserad av fönsterputs. Vill du att jag räknar på vad det skulle kosta hos dig?',
+  Företagsstädning: 'Hej! Vad kul att du är intresserad av städning till företaget. Vill du berätta lite om lokalen, så tar jag fram ett förslag?',
+  Byggstädning: 'Hej! Vad kul att du är intresserad av byggstädning. Vill du berätta lite om projektet, så tar jag fram ett förslag?',
+};
+const OPPNING_ALLMAN = 'Hej! Det är Camilla på Stodona. Vad kan jag hjälpa dig med?';
+
+/**
+ * Kunden öppnade tråden utan att skriva något (Kom igång-knappen, eller en
+ * annons som öppnar DM:en med en knapp). Det räknas som att kunden hört av
+ * sig, så Camilla får hälsa – med en öppning som passar annonsen.
+ */
+async function oppna(origin: string, info: Samtalsinfo): Promise<void> {
+  const amne = info.kalla?.amne ?? '';
+  const text = OPPNING[amne] ?? OPPNING_ALLMAN;
+  await uppdatera(info.samtalsId, (i) => (i.kallaBerattad = true));
+  // Camilla ska veta vad kunden redan fått läsa, så att hon inte hälsar en gång till.
+  const r = await camilla(origin, info, { handling: 'notering', notering: text, fran: 'oppning', amne });
+  if ('fel' in r) await logga(info.samtalsId, 'FEL notering', r.fel);
+  await skickaTillKund(info, text, amne ? snabbsvar(['Ja, räkna gärna', 'Jag har en fråga']) : []);
+}
+
 /** Meta skickar ibland samma händelse flera gånger. Varje meddelande behandlas en gång. */
-export async function forstaGangen(mid: string): Promise<boolean> {
-  return lagring.lasa(`ig:mid:${mid}`, 2 * 86400);
+export async function forstaGangen(mid: string, kanal: MetaKanal = 'instagram'): Promise<boolean> {
+  return lagring.lasa(`${plattform(kanal).pre}:mid:${mid}`, 2 * 86400);
 }
 
 /**
@@ -244,14 +401,24 @@ export async function forstaGangen(mid: string): Promise<boolean> {
  * betar av kön i tur och ordning, så att kunden aldrig får svar i fel ordning
  * eller två svar på samma sak.
  */
-export async function taEmot(origin: string, igsid: string, in_: Inkommande): Promise<void> {
-  let info = await samtalFor('instagram', igsid);
+export async function taEmot(origin: string, igsid: string, in_: Inkommande, kanal: MetaKanal = 'instagram', kalla: Kalla | null = null, bara: 'kalla' | 'oppning' | null = null): Promise<void> {
+  let info = await samtalFor(kanal, igsid);
   if (!info.visningsnamn) {
-    const namn = await hamtaAnvandarnamn(igsid);
+    const namn = await hamtaAnvandarnamn(kanal, igsid);
     if (namn) info = (await uppdatera(info.samtalsId, (i) => (i.visningsnamn = namn))) ?? info;
   }
+  info = await noteraKalla(info, kalla);
+  // Bara en källa, utan att kunden gjort något i tråden: spara den, skriv ingenting.
+  if (bara === 'kalla') return;
+  // Kundens meddelande (eller tryck på en knapp) öppnar Metas fönster.
+  info = (await uppdatera(info.samtalsId, (i) => (i.kundSenast = Date.now()))) ?? info;
+  if (bara === 'oppning') {
+    await logga(info.samtalsId, 'tråden öppnad', `${info.visningsnamn || igsid} tryckte på Kom igång`);
+    if (aiFarSvara(info)) await oppna(origin, info);
+    return;
+  }
   const beskrivning = [in_.text, ...in_.bilagor.map((b) => `[${b}]`)].filter(Boolean).join(' ');
-  await logga(info.samtalsId, 'DM mottaget', `${info.visningsnamn || igsid}: ${in_.payload?.startsWith(SYS) ? `(val ${in_.payload})` : beskrivning.slice(0, 200)}`);
+  await logga(info.samtalsId, `${kanal === 'messenger' ? 'meddelande' : 'DM'} mottaget`, `${info.visningsnamn || igsid}: ${in_.payload?.startsWith(SYS) ? `(val ${in_.payload})` : beskrivning.slice(0, 200)}`);
   await noteraMeddelande(info.samtalsId, 'kund', beskrivning);
 
   // Personalen har samtalet: Camilla håller tyst men får veta vad kunden skrev.
@@ -262,7 +429,7 @@ export async function taEmot(origin: string, igsid: string, in_: Inkommande): Pr
     // Camilla lämnade över och ingen har svarat än: kunden får veta en gång att ärendet ligger hos kundservice.
     if (info.pausAv === 'ai' && !info.pausbesked) {
       await uppdatera(info.samtalsId, (i) => (i.pausbesked = true));
-      await skickaTillKund(igsid, info.samtalsId, 'Tack! Kundservice har ditt ärende och svarar dig här så snart de kan.');
+      await skickaTillKund(info, 'Tack! Kundservice har ditt ärende och svarar dig här så snart de kan.');
     }
     return;
   }
@@ -332,7 +499,7 @@ async function behandla(origin: string, samtalsId: string, in_: Inkommande): Pro
   // Systemval från snabbsvaren.
   if (payload.startsWith(`${SYS}BEKRAFTA:`)) return bekrafta(origin, info, payload.slice(`${SYS}BEKRAFTA:`.length));
   if (payload.startsWith(`${SYS}KONTO:`)) {
-    if (info.identifiering?.steg !== 'konto') return skickaTillKund(info.externId, samtalsId, 'Valet har gått ut. Vill du att jag skickar en ny kod?').then(() => undefined);
+    if (info.identifiering?.steg !== 'konto') return skickaTillKund(info, 'Valet har gått ut. Vill du att jag skickar en ny kod?').then(() => undefined);
     return inloggad(origin, info, await valjSmsKonto(samtalsId, payload.slice(`${SYS}KONTO:`.length)));
   }
 
@@ -351,18 +518,23 @@ async function behandla(origin: string, samtalsId: string, in_: Inkommande): Pro
 
   // Allt annat går till Camilla. Ett nytt meddelande gör en väntande sammanfattning inaktuell.
   if (info.vantandeForslag) info = (await uppdatera(samtalsId, (i) => (i.vantandeForslag = null))) ?? info;
-  const text = [payload || in_.text, ...in_.bilagor.map((b) => `[Kunden skickade ${b} i Instagram. Du kan inte se den, men den finns kvar i tråden för kundservice.]`)]
+  let text = [payload || in_.text, ...in_.bilagor.map((b) => `[Kunden skickade ${b} i ${kanalNamn(info.kanal)}. Du kan inte se den, men den finns kvar i tråden för kundservice.]`)]
     .filter(Boolean)
     .join('\n');
   if (!text) return;
-  await skriver(info.externId);
+  // Första meddelandet efter en annons eller länk: Camilla får veta varifrån kunden kom.
+  if (info.kalla && !info.kallaBerattad) {
+    text = `${kallaTillCamilla(info.kalla, info.kanal)}\n${text}`;
+    info = (await uppdatera(samtalsId, (i) => (i.kallaBerattad = true))) ?? info;
+  }
+  await skriver(info);
   await levereraCamilla(origin, info, await camilla(origin, info, { message: text }));
 }
 
 /** Tar hand om ett steg i identifieringen. Returnerar false om kunden pratar om något annat – då går meddelandet till Camilla. */
 async function identifieringssteg(origin: string, info: Samtalsinfo, text: string): Promise<boolean> {
   const steg = info.identifiering!.steg;
-  const skicka = (t: string, val: Snabbsval[] = []) => skickaTillKund(info.externId, info.samtalsId, t, val);
+  const skicka = (t: string, val: Snabbsval[] = []) => skickaTillKund(info, t, val);
   const kompakt = text.replace(/[\s\-().]/g, '');
   const nummer = kompakt.match(/(?:\+46|0046|46|0)7\d{8}/)?.[0] ?? null;
   const avbryt = /^\s*(avbryt|nej|nej tack|strunt|glöm det)\b/i.test(text);
@@ -373,7 +545,7 @@ async function identifieringssteg(origin: string, info: Samtalsinfo, text: strin
   }
 
   if (nummer && mobilnummer(nummer)) {
-    const svar = await skickaKod(info.samtalsId, nummer, `instagram:${info.externId}`, origin, 'instagram');
+    const svar = await skickaKod(info.samtalsId, nummer, `${info.kanal}:${info.externId}`, origin, info.kanal === 'messenger' ? 'messenger' : 'instagram');
     if ('fel' in svar) {
       await logga(info.samtalsId, 'identifiering', `kod kunde inte skickas: ${svar.fel}`);
       await skicka(svar.fel);
@@ -406,7 +578,7 @@ async function identifieringssteg(origin: string, info: Samtalsinfo, text: strin
 
 /** Resultatet av koden eller kontovalet. När kunden är inloggad fortsätter Camilla med ärendet. */
 async function inloggad(origin: string, info: Samtalsinfo, svar: SmsInloggning): Promise<void> {
-  const skicka = (t: string, val: Snabbsval[] = []) => skickaTillKund(info.externId, info.samtalsId, t, val);
+  const skicka = (t: string, val: Snabbsval[] = []) => skickaTillKund(info, t, val);
   if ('fel' in svar) {
     await logga(info.samtalsId, 'identifiering', `misslyckad: ${svar.fel}`);
     if (/ny kod/i.test(svar.fel)) {
@@ -431,55 +603,57 @@ async function inloggad(origin: string, info: Samtalsinfo, svar: SmsInloggning):
     i.kund = { nummer: svar.kundnummer, namn: svar.namn };
   });
   await logga(info.samtalsId, 'kund identifierad', `kundnummer ${svar.kundnummer}`);
-  await skriver(info.externId);
+  await skriver(info);
   // Samma mening som widgeten skickar – Camilla hämtar bokningarna och fortsätter ärendet.
   await levereraCamilla(origin, nu ?? info, await camilla(origin, nu ?? info, { message: 'Jag har legitimerat mig nu.' }));
 }
 
-/** Kunden bekräftade ombokningen. Ändringen görs av samma kod som webbchattens knapp. */
+/** Kunden bekräftade ombokningen eller avbokningen. Ändringen görs av samma kod som webbchattens knapp. */
 async function bekrafta(origin: string, info: Samtalsinfo, forslagId: string): Promise<void> {
-  if (!/^OF-[A-Z0-9]{8}$/.test(forslagId)) return;
+  if (!/^(OF|AV)-[A-Z0-9]{8}$/.test(forslagId)) return;
+  const vad = forslagId.startsWith('AV-') ? 'avbokning' : 'ombokning';
+  const Vad = vad === 'avbokning' ? 'Avbokning' : 'Ombokning';
   await uppdatera(info.samtalsId, (i) => (i.vantandeForslag = null));
   await logga(info.samtalsId, 'kunden bekräftade', forslagId);
-  await skriver(info.externId);
+  await skriver(info);
   const r = await camilla(origin, info, { handling: 'bekrafta', forslagId });
   if ('fel' in r) {
     // Ingen falsk bekräftelse: utan svar från systemet vet vi inte om något ändrats.
-    await logga(info.samtalsId, 'FEL ombokning', `${r.status} ${r.fel}`);
-    await markeraKraverAtgard(info.samtalsId, `Ombokning ${forslagId}: inget svar från systemet – kontrollera i TimeWave`);
-    await skickaTillKund(info.externId, info.samtalsId, 'Jag fick inget besked från bokningssystemet, så jag kan inte lova att ändringen gick igenom. En kollega kontrollerar det och återkommer här.');
+    await logga(info.samtalsId, `FEL ${vad}`, `${r.status} ${r.fel}`);
+    await markeraKraverAtgard(info.samtalsId, `${Vad} ${forslagId}: inget svar från systemet – kontrollera i TimeWave`);
+    await skickaTillKund(info, 'Jag fick inget besked från bokningssystemet, så jag kan inte lova att ändringen gick igenom. En kollega kontrollerar det och återkommer här.');
     return;
   }
   let resultat: Bekraftelse;
   try {
     resultat = JSON.parse(r.text) as Bekraftelse;
   } catch {
-    await logga(info.samtalsId, 'FEL ombokning', 'oläsbart svar');
+    await logga(info.samtalsId, `FEL ${vad}`, 'oläsbart svar');
     return;
   }
-  await logga(info.samtalsId, 'ombokning', `${forslagId}: ${resultat.utfall}`);
+  await logga(info.samtalsId, vad, `${forslagId}: ${resultat.utfall}`);
   if (resultat.utfall !== 'SUCCESS' && resultat.utfall !== 'OGILTIGT_FORSLAG' && resultat.utfall !== 'UTGANGET' && resultat.utfall !== 'PAGAR_REDAN') {
-    await markeraKraverAtgard(info.samtalsId, `Ombokning ${forslagId} gick inte igenom (${resultat.utfall})`);
+    await markeraKraverAtgard(info.samtalsId, `${Vad} ${forslagId} gick inte igenom (${resultat.utfall})`);
   }
   await leverera(origin, info, resultat.text);
   if (resultat.fortsatt) {
-    await skriver(info.externId);
+    await skriver(info);
     await levereraCamilla(origin, (await hamtaInfo(info.samtalsId)) ?? info, await camilla(origin, info, { message: resultat.fortsatt }));
   }
 }
 
-// ─── Camillas svar till Instagram ────────────────────────────────────────────
+// ─── Camillas svar till kanalen ──────────────────────────────────────────────
 
 async function levereraCamilla(origin: string, info: Samtalsinfo, svar: CamillaSvar): Promise<void> {
   if ('fel' in svar) {
     await logga(info.samtalsId, 'FEL Camilla', `${svar.status} ${svar.fel}`);
     if (svar.status === 503) return; // chatten är avstängd – personalen svarar som vanligt
     if (svar.status === 429) {
-      await skickaTillKund(info.externId, info.samtalsId, svar.fel);
+      await skickaTillKund(info, svar.fel);
       return;
     }
     await markeraKraverAtgard(info.samtalsId, 'Camilla kunde inte svara');
-    await skickaTillKund(info.externId, info.samtalsId, 'Jag kan tyvärr inte svara just nu. En kollega tittar på ditt meddelande och återkommer här.');
+    await skickaTillKund(info, 'Jag kan tyvärr inte svara just nu. En kollega tittar på ditt meddelande och återkommer här.');
     return;
   }
   await leverera(origin, info, svar.text);
@@ -500,7 +674,7 @@ async function leverera(origin: string, info: Samtalsinfo, radtext: string): Pro
     await uppdatera(info.samtalsId, (i) => (i.identifiering = { steg: 'telefon', sedan: Date.now() }));
     await logga(info.samtalsId, 'identifiering', 'Camilla bad kunden identifiera sig');
     const fraga = 'Skriv mobilnumret som du har registrerat hos oss, så skickar jag en kod med SMS.';
-    await skickaTillKund(info.externId, info.samtalsId, t.text ? `${t.text}\n\n${fraga}` : fraga);
+    await skickaTillKund(info, t.text ? `${t.text}\n\n${fraga}` : fraga);
     return;
   }
 
@@ -508,39 +682,42 @@ async function leverera(origin: string, info: Samtalsinfo, radtext: string): Pro
     const kort = await hamtaKortet(origin, info, t.bekrafta);
     if (!kort || kort.status !== 'vantar') {
       await logga(info.samtalsId, 'FEL sammanfattning', `${t.bekrafta} gick inte att hämta`);
-      await skickaTillKund(info.externId, info.samtalsId, 'Sammanfattningen gick inte att ta fram just nu, så ingenting är ändrat. Vill du att jag hämtar tiderna igen?', snabbsvar(['Ja, visa tiderna igen', 'Nej tack']));
+      await skickaTillKund(info, 'Sammanfattningen gick inte att ta fram just nu, så ingenting är ändrat. Vill du att jag hämtar tiderna igen?', snabbsvar(['Ja, visa tiderna igen', 'Nej tack']));
       return;
     }
     await uppdatera(info.samtalsId, (i) => (i.vantandeForslag = kort.id));
-    await logga(info.samtalsId, 'sammanfattning visad', `${kort.id}: ${kort.fore.datum} ${kort.fore.tid} → ${kort.efter.datum} ${kort.efter.tid}, avgift ${kort.avgiftKr} kr`);
-    if (t.text) await skickaTillKund(info.externId, info.samtalsId, t.text);
-    await skickaTillKund(info.externId, info.samtalsId, kortText(kort), [
-      { titel: 'Bekräfta ombokning', payload: `${SYS}BEKRAFTA:${kort.id}` },
+    const avbokning = 'typ' in kort && kort.typ === 'avbokning';
+    await logga(info.samtalsId, 'sammanfattning visad', `${kort.id}: ${kort.fore.datum} ${kort.fore.tid} → ${'efter' in kort ? `${kort.efter.datum} ${kort.efter.tid}` : 'avbokas'}, avgift ${kort.avgiftKr} kr`);
+    if (t.text) await skickaTillKund(info, t.text);
+    await skickaTillKund(info, kortText(kort), [
+      { titel: avbokning ? 'Bekräfta avbokning' : 'Bekräfta ombokning', payload: `${SYS}BEKRAFTA:${kort.id}` },
       { titel: 'Avbryt', payload: 'Avbryt – jag behåller min nuvarande bokning.' },
     ]);
     return;
   }
 
-  await skickaTillKund(info.externId, info.samtalsId, t.text, snabbsvar(t.val));
+  await skickaTillKund(info, t.text, snabbsvar(t.val));
 }
 
-async function hamtaKortet(origin: string, info: Samtalsinfo, forslagId: string): Promise<Kort | null> {
+async function hamtaKortet(origin: string, info: Samtalsinfo, forslagId: string): Promise<Kort | Avbokningskort | null> {
   const r = await camilla(origin, info, { handling: 'kort', forslagId });
   if ('fel' in r) return null;
   try {
-    return JSON.parse(r.text) as Kort;
+    return JSON.parse(r.text) as Kort | Avbokningskort;
   } catch {
     return null;
   }
 }
 
 /** Samma uppgifter som kortet i webbchatten – ur servern, aldrig ur det modellen skrivit. */
-function kortText(k: Kort): string {
+function kortText(k: Kort | Avbokningskort): string {
   return [
-    `Nu: ${k.fore.datum} kl. ${k.fore.tid} med ${k.fore.stadare}`,
-    `Ny tid: ${k.efter.datum} kl. ${k.efter.tid} med ${k.efter.stadare}${k.byteAvStadare ? ' (annan städare)' : ''}`,
+    ...('efter' in k
+      ? [`Nu: ${k.fore.datum} kl. ${k.fore.tid} med ${k.fore.stadare}`, `Ny tid: ${k.efter.datum} kl. ${k.efter.tid} med ${k.efter.stadare}${k.byteAvStadare ? ' (annan städare)' : ''}`]
+      : [`Avbokas: ${k.tjanst} ${k.fore.datum} kl. ${k.fore.tid} med ${k.fore.stadare}`]),
     k.bara_detta_tillfalle ? 'Gäller bara det här tillfället – dina andra städningar ligger kvar.' : '',
-    k.avgiftText,
+    // Ingen avgift: raden visas inte alls (samma som i webbchatten).
+    k.avgiftKr > 0 ? k.avgiftText : '',
     k.lasläge ? '(Testläge – ingenting ändras i bokningssystemet.)' : '',
     'Sammanfattningen gäller i 10 minuter.',
   ]
@@ -554,12 +731,13 @@ function kortText(k: Kort): string {
  * Ett meddelande som Stodonas konto skickat (eko). Är det inte Camillas eget
  * har en människa svarat: Camilla pausas i samtalet och får veta vad som sagts.
  */
-export async function taEmotEko(origin: string, kundId: string, mid: string, text: string): Promise<void> {
-  if (await lagring.hamta(`ig:eget:mid:${mid}`)) return;
-  if (text && (await lagring.hamta(`ig:eget:${await sha(`${kundId}:${text}`)}`))) return;
+export async function taEmotEko(origin: string, kundId: string, mid: string, text: string, kanal: MetaKanal = 'instagram'): Promise<void> {
+  const pre = plattform(kanal).pre;
+  if (await lagring.hamta(`${pre}:eget:mid:${mid}`)) return;
+  if (text && (await lagring.hamta(`${pre}:eget:${await sha(`${kundId}:${text}`)}`))) return;
 
-  const info = await samtalFor('instagram', kundId);
-  await taOver(info.samtalsId, 'Kundservice svarade i Instagram', PAUS_EFTER_PERSONAL_TIMMAR);
+  const info = await samtalFor(kanal, kundId);
+  await taOver(info.samtalsId, `Kundservice svarade i ${kanalNamn(kanal)}`, PAUS_EFTER_PERSONAL_TIMMAR);
   await uppdatera(info.samtalsId, (i) => {
     i.identifiering = null;
     i.vantandeForslag = null;
@@ -569,4 +747,92 @@ export async function taEmotEko(origin: string, kundId: string, mid: string, tex
     const r = await camilla(origin, info, { handling: 'notering', notering: text, fran: 'personal' });
     if ('fel' in r) await logga(info.samtalsId, 'FEL notering', r.fel);
   }
+}
+
+// ─── Metas händelser (gemensamt för api/instagram.ts och api/messenger.ts) ───
+
+export interface Handelse {
+  sender?: { id?: string };
+  recipient?: { id?: string };
+  message?: {
+    mid?: string;
+    text?: string;
+    is_echo?: boolean;
+    is_deleted?: boolean;
+    is_unsupported?: boolean;
+    quick_reply?: { payload?: string };
+    attachments?: { type?: string }[];
+    reply_to?: { story?: unknown };
+    referral?: Referral;
+  };
+  postback?: { mid?: string; title?: string; payload?: string; referral?: Referral };
+  /** Kunden kom in i en befintlig tråd via en annons eller länk (Messenger). */
+  referral?: Referral;
+}
+
+const BILAGA: Record<string, string> = {
+  image: 'en bild',
+  video: 'en video',
+  audio: 'ett röstmeddelande',
+  file: 'en fil',
+  share: 'ett delat inlägg',
+  story_mention: 'en story där Stodona nämns',
+  ig_reel: 'en reel',
+  reel: 'en reel',
+  location: 'en plats',
+  fallback: 'en länk',
+};
+
+/** Knappen "Kom igång" i Messenger och Instagram (payloaden bestäms i Metas inställningar). */
+const KOM_IGANG = /^(get_started|kom_igang|start)$/i;
+
+export async function hanteraHandelse(origin: string, kanal: MetaKanal, h: Handelse): Promise<void> {
+  const lage = kanalLage(kanal);
+  const m = h.message;
+
+  // Stodonas eget konto har skickat något: Camilla själv, eller personalen.
+  if (m?.is_echo) {
+    const kund = h.recipient?.id;
+    if (!m.mid || !kund || lage === 'av' || (lage === 'test' && !arTestare(kund, kanal))) return;
+    if (!(await forstaGangen(m.mid, kanal))) return;
+    await taEmotEko(origin, kund, m.mid, (m.text ?? '').slice(0, 1500), kanal);
+    return;
+  }
+
+  const id = h.sender?.id;
+  if (!id || lage === 'av' || m?.is_deleted || m?.is_unsupported) return;
+  if (lage === 'test' && !arTestare(id, kanal)) {
+    // Id:t syns i Vercels logg – så hittar man sitt eget för IG_TESTARE / FB_TESTARE.
+    console.log(`${kanal}: meddelande från ${id} – inte testare, Camilla svarar inte`);
+    return;
+  }
+
+  const kalla = tolkaKalla(m?.referral ?? h.postback?.referral ?? h.referral, Boolean(m?.reply_to?.story));
+  const tom: Inkommande = { mid: '', text: '', payload: null, bilagor: [] };
+
+  // Bara en källa (kunden klickade på en annons eller länk men har inte skrivit): spara, skriv inget.
+  if (!m && !h.postback) {
+    if (kalla) await taEmot(origin, id, tom, kanal, kalla, 'kalla');
+    return;
+  }
+
+  const mid = m?.mid ?? h.postback?.mid ?? `pb-${id}-${Math.floor(Date.now() / 5000)}`;
+  if (!(await forstaGangen(mid, kanal))) return;
+
+  // "Kom igång": kunden har öppnat tråden men inte skrivit något än.
+  if (h.postback && KOM_IGANG.test(h.postback.payload ?? '')) {
+    await taEmot(origin, id, { ...tom, mid }, kanal, kalla, 'oppning');
+    return;
+  }
+
+  const bilagor = (m?.attachments ?? []).map((a) => BILAGA[a.type ?? ''] ?? 'en bilaga');
+  if (m?.reply_to?.story) bilagor.push('ett svar på en av Stodonas stories');
+  const in_: Inkommande = {
+    mid,
+    text: (m?.text ?? h.postback?.title ?? '').slice(0, 1200),
+    payload: m?.quick_reply?.payload ?? h.postback?.payload ?? null,
+    bilagor,
+  };
+  if (!in_.text && !in_.payload && !in_.bilagor.length) return;
+  await taEmot(origin, id, in_, kanal, kalla);
 }

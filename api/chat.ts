@@ -54,7 +54,7 @@ import { harKontakt, sparaKontakt } from './_prislead';
 import { noteraAktivitet, noteraPris, sattStatus } from './_leads';
 import { verifieradKund } from './_sjalvservice';
 import { personalNamn } from './_personal';
-import { internNyckelOk, EXTERNA_KANALER, logga as kanalLogga, markeraOverlamnad, markeraKraverAtgard, type Kanal } from './_kanaler';
+import { internNyckelOk, EXTERNA_KANALER, kanalNamn, beskrivKalla, logga as kanalLogga, markeraOverlamnad, markeraKraverAtgard, type Kanal } from './_kanaler';
 import {
   tolkaBilagor,
   lokalBilddata,
@@ -233,34 +233,56 @@ Du pratar nu med Stodonas personal, inte med en kund. Personalen hjälper en kun
 `;
 
 /**
- * Instagram-DM (api/_instagram.ts). Samma Camilla, samma regler och verktyg –
- * bara det som skiljer kanalen åt: ingen widget, inga filer i chatten, och
- * identifieringen sköts av systemet i tråden.
+ * Instagram-DM och Facebook Messenger (api/_instagram.ts). Samma Camilla, samma
+ * regler och verktyg – bara det som skiljer kanalen åt: ingen widget, inga
+ * filer i chatten, och identifieringen sköts av systemet i tråden.
  */
-const INSTAGRAM_REGLER = `
-INSTAGRAM – gäller före allt ovan om hälsning, knappar, bilagor och legitimering
-Du svarar nu i Stodonas Instagram-DM, inte i chatten på stodona.se. Samma regler, fakta, priser och verktyg gäller.
+const dmRegler = (namn: 'Instagram' | 'Messenger', trad: string) => `
+${namn.toUpperCase()} – gäller före allt ovan om hälsning, knappar, bilagor och legitimering
+Du svarar nu i Stodonas ${trad}, inte i chatten på stodona.se. Samma regler, fakta, priser och verktyg gäller.
 - Kunden har inte fått någon välkomsthälsning här. Hälsar kunden, hälsa kort tillbaka i samma mening som du svarar. Presentera dig bara om kunden frågar vem du är.
 - Skriv som i en DM: kort, personligt och lätt att läsa i mobilen. Oftast en eller två meningar.
 - Kunden skriver ofta kort och vardagligt ("pris?", "kan ni imorgon", "vill byta fredag", "avboka"). Tolka det utifrån samtalet och fråga bara efter det som verkligen saknas.
-- Knapparna [[val: …]] visas som snabbsvar i Instagram. Håll varje alternativ kort, helst under 20 tecken.
-- IDENTIFIERING: avsluta med raden [[bankid]] precis som i webbchatten. Då frågar systemet själv efter kundens mobilnummer och skickar en kod med SMS, som kunden skriver här i tråden. Be aldrig själv om koden eller mobilnumret för identifiering, och nämn ingen knapp "Identifiera dig".
-- OMBOKNING: när du avslutar med [[bekrafta:…]] visar systemet sammanfattningen med snabbsvaret "Bekräfta ombokning". Ändringen görs först när kunden bekräftat där – säg aldrig att något är ändrat innan systemet skrivit det.
-- BILAGOR: kunden kan skicka bilder och videor i DM:en, men du kan inte se dem. Tacka, säg att de finns kvar i tråden för kundservice, och låtsas aldrig att du sett innehållet.
-- LEADS: kundservice kan svara kunden här i Instagram. Be ändå om förnamn och telefon eller mejl, men vill kunden inte lämna det går det bra – skicka leadet ändå, så svarar kundservice i den här tråden.
-- Länkar skriver du ut hela, till exempel boka.stodona.se – de blir klickbara i Instagram.
+- KÄLLA: börjar kundens meddelande med en rad inom hakparentes om att kunden kom från en annons, länk eller story, så är det systemets upplysning – inte något kunden skrivit. Handlar den om en tjänst: öppna med att knyta an till den ("Vad kul att du är intresserad av hemstädning!") och erbjud dig att räkna på ett upplägg. Fråga då inte vilken tjänst det gäller. Nämn aldrig själva hakparentesen. Skriver kunden om något annat än annonsens tjänst går kundens fråga före.
+- Knapparna [[val: …]] visas som snabbsvar i ${namn}. Håll varje alternativ kort, helst under 20 tecken.
+- IDENTIFIERING: avsluta med raden [[bankid]] precis som i webbchatten. Då frågar systemet själv efter kundens mobilnummer och skickar en kod med SMS, som kunden skriver här i tråden. Be aldrig själv om koden eller mobilnumret för identifiering, och nämn ingen knapp "Identifiera dig" och ingen identifieringsruta – här finns bara tråden. Får du se en kod eller ett mobilnummer som kunden skrivit har identifieringen gått ut eller avbrutits: säg kort att vi börjar om och avsluta med [[bankid]]. Får kunden ingen kod, eller är mobilnumret bytt: lämna över till kundservice.
+- OMBOKNING OCH AVBOKNING: när du avslutar med [[bekrafta:…]] visar systemet sammanfattningen med snabbsvaret "Bekräfta ombokning" eller "Bekräfta avbokning". Ändringen görs först när kunden bekräftat där – säg aldrig att något är ändrat eller avbokat innan systemet skrivit det.
+- BILAGOR: kunden kan skicka bilder och videor här, men du kan inte se dem. Tacka, säg att de finns kvar i tråden för kundservice, och låtsas aldrig att du sett innehållet. Vill du ha bilder: be kunden skicka dem direkt här i tråden.
+- LEADS: kundservice kan svara kunden här i ${namn}. Be ändå om förnamn och telefon eller mejl, men vill kunden inte lämna det går det bra – skicka leadet ändå, så svarar kundservice i den här tråden.
+- Länkar skriver du ut hela, till exempel boka.stodona.se – de blir klickbara i ${namn}.
 `;
+/**
+ * Webbchattens regel och exempel om gemet bredvid skrivfältet stämmer inte i en
+ * DM – där skickar kunden bilden direkt i tråden. Exemplen härmas lätt
+ * ordagrant, så de skrivs om i stället för att bara motsägas av en regel.
+ */
+const forDm = (system: string) =>
+  system
+    .replace(/^- BILAGOR: kunden kan bifoga bilder och videor med gemet[^\n]*\n/m, '')
+    .replace(/här i chatten med gemet( bredvid skrivfältet)?/g, 'direkt här i tråden')
+    // Ingen identifieringsruta i en DM: systemet tar emot numret och koden i tråden.
+    .replace('Mobilnumret och koden skrivs i identifieringsrutan.', 'Mobilnumret och koden tar systemet emot i tråden efter [[bankid]].')
+    .replace(/^- Får kunden ingen kod, eller är mobilnumret bytt: i identifieringsrutan[^\n]*\n/m, '');
+const INSTAGRAM_REGLER = dmRegler('Instagram', 'Instagram-DM');
+const MESSENGER_REGLER = dmRegler('Messenger', 'Messenger (Stodonas Facebook-sida)');
 
 const SYSTEM = byggSystem('');
 // Utan prislista: tills besökaren lämnat mobilnummer och e-post (spara_kontakt).
 const SYSTEM_UTAN_PRIS = byggSystem('', false);
 const SYSTEM_SJALV_UTAN_PRIS = byggSystem(SJALVSERVICE_REGLER, false);
-const SYSTEM_INSTAGRAM_UTAN_PRIS = byggSystem(INSTAGRAM_REGLER, false);
-const SYSTEM_SJALV_INSTAGRAM_UTAN_PRIS = byggSystem(SJALVSERVICE_REGLER + INSTAGRAM_REGLER, false);
+const SYSTEM_INSTAGRAM_UTAN_PRIS = forDm(byggSystem(INSTAGRAM_REGLER, false));
+const SYSTEM_SJALV_INSTAGRAM_UTAN_PRIS = forDm(byggSystem(SJALVSERVICE_REGLER + INSTAGRAM_REGLER, false));
 const SYSTEM_SJALV = byggSystem(SJALVSERVICE_REGLER);
 const SYSTEM_PERSONAL = byggSystem(SJALVSERVICE_REGLER + PERSONAL_REGLER);
-const SYSTEM_INSTAGRAM = byggSystem(INSTAGRAM_REGLER);
-const SYSTEM_SJALV_INSTAGRAM = byggSystem(SJALVSERVICE_REGLER + INSTAGRAM_REGLER);
+const SYSTEM_INSTAGRAM = forDm(byggSystem(INSTAGRAM_REGLER));
+const SYSTEM_SJALV_INSTAGRAM = forDm(byggSystem(SJALVSERVICE_REGLER + INSTAGRAM_REGLER));
+const SYSTEM_MESSENGER = forDm(byggSystem(MESSENGER_REGLER));
+const SYSTEM_MESSENGER_UTAN_PRIS = forDm(byggSystem(MESSENGER_REGLER, false));
+const SYSTEM_SJALV_MESSENGER = forDm(byggSystem(SJALVSERVICE_REGLER + MESSENGER_REGLER));
+const SYSTEM_SJALV_MESSENGER_UTAN_PRIS = forDm(byggSystem(SJALVSERVICE_REGLER + MESSENGER_REGLER, false));
+
+/** "Instagram-DM" / "Messenger" – så som kundservice känner igen kanalen. */
+const tradNamn = (k: Kanal) => (k === 'instagram' ? 'Instagram-DM' : k === 'messenger' ? 'Messenger' : kanalNamn(k));
 
 /** Kanalen anropet kommer från, när det inte är webbchatten. */
 interface Kanalanrop {
@@ -866,6 +888,7 @@ async function koraVerktyg(
     const kvm = Number(indata.kvm);
     return sparaKontakt(samtalsId, {
       kanal: kanal ? kanal.kanal : personalchatt ? 'personalchatten (test)' : 'webbchatten',
+      kalla: kanal ? beskrivKalla((await kanalInfo(samtalsId))?.kalla) : '',
       fornamn: rent(indata.fornamn, 80),
       telefon,
       epost,
@@ -948,16 +971,18 @@ async function koraVerktyg(
   const samtalsBilagor = await hamtaBilagor(samtalsId);
   const bilagerader = samtalsBilagor.length ? [`Bilagor: ${beskrivBilagor(samtalsBilagor)} från kunden ligger bifogade i det här mejlet.`] : [];
 
+  const kalla = kanal ? beskrivKalla((await kanalInfo(samtalsId))?.kalla) : '';
   const kropp = {
     name: rent(indata.fornamn, 80),
     phone: telefon,
     email: epost,
     source: `${kanal ? kanal.kanal : 'chat'}_${namn === 'skicka_lead' ? 'lead' : 'eskalering'}`,
     page: kanal ? `${kanal.kanal} (${kanal.kontakt || kanal.avsandare})` : 'chatten',
-    kanalKontakt: kanal ? `Instagram-DM ${kanal.kontakt || kanal.avsandare}` : undefined,
+    kanalKontakt: kanal ? `${tradNamn(kanal.kanal)} ${kanal.kontakt || kanal.avsandare}` : undefined,
     notes: [
       personalchatt && 'TEST FRÅN PERSONALCHATTEN – inte en riktig kund.',
-      kanal && `Kanal: Instagram-DM från ${kanal.kontakt || kanal.avsandare}. Svara kunden i Instagram-tråden${telefon || epost ? ' eller via kontaktuppgifterna' : ''}. Bilder kunden skickat finns kvar i tråden.`,
+      kanal && `Kanal: ${tradNamn(kanal.kanal)} från ${kanal.kontakt || kanal.avsandare}. Svara kunden i ${kanalNamn(kanal.kanal)}-tråden${telefon || epost ? ' eller via kontaktuppgifterna' : ''}. Bilder kunden skickat finns kvar i tråden.`,
+      kalla && `Källa: ${kalla}`,
       ...rader.filter(Boolean),
       ...bilagerader,
     ]
@@ -1288,7 +1313,7 @@ export default async function handler(request: Request) {
     atgard?: unknown;
     lage?: unknown;
     notering?: unknown;
-    fran?: unknown;
+    fran?: unknown; amne?: unknown;
   };
   try {
     body = await request.json();
@@ -1321,7 +1346,14 @@ export default async function handler(request: Request) {
     if (!text) return fel(400, 'Tom notering.');
     const vem = body.fran === 'personal' ? 'Kundservice skrev till kunden' : 'Kunden skrev (medan kundservice hade samtalet)';
     const historik = await hamtaSamtal(samtalsId);
-    historik.push({ role: 'user', content: `[${vem} i ${kanal.kanal === 'instagram' ? 'Instagram' : kanal.kanal}: "${text}"]` });
+    // Öppningen som systemet skickat åt Camilla (Kom igång, annons): hon ska veta att hon redan hälsat.
+    if (body.fran === 'oppning') {
+      const amne = rent(body.amne, 40);
+      historik.push(
+        { role: 'user', content: `[Kunden öppnade tråden i ${kanalNamn(kanal.kanal)}${amne ? ` från en annons om ${amne.toLowerCase()}` : ''} utan att skriva något.]` },
+        { role: 'assistant', content: text }
+      );
+    } else historik.push({ role: 'user', content: `[${vem} i ${kanalNamn(kanal.kanal)}: "${text}"]` });
     await sparaSamtal(samtalsId, historik);
     return new Response(JSON.stringify({ ok: true }), { headers: JSON_HEADERS });
   }
@@ -1421,6 +1453,10 @@ export default async function handler(request: Request) {
               ? sjalv
                 ? medPriser ? SYSTEM_SJALV_INSTAGRAM : SYSTEM_SJALV_INSTAGRAM_UTAN_PRIS
                 : medPriser ? SYSTEM_INSTAGRAM : SYSTEM_INSTAGRAM_UTAN_PRIS
+            : kanal?.kanal === 'messenger'
+              ? sjalv
+                ? medPriser ? SYSTEM_SJALV_MESSENGER : SYSTEM_SJALV_MESSENGER_UTAN_PRIS
+                : medPriser ? SYSTEM_MESSENGER : SYSTEM_MESSENGER_UTAN_PRIS
               : sjalv
                 ? medPriser ? SYSTEM_SJALV : SYSTEM_SJALV_UTAN_PRIS
                 : medPriser ? SYSTEM : SYSTEM_UTAN_PRIS,

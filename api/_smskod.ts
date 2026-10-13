@@ -175,7 +175,7 @@ export async function skickaKod(
   ip: string,
   origin: string,
   /** Var kunden skriver in koden – styr bara texten i SMS:et. */
-  kanal: 'webb' | 'instagram' = 'webb'
+  kanal: 'webb' | 'instagram' | 'messenger' = 'webb'
 ): Promise<{ ok: true; meddelande: string } | { fel: string }> {
   // Kunden kan skriva sin e-postadress i stället för mobilnumret.
   const epost = text.includes('@') ? epostadress(text) : null;
@@ -209,6 +209,8 @@ export async function skickaKod(
   const smstext =
     kanal === 'instagram'
       ? `${kod} är din kod till Stodonas chatt på Instagram. Skriv den bara i din DM-tråd med Stodona. Den gäller i 10 minuter.`
+      : kanal === 'messenger'
+      ? `${kod} är din kod till Stodonas chatt i Messenger. Skriv den bara i din tråd med Stodona. Den gäller i 10 minuter.`
       : `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter. Dela den aldrig – Stodona frågar aldrig efter den.`;
   const skickat = epost
     ? await skickaMejl(epost, `${kod} är din kod till Stodonas chatt`, `${kod} är din kod till Stodonas chatt. Den gäller i 10 minuter.\n\nDela den aldrig – Stodona frågar aldrig efter den. Har du inte bett om någon kod kan du bortse från det här mejlet.\n\nHälsningar\nStodona`)

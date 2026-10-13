@@ -8,6 +8,8 @@
 // KV, så att de kan visas någon annanstans senare.
 
 import * as lagring from './_lagring';
+import { skapaLead } from './_leads';
+import { mobilnummer } from './_smskod';
 
 const LOKAL = process.env.STODONA_LOKAL === 'true';
 const TILL = process.env.PRISLEAD_TILL || 'mikaela.wigert@stodona.se';
@@ -71,6 +73,14 @@ export async function sparaKontakt(samtalsId: string, lead: Omit<Prislead, 'tid'
   const tidigare = await lagring.hamta<Prislead>(nyckel).catch(() => null);
   const post: Prislead = { ...lead, tid: new Date().toISOString(), samtalsId };
   await lagring.spara(nyckel, post, KONTAKT_TTL);
+  // Leadet med status och uppföljning (api/_leads.ts). Personalens tester blir inga leads,
+  // och SMS-uppföljning förutsätter ett svenskt mobilnummer.
+  if (!lead.kanal.startsWith('personalchatten')) {
+    const mobil = mobilnummer(lead.telefon);
+    await skapaLead(samtalsId, { kanal: lead.kanal, fornamn: lead.fornamn, telefon: mobil ?? lead.telefon, epost: lead.epost, tjanst: lead.tjanst, kvm: lead.kvm, behov: lead.behov, samtycke: Boolean(mobil) }).catch((fel) =>
+      console.error('prislead: leadet kunde inte sparas', fel)
+    );
+  }
   if (!tidigare) {
     await lagring.laggTillILista(PRISLEAD_LISTA, post, 5000).catch((fel) => console.error('prislead: listan kunde inte sparas', fel));
     await mejla(post).catch((fel) => console.error('prislead: mejlet gick inte iväg', fel));

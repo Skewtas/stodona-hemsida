@@ -366,6 +366,10 @@
       "destination": "/mail-identifiering.html"
     },
     {
+      "source": "/sms-stopp/:kod",
+      "destination": "/api/lead-uppfoljning?avsluta=:kod"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
@@ -382,6 +386,10 @@
     {
       "path": "/api/instagram",
       "schedule": "30 4 * * 1"
+    },
+    {
+      "path": "/api/lead-uppfoljning",
+      "schedule": "5 * * * *"
     }
   ]
 }

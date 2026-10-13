@@ -167,6 +167,28 @@ export async function senasteIIndex(nyckel: string, antal: number): Promise<stri
   return Array.isArray(rader) ? rader.map(String) : [];
 }
 
+/** Medlemmar med poäng upp till och med gränsen, lägst först – t.ex. uppföljningar som har förfallit. */
+export async function upptillIIndex(nyckel: string, tillPoang: number, antal: number): Promise<string[]> {
+  if (LOKAL) {
+    return [...(minnesindex.get(nyckel) ?? new Map<string, number>()).entries()]
+      .filter(([, p]) => p <= tillPoang)
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, antal)
+      .map(([m]) => m);
+  }
+  const rader = await kv(['ZRANGEBYSCORE', nyckel, '-inf', String(tillPoang), 'LIMIT', '0', String(antal)]);
+  return Array.isArray(rader) ? rader.map(String) : [];
+}
+
+/** Tar bort en medlem ur ett sorterat index. */
+export async function taBortUrIndex(nyckel: string, medlem: string): Promise<void> {
+  if (LOKAL) {
+    minnesindex.get(nyckel)?.delete(medlem);
+    return;
+  }
+  await kv(['ZREM', nyckel, medlem]);
+}
+
 /** Rensar bort medlemmar med lägre poäng än gränsen (gamla samtal). */
 export async function rensaIndex(nyckel: string, underPoang: number): Promise<void> {
   if (LOKAL) {

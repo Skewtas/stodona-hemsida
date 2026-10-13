@@ -112,6 +112,13 @@ async function kunderMed(sokt: string): Promise<string[]> {
   return register.kunder.filter((k) => (sokt.includes('@') ? k.epost === sokt : k.mobiler.includes(sokt))).map((k) => k.nummer);
 }
 
+/** Finns mobilnumret på en aktiv kund i TimeWave? Används för att stoppa uppföljningar när ett lead har blivit kund. */
+export async function arKund(text: string): Promise<boolean> {
+  const mobil = mobilnummer(text);
+  if (!mobil || platshallare(mobil)) return false;
+  return (await kunderMed(mobil)).length > 0;
+}
+
 /** Mejlar koden från info@stodona.se (Resend – samma avsändare som bekräftelserna). */
 async function skickaMejl(epost: string, amne: string, text: string): Promise<{ ok: true } | { ok: false; fel: string }> {
   const nyckel = process.env.RESEND_API_KEY;

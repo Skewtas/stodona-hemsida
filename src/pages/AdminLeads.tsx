@@ -1,5 +1,6 @@
 import { Helmet } from "../seo";
 import { useState, useEffect } from 'react';
+import ChattLeads from '../components/ChattLeads';
 import { motion } from 'motion/react';
 import { 
   Lock, 
@@ -204,6 +205,9 @@ export default function AdminLeads() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Chattens leads med status och sms-uppföljning */}
+        <ChattLeads losenord={sessionStorage.getItem('leads-pwd') || password} />
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {[

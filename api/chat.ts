@@ -51,6 +51,7 @@ import { hamtaUtforda } from './_utforda';
 import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
 import { kontaktForIdentifieradKund } from './_kundkontakt';
 import { harKontakt, sparaKontakt } from './_prislead';
+import { noteraAktivitet, noteraPris, sattStatus } from './_leads';
 import { verifieradKund } from './_sjalvservice';
 import { personalNamn } from './_personal';
 import { internNyckelOk, EXTERNA_KANALER, logga as kanalLogga, markeraOverlamnad, markeraKraverAtgard, type Kanal } from './_kanaler';
@@ -176,6 +177,7 @@ TEKNISKT FÖR CHATTEN
   [[val: Alternativ ett | Alternativ två | Alternativ tre]]
   Kunden ser alternativen som knappar, så räkna inte upp dem i texten också. Högst sju alternativ – knappen "Annat" läggs till automatiskt, så skriv aldrig "Annat" själv. Inga knappar när kunden ska skriva något själv (namn, mejl, telefon, adress, storlek, datum). Högst en sådan rad per meddelande, och alltid sist.
 - GE ALDRIG FÖRSLAG DU INTE KAN LÖSA: föreslå aldrig en dag, tid, tjänst eller åtgärd som ett verktyg inte just har bekräftat, eller som du inte kan genomföra. Knappar med dagar och tider får bara innehålla det verktyget returnerade. Vet du inte om något går – kontrollera först med verktyget, och visa sedan bara det som fungerar. Gissa aldrig "dagen före eller efter".
+- UPPFÖLJNING MED SMS: när du ber om mobilnummer och e-post säger du i samma mening att vi kan höra av oss med sms om förslaget, t.ex. "Skriv ditt mobilnummer och din e-post, så räknar jag fram priset direkt – vi kan också höra av oss med sms om ditt förslag." Säger besökaren nej tack, att den inte är intresserad eller inte vill bli kontaktad: använd avsluta_uppfoljning och respektera det.
 - PRIS KRÄVER MOBILNUMMER OCH E-POST: frågar besökaren om pris, vad något kostar, eller visar intresse för att boka (ny kund), ber du först om mobilnummer och e-post i ETT kort meddelande, till exempel: "Absolut! Skriv ditt mobilnummer och din e-post, så räknar jag fram priset direkt åt dig." Spara dem med spara_kontakt – båda behövs. Ge ALDRIG ett pris, prisintervall, timpris eller exempelpris (inte heller ur exempelsamtalen) innan spara_kontakt lyckats. Vill besökaren inte lämna uppgifterna: förklara vänligt att vi behöver dem för att kunna skicka priset och hjälpa till vidare, och erbjud att räkna direkt så snart de finns. Har kunden identifierat sig med SMS-kod gäller inte detta – då får kunden priset direkt.
 - KAMPANJ 30 % ÅRET UT (gäller till och med 31 december 2026 – efter det finns den inte, nämn den då aldrig): 30 % rabatt på varje hemstädning till och med 31 december 2026 för den som tecknar städabonnemang med 6 eller 12 månaders bindning. Rabattkoden är TRETTI. Gäller inte 3 månaders eller ingen bindning, och inte flytt-, stor-, bygg- eller fönsterstädning. RUT-avdraget gäller som vanligt. Nämn kampanjen när någon vill boka hemstädning eller frågar om pris, rabatt eller erbjudanden – kort, en gång per samtal. Den som vill testa först får 15 % på provstädningen (se PROVSTÄDNING) och 30 % om den sedan fortsätter med bindning. Villkoren finns på stodona.se/kampanj. Befintliga abonnemang: kundservice svarar på frågor om de omfattas.
 - SÄLJAREN CAMILLA (masterprompt Camilla 2.0, 2026-10-13) – du är Stodonas säljare, inte en frågelåda. Varje kvalificerad förfrågan ska få bästa möjliga chans att bli en bokning, utan press och utan att du lovar något som inte står i FAKTA eller kommer från verktygen. Du säljer trygghet, bekvämlighet, kvalitet och tid tillbaka – inte städtimmar. Utöver säljprocessen i tillägg K gäller:
@@ -370,6 +372,15 @@ const VERKTYG: Anthropic.Tool[] = [
         behov: { type: 'string', description: 'Kort vad besökaren frågat om eller vill ha.' },
       },
       required: ['telefon', 'epost'],
+    },
+  },
+  {
+    name: 'avsluta_uppfoljning',
+    description:
+      'Stoppar Stodonas sms-uppföljning för den här besökaren. Använd när besökaren säger nej tack, inte är intresserad, redan har ordnat städning på annat håll, eller inte vill bli kontaktad. Ändrar inget annat.',
+    input_schema: {
+      type: 'object',
+      properties: { skal: { type: 'string', description: 'Kort varför, t.ex. "inte intresserad" eller "vill inte bli kontaktad".' } },
     },
   },
   {
@@ -808,7 +819,22 @@ async function forberedBokning(indata: Record<string, unknown>): Promise<string>
 }
 
 /** Kör ett verktygsanrop och returnerar texten som går tillbaka till modellen. */
-export async function koraVerktyg(
+export /**
+ * Håller leadets status i takt med samtalet: prisförslag, påbörjad bokning och
+ * överlämning till kundservice (som stoppar sms-uppföljningen – då tar en människa vid).
+ */
+async function leadEfterVerktyg(samtalsId: string, namn: string, indata: Record<string, unknown>, svar: string): Promise<void> {
+  if (namn === 'berakna_pris') {
+    const pris = /– (\d+) kr per tillfälle/.exec(svar);
+    if (pris) await noteraPris(samtalsId, { prisKr: Number(pris[1]), tjanst: rent(indata.tjanst, 40), kvm: String(Math.round(Number(indata.kvm)) || '') });
+  } else if (namn === 'forbered_bokning' && svar.startsWith('Bokningen är förberedd')) {
+    await sattStatus(samtalsId, 'bokning_paborjad', 'fick en förifylld bokningslänk');
+  } else if ((namn === 'skicka_lead' && svar.startsWith('Skickat')) || (namn === 'eskalera_till_kundservice' && svar.startsWith('Överlämnat'))) {
+    await sattStatus(samtalsId, 'overlamnad', namn === 'skicka_lead' ? 'kundservice hör av sig' : `ärende till kundservice: ${rent(indata.arende, 60)}`);
+  }
+}
+
+async function koraVerktyg(
   namn: string,
   indata: Record<string, unknown>,
   request: Request,
@@ -826,6 +852,10 @@ export async function koraVerktyg(
     const stopped = mailToolGate(namn, indata, mailReview);
     if (stopped !== null) return stopped;
     if (['hamta_bokningar','hamta_fakturor','hamta_utforda_stadningar','hitta_nya_tider','forbered_ombokning','forbered_avbokning','angra_ombokning'].includes(namn) && !await mailSessionVerified(samtalsId)) return 'Kunden behöver identifiera sig innan några kontouppgifter får hämtas. Avsluta med [[bankid]].';
+  }
+  if (namn === 'avsluta_uppfoljning') {
+    await sattStatus(samtalsId, 'nej', rent(indata.skal, 120) || 'kunden tackade nej i chatten').catch(() => null);
+    return 'Uppföljningen är stoppad – inga sms skickas. Bekräfta kort och vänligt, utan ny säljfråga.';
   }
   if (namn === 'spara_kontakt') {
     const telefon = giltigTelefon(rent(indata.telefon, 30));
@@ -1365,6 +1395,8 @@ export default async function handler(request: Request) {
   // Prislistan finns med först när besökaren lämnat mobilnummer och e-post
   // (eller är identifierad kund / personal). Uppdateras mitt i svaret när
   // spara_kontakt lyckas.
+  // Har besökaren lämnat kontaktuppgifter räknas uppföljningen från senaste aktivitet.
+  if (!personalchatt) await noteraAktivitet(samtalsId).catch(() => undefined);
   let medPriser = personalchatt || (await harKontakt(samtalsId).catch(() => false)) || (sjalv && Boolean(await verifieradKund(samtalsId).catch(() => null)));
   const mailIdentityStatus = mailReview
     ? await mailSessionVerified(samtalsId)
@@ -1493,6 +1525,8 @@ export default async function handler(request: Request) {
             const svar = await koraVerktyg(block.name, (block.input ?? {}) as Record<string, unknown>, request, samtalsId, sjalv, personalchatt, kanal, mailReview);
             if (mailReview && block.name !== 'mail_review') (mailReview.results ||= []).push({ tool: block.name, outcome: svar.slice(0, 600) });
             if (block.name === 'spara_kontakt' && svar.startsWith('Sparat')) medPriser = true;
+            // Leadets status följer det som händer i samtalet (api/_leads.ts).
+            if (!personalchatt) await leadEfterVerktyg(samtalsId, block.name, (block.input ?? {}) as Record<string, unknown>, svar).catch(() => undefined);
             // Varje steg loggas per samtal, så att det går att följa vad Camilla gjort (api/_kanaler.ts).
             if (kanal && !mailReview) await kanalLogga(samtalsId, `verktyg ${block.name}`, `${JSON.stringify(block.input ?? {}).slice(0, 200)} → ${svar.slice(0, 250)}`);
             if (!personalchatt && !mailReview) await registreraVerktyg(

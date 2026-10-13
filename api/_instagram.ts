@@ -863,9 +863,9 @@ async function metaAnrop(kanal: MetaKanal, metod: 'GET' | 'POST', sokvag: string
 export async function diagnos(prenumerera = false): Promise<Record<string, unknown>> {
   const ut: Record<string, unknown> = {};
   for (const kanal of ['instagram', 'messenger'] as MetaKanal[]) {
-    const konto = await metaAnrop(kanal, 'GET', kanal === 'instagram' ? '/me?fields=user_id,username,account_type' : '/me?fields=id,name');
-    const atgard = prenumerera && konto.ok ? await metaAnrop(kanal, 'POST', `/me/subscribed_apps?subscribed_fields=${FALT[kanal]}`) : null;
-    const pren = konto.ok ? await metaAnrop(kanal, 'GET', '/me/subscribed_apps') : null;
+    const konto = await metaAnrop(kanal, 'GET', kanal === 'instagram' ? '/me?fields=user_id,username,account_type' : '/me?fields=id');
+    const atgard = prenumerera ? await metaAnrop(kanal, 'POST', `/me/subscribed_apps?subscribed_fields=${FALT[kanal]}`) : null;
+    const pren = await metaAnrop(kanal, 'GET', '/me/subscribed_apps');
     ut[kanal] = {
       lage: kanalLage(kanal),
       hemlighetSatt: Boolean(plattform(kanal).hemlighet()),
@@ -873,7 +873,7 @@ export async function diagnos(prenumerera = false): Promise<Record<string, unkno
       token: konto.ok ? 'giltig' : 'FEL',
       konto: konto.data,
       ...(atgard ? { prenumerationSattes: atgard.data } : {}),
-      prenumeration: pren?.data ?? null,
+      prenumeration: pren.data,
     };
   }
   return ut;

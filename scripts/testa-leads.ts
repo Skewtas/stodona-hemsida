@@ -70,7 +70,7 @@ kolla('Utan samtycke skickas inget', antal(11) === 0);
 kolla('Flyttkund får ingen provstädningstext', !skickade.find((s) => s.mobil === mob(12))!.text.includes('15 %'));
 kolla('Hemstädkund får provstädningstexten och priset', skickade.find((s) => s.mobil === mob(1))!.text.includes('15 %') && skickade.find((s) => s.mobil === mob(1))!.text.includes('1255 kr'));
 kolla('Varje SMS har avregistreringslänk', skickade.every((s) => /\/sms-stopp\/[a-z0-9]{8}$/.test(s.text)));
-kolla('Varje SMS säger att det är Stodonas digitala assistent eller Camilla, Stodona', skickade.every((s) => /Camilla/.test(s.text) && /Stodona/.test(s.text)));
+kolla('Varje SMS är undertecknat Camilla och Stodona, utan "digital assistent"', skickade.every((s) => /Camilla/.test(s.text) && /Stodona/.test(s.text) && !/digital/i.test(s.text)));
 
 // Samma körning en gång till direkt: inga dubbletter.
 const fore = skickade.length;

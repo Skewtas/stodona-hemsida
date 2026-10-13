@@ -192,7 +192,7 @@ export function smsText(l: Lead, steg: number, bas: string): string {
   const slut = `\nInga fler sms: ${bas}/sms-stopp/${l.kod}`;
   const chatt = `${bas.replace(/^https?:\/\/(www\.)?/, '')}/chatt`;
   if (steg === 1) {
-    return `Hej${namn}! Det är Camilla, Stodonas digitala assistent. Har du några frågor om förslaget på ${tjanst}${pris}?${prova} Skriv till mig här: ${chatt}${slut}`;
+    return `Hej${namn}! Det är Camilla på Stodona. Har du några frågor om förslaget på ${tjanst}${pris}?${prova} Skriv till mig här: ${chatt}${slut}`;
   }
   if (steg === 2) {
     return `Hej igen${namn}! Vill du att jag tar fram lediga tider för din ${tjanst}? Det tar någon minut: ${chatt} /Camilla, Stodona${slut}`;

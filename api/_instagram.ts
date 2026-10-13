@@ -836,3 +836,45 @@ export async function hanteraHandelse(origin: string, kanal: MetaKanal, h: Hande
   if (!in_.text && !in_.payload && !in_.bilagor.length) return;
   await taEmot(origin, id, in_, kanal, kalla);
 }
+
+// ─── Felsökning av kopplingen till Meta ──────────────────────────────────────
+
+const FALT: Record<MetaKanal, string> = {
+  instagram: 'messages,messaging_postbacks,messaging_referral',
+  messenger: 'messages,messaging_postbacks,messaging_referrals',
+};
+
+async function metaAnrop(kanal: MetaKanal, metod: 'GET' | 'POST', sokvag: string): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  const t = await token(kanal);
+  if (!t) return { ok: false, data: { error: 'token saknas' } };
+  try {
+    const svar = await fetch(`${plattform(kanal).graph}/${VERSION}${sokvag}`, { method: metod, headers: { Authorization: `Bearer ${t}` }, signal: AbortSignal.timeout(10000) });
+    return { ok: svar.ok, data: (await svar.json().catch(() => ({}))) as Record<string, unknown> };
+  } catch (fel) {
+    return { ok: false, data: { error: String(fel).slice(0, 200) } };
+  }
+}
+
+/**
+ * Svarar på frågan "varför kommer inga meddelanden fram?": gäller token, vilket
+ * konto hör den till, och prenumererar kontot på appens webhook? Visar aldrig
+ * token eller hemligheter. Med prenumerera=true slås prenumerationen på.
+ */
+export async function diagnos(prenumerera = false): Promise<Record<string, unknown>> {
+  const ut: Record<string, unknown> = {};
+  for (const kanal of ['instagram', 'messenger'] as MetaKanal[]) {
+    const konto = await metaAnrop(kanal, 'GET', kanal === 'instagram' ? '/me?fields=user_id,username,account_type' : '/me?fields=id,name');
+    const atgard = prenumerera && konto.ok ? await metaAnrop(kanal, 'POST', `/me/subscribed_apps?subscribed_fields=${FALT[kanal]}`) : null;
+    const pren = konto.ok ? await metaAnrop(kanal, 'GET', '/me/subscribed_apps') : null;
+    ut[kanal] = {
+      lage: kanalLage(kanal),
+      hemlighetSatt: Boolean(plattform(kanal).hemlighet()),
+      testare: (plattform(kanal).testare() ?? '').split(',').filter((s) => s.trim()).length,
+      token: konto.ok ? 'giltig' : 'FEL',
+      konto: konto.data,
+      ...(atgard ? { prenumerationSattes: atgard.data } : {}),
+      prenumeration: pren?.data ?? null,
+    };
+  }
+  return ut;
+}

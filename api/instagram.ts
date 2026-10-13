@@ -11,7 +11,7 @@
 // Miljövariabler: INSTAGRAM_CHAT (av/test/pa), IG_TESTARE, IG_APP_SECRET,
 // IG_VERIFY_TOKEN, IG_ACCESS_TOKEN, KANAL_INTERN_NYCKEL (+ samma som chatten).
 
-import { giltigSignatur, hanteraHandelse, fornyaToken, lokalUtkorg, type Handelse } from './_instagram';
+import { giltigSignatur, hanteraHandelse, fornyaToken, diagnos, lokalUtkorg, type Handelse } from './_instagram';
 import { lika } from './_personal';
 
 export const config = { runtime: 'edge' };
@@ -34,6 +34,12 @@ export default async function handler(request: Request, context?: { waitUntil?: 
       const r = await fornyaToken();
       console.log(`instagram: token ${r.ok ? 'förnyad' : 'INTE förnyad'} – ${r.detaljer}`);
       return new Response(JSON.stringify(r), { status: r.ok ? 200 : 502, headers: { 'Content-Type': 'application/json' } });
+    }
+    // Felsökning av kopplingen till Meta (båda kanalerna). Kräver adminlösenordet.
+    if (url.searchParams.has('diagnos')) {
+      const pw = process.env.LEADS_ADMIN_PASSWORD ?? '';
+      if (!pw || !lika(request.headers.get('authorization') ?? '', `Bearer ${pw}`)) return text(401);
+      return new Response(JSON.stringify(await diagnos(url.searchParams.get('prenumerera') === 'ja'), null, 2), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     }
     // Lokalt: det som hade skickats till Instagram.
     if (process.env.STODONA_LOKAL === 'true' && url.searchParams.has('utkorg')) {

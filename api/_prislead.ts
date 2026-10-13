@@ -75,5 +75,5 @@ export async function sparaKontakt(samtalsId: string, lead: Omit<Prislead, 'tid'
     await lagring.laggTillILista(PRISLEAD_LISTA, post, 5000).catch((fel) => console.error('prislead: listan kunde inte sparas', fel));
     await mejla(post).catch((fel) => console.error('prislead: mejlet gick inte iväg', fel));
   }
-  return 'Sparat. Tacka kort och ge nu priset direkt med berakna_pris – kunden ska inte behöva fråga igen. Upprepa inte numret eller mejlen.';
+  return 'Sparat. Tacka kort och ge nu priset direkt med berakna_pris – kunden ska inte behöva fråga igen. Använd det kunden REDAN skrivit i samtalet (tjänst, storlek, hur ofta) och fråga bara efter det som verkligen saknas. Upprepa inte numret eller mejlen.';
 }

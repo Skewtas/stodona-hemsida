@@ -49,6 +49,7 @@ import {
 import { hamtaFakturor } from './_fakturor';
 import { hamtaUtforda } from './_utforda';
 import { forberedAvbokning, hamtaAvbokningskort, bekraftaAvbokning, AVBOKNING_ID } from './_avbokning';
+import { BESTALLNING_ID, BESTALLNING_PA, BESTALLNING_TJANSTER, bekraftaBestallning, forberedBestallning, hamtaBestallningskort } from './_bestallning';
 import { kontaktForIdentifieradKund } from './_kundkontakt';
 import { harKontakt, sparaKontakt } from './_prislead';
 import { noteraAktivitet, noteraPris, sattStatus } from './_leads';
@@ -111,7 +112,7 @@ Det här gäller före reglerna om ombokning och överlämning under TEKNISKT F�
   1. Kunden bokar hemstädningen och testar oss vid första tillfället, med 15 % rabatt på den städningen (kod STAD15) och utan bindningstid. 100 % nöjd-kund-garantin gäller redan då.
   2. Vill kunden INTE fortsätta efter första städningen avslutar vi utan kostnad – det är ett undantag vi gör för provstädningen. Kunden behåller sina 15 %.
   3. Vill kunden fortsätta får kunden 30 % rabatt på varje städning året ut (kod TRETTI) med 6 eller 12 månaders bindning.
-  30 %-rabatten går INTE att testa med – provstädningen är alltid 15 %. Priserna för provstädningen och för att fortsätta står i svaret från berakna_pris; räkna aldrig själv. Ge bokningslänken för provstädningen (den med koden ifylld). Till exempel: "Ja, absolut! Du testar oss vid första städningen med 15 % rabatt och utan bindning. Vill du inte fortsätta efteråt avslutar vi utan kostnad – och vill du fortsätta får du 30 % på varje städning året ut. Ska jag räkna fram ditt pris?" Säg ALDRIG att du inte vet om vi har provstädning eller att kundservice får svara på det.
+  30 %-rabatten går INTE att testa med – provstädningen är alltid 15 %. Priserna för provstädningen och för att fortsätta står i svaret från berakna_pris; räkna aldrig själv. Vill kunden boka provstädningen: beställ den här i chatten med forbered_bestallning, rabattkod STAD15 och bindningstid 0 (se BESTÄLLNING I CHATTEN). Finns inte det verktyget: ge bokningslänken för provstädningen (den med koden ifylld). Till exempel: "Ja, absolut! Du testar oss vid första städningen med 15 % rabatt och utan bindning. Vill du inte fortsätta efteråt avslutar vi utan kostnad – och vill du fortsätta får du 30 % på varje städning året ut. Ska jag räkna fram ditt pris?" Säg ALDRIG att du inte vet om vi har provstädning eller att kundservice får svara på det.
 - SÄGER DU ATT KUNDSERVICE SVARAR PÅ NÅGOT ska du också lämna över i samma svar (skicka_lead eller eskalera_till_kundservice). Skriv aldrig "det kan kundservice svara på" utan att ett ärende skapas.
 - TELEFON: uppmana ALDRIG kunden att ringa, och skriv aldrig ut telefonnumret på eget initiativ – inte heller som alternativ ("vill du hellre prata med någon…"). Erbjud i stället att kundservice hör av sig, och lämna över. Bara om kunden uttryckligen ber om telefonnumret får du ge det.
 - GISSA ALDRIG: vet du inte vad en uppgift på en faktura eller bokning betyder (en förkortning, en rad, ett belopp), säg inte vad den "kan" betyda. Säg att kundservice svarar på just det och ta med frågan i ärendet.
@@ -184,7 +185,8 @@ TEKNISKT FÖR CHATTEN
   · BEHOV: ta reda på tjänst, storlek, område, önskad start och engångs- eller återkommande behov – men fråga ALDRIG efter något kunden redan har sagt i samtalet. Högst en fråga per meddelande.
   · VÄRDE: koppla det du säger till kundens situation med EN verifierad fördel åt gången (t.ex. "du behöver inte vara hemma", "vi strävar efter samma städare varje gång"). Rabbla aldrig en lista.
   · NÄSTA STEG: avsluta varje säljande svar med ett konkret nästa steg som kunden kan säga ja till – räkna pris, visa tider, boka första tillfället. Lämna aldrig kunden utan en väg framåt.
-  · BEKRÄFTELSE: innan bokningslänken – sammanfatta tjänst, storlek, hur ofta, pris och tid i en mening. Säg aldrig att något är bokat; det är det först när kunden slutfört bokningen.
+  · BEKRÄFTELSE: säg aldrig att något är bokat förrän systemet skrivit att beställningen är klar.
+- BESTÄLLNING I CHATTEN (gäller när verktyget forbered_bestallning finns): kunden kan beställa hemstädning, storstädning, flyttstädning och byggstädning hela vägen här i chatten – erbjud det i stället för bokningslänken. Gång: (1) pris med berakna_pris, (2) för återkommande hemstädning: fråga om bindningstid med [[val: 12 månader | 6 månader | 3 månader | Ingen bindning]] och nämn kort att längre bindning ger lägre pris, (3) fråga om kunden har en rabattkod – utom när reglerna redan ger koden (provstädning STAD15 utan bindning, kampanjen TRETTI vid 6 eller 12 månader); fråga i så fall inte, använd den, (4) adress och lediga tider med visa_lediga_tider, (5) för- och efternamn, e-post, telefon och hur vi kommer in – en sak i taget, och aldrig det kunden redan sagt, (6) forbered_bestallning. Svara sedan med en kort mening och avsluta med raden [[bekrafta:…]] exakt som verktyget anger – då visas ett kort med sammanfattning, pris, ruta för personnummer, villkoren och knappen Beställ. Be ALDRIG om personnummer i chatten – det fyller kunden i kortet. Säger verktyget att rabattkoden inte gäller: säg det med bokningssystemets ord och fråga hur kunden vill göra. Fönsterputsning och företagsstädning bokas med forbered_bokning (länk).
 - INVÄNDNINGAR – alltid i tre led i ETT kort svar: (1) bekräfta att du förstår, (2) ta reda på vad som ligger bakom ELLER lös det direkt med fakta, (3) föreslå ett nästa steg. Aldrig press, aldrig osanna jämförelser, aldrig egna rabatter – bara de erbjudanden som står i reglerna (provstädning 15 %, kampanjen 30 %, lägre pris med bindningstid).
   · "Det är för dyrt": fråga om det är totalkostnaden kunden vill få ner eller om kunden vill veta mer om vad som ingår. Vägar som finns: provstädningen, bindningstid (lägre pris per gång), kampanjen, glesare städning (färre tillfällen ger lägre totalkostnad – priserna hämtar du med berakna_pris). Sänk aldrig priset själv.
   · "Jag ska fundera": "Absolut! Är det något särskilt du är osäker på som jag kan hjälpa dig reda ut?" Vill kunden ändå vänta: respektera det, och erbjud att kundservice hör av sig när det passar.
@@ -313,7 +315,7 @@ const TJANSTER = ['Hemstädning', 'Storstädning', 'Flyttstädning', 'Fönsterpu
 const FREKVENSER = ['Engång', 'Varje vecka', 'Varannan vecka', 'Var tredje vecka', 'Var fjärde vecka'];
 const NYCKELHANTERING = [
   'Jag är hemma och öppnar',
-  'Jag lämnar nyckel på kontoret i Sundbyberg',
+  'Jag lämnar nyckel på kontoret i Solna',
   'Annat sätt (beskriv i rutan ovan)',
 ];
 const BOKNING_BAS = process.env.BOKNING_BAS || 'https://boka.stodona.se';
@@ -452,6 +454,42 @@ const VERKTYG: Anthropic.Tool[] = [
 // för anropet (testläget eller personalchatten) – i den vanliga chatten kan
 // modellen inte ens försöka hämta kunduppgifter.
 /** Bara i personalchatten: välj kund på namn eller kundnummer. */
+
+/** Beställning hela vägen i webbchatten (api/_bestallning.ts). Inte i Instagram/Messenger – där finns inget kort. */
+const BESTALLNING_VERKTYG: Anthropic.Tool = {
+  name: 'forbered_bestallning',
+  description:
+    `Tar fram en beställning som kunden genomför direkt i chatten: kontrollerar rabattkoden, räknar priset i bokningssystemets prismotor och kontrollerar att tiden är ledig. Bokar INGENTING – systemet visar ett kort där kunden fyller i personnummer för RUT-avdraget, godkänner villkoren och trycker Beställ. Gäller ${BESTALLNING_TJANSTER.join(', ')} för privatpersoner. Använd när kunden vill boka och du har: tjänst, storlek, hur ofta (och bindningstid för återkommande hemstädning), datum och tid från visa_lediga_tider, för- och efternamn, e-post, telefon, gatuadress, postnummer, ort och hur vi kommer in. Fråga en sak i taget. Fråga ALDRIG efter personnummer – det fyller kunden i kortet.`,
+  input_schema: {
+    type: 'object',
+    properties: {
+      tjanst: { type: 'string', enum: BESTALLNING_TJANSTER },
+      kvm: { type: 'number', description: 'Bostadens storlek i kvadratmeter.' },
+      frekvens: { type: 'string', enum: FREKVENSER, description: 'Bara hemstädning kan vara återkommande. Övriga tjänster: Engång.' },
+      bindningstid: { type: 'number', enum: [0, 3, 6, 12], description: 'Månader. Bara för återkommande hemstädning – fråga kunden. 0 = ingen bindning. Övriga: 0.' },
+      tillval: {
+        type: 'array',
+        items: { type: 'string', enum: ['Ugnsrengöring', 'Fönsterputsning', 'Balkongstädning', 'Extra timma', 'Vika kläder', 'Avtorkning av möbler (ej lösöre)', 'Inglasad balkong (halv)', 'Inglasad balkong (hel)'] },
+        description: 'Bara om kunden själv bett om tillval. Hem- och storstädning: Ugnsrengöring, Fönsterputsning, Balkongstädning, Extra timma, Vika kläder. Flyttstädning: Balkongstädning, Avtorkning av möbler (ej lösöre), Inglasad balkong (halv)/(hel).',
+      },
+      rabattkod: { type: 'string', description: 'Rabattkod som kunden angett eller som reglerna anger (STAD15 vid provstädning, TRETTI vid kampanjen). Utelämna annars.' },
+      datum: { type: 'string', description: 'ÅÅÅÅ-MM-DD, en dag som visa_lediga_tider bekräftat.' },
+      tid: { type: 'string', description: 'HH:MM, en av de lediga tiderna.' },
+      fornamn: { type: 'string' },
+      efternamn: { type: 'string' },
+      epost: { type: 'string' },
+      telefon: { type: 'string' },
+      gatuadress: { type: 'string' },
+      postnummer: { type: 'string' },
+      ort: { type: 'string' },
+      nyckelhantering: { type: 'string', enum: NYCKELHANTERING, description: 'Hur vi kommer in.' },
+      husdjur: { type: 'boolean', description: 'Sant om det finns husdjur i hemmet.' },
+      meddelande: { type: 'string', description: 'Övrigt kunden vill att städaren vet.' },
+    },
+    required: ['tjanst', 'kvm', 'frekvens', 'datum', 'tid', 'fornamn', 'efternamn', 'epost', 'telefon', 'gatuadress', 'postnummer', 'ort', 'nyckelhantering'],
+  },
+};
+
 const PERSONAL_VERKTYG: Anthropic.Tool[] = [
   {
     name: 'sok_kund',
@@ -605,7 +643,7 @@ function giltigTelefon(v: string): string {
 // ─── Verktyg ─────────────────────────────────────────────────────────────────
 
 /** Frågar prismotorn via vår egen proxy och formulerar underlaget till boten. */
-async function beraknaPris(indata: Record<string, unknown>, request: Request): Promise<string> {
+async function beraknaPris(indata: Record<string, unknown>, request: Request, kanBestalla = false): Promise<string> {
   const tjanst = TJANSTER.find((t) => t.toLowerCase() === rent(indata.tjanst, 40).toLowerCase());
   if (!tjanst) return `Okänd tjänst. Prismotorn kan bara räkna på: ${TJANSTER.join(', ')}.`;
 
@@ -668,7 +706,9 @@ async function beraknaPris(indata: Record<string, unknown>, request: Request): P
       bindning && `Med bindningstid: ${bindning}.`,
       prov,
       `Förifylld bokningslänk${abonnemang ? ' (utan rabattkod)' : ''}: ${lank.toString()}`,
-      'Ge kunden priset i en mening, nämn det lägsta bindningspriset om det är relevant, och ge länken så kunden bara behöver välja tid. Skriv inte ut listan med alla bindningstider om kunden inte frågar.',
+      kanBestalla && BESTALLNING_TJANSTER.includes(tjanst)
+        ? 'Ge kunden priset i en mening, nämn det lägsta bindningspriset om det är relevant, och erbjud att boka direkt här i chatten (BESTÄLLNING I CHATTEN). Ge länken bara om kunden hellre vill boka själv. Skriv inte ut listan med alla bindningstider om kunden inte frågar.'
+        : 'Ge kunden priset i en mening, nämn det lägsta bindningspriset om det är relevant, och ge länken så kunden bara behöver välja tid. Skriv inte ut listan med alla bindningstider om kunden inte frågar.',
     ]
       .filter(Boolean)
       .join(' ');
@@ -849,7 +889,7 @@ async function leadEfterVerktyg(samtalsId: string, namn: string, indata: Record<
   if (namn === 'berakna_pris') {
     const pris = /– (\d+) kr per tillfälle/.exec(svar);
     if (pris) await noteraPris(samtalsId, { prisKr: Number(pris[1]), tjanst: rent(indata.tjanst, 40), kvm: String(Math.round(Number(indata.kvm)) || '') });
-  } else if (namn === 'forbered_bokning' && svar.startsWith('Bokningen är förberedd')) {
+  } else if ((namn === 'forbered_bokning' && svar.startsWith('Bokningen är förberedd')) || (namn === 'forbered_bestallning' && svar.startsWith('Beställningen är granskad'))) {
     await sattStatus(samtalsId, 'bokning_paborjad', 'fick en förifylld bokningslänk');
   } else if ((namn === 'skicka_lead' && svar.startsWith('Skickat')) || (namn === 'eskalera_till_kundservice' && svar.startsWith('Överlämnat'))) {
     await sattStatus(samtalsId, 'overlamnad', namn === 'skicka_lead' ? 'kundservice hör av sig' : `ärende till kundservice: ${rent(indata.arende, 60)}`);
@@ -901,10 +941,14 @@ async function koraVerktyg(
     // Priset ges först när besökaren lämnat mobilnummer och e-post (Mikaela 2026-09-30).
     const fri = personalchatt || (await harKontakt(samtalsId)) || (sjalv && Boolean(await verifieradKund(samtalsId)));
     if (!fri) return 'PRISET ÄR LÅST: be först om mobilnummer och e-post i ett kort meddelande, spara dem med spara_kontakt och ge sedan priset. Nämn inget pris innan dess.';
-    return beraknaPris(indata, request);
+    return beraknaPris(indata, request, BESTALLNING_PA && !kanal);
   }
   if (namn === 'visa_lediga_tider') return ledigaTider(indata);
   if (namn === 'forbered_bokning') return forberedBokning(indata);
+  if (namn === 'forbered_bestallning') {
+    if (!BESTALLNING_PA || kanal) return 'Beställning går inte att göra här. Använd forbered_bokning så får kunden en förifylld länk.';
+    return forberedBestallning(samtalsId, indata, kundAvsandare(request));
+  }
 
   if (sjalv && personalchatt) {
     if (namn === 'sok_kund') return sokKund(samtalsId, rent(indata.namn, 80));
@@ -1288,6 +1332,52 @@ async function sjalvserviceHandling(body: Record<string, unknown>, samtalsId: st
   return fel(400, 'Okänd handling.');
 }
 
+/** Kundens IP och webbläsare – följer med till bokningssystemet så spärrarna gäller kunden. */
+function kundAvsandare(request: Request): { ip: string; ua: string } {
+  return {
+    ip: (request.headers.get('x-forwarded-for') || '').split(',')[0].trim().slice(0, 64) || 'okand',
+    ua: (request.headers.get('user-agent') || '').slice(0, 300),
+  };
+}
+
+/**
+ * Beställningskortets knappar. Som självservicens: modellen är aldrig
+ * inblandad, och personnumret går direkt till bokningssystemet – det sparas
+ * varken i samtalet, i lagringen eller i loggen.
+ */
+async function bestallningHandling(body: Record<string, unknown>, samtalsId: string, request: Request): Promise<Response> {
+  const svara = (data: unknown) => new Response(JSON.stringify(data), { headers: JSON_HEADERS });
+  const id = rent(body.forslagId, 20);
+  if (body.handling === 'kort') {
+    const kort = await hamtaBestallningskort(samtalsId, id);
+    return kort ? svara(kort) : fel(404, 'Sammanfattningen finns inte.');
+  }
+  if (body.handling === 'bekrafta') {
+    if (await overTaket(`chat:bestall:${samtalsId}:${Math.floor(Date.now() / 60000)}`, 5, 120)) {
+      return fel(429, 'För många försök just nu. Vänta en minut.');
+    }
+    const resultat = await bekraftaBestallning(
+      samtalsId,
+      id,
+      {
+        personnummer: typeof body.personnummer === 'string' ? body.personnummer.slice(0, 20) : '',
+        villkor: body.villkor === true,
+        bindning: body.bindning === true,
+      },
+      kundAvsandare(request)
+    );
+    const historik = await hamtaSamtal(samtalsId);
+    historik.push(
+      { role: 'user', content: '[Kunden tryckte på "Beställ" i beställningskortet.]' },
+      { role: 'assistant', content: resultat.text }
+    );
+    await sparaSamtal(samtalsId, historik);
+    if (resultat.utfall === 'SUCCESS') await sattStatus(samtalsId, 'bokad', 'beställde i chatten').catch(() => null);
+    return svara(resultat);
+  }
+  return fel(400, 'Okänd handling.');
+}
+
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return fel(405, 'Method not allowed');
 
@@ -1358,6 +1448,9 @@ export default async function handler(request: Request) {
     return new Response(JSON.stringify({ ok: true }), { headers: JSON_HEADERS });
   }
 
+  if (typeof body.handling === 'string' && BESTALLNING_ID.test(rent(body.forslagId, 20))) {
+    return kanal ? fel(404, 'Finns inte.') : bestallningHandling(body, samtalsId, request);
+  }
   if (typeof body.handling === 'string') {
     return sjalv ? sjalvserviceHandling(body, samtalsId, personal, new URL(request.url).origin) : fel(404, 'Finns inte.');
   }
@@ -1463,7 +1556,11 @@ export default async function handler(request: Request) {
           cache_control: { type: 'ephemeral' },
         },
       ],
-      tools: [...(personalchatt ? [...VERKTYG, ...SJALV_VERKTYG, ...PERSONAL_VERKTYG] : sjalv ? [...VERKTYG, ...SJALV_VERKTYG] : VERKTYG), ...(mailReview ? [mailReviewTool] : [])],
+      tools: [
+        ...(personalchatt ? [...VERKTYG, ...SJALV_VERKTYG, ...PERSONAL_VERKTYG] : sjalv ? [...VERKTYG, ...SJALV_VERKTYG] : VERKTYG),
+        ...(BESTALLNING_PA && !kanal ? [BESTALLNING_VERKTYG] : []),
+        ...(mailReview ? [mailReviewTool] : []),
+      ],
       messages: [...forClaude(meddelanden), tidsstampel],
     });
 

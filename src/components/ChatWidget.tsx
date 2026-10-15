@@ -144,7 +144,7 @@ const SIMULERINGAR: { lage: Testlage["simulera"]; etikett: string }[] = [
   { lage: "overifierad", etikett: "Går inte att verifiera" },
 ];
 
-async function sjalvservice<T>(handling: string, extra: Record<string, string> = {}): Promise<T | null> {
+async function sjalvservice<T>(handling: string, extra: Record<string, string | boolean> = {}): Promise<T | null> {
   try {
     const svar = await fetch("/api/chat", {
       method: "POST",
@@ -342,8 +342,9 @@ const ADRESS = /((?<![\w@.-])(?:https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}|(?
  */
 function delaUppVal(text: string): { text: string; val: string[]; bankid: boolean; bekrafta: string | null } {
   let val: string[] = [];
-  // [[bekrafta:OF-…]] (ombokning) eller [[bekrafta:AV-…]] (avbokning) visas som ett kort.
-  const kort = text.match(/\[\[\s*bekrafta\s*:\s*((?:OF|AV)-[A-Z0-9]{8})\s*\]\]/i);
+  // [[bekrafta:OF-…]] (ombokning), [[bekrafta:AV-…]] (avbokning) eller
+  // [[bekrafta:BE-…]] (beställning) visas som ett kort.
+  const kort = text.match(/\[\[\s*bekrafta\s*:\s*((?:OF|AV|BE)-[A-Z0-9]{8})\s*\]\]/i);
   text = text.replace(/\[\[\s*bekrafta\s*:[^\]]*\]\]/gi, "");
   // [[bankid]] betyder att kunden ska erbjudas legitimering. Raden blir en knapp.
   const bankid = /\[\[\s*bankid\s*\]\]/i.test(text);
@@ -531,6 +532,202 @@ function Ombokningskort({
       ) : (
         <p className="mt-3 text-xs font-medium text-text-secondary">
           {kort.status === "klar" ? "✓ Genomförd" : kort.status === "misslyckad" ? "Inte genomförd" : "Sammanfattningen har gått ut"}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Beställningskortet. Innehållet kommer från bokningssystemets granskning, aldrig från modellens text. */
+interface Bestallningskort {
+  typ: "bestallning";
+  id: string;
+  sammanfattning: {
+    tjanst: string;
+    kvm: number;
+    frekvens: string;
+    bindningManader: number;
+    tillval: string[];
+    datumText: string;
+    tid: string;
+    adress: string;
+    namn: string;
+    epost: string;
+    telefon: string;
+    nyckel: string;
+    rabattkod: string | null;
+    rabattProcent: number;
+    rabattProcentDarefter: number | null;
+    prisKr: number;
+    prisForeRutKr: number | null;
+    prisDarefterKr: number | null;
+  };
+  avbokningsregel: string;
+  status: "vantar" | "klar" | "misslyckad" | "utgangen";
+}
+
+const kr = (n: number) => `${n.toLocaleString("sv-SE")} kr`;
+
+function Bestallningskort({
+  id,
+  upptagen,
+  laddaOm,
+  onBestall,
+  onAvbryt,
+}: {
+  id: string;
+  upptagen: boolean;
+  laddaOm: number;
+  onBestall: (id: string, uppgifter: { personnummer: string; villkor: boolean; bindning: boolean }) => Promise<void>;
+  onAvbryt: () => void;
+}) {
+  const [kort, setKort] = useState<Bestallningskort | null>(null);
+  const [saknas, setSaknas] = useState(false);
+  const [genomfor, setGenomfor] = useState(false);
+  const [personnummer, setPersonnummer] = useState("");
+  const [villkor, setVillkor] = useState(false);
+  const [bindning, setBindning] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (kort?.status === "vantar") ref.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, [kort?.status]);
+
+  useEffect(() => {
+    let aktiv = true;
+    sjalvservice<Bestallningskort>("kort", { forslagId: id }).then((k) => {
+      if (!aktiv) return;
+      if (k) setKort(k);
+      else setSaknas(true);
+    });
+    return () => {
+      aktiv = false;
+    };
+  }, [id, laddaOm]);
+
+  if (saknas) return null;
+  if (!kort) {
+    return (
+      <div className="ml-9 mt-2 text-xs text-text-secondary flex items-center gap-2">
+        <Loader2 className="w-3 h-3 animate-spin" /> Hämtar beställningen…
+      </div>
+    );
+  }
+
+  const s = kort.sammanfattning;
+  const vantar = kort.status === "vantar";
+  const aterkommande = s.frekvens !== "Engång";
+  const pnrOk = /^(19|20)?\d{6}[-+]?\d{4}$/.test(personnummer.replace(/\s/g, ""));
+  const kanBestalla = pnrOk && villkor && (s.bindningManader === 0 || bindning);
+  const fas = (t: string) => <p className="text-[11px] uppercase tracking-wide text-text-secondary">{t}</p>;
+
+  return (
+    <div ref={ref} data-no-translate className="ml-9 mt-2 max-w-[85%] rounded-2xl border border-text-primary/15 bg-white p-4 text-sm text-text-primary shadow-sm">
+      <p className="font-bold">Din beställning</p>
+
+      <div className="mt-3 space-y-1">
+        {fas("Städning")}
+        <p className="font-medium">
+          {s.tjanst}, {s.kvm} kvm{aterkommande ? ` – ${s.frekvens.toLowerCase()}` : ""}
+        </p>
+        <p>
+          {versal(s.datumText)} kl. {s.tid}
+          {aterkommande ? " (första tillfället)" : ""}
+        </p>
+        {s.tillval.length > 0 && <p className="text-text-secondary">Tillval: {s.tillval.join(", ")}</p>}
+        {aterkommande && s.tjanst === "Hemstädning" && (
+          <p className="text-text-secondary">{s.bindningManader > 0 ? `${s.bindningManader} månaders bindningstid` : "Ingen bindningstid"}</p>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-1">
+        {fas("Adress och kontakt")}
+        <p>{s.adress}</p>
+        <p className="text-text-secondary">{s.namn} · {s.epost} · {s.telefon}</p>
+        <p className="text-text-secondary">{s.nyckel}</p>
+      </div>
+
+      <div className="mt-3 rounded-xl bg-bg-primary px-3 py-2 space-y-1">
+        <p className="font-medium">
+          {kr(s.prisKr)}
+          {aterkommande ? " per tillfälle" : ""} <span className="font-normal text-text-secondary">efter RUT-avdrag</span>
+        </p>
+        {s.prisForeRutKr !== null && <p className="text-xs text-text-secondary">{kr(s.prisForeRutKr)} före RUT-avdrag</p>}
+        {s.rabattkod && (
+          <p className="text-xs text-emerald-800">
+            Rabattkod {s.rabattkod}: {s.rabattProcent} %{s.rabattProcentDarefter !== null ? " på första städningen" : ""} inräknat
+          </p>
+        )}
+        {s.prisDarefterKr !== null && <p className="text-xs text-text-secondary">Därefter {kr(s.prisDarefterKr)} per tillfälle</p>}
+        <p className="text-xs text-text-secondary">Betalas mot faktura efter utförd städning, 10 dagars betalningsvillkor.</p>
+      </div>
+
+      {vantar ? (
+        <>
+          <label className="mt-4 block">
+            <span className="text-xs font-medium">Personnummer för RUT-avdraget</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="ÅÅÅÅMMDD-XXXX"
+              value={personnummer}
+              onChange={(e) => setPersonnummer(e.target.value.slice(0, 15))}
+              className="mt-1 w-full rounded-xl border border-text-primary/20 px-3 py-2 text-sm focus:outline-none focus:border-text-primary"
+            />
+            <span className="mt-1 block text-[11px] text-text-secondary">Går direkt till bokningssystemet och syns inte i chatten.</span>
+          </label>
+
+          <label className="mt-3 flex items-start gap-2 text-xs">
+            <input type="checkbox" checked={villkor} onChange={(e) => setVillkor(e.target.checked)} className="mt-0.5" />
+            <span>
+              Jag godkänner Stodonas{" "}
+              <a href="/villkor" target="_blank" rel="noopener noreferrer" className="underline">
+                allmänna villkor
+              </a>
+              . {kort.avbokningsregel}
+            </span>
+          </label>
+          {s.bindningManader > 0 && (
+            <label className="mt-2 flex items-start gap-2 text-xs">
+              <input type="checkbox" checked={bindning} onChange={(e) => setBindning(e.target.checked)} className="mt-0.5" />
+              <span>
+                Jag godkänner {s.bindningManader} månaders bindningstid från första städningen. Därefter löper abonnemanget vidare med 1 månads
+                uppsägningstid. Avslutar jag i förtid efterdebiteras mellanskillnaden upp till obundet pris.
+              </span>
+            </label>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={upptagen || genomfor || !kanBestalla}
+              onClick={async () => {
+                setGenomfor(true);
+                try {
+                  await onBestall(kort.id, { personnummer: personnummer.trim(), villkor, bindning });
+                } finally {
+                  setGenomfor(false);
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl bg-bg-dark text-text-light font-medium hover:bg-accent hover:text-text-primary transition-colors disabled:opacity-40 inline-flex items-center gap-2"
+            >
+              {genomfor && <Loader2 className="w-4 h-4 animate-spin" />}
+              {genomfor ? "Beställer…" : `Beställ – ${kr(s.prisKr)}`}
+            </button>
+            <button
+              type="button"
+              disabled={upptagen || genomfor}
+              onClick={onAvbryt}
+              className="px-4 py-2.5 rounded-xl border border-text-primary/20 hover:border-text-primary transition-colors disabled:opacity-40"
+            >
+              Ändra något
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="mt-3 text-xs font-medium text-text-secondary">
+          {kort.status === "klar" ? "✓ Beställd" : kort.status === "misslyckad" ? "Inte beställd" : "Sammanfattningen har gått ut"}
         </p>
       )}
     </div>
@@ -1045,6 +1242,28 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
     if (resultat?.fortsatt) await skicka(resultat.fortsatt, [], true);
   }
 
+  /**
+   * Kunden tryckte "Beställ". Bokningen görs av servern – inte av Camilla –
+   * och det är serverns svar som visas. Personnumret går bara i det här
+   * anropet; det läggs aldrig i samtalet.
+   */
+  async function bestall(id: string, uppgifter: { personnummer: string; villkor: boolean; bindning: boolean }) {
+    if (skriver) return;
+    type Svar = { utfall: string; text: string; fortsatt?: string };
+    const resultat = await sjalvservice<Svar>("bekrafta", { forslagId: id, ...uppgifter });
+    const text = resultat?.text ?? "Jag kunde inte nå bokningssystemet, så ingenting är beställt. Försök igen om en stund.";
+    // Rättbara fel i kortet (personnummer, kryssrutor) – kortet står kvar, inget nytt meddelande från kunden.
+    const nya: Meddelande[] =
+      resultat?.utfall === "OGILTIGT_FORSLAG" || resultat?.utfall === "PAGAR_REDAN"
+        ? [...meddelandenRef.current, { roll: "assistant", text }]
+        : [...meddelandenRef.current, { roll: "user", text: "Beställ" }, { roll: "assistant", text }];
+    meddelandenRef.current = nya;
+    setMeddelanden(nya);
+    setKortVersion((v) => v + 1);
+    track("chat_bestallning", { utfall: resultat?.utfall ?? "natverksfel" });
+    if (resultat?.fortsatt) await skicka(resultat.fortsatt, [], true);
+  }
+
   /** @param dold skickas till Camilla utan att synas som kundens bubbla (systemets egna fortsättningar). */
   async function skicka(fraga: string, filer: ValdFil[] = [], dold = false) {
     const rensad = fraga.trim();
@@ -1250,7 +1469,16 @@ export default function ChatWidget({ lage }: { lage?: "personal" } = {}) {
                         )}
                       </div>
                     </div>
-                    {sjalvservicePa && kortId && !skrivsNu && (
+                    {kortId?.startsWith("BE-") && !skrivsNu && (
+                      <Bestallningskort
+                        id={kortId}
+                        upptagen={skriver}
+                        laddaOm={kortVersion}
+                        onBestall={bestall}
+                        onAvbryt={() => skicka("Jag vill ändra något i beställningen.")}
+                      />
+                    )}
+                    {sjalvservicePa && kortId && !kortId.startsWith("BE-") && !skrivsNu && (
                       <Ombokningskort
                         id={kortId}
                         upptagen={skriver}
